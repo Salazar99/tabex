@@ -1,0 +1,8 @@
+[package]
+name = "stlcc"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "stlcc"
+path = "src/main.rs"
