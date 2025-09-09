@@ -6,3 +6,6 @@ edition = "2024"
 [[bin]]
 name = "stlcc"
 path = "src/main.rs"
+
+[dependencies]
+nom = "8.0.0"

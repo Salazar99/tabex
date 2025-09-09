@@ -25,18 +25,17 @@ impl Node {
         let mut times: Vec<i64> = Vec::new();
         for operand in &self.operands {
             match operand {
-                Formula::G { lower, upper, .. } | Formula::F { lower, upper, .. } | Formula::U { lower, upper, .. } => {
-                    times.push(*lower);
-                    times.push(*upper);
+                Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => {
+                    times.push(interval.lower);
+                    times.push(interval.upper);
                 }
                 Formula::O(inner) => {
-                    if let Formula::G { lower, upper, .. } | Formula::F { lower, upper, .. } | Formula::U { lower, upper, .. } = **inner {
-                        times.push(lower);
-                        times.push(upper);
+                    if let Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } = &**inner {
+                        times.push(interval.lower);
+                        times.push(interval.upper);
                     }
                 }
                 _ => {}
-                
             }
         }
         times.sort_unstable();

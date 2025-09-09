@@ -62,13 +62,12 @@ impl Node {
                 Formula::Or(operands) => {
                     vec![Formula::Or(operands.iter().flat_map(|op| modify_argument(op, current_time)).collect())]
                 }
-                Formula::F { lower, upper, phi } | Formula::G { lower, upper, phi } => {
+                Formula::F { interval, phi, .. } | Formula::G { interval, phi, .. } => {
                     let mut extract = arg.clone();
-                    if let Formula::F { lower: ref mut l, upper: ref mut u, .. }
-                        | Formula::G { lower: ref mut l, upper: ref mut u, .. } = extract
+                    if let Formula::F { interval: ref mut int, .. } | Formula::G { interval: ref mut int, .. } = extract
                     {
-                        *l = lower + current_time;
-                        *u = upper + current_time;
+                        int.lower = interval.lower + current_time;
+                        int.upper = interval.upper + current_time;
                     }
                     vec![extract]
                 }
@@ -79,16 +78,16 @@ impl Node {
         let mut g_nodes: Vec<Formula> = Vec::new();
 
         for i in 0..new_node.operands.len() {
-            if let Formula::G { lower, upper, phi } = &new_node.operands[i] {
-                if *lower == self.current_time {
+            if let Formula::G { interval, phi, .. } = &new_node.operands[i] {
+                if interval.lower == self.current_time {
                     let new_operand = new_node.operands[i].clone();
                     g_nodes.push(new_operand.clone());
-                    if *lower < *upper {
+                    if interval.lower < interval.upper {
                         new_node.operands[i] = Formula::O(Box::new(new_operand));
                     } else {
                         if check_boolean_closure(&phi) &&
                             new_node.operands.iter().enumerate().any(|(j, other)| 
-                                j != i && other.lower_bound() == Some(*lower)
+                                j != i && other.lower_bound() == Some(interval.lower)
                             ) {
                             new_node.jump1 = true;
                         }
@@ -100,7 +99,7 @@ impl Node {
         new_node.operands.retain(|f| !matches!(f, Formula::True));
 
         for node in &g_nodes {
-            if let Formula::G { lower, upper, phi } = node {
+            if let Formula::G { interval, phi, .. } = node {
                 let new_operands = modify_argument(phi, self.current_time);
                 if !new_operands.is_empty() {
                     new_node.operands.extend(new_operands);
@@ -138,24 +137,24 @@ impl Node {
                 _ => matches!(formula, Formula::Prop(_)),
             }
         }
-        fn modify_argument(arg: &Formula, lower_bound: i64, current_time: i64) -> Formula {
+        fn modify_argument(arg: &Formula, current_time: i64) -> Formula {
             match arg {
-                Formula::F { lower, upper, phi } | Formula::G { lower, upper, phi } => {
+                Formula::F { interval, .. } | Formula::G { interval, .. } => {
                     let mut extract = arg.clone();
-                    if let Formula::F { lower: ref mut l, upper: ref mut u, .. }
-                        | Formula::G { lower: ref mut l, upper: ref mut u, .. } = extract
+                    if let Formula::F { interval: ref mut int, .. }
+                        | Formula::G { interval: ref mut int, .. } = extract
                     {
-                        *l = lower + current_time;
-                        *u = upper + current_time;
+                        int.lower = interval.lower + current_time;
+                        int.upper = interval.upper + current_time;
                     }
                     extract
                 }
                 Formula::And(operands) => {
-                    let new_operands = operands.iter().map(|op| modify_argument(op, lower_bound, current_time)).collect();
+                    let new_operands = operands.iter().map(|op| modify_argument(op, current_time)).collect();
                     Formula::And(new_operands)
                 }
                 Formula::Or(operands) => {
-                    let new_operands = operands.iter().map(|op| modify_argument(op, lower_bound, current_time)).collect();
+                    let new_operands = operands.iter().map(|op| modify_argument(op, current_time)).collect();
                     Formula::Or(new_operands)
                 }
                 _ => arg.clone(), // For other cases, return as is
@@ -163,21 +162,21 @@ impl Node {
         }
 
         for i in 0..self.operands.len() {
-            if let Formula::F { lower, upper, phi } = &self.operands[i] {
-                if *lower == self.current_time {
+            if let Formula::F { interval, phi, .. } = &self.operands[i] {
+                if interval.lower == self.current_time {
                     let f_formula = &self.operands[i];
 
                     let mut new_node1 = self.clone();
                     new_node1.operands[i] = Formula::O(Box::new(f_formula.clone()));
 
                     let mut new_node2 = self.clone();
-                    new_node2.operands[i] = modify_argument(phi, *lower, self.current_time);
+                    new_node2.operands[i] = modify_argument(phi, interval.lower);
 
                     // Check condition for jump1
-                    if *lower == *upper {
+                    if interval.lower == interval.upper {
                         if check_boolean_closure(&phi) &&
                             new_node2.operands.iter().enumerate().any(|(j, other)| 
-                                j != i && other.lower_bound() == Some(*lower)
+                                j != i && other.lower_bound() == Some(interval.lower)
                             ) {
                             new_node2.jump1 = true;
                         }
@@ -218,10 +217,10 @@ impl Node {
                     Formula::O(inner) => {
                         if let (Some(lb), Some(ub)) = (inner.lower_bound(), inner.upper_bound()) && lb < ub {
                             let mut sub_formula = (**inner).clone();
-                            if let Formula::F { ref mut lower, .. }
-                                | Formula::G { ref mut lower, .. }
-                                | Formula::U { ref mut lower, .. } = sub_formula {
-                                *lower = new_time;
+                            if let Formula::F { ref mut interval, .. }
+                                | Formula::G { ref mut interval, .. }
+                                | Formula::U { ref mut interval, .. } = sub_formula {
+                                interval.lower = new_time;
                             }
                             new_operands.push(sub_formula);
                         }
@@ -251,10 +250,10 @@ impl Node {
                     Formula::O(inner) => {
                         if let (Some(lb), Some(ub)) = (inner.lower_bound(), inner.upper_bound()) && lb < ub {
                             let mut sub_formula = (**inner).clone();
-                            if let Formula::F { ref mut lower, .. }
-                                | Formula::G { ref mut lower, .. }
-                                | Formula::U { ref mut lower, .. } = sub_formula {
-                                *lower = self.current_time + 1;
+                            if let Formula::F { ref mut interval, .. }
+                                | Formula::G { ref mut interval, .. }
+                                | Formula::U { ref mut interval, .. } = sub_formula {
+                                interval.lower = self.current_time + 1;
                             }
                             new_operands.push(sub_formula);
                         }

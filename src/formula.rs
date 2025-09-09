@@ -40,6 +40,12 @@ pub enum Expr {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct Interval {
+    pub lower: i64,
+    pub upper: i64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Formula {
     // Boolean/structural
     And(Vec<Formula>),
@@ -47,9 +53,9 @@ pub enum Formula {
     Not(Box<Formula>),
     
     // Temporal
-    G { lower: i64, upper: i64, phi: Box<Formula> },
-    F { lower: i64, upper: i64, phi: Box<Formula> },
-    U { lower: i64, upper: i64, left: Box<Formula>, right: Box<Formula> },
+    G { interval: Interval, parent_interval: Option<Interval>, phi: Box<Formula> },
+    F { interval: Interval, parent_interval: Option<Interval>, phi: Box<Formula> },
+    U { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
     O(Box<Formula>),
 
     // Proposition
@@ -104,11 +110,11 @@ impl Display for Formula {
             Formula::And(v) => write!(f, "({})", join_with(v, " && ")),
             Formula::Or(v) => write!(f, "({})", join_with(v, " || ")),
             Formula::Not(inner) => write!(f, "!({})", inner),
-            Formula::G { lower, upper, phi } => write!(f, "G[{},{}] {}", lower, upper, phi),
-            Formula::F { lower, upper, phi } => write!(f, "F[{},{}] {}", lower, upper, phi),
-            Formula::U { lower, upper, left, right } => {
-                        write!(f, "({}) U[{},{}] ({})", left, lower, upper, right)
-                    }
+            Formula::G { interval, phi, .. } => write!(f, "G[{},{}] {}", interval.lower, interval.upper, phi),
+            Formula::F { interval, phi, .. } => write!(f, "F[{},{}] {}", interval.lower, interval.upper, phi),
+            Formula::U { interval, left, right, .. } => {
+                write!(f, "({}) U[{},{}] ({})", left, interval.lower, interval.upper, right)
+            }
             Formula::O(inner) => write!(f, "O {}", inner),
             Formula::Prop(p) => write!(f, "{}", p),
             Formula::True => write!(f, "true"),
@@ -120,14 +126,14 @@ impl Display for Formula {
 impl Formula {
     pub fn lower_bound(&self) -> Option<i64> {
         match self {
-            Formula::G { lower, .. } | Formula::F { lower, .. } | Formula::U { lower, .. } => Some(*lower),
+            Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => Some(interval.lower),
             _ => None,
         }
     }
 
     pub fn upper_bound(&self) -> Option<i64> {
         match self {
-            Formula::G { upper, .. } | Formula::F { upper, .. } | Formula::U { upper, .. } => Some(*upper),
+            Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => Some(interval.upper),
             _ => None,
         }
     }
@@ -145,7 +151,7 @@ impl Formula {
         match self {
             Formula::O(inner) => {
                 match &**inner {
-                    Formula::G { lower, upper, phi } => phi.has_temporal(),
+                    Formula::G { phi, .. } => phi.has_temporal(),
                     _ => false,
                 }
             }
@@ -161,7 +167,7 @@ impl Formula {
                 operands.iter().map(|op| op.get_max_upper()).max().unwrap_or(-1)
             }
             Formula::Not(inner) => inner.get_max_upper(),
-            Formula::G { upper, .. } | Formula::F { upper, .. } | Formula::U { upper, .. } => *upper,
+            Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => interval.upper,
             Formula::O(inner) => inner.get_max_upper(),
             _ => -1, // Prop, True, False
         }

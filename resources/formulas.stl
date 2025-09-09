@@ -1,0 +1,59 @@
+# Simple STL Formulas
+# Basic propositions and boolean operators
+
+true
+false
+x
+!x
+x < 5
+y >= 10
+x == 0
+
+# Temporal STL Formulas
+# Using Globally (G), Finally (F), and Once (O) operators
+
+G[0,10] x
+F[1,5] y
+O x
+G[0,100] (x < 5)
+F[0,20] (y >= 10)
+O (x == 0)
+
+# Arithmetic STL Formulas
+# Formulas with arithmetic expressions (simplified for now)
+
+G[0,20] (x < 10)
+F[0,15] (|x| <= 3)
+O (x >= 0)
+G[0,50] (x == 5)
+F[10,30] (|x| < 100)
+O (x == 0)
+
+# Formulas with arithmetic expressions in conditions
+G[0,20] ((x + y) < 10)
+F[0,15] (|x - 5| <= 3)
+G[0,50] ((x + 1) == (y - 2))
+F[10,30] (|x| < 100)
+
+# Complex STL Formulas
+# Nested temporal operators and complex expressions
+
+G[0,50] F[0,10] x
+O G[0,20] (x < 5)
+F[5,15] O y
+!G[0,30] (x >= 10)
+G[0,100] (!x)
+F[0,25] (O x)
+
+# Until operator test cases
+# Left-associative chaining and nesting
+
+p U[0,5] q
+p U[0,5] q U[1,2] r
+G[0,10] p U[2,4] F[0,3] q
+(O p) U[0,1] (!q)
+(p U[0,5] (q U[1,2] r))
+(p U[0,5] q) U[2,10] r
+true U[0,0] false
+!p U[0,3] q
+G[0,10] (p U[1,1] q)
