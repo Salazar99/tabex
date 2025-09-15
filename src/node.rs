@@ -22,22 +22,18 @@ impl Node {
     }
 
     pub fn sorted_time_instants(&self) -> Vec<i64> {
-        let mut times: Vec<i64> = Vec::new();
-        for operand in &self.operands {
-            match operand {
-                Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => {
-                    times.push(interval.lower);
-                    times.push(interval.upper);
-                }
-                Formula::O(inner) => {
-                    if let Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } = &**inner {
-                        times.push(interval.lower);
-                        times.push(interval.upper);
-                    }
-                }
-                _ => {}
+        fn top_level_interval(formula: &Formula) -> Option<&Interval> {
+            match formula {
+                Formula::O(inner) => top_level_interval(inner),
+                Formula::G { parent_interval: None, interval, .. } 
+                | Formula::F { parent_interval: None, interval, .. } 
+                | Formula::U { parent_interval: None, interval, .. } => Some(interval),
+                _ => None
             }
         }
+
+        let mut times: Vec<i64> = self.operands.iter().filter_map(top_level_interval).flat_map(|i| [i.lower, i.upper]).collect();
+
         times.sort_unstable();
         times.dedup();
         times

@@ -163,14 +163,18 @@ impl Formula {
 
     pub fn get_max_upper(&self) -> i64 {
         match self {
-            Formula::And(operands) | Formula::Or(operands) => {
+            Formula::O(inner) 
+            | Formula::Not(inner) => inner.get_max_upper(),
+            Formula::And(operands) 
+            | Formula::Or(operands) => {
                 operands.iter().map(|op| op.get_max_upper()).max().unwrap_or(-1)
-            }
-            Formula::Not(inner) => inner.get_max_upper(),
-            Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => interval.upper,
-            Formula::O(inner) => inner.get_max_upper(),
-            _ => -1, // Prop, True, False
+            },
+            Formula::G { interval, .. } 
+            | Formula::F { interval, .. } 
+            | Formula::U { interval, .. } => interval.upper,
+            _ => -1,
         }
+
     }
 
 }
