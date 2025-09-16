@@ -8,4 +8,5 @@ name = "stlcc"
 path = "src/main.rs"
 
 [dependencies]
+dot_graph = "0.2.3"
 nom = "8.0.0"

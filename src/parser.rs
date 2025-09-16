@@ -13,7 +13,6 @@ use std::{fs, path::Path, str::FromStr};
 
 use crate::formula::*;
 
-// Parser for ArithOp
 pub fn parse_arith_op(input: &str) -> IResult<&str, ArithOp> {
     alt((
         map(char('+'), |_| ArithOp::Add),
@@ -21,7 +20,6 @@ pub fn parse_arith_op(input: &str) -> IResult<&str, ArithOp> {
     )).parse(input)
 }
 
-// Parser for RelOp
 pub fn parse_rel_op(input: &str) -> IResult<&str, RelOp> {
     alt((
         map(tag("<="), |_| RelOp::Le),
@@ -33,7 +31,6 @@ pub fn parse_rel_op(input: &str) -> IResult<&str, RelOp> {
     )).parse(input)
 }
 
-// Parser for AExpr
 pub fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
     // non-binary term: numbers, vars, abs, parenthesized
     fn aexpr_term(input: &str) -> IResult<&str, AExpr> {
@@ -67,7 +64,6 @@ pub fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
     ).parse(input)
 }
 
-// Parser for Expr
 pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
     alt((
         // Relational expression: left op right (must come before Atom)
@@ -103,7 +99,6 @@ pub fn parse_interval(input: &str) -> IResult<&str, Interval> {
     ).parse(input)
 }
 
-// Parser for Formula (simplified version)
 pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
     fn formula_term(input: &str) -> IResult<&str, Formula> {
         alt((
@@ -194,7 +189,6 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
     ).parse(input)
 }
 
-// Helper function to parse numbers
 fn parse_number(input: &str) -> IResult<&str, i64> {
     map_res(digit1, |s: &str| i64::from_str(s)).parse(input)
 }
