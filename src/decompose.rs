@@ -7,9 +7,9 @@ use crate::tableau::TableauData;
 use crate::solver::Solver;
 
 // Function that matches Python's decompose signature
-pub fn decompose(node: &Node, local_solver: &mut Solver) -> Result<Vec<Node>, String> {
+pub fn decompose(node: &Node, local_solver: &mut Solver) -> Result<Vec<Node>, &'static str> {
     if !local_solver.check(node) {
-        return Err("Inconsistent node".into());
+        return Err("Inconsistent node");
     }
     
     Ok(node.decompose())
@@ -25,12 +25,22 @@ impl Node {
             return res;
         }
 
-        if let Some(res) = self.decompose_or() {
-            return res;
-        }
-
-        if let Some(res) = self.decompose_f() {
-            return res;
+        for (i, operand) in self.operands.iter().enumerate() {
+            match operand {
+                Formula::Or(_) => {
+                    return self.decompose_or_at(i);
+                }
+                Formula::F { interval, .. } if interval.lower == self.current_time => {
+                    return self.decompose_f_at(i);
+                }
+                Formula::U { interval, .. } if interval.lower == self.current_time => {
+                    return self.decompose_u_at(i);
+                }
+                Formula::R { interval, .. } if interval.lower == self.current_time => {
+                    return self.decompose_r_at(i);
+                }
+                _ => {}
+            }
         }
 
         if let Some(res) = self.decompose_jump() {
@@ -41,100 +51,181 @@ impl Node {
     }
 
     pub fn decompose_and(&self) -> Option<Vec<Node>> {
-        let mut new_node = self.clone();
+        let mut out = Vec::with_capacity(self.operands.len() * 2);
         let mut changed = false;
-
-        let mut out = Vec::new();
-        for child in &mut new_node.operands.drain(..) {
-            match child {
-                Formula::And(mut inner) => {
-                    out.append(&mut inner);
+        
+        for operand in &self.operands {
+            match operand {
+                Formula::And(inner) => {
                     changed = true;
+                    out.extend_from_slice(inner);
                 }
-                other => out.push(other),
-            }
-        }
-        new_node.operands = out;
-        if changed { Some(vec![new_node]) } else { None }
-    }
-
-    pub fn decompose_g(&self) -> Option<Vec<Node>> {
-        let mut new_node = self.clone();
-        let mut g_nodes: Vec<Formula> = Vec::new();
-
-        for i in 0..new_node.operands.len() {
-            if let Formula::G { interval, phi, .. } = &new_node.operands[i] && interval.lower == self.current_time {
-                let new_operand = new_node.operands[i].clone();
-                g_nodes.push(new_operand.clone());
-                if interval.lower < interval.upper {
-                    new_node.operands[i] = Formula::O(Box::new(new_operand));
-                } else {
-                    if new_node.operands[i].check_boolean_closure() &&
-                    new_node.operands.iter().enumerate().any(|(j, other)| 
-                    j != i && other.lower_bound() == Some(interval.lower)) {
-                        new_node.jump1 = true;
-                    }
-                new_node.operands[i] = Formula::True;
-                }
-            }
-        }
-        new_node.operands.retain(|f| !matches!(f, Formula::True));
-
-        for node in &g_nodes {
-            if let Formula::G { interval, phi, parent_interval } = node {
-                new_node.operands.push(phi.temporal_expansion(self.current_time, parent_interval));
+                other => out.push(other.clone()),
             }
         }
 
-        if !g_nodes.is_empty() {
-            Some(vec![new_node])
+        if changed { 
+            let mut new_node = self.clone();
+            new_node.operands = out;
+            Some(vec![new_node]) 
         } else {
             None
         }
     }
 
-    pub fn decompose_or(&self) -> Option<Vec<Node>> {
-        for i in 0..self.operands.len() {
-            if let Formula::Or(operands) = &self.operands[i] {
-                let mut res = Vec::new();
-                for op in operands {
-                    let mut new_node = self.clone();
-                    new_node.operands[i] = op.clone();
-                    res.push(new_node);
-                }
-                return Some(res);
-            }
-        }
-        None
-    }
+    pub fn decompose_g(&self) -> Option<Vec<Node>> {
+        let mut g_nodes: Vec<Formula> = Vec::new();
+        let mut old_nodes: Vec<Formula> = Vec::new();
+        let mut changed = false;
+        let mut jump1 = false;
 
-    pub fn decompose_f(&self) -> Option<Vec<Node>> {
-        for i in 0..self.operands.len() {
-            if let Formula::F { interval, phi, parent_interval } = &self.operands[i] {
-                if interval.lower == self.current_time {
-                    let f_formula = &self.operands[i];
-
-                    let mut new_node1 = self.clone();
-                    new_node1.operands[i] = Formula::O(Box::new(f_formula.clone()));
-
-                    let mut new_node2 = self.clone();
-                    new_node2.operands[i] = phi.temporal_expansion(interval.lower, parent_interval);
-
-                    // Check condition for jump1
-                    if interval.lower == interval.upper {
-                        if new_node2.operands[i].check_boolean_closure() &&
-                            new_node2.operands.iter().enumerate().any(|(j, other)| 
-                                j != i && other.lower_bound() == Some(interval.lower)
-                            ) {
-                            new_node2.jump1 = true;
+        for operand in &self.operands {
+            match operand {
+                Formula::G { interval, phi, .. } if interval.lower == self.current_time => {
+                    changed = true;
+                    g_nodes.push(operand.clone());
+                    if interval.lower < interval.upper {
+                        old_nodes.push(Formula::O(Box::new(operand.clone())));
+                    } else {
+                        if operand.check_boolean_closure() &&
+                        self.operands.iter().any(|other| 
+                        other != operand && other.lower_bound() == Some(interval.lower)) {
+                            jump1 = true;
                         }
                     }
-
-                    return Some(vec![new_node2, new_node1]);
                 }
+                _ => old_nodes.push(operand.clone()),
             }
         }
-        None
+
+        if !changed {
+            return None;
+        }
+
+        let mut new_node = self.clone();
+        new_node.operands = old_nodes;
+        new_node.jump1 = jump1;
+
+        for formula in &g_nodes {
+            if let Formula::G { interval, phi, parent_interval } = formula {
+                new_node.operands.push(phi.temporal_expansion(self.current_time, parent_interval));
+            }
+        }
+        Some(vec![new_node])
+    }
+
+    pub fn decompose_or_at(&self, i: usize) -> Vec<Node> {
+        let Formula::Or(operands) = &self.operands[i] else {
+            panic!("decompose_or_at called on non-Or formula at index {}", i);
+        };
+        
+        let mut res = Vec::with_capacity(operands.len());
+        for op in operands {
+            let mut new_node = self.clone();
+            new_node.operands[i] = op.clone();
+            res.push(new_node);
+        }
+        res
+    }
+
+    pub fn decompose_f_at(&self, i: usize) -> Vec<Node> {
+        let Formula::F { interval, phi, parent_interval } = &self.operands[i] else {
+            panic!("decompose_f_at called on non-F formula at index {}", i);
+        };
+        
+        if interval.lower != self.current_time {
+            panic!("decompose_f_at called with interval.lower ({}) != current_time ({})", interval.lower, self.current_time);
+        }
+        
+        let f_formula = &self.operands[i];
+
+        // Node where F is satisfied (p)
+        let mut new_node1 = self.clone();
+        new_node1.operands[i] = phi.temporal_expansion(interval.lower, parent_interval);
+
+        // Check condition for jump1
+        if interval.lower == interval.upper {
+            if new_node1.operands[i].check_boolean_closure() &&
+                new_node1.operands.iter().enumerate().any(|(j, other)| 
+                    j != i && other.lower_bound() == Some(interval.lower)
+                ) {
+                new_node1.jump1 = true;
+            }
+        }
+
+        // Node in which F is not satisfied (OF)
+        let mut new_node2 = self.clone();
+        new_node2.operands[i] = Formula::O(Box::new(f_formula.clone()));
+
+        vec![new_node1, new_node2]
+    }
+
+    pub fn decompose_u_at(&self, i: usize) -> Vec<Node> {
+        let Formula::U { interval, left, right, parent_interval } = &self.operands[i] else {
+            panic!("decompose_u_at called on non-U formula at index {}", i);
+        };
+        
+        if interval.lower != self.current_time {
+            panic!("decompose_u_at called with interval.lower ({}) != current_time ({})", interval.lower, self.current_time);
+        }
+        
+        let u_formula = &self.operands[i];
+
+        // Node in which U is not satisfied (p, OU)
+        let mut new_node1 = self.clone();
+        new_node1.operands[i] = left.temporal_expansion(interval.lower, parent_interval);
+        new_node1.operands.push(Formula::O(Box::new(u_formula.clone())));
+        
+        // Node where U is satisfied (q)
+        let mut new_node2 = self.clone();
+        new_node2.operands[i] = right.temporal_expansion(interval.lower, parent_interval);
+        // Check condition for jump1
+        if interval.lower == interval.upper {
+            if right.check_boolean_closure() &&
+                new_node2.operands.iter().enumerate().any(|(j, other)| 
+                    j != i && other.lower_bound() == Some(interval.lower)
+                ) {
+                new_node2.jump1 = true;
+            }
+        }
+
+        vec![new_node1, new_node2]
+    }
+
+    pub fn decompose_r_at(&self, i: usize) -> Vec<Node> {
+        let Formula::R { interval, left, right, parent_interval } = &self.operands[i] else {
+            panic!("decompose_r_at called on non-R formula at index {}", i);
+        };
+        
+        if interval.lower != self.current_time {
+            panic!("decompose_r_at called with interval.lower ({}) != current_time ({})", interval.lower, self.current_time);
+        }
+        
+        let r_formula = &self.operands[i];
+
+        // Node where R is satisfied (p and q)
+        let mut new_node1: Node = self.clone();
+        new_node1.operands[i] = Formula::And(vec![
+            left.temporal_expansion(interval.lower, parent_interval),
+            right.temporal_expansion(interval.lower, parent_interval)
+        ]);
+
+        // Node in which R is not satisfied (q, OR)
+        let mut new_node2 = self.clone();
+        new_node2.operands[i] = right.temporal_expansion(interval.lower, parent_interval);
+        if interval.lower < interval.upper {
+            new_node2.operands.push(Formula::O(Box::new(r_formula.clone())));
+        } else {
+            if right.check_boolean_closure() &&
+                new_node2.operands.iter().enumerate().any(
+                    |(j, other)| 
+                    j != i && other.lower_bound() == Some(interval.lower)
+                ) {
+                new_node2.jump1 = true;
+            }
+        }
+
+        vec![new_node1, new_node2]
     }
 
     pub fn decompose_jump(&self) -> Option<Vec<Node>> {
@@ -148,7 +239,8 @@ impl Node {
             let mut sub_formula = formula.clone();
             if let Formula::F { ref mut interval, .. }
                 | Formula::G { ref mut interval, .. }
-                | Formula::U { ref mut interval, .. } = sub_formula {
+                | Formula::U { ref mut interval, .. }
+                | Formula::R { ref mut interval, .. } = sub_formula {
                 interval.lower = target_time;
             }
             Some(sub_formula)
@@ -170,7 +262,7 @@ impl Node {
 
         // Retain only temporal operators, and retimed O formulas
         let new_operands: Vec<Formula> = self.operands.iter().filter_map(|op| match op {
-            f @ (Formula::G {..} | Formula::F {..} | Formula::U {..}) => Some(f.clone()),
+            f @ (Formula::G {..} | Formula::F {..} | Formula::U {..} | Formula::R {..}) => Some(f.clone()),
             Formula::O(inner) => retime_poised(inner, target_time),
             _ => None,
         }).collect();
@@ -192,10 +284,15 @@ impl Formula {
     fn temporal_expansion(&self, current_time: i64, formula_interval: &Option<Interval>) ->  Formula {
         match self {
             Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False => self.clone(),
-            Formula::F { interval, .. } | Formula::G { interval, .. } => {
+            Formula::F { interval, .. } 
+            | Formula::G { interval, .. }
+            | Formula::U { interval, .. }
+            | Formula::R { interval, .. } => {
                 let mut extract = self.clone();
                 if let Formula::F { interval: ref mut int, parent_interval: ref mut par_int, .. }
-                    | Formula::G { interval: ref mut int, parent_interval: ref mut par_int, .. } = extract
+                    | Formula::G { interval: ref mut int, parent_interval: ref mut par_int, .. }
+                    | Formula::U { interval: ref mut int, parent_interval: ref mut par_int, .. }
+                    | Formula::R { interval: ref mut int, parent_interval: ref mut par_int, .. } = extract
                 {
                     int.lower = interval.lower + current_time;
                     int.upper = interval.upper + current_time;

@@ -56,6 +56,7 @@ pub enum Formula {
     G { interval: Interval, parent_interval: Option<Interval>, phi: Box<Formula> },
     F { interval: Interval, parent_interval: Option<Interval>, phi: Box<Formula> },
     U { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
+    R { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
     O(Box<Formula>),
 
     // Proposition
@@ -109,13 +110,16 @@ impl Display for Formula {
         match self {
             Formula::And(v) => write!(f, "({})", join_with(v, " && ")),
             Formula::Or(v) => write!(f, "({})", join_with(v, " || ")),
-            Formula::Not(inner) => write!(f, "!({})", inner),
+            Formula::Not(inner) => write!(f, "!{}", inner),
             Formula::G { interval, phi, .. } => write!(f, "G[{},{}] {}", interval.lower, interval.upper, phi),
             Formula::F { interval, phi, .. } => write!(f, "F[{},{}] {}", interval.lower, interval.upper, phi),
             Formula::U { interval, left, right, .. } => {
                 write!(f, "({}) U[{},{}] ({})", left, interval.lower, interval.upper, right)
             }
-            Formula::O(inner) => write!(f, "O {}", inner),
+            Formula::R { interval, left, right, .. } => {
+                write!(f, "({}) R[{},{}] ({})", left, interval.lower, interval.upper, right)
+            }
+            Formula::O(inner) => write!(f, "O ({})", inner),
             Formula::Prop(p) => write!(f, "{}", p),
             Formula::True => write!(f, "true"),
             Formula::False => write!(f, "false"),
@@ -126,21 +130,27 @@ impl Display for Formula {
 impl Formula {
     pub fn lower_bound(&self) -> Option<i64> {
         match self {
-            Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => Some(interval.lower),
+            Formula::G { interval, .. } 
+            | Formula::F { interval, .. } 
+            | Formula::U { interval, .. }
+            | Formula::R { interval, .. } => Some(interval.lower),
             _ => None,
         }
     }
 
     pub fn upper_bound(&self) -> Option<i64> {
         match self {
-            Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } => Some(interval.upper),
+            Formula::G { interval, .. } 
+            | Formula::F { interval, .. } 
+            | Formula::U { interval, .. } 
+            | Formula::R { interval, .. } => Some(interval.upper),
             _ => None,
         }
     }
 
     pub fn has_temporal(&self) -> bool {
         match self {
-            Formula::G { .. } | Formula::F { .. } | Formula::U { .. } => true,
+            Formula::G { .. } | Formula::F { .. } | Formula::U { .. } | Formula::R { .. } => true,
             Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.has_temporal()),
             Formula::Not(inner) => inner.has_temporal(),
             _ => false,
@@ -171,7 +181,8 @@ impl Formula {
             },
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
-            | Formula::U { interval, .. } => interval.upper,
+            | Formula::U { interval, .. }
+            | Formula::R { interval, .. } => interval.upper,
             _ => -1,
         }
 

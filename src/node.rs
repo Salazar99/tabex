@@ -30,7 +30,8 @@ impl Node {
                 Formula::O(inner) => top_level_interval(inner),
                 Formula::G { parent_interval: None, interval, .. } 
                 | Formula::F { parent_interval: None, interval, .. } 
-                | Formula::U { parent_interval: None, interval, .. } => Some(interval),
+                | Formula::U { parent_interval: None, interval, .. }
+                | Formula::R { parent_interval: None, interval, .. } => Some(interval),
                 _ => None
             }
         }
@@ -59,6 +60,6 @@ impl Display for Node {
         let join_with = |v: &[Formula], sep: &str| {
             v.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(sep)
         };
-        write!(f, "{}", join_with(&self.operands, ", "))
+        write!(f, "{} | {}", join_with(&self.operands, ", "), self.current_time)
     }
 }

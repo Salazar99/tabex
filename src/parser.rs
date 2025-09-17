@@ -167,6 +167,10 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                 |(_, interval)| (Some(interval), "U")
             ),
             map(
+                pair(preceded(space0, tag("R")), parse_interval),
+                |(_, interval)| (Some(interval), "R")
+            ),
+            map(
                 preceded(space0, tag("&&")),
                 |_| (None, "&&")
             ),
@@ -182,6 +186,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         move || init.clone(),
         |acc, ((interval, op), right)| match op {
             "U" => Formula::U { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_interval: None },
+            "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_interval: None },
             "&&" => Formula::And(vec![acc, right]),
             "||" => Formula::Or(vec![acc, right]),
             _ => acc, // Should not happen
