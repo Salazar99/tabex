@@ -1,5 +1,9 @@
 #![allow(unused)]
 use std::fmt::{self, Display};
+use std::sync::Arc;
+
+// Use interned strings for better memory efficiency
+type VariableName = Arc<str>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ArithOp {
@@ -19,7 +23,7 @@ pub enum RelOp {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum AExpr {
-    Var(String),
+    Var(VariableName),
     Num(i64),
     Abs(Box<AExpr>),
     BinOp {
@@ -31,7 +35,7 @@ pub enum AExpr {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Expr {
-    Atom(String),
+    Atom(VariableName),
     Rel {
         op: RelOp,
         left: AExpr,
@@ -47,6 +51,11 @@ pub struct Interval {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Formula {
+    // Propositions
+    Prop(Expr),
+    True,
+    False,
+    
     // Boolean/structural
     And(Vec<Formula>),
     Or(Vec<Formula>),
@@ -58,11 +67,6 @@ pub enum Formula {
     U { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
     R { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
     O(Box<Formula>),
-
-    // Proposition
-    Prop(Expr),
-    True,
-    False
 }
 
 fn join_with(v: &[Formula], sep: &str) -> String {

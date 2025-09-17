@@ -43,7 +43,7 @@ pub fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
             // Variable
             map(
                 recognize(pair(alpha1, many0(alt((alpha1, digit1, tag("_")))))),
-                |s: &str| AExpr::Var(s.to_string())
+                |s: &str| AExpr::Var(s.into())
             ),
             // Absolute value: |expr|
             map(
@@ -80,7 +80,7 @@ pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
         // Atom: identifier (comes last as fallback)
         map(
             recognize(pair(alpha1, many0(alt((alpha1, digit1, tag("_")))))),
-            |s: &str| Expr::Atom(s.to_string())
+            |s: &str| Expr::Atom(s.into())
         ),
     )).parse(input)
 }

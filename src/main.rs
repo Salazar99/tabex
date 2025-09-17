@@ -15,18 +15,20 @@ use crate::node::*;
 use crate::parser::*;
 use crate::tableau::*;
 
+const GRAPH_OUTPUT: bool = false;
+
 fn main() {
-    let example = "a R[0, 5] b";
+    let example = "a R[0, 10] b && c R[5, 15] b || c R[10, 20] d";
     let node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
-    let options = TableauOptions { max_depth: 10000, graph_output: true };
+    let options = TableauOptions { max_depth: 10000, graph_output: GRAPH_OUTPUT };
     let mut tableau = TableauData::new(options);
-    let start = Instant::now();
+    let start = std::time::Instant::now();
     let res = tableau.make_tableau(node);
     let duration = start.elapsed();
-
     println!("Tableau result: {:?}", res);
-    if let Ok(graph) = tableau.graph.unwrap().to_dot_string() {
-        fs::write("g.dot", &graph).expect("Unable to write file");
+
+    if GRAPH_OUTPUT && let Ok(graph) = tableau.graph.unwrap().to_dot_string() {
+        fs::write("resources/tmp/g.dot", &graph).expect("Unable to write file");
     }
 
     println!("DURATION_SEC: {:.6}", duration.as_secs_f64());

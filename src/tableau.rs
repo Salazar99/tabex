@@ -58,13 +58,14 @@ impl TableauData {
     }
 
     fn process_children(&mut self, res: Result<Vec<Node>, &'static str>, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
-        fn get_child_solver(current: &Node, child: &Node, local_solver: &mut Solver) -> Solver {
+        fn get_child_solver(current: &Node, child: &Node, local_solver: Solver) -> Solver {
             if child.current_time == current.current_time {
-                local_solver.clone()
+                local_solver
             } else {
-                local_solver.get_empty_solver()
+                Solver::new()
             }
         }
+        
         if let Ok(children) = res {
             if children.is_empty() {
                 return Some(true);
@@ -72,18 +73,21 @@ impl TableauData {
 
             let mut depth_reached = false;
             let mut someone_solved = false;
+
             for child in children {
                 self.add_graph_node(&child);
                 self.add_graph_edge(&node, &child);
-                let mut child_solver = get_child_solver(&node, &child, local_solver);
-                match self.add_children(child, &mut child_solver, depth + 1) {
-                    Some(true) => someone_solved = true,
+                let result = if child.current_time == node.current_time {
+                    self.add_children(child, local_solver, depth + 1)
+                } else {
+                    self.add_children(child, &mut Solver::new(), depth + 1)
+                };
+
+                match result {
+                    Some(true) => return Some(true),
                     None => depth_reached = true,
                     _ => (),
                 }
-            }
-            if someone_solved {
-                return Some(true);
             }
             if depth_reached {
                 return None;
