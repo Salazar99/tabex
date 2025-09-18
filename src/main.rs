@@ -15,10 +15,10 @@ use crate::node::*;
 use crate::parser::*;
 use crate::tableau::*;
 
-const GRAPH_OUTPUT: bool = false;
+const GRAPH_OUTPUT: bool = true;
 
 fn main() {
-    let example = "a R[0, 10] b && c R[5, 15] b || c R[10, 20] d";
+    let example = "x > 0.12";
     let node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
     let options = TableauOptions { max_depth: 10000, graph_output: GRAPH_OUTPUT };
     let mut tableau = TableauData::new(options);

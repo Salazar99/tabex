@@ -205,10 +205,8 @@ impl Node {
 
         // Node where R is satisfied (p and q)
         let mut new_node1: Node = self.clone();
-        new_node1.operands[i] = Formula::And(vec![
-            left.temporal_expansion(interval.lower, parent_interval),
-            right.temporal_expansion(interval.lower, parent_interval)
-        ]);
+        new_node1.operands[i] = left.temporal_expansion(interval.lower, parent_interval);
+        new_node1.operands.push(right.temporal_expansion(interval.lower, parent_interval));
 
         // Node in which R is not satisfied (q, OR)
         let mut new_node2 = self.clone();

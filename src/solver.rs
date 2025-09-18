@@ -86,9 +86,9 @@ impl Solver {
                 _ => None,
             }
         }
-        for operand in &node.operands {
-            if let Some(assertion) = get_assertion(operand) {
-                match assertion {
+        node.operands.iter().filter_map(|f| get_assertion(f)).for_each(|ass| {
+            if self.current_assertions.insert(ass.clone()) {
+                match ass {
                     Assertion::Boolean { negated, ref var } => {
                         self.boolean_solver.add_constraint(negated, var.to_string());
                     }
@@ -96,13 +96,12 @@ impl Solver {
                         self.real_solver.add_constraint(negated, op.clone(), left.clone(), right.clone());
                     }
                 }
-                if self.current_assertions.insert(assertion.clone()) {
-                    if let Some(last) = self.assertion_stack.last_mut() {
-                        last.push(assertion);
-                    }
+                
+                if let Some(last) = self.assertion_stack.last_mut() {
+                    last.push(ass);
                 }
             }
-        }
+        });
     }
 
     pub fn check(&mut self, node: &Node) -> bool {
@@ -227,7 +226,7 @@ impl RealSolver {
                     v
                 }
             }
-            AExpr::Num(n) => Real::from_rational(*n, 1),
+            AExpr::Num(r) => Real::from_rational(*r.numer(), *r.denom()),
             AExpr::Abs(inner) => {
                 let x = self.aexpr_to_z3(inner);
                 let zero = Real::from_rational(0, 1);

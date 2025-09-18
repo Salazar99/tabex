@@ -2,7 +2,8 @@
 use std::fmt::{self, Display};
 use std::sync::Arc;
 
-// Use interned strings for better memory efficiency
+use num_rational::Ratio;
+
 type VariableName = Arc<str>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -24,7 +25,7 @@ pub enum RelOp {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum AExpr {
     Var(VariableName),
-    Num(i64),
+    Num(Ratio<i64>),
     Abs(Box<AExpr>),
     BinOp {
         op: ArithOp,

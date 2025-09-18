@@ -74,9 +74,12 @@ impl TableauData {
             let mut depth_reached = false;
             let mut someone_solved = false;
 
-            for child in children {
+            for child in children.iter() {
                 self.add_graph_node(&child);
                 self.add_graph_edge(&node, &child);
+            }
+
+            for child in children {
                 let result = if child.current_time == node.current_time {
                     self.add_children(child, local_solver, depth + 1)
                 } else {

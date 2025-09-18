@@ -3,12 +3,13 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::{complete::{alpha1, char, digit1, space0}, multispace0},
-    combinator::{map, map_res, recognize},
+    combinator::{map, map_res, opt, recognize},
     multi::{fold_many0, many0, separated_list1},
     sequence::{delimited, pair, preceded},
     IResult,
     Parser
 };
+use num_rational::Ratio;
 use std::{fs, path::Path, str::FromStr};
 
 use crate::formula::*;
@@ -32,13 +33,12 @@ pub fn parse_rel_op(input: &str) -> IResult<&str, RelOp> {
 }
 
 pub fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
-    // non-binary term: numbers, vars, abs, parenthesized
     fn aexpr_term(input: &str) -> IResult<&str, AExpr> {
         alt((
             // Number
             map(
-                map_res(digit1, |s: &str| i64::from_str(s)),
-                AExpr::Num
+                parse_decimal,
+                |v| AExpr::Num(v)
             ),
             // Variable
             map(
@@ -196,6 +196,48 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
 
 fn parse_number(input: &str) -> IResult<&str, i64> {
     map_res(digit1, |s: &str| i64::from_str(s)).parse(input)
+}
+
+fn parse_decimal(input: &str) -> IResult<&str, Ratio<i64>> {
+    map(
+        pair(
+            parse_number,
+            opt(
+                pair(
+                    char('.'),
+                    map_res(digit1, |s: &str| i64::from_str(s))
+                )
+            )
+        ),
+        |(int_part, frac_part)| {
+            match frac_part {
+                Some((_, frac_val)) => {
+                    let scale = 10i64.pow(frac_val.to_string().len() as u32);
+                    Ratio::new(int_part * scale + frac_val, scale)
+                }
+                None => Ratio::from_integer(int_part),
+            }
+        }
+    ).parse(input)
+}
+
+fn parse_fraction(input: &str) -> IResult<&str, Ratio<i64>> {
+    map(
+        pair(
+            parse_number,
+            opt(
+                pair(
+                    char('/'),
+                    parse_number
+                )
+            )
+        ), |(num, denom)| {
+            match denom {
+                Some((_, d)) => Ratio::new(num, d),
+                None => Ratio::from_integer(num),
+            }
+        }
+    ).parse(input)
 }
 
 fn parse_stl_file(filename: &str) {
