@@ -60,6 +60,7 @@ pub enum Formula {
     // Boolean/structural
     And(Vec<Formula>),
     Or(Vec<Formula>),
+    Imply(Box<Formula>, Box<Formula>),
     Not(Box<Formula>),
     
     // Temporal
@@ -116,6 +117,7 @@ impl Display for Formula {
             Formula::And(v) => write!(f, "({})", join_with(v, " && ")),
             Formula::Or(v) => write!(f, "({})", join_with(v, " || ")),
             Formula::Not(inner) => write!(f, "!{}", inner),
+            Formula::Imply(left, right) => write!(f, "({}) -> ({})", left, right),
             Formula::G { interval, phi, .. } => write!(f, "G[{},{}] {}", interval.lower, interval.upper, phi),
             Formula::F { interval, phi, .. } => write!(f, "F[{},{}] {}", interval.lower, interval.upper, phi),
             Formula::U { interval, left, right, .. } => {
@@ -158,6 +160,7 @@ impl Formula {
             Formula::G { .. } | Formula::F { .. } | Formula::U { .. } | Formula::R { .. } => true,
             Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.has_temporal()),
             Formula::Not(inner) => inner.has_temporal(),
+            Formula::Imply(left, right) => left.has_temporal() || right.has_temporal(),
             _ => false,
         }
     }
@@ -171,6 +174,7 @@ impl Formula {
                 }
             }
             Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.jump_problematic()),
+            Formula::Imply(left, right) => left.jump_problematic() || right.jump_problematic(),
             Formula::Not(inner) => inner.jump_problematic(),
             _ => false,
         }
@@ -184,6 +188,7 @@ impl Formula {
             | Formula::Or(operands) => {
                 operands.iter().map(|op| op.get_max_upper()).max().unwrap_or(-1)
             },
+            Formula::Imply(left, right) => left.get_max_upper().max(right.get_max_upper()),
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
             | Formula::U { interval, .. }

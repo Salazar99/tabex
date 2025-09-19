@@ -14,14 +14,14 @@ use std::{fs, path::Path, str::FromStr};
 
 use crate::formula::*;
 
-pub fn parse_arith_op(input: &str) -> IResult<&str, ArithOp> {
+fn parse_arith_op(input: &str) -> IResult<&str, ArithOp> {
     alt((
         map(char('+'), |_| ArithOp::Add),
         map(char('-'), |_| ArithOp::Sub),
     )).parse(input)
 }
 
-pub fn parse_rel_op(input: &str) -> IResult<&str, RelOp> {
+fn parse_rel_op(input: &str) -> IResult<&str, RelOp> {
     alt((
         map(tag("<="), |_| RelOp::Le),
         map(tag("<"), |_| RelOp::Lt),
@@ -32,7 +32,7 @@ pub fn parse_rel_op(input: &str) -> IResult<&str, RelOp> {
     )).parse(input)
 }
 
-pub fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
+fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
     fn aexpr_term(input: &str) -> IResult<&str, AExpr> {
         alt((
             // Number
@@ -64,7 +64,7 @@ pub fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
     ).parse(input)
 }
 
-pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
+fn parse_expr(input: &str) -> IResult<&str, Expr> {
     alt((
         // Relational expression: left op right (must come before Atom)
         map(
@@ -85,7 +85,7 @@ pub fn parse_expr(input: &str) -> IResult<&str, Expr> {
     )).parse(input)
 }
 
-pub fn parse_interval(input: &str) -> IResult<&str, Interval> {
+fn parse_interval(input: &str) -> IResult<&str, Interval> {
     map(
         delimited(
             char('['),
@@ -96,6 +96,52 @@ pub fn parse_interval(input: &str) -> IResult<&str, Interval> {
             preceded(space0, char(']'))
         ),
         |(lower, upper)| Interval { lower, upper }
+    ).parse(input)
+}
+
+fn parse_number(input: &str) -> IResult<&str, i64> {
+    map_res(digit1, |s: &str| i64::from_str(s)).parse(input)
+}
+
+fn parse_decimal(input: &str) -> IResult<&str, Ratio<i64>> {
+    map(
+        pair(
+            parse_number,
+            opt(
+                pair(
+                    char('.'),
+                    map_res(digit1, |s: &str| i64::from_str(s))
+                )
+            )
+        ),
+        |(int_part, frac_part)| {
+            match frac_part {
+                Some((_, frac_val)) => {
+                    let scale = 10i64.pow(frac_val.to_string().len() as u32);
+                    Ratio::new(int_part * scale + frac_val, scale)
+                }
+                None => Ratio::from_integer(int_part),
+            }
+        }
+    ).parse(input)
+}
+
+fn parse_fraction(input: &str) -> IResult<&str, Ratio<i64>> {
+    map(
+        pair(
+            parse_number,
+            opt(
+                pair(
+                    char('/'),
+                    parse_number
+                )
+            )
+        ), |(num, denom)| {
+            match denom {
+                Some((_, d)) => Ratio::new(num, d),
+                None => Ratio::from_integer(num),
+            }
+        }
     ).parse(input)
 }
 
@@ -177,6 +223,10 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             map(
                 preceded(space0, tag("||")),
                 |_| (None, "||")
+            ),
+            map(
+                preceded(space0, tag("->")),
+                |_| (None, "->")
             )
         )).parse(input)
     }
@@ -189,58 +239,13 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_interval: None },
             "&&" => Formula::And(vec![acc, right]),
             "||" => Formula::Or(vec![acc, right]),
-            _ => acc, // Should not happen
+            "->" => Formula::Imply(Box::new(acc), Box::new(right)),
+            _ => panic!(), // Should not happen
         }
     ).parse(input)
 }
 
-fn parse_number(input: &str) -> IResult<&str, i64> {
-    map_res(digit1, |s: &str| i64::from_str(s)).parse(input)
-}
-
-fn parse_decimal(input: &str) -> IResult<&str, Ratio<i64>> {
-    map(
-        pair(
-            parse_number,
-            opt(
-                pair(
-                    char('.'),
-                    map_res(digit1, |s: &str| i64::from_str(s))
-                )
-            )
-        ),
-        |(int_part, frac_part)| {
-            match frac_part {
-                Some((_, frac_val)) => {
-                    let scale = 10i64.pow(frac_val.to_string().len() as u32);
-                    Ratio::new(int_part * scale + frac_val, scale)
-                }
-                None => Ratio::from_integer(int_part),
-            }
-        }
-    ).parse(input)
-}
-
-fn parse_fraction(input: &str) -> IResult<&str, Ratio<i64>> {
-    map(
-        pair(
-            parse_number,
-            opt(
-                pair(
-                    char('/'),
-                    parse_number
-                )
-            )
-        ), |(num, denom)| {
-            match denom {
-                Some((_, d)) => Ratio::new(num, d),
-                None => Ratio::from_integer(num),
-            }
-        }
-    ).parse(input)
-}
-
-fn parse_stl_file(filename: &str) {
+pub fn parse_stl_file(filename: &str) {
     let path = Path::new("resources").join(filename);
     println!("\n=== Parsing {} ===", filename);
 

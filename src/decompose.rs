@@ -6,15 +6,6 @@ use crate::node::*;
 use crate::tableau::TableauData;
 use crate::solver::Solver;
 
-// Function that matches Python's decompose signature
-pub fn decompose(node: &Node, local_solver: &mut Solver) -> Result<Vec<Node>, &'static str> {
-    if !local_solver.check(node) {
-        return Err("Inconsistent node");
-    }
-    
-    Ok(node.decompose())
-}
-
 impl Node {
     pub fn decompose(&self) -> Vec<Node> {
         if let Some(res) = self.decompose_and() {
@@ -29,6 +20,9 @@ impl Node {
             match operand {
                 Formula::Or(_) => {
                     return self.decompose_or_at(i);
+                }
+                Formula::Imply(left, right) => {
+                    return self.decompose_imply_at(i);
                 }
                 Formula::F { interval, .. } if interval.lower == self.current_time => {
                     return self.decompose_f_at(i);
@@ -126,6 +120,21 @@ impl Node {
             res.push(new_node);
         }
         res
+    }
+
+    pub fn decompose_imply_at(&self, i: usize) -> Vec<Node> {
+        let Formula::Imply(left, right) = &self.operands[i] else {
+            panic!("decompose_imply_at called on non-Imply formula at index {}", i);
+        };
+        
+        let mut new_node1 = self.clone();
+        new_node1.operands[i] = Formula::Not(Box::new((**left).clone()));
+
+        let mut new_node2 = self.clone();
+        new_node2.operands[i] = (**left).clone();
+        new_node2.operands.push((**right).clone());
+
+        vec![new_node1, new_node2]
     }
 
     pub fn decompose_f_at(&self, i: usize) -> Vec<Node> {

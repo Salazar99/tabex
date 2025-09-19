@@ -51,13 +51,16 @@ impl TableauData {
         }
 
         local_solver.push();
-        let res = decompose(&node, local_solver);
+        if (!local_solver.check(&node)) {
+            return Some(false);
+        }
+        let res = node.decompose();
         let result = self.process_children(res, node, local_solver, depth);
         local_solver.pop();
         result
     }
 
-    fn process_children(&mut self, res: Result<Vec<Node>, &'static str>, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
+    fn process_children(&mut self, children: Vec<Node>, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
         fn get_child_solver(current: &Node, child: &Node, local_solver: Solver) -> Solver {
             if child.current_time == current.current_time {
                 local_solver
@@ -66,37 +69,31 @@ impl TableauData {
             }
         }
         
-        if let Ok(children) = res {
-            if children.is_empty() {
-                return Some(true);
-            }
+        let mut depth_reached = false;
 
-            let mut depth_reached = false;
-            let mut someone_solved = false;
+        for child in children.iter() {
+            self.add_graph_node(&child);
+            self.add_graph_edge(&node, &child);
+        }
 
-            for child in children.iter() {
-                self.add_graph_node(&child);
-                self.add_graph_edge(&node, &child);
-            }
+        for child in children {
+            let result = if child.current_time == node.current_time {
+                self.add_children(child, local_solver, depth + 1)
+            } else {
+                self.add_children(child, &mut Solver::new(), depth + 1)
+            };
 
-            for child in children {
-                let result = if child.current_time == node.current_time {
-                    self.add_children(child, local_solver, depth + 1)
-                } else {
-                    self.add_children(child, &mut Solver::new(), depth + 1)
-                };
-
-                match result {
-                    Some(true) => return Some(true),
-                    None => depth_reached = true,
-                    _ => (),
-                }
-            }
-            if depth_reached {
-                return None;
+            match result {
+                Some(true) => return Some(true),
+                None => depth_reached = true,
+                _ => (),
             }
         }
-        Some(false)
+
+        if depth_reached {
+            return None;
+        }
+        return Some(true)
     }
 
     fn add_graph_node(&mut self, node: &Node) {
