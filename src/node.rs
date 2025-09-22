@@ -7,10 +7,7 @@ static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Node {
     pub operands: Vec<Formula>,
-
     pub current_time: i64,
-    pub jump1: bool,
-
     pub id: usize,
 }
 
@@ -19,7 +16,6 @@ impl Node {
         Self {
             operands,
             current_time: 0,
-            jump1: false,
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }
@@ -49,7 +45,6 @@ impl Clone for Node {
         Self {
             operands: self.operands.clone(),
             current_time: self.current_time,
-            jump1: self.jump1,
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }

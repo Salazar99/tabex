@@ -64,10 +64,10 @@ pub enum Formula {
     Not(Box<Formula>),
     
     // Temporal
-    G { interval: Interval, parent_upper: Option<i64>, original_lower: i64, phi: Box<Formula> },
-    F { interval: Interval, parent_upper: Option<i64>, original_lower: i64, phi: Box<Formula> },
-    U { interval: Interval, parent_upper: Option<i64>, original_lower: i64, left: Box<Formula>, right: Box<Formula> },
-    R { interval: Interval, parent_upper: Option<i64>, original_lower: i64, left: Box<Formula>, right: Box<Formula> },
+    G { interval: Interval, parent_upper: Option<i64>, phi: Box<Formula> },
+    F { interval: Interval, parent_upper: Option<i64>, phi: Box<Formula> },
+    U { interval: Interval, parent_upper: Option<i64>, left: Box<Formula>, right: Box<Formula> },
+    R { interval: Interval, parent_upper: Option<i64>, left: Box<Formula>, right: Box<Formula> },
     O(Box<Formula>),
 }
 
@@ -182,22 +182,32 @@ impl Formula {
         }
     }
 
-    pub fn get_max_upper(&self) -> i64 {
+    pub fn get_max_upper(&self) -> Option<i64> {
         match self {
             Formula::O(inner) 
             | Formula::Not(inner) => inner.get_max_upper(),
             Formula::And(operands) 
             | Formula::Or(operands) => {
-                operands.iter().map(|op| op.get_max_upper()).max().unwrap_or(-1)
+                operands.iter().map(|op| op.get_max_upper()).max().unwrap_or(None)
             },
             Formula::Imply(left, right) => left.get_max_upper().max(right.get_max_upper()),
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
             | Formula::U { interval, .. }
-            | Formula::R { interval, .. } => interval.upper,
-            _ => -1,
+            | Formula::R { interval, .. } => Some(interval.upper),
+            _ => None,
         }
 
+    }
+
+    pub fn active(&self, current_time: i64) -> bool {
+        match self {
+            Formula::G { interval, .. } 
+            | Formula::F { interval, .. } 
+            | Formula::U { interval, .. }
+            | Formula::R { interval, .. } => current_time >= interval.lower && current_time <= interval.upper,
+            _ => false,
+        }
     }
 
     pub fn parent_active(&self, current_time: i64) -> bool {

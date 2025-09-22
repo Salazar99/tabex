@@ -36,7 +36,6 @@ impl TableauData {
 
     pub fn make_tableau(&mut self, mut root: Node) -> Option<bool> {
         root.current_time = 0;
-        root.jump1 = root.operands.iter().all(|f| f.check_boolean_closure());
 
         self.add_graph_node(&root);
 
