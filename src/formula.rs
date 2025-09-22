@@ -64,10 +64,10 @@ pub enum Formula {
     Not(Box<Formula>),
     
     // Temporal
-    G { interval: Interval, parent_interval: Option<Interval>, phi: Box<Formula> },
-    F { interval: Interval, parent_interval: Option<Interval>, phi: Box<Formula> },
-    U { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
-    R { interval: Interval, parent_interval: Option<Interval>, left: Box<Formula>, right: Box<Formula> },
+    G { interval: Interval, parent_upper: Option<i64>, original_lower: i64, phi: Box<Formula> },
+    F { interval: Interval, parent_upper: Option<i64>, original_lower: i64, phi: Box<Formula> },
+    U { interval: Interval, parent_upper: Option<i64>, original_lower: i64, left: Box<Formula>, right: Box<Formula> },
+    R { interval: Interval, parent_upper: Option<i64>, original_lower: i64, left: Box<Formula>, right: Box<Formula> },
     O(Box<Formula>),
 }
 
@@ -169,7 +169,9 @@ impl Formula {
         match self {
             Formula::O(inner) => {
                 match &**inner {
-                    Formula::G { phi, .. } => phi.has_temporal(),
+                    Formula::G { phi, .. }
+                    | Formula::U { left: phi, .. }
+                    | Formula::R { right: phi, .. } => phi.has_temporal(),
                     _ => false,
                 }
             }
@@ -198,4 +200,13 @@ impl Formula {
 
     }
 
+    pub fn parent_active(&self, current_time: i64) -> bool {
+        match self {
+            Formula::G { parent_upper: Some(upper), .. }
+            | Formula::F { parent_upper: Some(upper), .. }
+            | Formula::U { parent_upper: Some(upper), .. }
+            | Formula::R { parent_upper: Some(upper), .. } => current_time <= *upper,
+            _ => false,
+        }
+    }
 }

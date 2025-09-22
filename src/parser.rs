@@ -161,9 +161,10 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     parse_formula
                 ),
                 |(_, interval, _, phi)| Formula::G {
-                    interval,
+                    original_lower: interval.lower,
+                    interval: interval,
                     phi: Box::new(phi),
-                    parent_interval: None
+                    parent_upper: None,
                 }
             ),
             // Finally: F[lower,upper] phi
@@ -175,9 +176,10 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     parse_formula
                 ),
                 |(_, interval, _, phi)| Formula::F {
-                    interval,
+                    original_lower: interval.lower,
+                    interval: interval,
                     phi: Box::new(phi),
-                    parent_interval: None
+                    parent_upper: None,
                 }
             ),
             // Once: O phi
@@ -235,8 +237,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         pair(formula_bin_op, preceded(space0, formula_term)),
         move || init.clone(),
         |acc, ((interval, op), right)| match op {
-            "U" => Formula::U { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_interval: None },
-            "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_interval: None },
+            "U" => Formula::U { interval: interval.clone().unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None, original_lower: interval.unwrap().lower },
+            "R" => Formula::R { interval: interval.clone().unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None, original_lower: interval.unwrap().lower },
             "&&" => Formula::And(vec![acc, right]),
             "||" => Formula::Or(vec![acc, right]),
             "->" => Formula::Imply(Box::new(acc), Box::new(right)),

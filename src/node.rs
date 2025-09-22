@@ -28,10 +28,10 @@ impl Node {
         fn top_level_interval(formula: &Formula) -> Option<&Interval> {
             match formula {
                 Formula::O(inner) => top_level_interval(inner),
-                Formula::G { parent_interval: None, interval, .. } 
-                | Formula::F { parent_interval: None, interval, .. } 
-                | Formula::U { parent_interval: None, interval, .. }
-                | Formula::R { parent_interval: None, interval, .. } => Some(interval),
+                Formula::G { parent_upper: None, interval, .. } 
+                | Formula::F { parent_upper: None, interval, .. } 
+                | Formula::U { parent_upper: None, interval, .. }
+                | Formula::R { parent_upper: None, interval, .. } => Some(interval),
                 _ => None
             }
         }
