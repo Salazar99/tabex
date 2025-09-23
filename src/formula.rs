@@ -177,17 +177,19 @@ impl Formula {
 
     pub fn jump_problematic(&self) -> bool {
         match self {
-            Formula::O(inner) => {
-                match &**inner {
-                    Formula::G { phi, .. }
-                    | Formula::U { left: phi, .. }
-                    | Formula::R { right: phi, .. } => phi.has_temporal(),
-                    _ => false,
-                }
-            }
+            Formula::O(inner) => inner.complex_temporal_operator(),
             Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.jump_problematic()),
             Formula::Imply(left, right) => left.jump_problematic() || right.jump_problematic(),
             Formula::Not(inner) => inner.jump_problematic(),
+            _ => false,
+        }
+    }
+
+    pub fn complex_temporal_operator(&self) -> bool {
+        match self {
+            Formula::G { phi, .. }
+            | Formula::U { left: phi, .. }
+            | Formula::R { right: phi, .. } => phi.has_temporal(),
             _ => false,
         }
     }
