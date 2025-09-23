@@ -1,13 +1,16 @@
 use std::collections::VecDeque;
 use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
+use nom::combinator::Opt;
 
 use crate::decompose::*;
 use crate::node::Node;
 use crate::solver::Solver;
+use crate::store::Store;
 
 pub struct TableauOptions {
     pub max_depth: usize,
     pub graph_output: bool,
+    pub memoization: bool
 }
 
 impl Default for TableauOptions {
@@ -15,6 +18,7 @@ impl Default for TableauOptions {
         TableauOptions {
             max_depth: 1000,
             graph_output: true,
+            memoization: true
         }
     }
 }
@@ -22,15 +26,18 @@ impl Default for TableauOptions {
 pub struct TableauData {
     pub options: TableauOptions,
     pub graph: Option<Graph>,
+    pub store: Option<Store>,
 }
 
 impl TableauData {
 
     pub fn new(options: TableauOptions) -> Self {
         let graph = if options.graph_output { Some(Graph::new("Tableau", Kind::Graph)) } else { None };
+        let store = if options.memoization { Some(Store::new()) } else { None };
         TableauData {
             options,
             graph,
+            store
         }
     }
 
@@ -60,14 +67,6 @@ impl TableauData {
     }
 
     fn process_children(&mut self, children: Vec<Node>, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
-        fn get_child_solver(current: &Node, child: &Node, local_solver: Solver) -> Solver {
-            if child.current_time == current.current_time {
-                local_solver
-            } else {
-                Solver::new()
-            }
-        }
-        
         let mut depth_reached = false;
 
         for child in children.iter() {
@@ -84,8 +83,8 @@ impl TableauData {
 
             match result {
                 Some(true) => return Some(true),
+                Some(false) => (),
                 None => depth_reached = true,
-                _ => (),
             }
         }
 

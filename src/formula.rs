@@ -50,6 +50,16 @@ pub struct Interval {
     pub upper: i64,
 }
 
+impl Interval {
+    pub fn contains(&self, other: &Interval) -> bool {
+        self.lower <= other.lower && self.upper >= other.upper
+    }
+
+    pub fn shift(&self, time: i64) -> Interval {
+        Interval { lower: (self.lower - time).max(0), upper: (self.upper - time).max(0) }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Formula {
     // Propositions
