@@ -204,8 +204,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             map(parse_expr, Formula::Prop),
         )).parse(input)
     }
-    let (input, init) = formula_term(input)?;
-
+    
     fn formula_bin_op(input: &str) -> IResult<&str, (Option<Interval>, &str)> {
         alt((
             map(
@@ -230,6 +229,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             )
         )).parse(input)
     }
+    
+    let (input, init) = formula_term(input)?;
 
     fold_many0(
         pair(formula_bin_op, preceded(space0, formula_term)),

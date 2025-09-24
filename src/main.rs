@@ -22,8 +22,9 @@ const SIMPLE_FIRST: bool = true;
 const JUMP_RULE_ENALED: bool = true;
 
 fn main() {
-    let example = "(F[0, 20] (a)) && (G[0, 20] !a)";
-    let node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
+    let example = "(a && b) && (c || (d || e))";
+    let mut node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
+    node.flatten();
     let options = TableauOptions { 
         max_depth: 100, 
         graph_output: GRAPH_OUTPUT, 

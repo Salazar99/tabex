@@ -11,4 +11,4 @@ path = "src/main.rs"
 dot_graph = "0.2.3"
 nom = "8.0.0"
 num-rational = "0.4.2"
-z3 = "0.18.2"
+z3 = { version = "0.18.2", features = ["gh-release"] }
