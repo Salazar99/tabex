@@ -2,8 +2,20 @@ use std::{collections::HashSet, hash::Hash};
 
 use crate::{formula::*, node::Node};
 
+#[derive(Hash, PartialEq, Eq)]
+pub struct RejectedNode {
+    operands: Vec<Formula>,
+    time: i64
+}
+
+impl RejectedNode {
+    pub fn from_node(node: &Node) -> Self {
+        RejectedNode { operands: node.operands.clone(), time: node.current_time }
+    }
+}
+
 pub struct Store {
-    store: HashSet<Node>
+    store: HashSet<RejectedNode>
 }
 
 impl Store {
@@ -14,13 +26,13 @@ impl Store {
         }
     }
 
-    pub fn add_rejected(&mut self, node: &Node) {
-        if !self.check_rejected(node) {
-            self.store.insert(node.clone());
+    pub fn add_rejected(&mut self, node: RejectedNode) {
+        if !self.check_rejected(&node) {
+            self.store.insert(node);
         }
     }
 
-    pub fn check_rejected(&self, node: &Node) -> bool {
+    pub fn check_rejected(&self, node: &RejectedNode) -> bool {
         self.store.iter().any(|n| n.implies(node))
     }
 }
@@ -45,9 +57,9 @@ impl Formula {
     }
 }
 
-impl Node {
-    fn implies(&self, other: &Node) -> bool {
+impl RejectedNode {
+    fn implies(&self, other: &RejectedNode) -> bool {
         other.operands.iter().all(|rf| 
-            self.operands.iter().any(|lf| lf.quick_implies(rf, self.current_time, other.current_time)))
+            self.operands.iter().any(|lf| lf.quick_implies(rf, self.time, other.time)))
     }
 }

@@ -6,44 +6,46 @@ use crate::node::*;
 use crate::tableau::TableauData;
 use crate::solver::Solver;
 
-impl Node {
-    pub fn decompose(&self) -> Vec<Node> {
-        if let Some(res) = self.decompose_and() {
+impl TableauData {
+    pub fn decompose(&self, node: &Node) -> Vec<Node> {
+        if let Some(res) = node.decompose_and() {
             return res;
         }
 
-        if let Some(res) = self.decompose_g() {
+        if let Some(res) = node.decompose_g() {
             return res;
         }
 
-        for (i, operand) in self.operands.iter().enumerate() {
+        for (i, operand) in node.operands.iter().enumerate() {
             match operand {
                 Formula::Or(_) => {
-                    return self.decompose_or_at(i);
+                    return node.decompose_or_at(i);
                 }
                 Formula::Imply(left, right) => {
-                    return self.decompose_imply_at(i);
+                    return node.decompose_imply_at(i);
                 }
-                Formula::F { interval, .. } if operand.active(self.current_time) => {
-                    return self.decompose_f_at(i);
+                Formula::F { interval, .. } if operand.active(node.current_time) => {
+                    return node.decompose_f_at(i);
                 }
-                Formula::U { interval, .. } if operand.active(self.current_time) => {
-                    return self.decompose_u_at(i);
+                Formula::U { interval, .. } if operand.active(node.current_time) => {
+                    return node.decompose_u_at(i);
                 }
-                Formula::R { interval, .. } if operand.active(self.current_time) => {
-                    return self.decompose_r_at(i);
+                Formula::R { interval, .. } if operand.active(node.current_time) => {
+                    return node.decompose_r_at(i);
                 }
                 _ => {}
             }
         }
 
-        if let Some(res) = self.decompose_jump() {
+        if let Some(res) = node.decompose_jump(self.options.simple_first) {
             return res;
         }
 
         vec![]
     }
+}
 
+impl Node {
     pub fn decompose_and(&self) -> Option<Vec<Node>> {
         let mut out = Vec::with_capacity(self.operands.len() * 2);
         let mut changed = false;
@@ -202,7 +204,7 @@ impl Node {
         vec![new_node1, new_node2]
     }
 
-    pub fn decompose_jump(&self) -> Option<Vec<Node>> {
+    pub fn decompose_jump(&self, simple_first: bool) -> Option<Vec<Node>> {
         fn retime_poised(formula: &Formula, current_time: i64, jump: i64) -> Option<Formula> {
             let Some(ub) = formula.upper_bound() else {
               return None
@@ -263,13 +265,23 @@ impl Node {
 
         // Construct return value
         if new_operands.is_empty() {
-            None
-        } else {
-            let mut new_node = self.clone();
-            new_node.operands = new_operands;
-            new_node.current_time += jump;
-            Some(vec![new_node])
-        } 
+            return None;
+        }            
+        
+        let mut new_node = self.clone();
+        new_node.operands = new_operands;
+        new_node.current_time += jump;
+        
+        if simple_first {
+            let simple_operands: Vec<Formula> = new_node.operands.iter().filter(|f| !f.complex_temporal_operator()).cloned().collect();
+            if !simple_operands.is_empty() && simple_operands.len() < new_node.operands.len(){
+                let mut simple_node = new_node.clone();
+                simple_node.operands = simple_operands;
+                simple_node.implies_siblings = true;
+                return Some(vec![simple_node, new_node])
+            }
+        }
+        return Some(vec![new_node])
     }
 }
 

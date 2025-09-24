@@ -1,11 +1,12 @@
 use std::collections::VecDeque;
+use std::iter;
 use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
 use nom::combinator::Opt;
 
-use crate::decompose::*;
+use crate::{decompose::*, store};
 use crate::node::Node;
 use crate::solver::Solver;
-use crate::store::Store;
+use crate::store::{RejectedNode, Store};
 
 pub struct TableauOptions {
     pub max_depth: usize,
@@ -61,24 +62,27 @@ impl TableauData {
         }
 
         local_solver.push();
-        if (!local_solver.check(&node)) {
-            return Some(false);
-        }
-        let res = node.decompose();
-        let result = self.process_children(res, node, local_solver, depth);
+        let mut result: Option<bool> = if (!local_solver.check(&node)) {
+            Some(false)
+        } else {
+            let new_nodes = self.decompose(&node);
+            self.process_children(new_nodes, node, local_solver, depth)
+        };
         local_solver.pop();
         result
     }
 
     fn process_children(&mut self, children: Vec<Node>, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
-        let mut depth_reached = false;
-
         for child in children.iter() {
             self.add_graph_node(&child);
             self.add_graph_edge(&node, &child);
         }
-
+        
+        let mut depth_reached = false;
         for child in children {
+            let implies_siblings = child.implies_siblings;
+            let rejected_node: RejectedNode = RejectedNode::from_node(&child);
+
             let result = if child.current_time == node.current_time {
                 self.add_children(child, local_solver, depth + 1)
             } else {
@@ -86,8 +90,13 @@ impl TableauData {
             };
 
             match result {
-                Some(true) => return Some(true),
-                Some(false) => (),
+                Some(true) => {
+                    if !implies_siblings { return Some(true) }
+                },
+                Some(false) => {
+                    if let Some(store) = &mut self.store { store.add_rejected(rejected_node) }
+                    if implies_siblings { return Some(false) }
+                },
                 None => depth_reached = true,
             }
         }

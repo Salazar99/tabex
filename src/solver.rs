@@ -1,6 +1,7 @@
 use crate::node::Node;
 use crate::formula::{AExpr, ArithOp, Expr, Formula, RelOp};
 
+use std::any;
 use std::collections::BTreeMap;
 use z3::{Config, Context, Solver as Z3Solver, ast::{Real, Bool}};
 use std::collections::HashSet;
@@ -10,7 +11,7 @@ use std::sync::Arc;
 
 type VariableName = Arc<str>;
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Assertion {
     Boolean { negated: bool, var: VariableName },
     Real { negated: bool, op: RelOp, left: AExpr, right: AExpr },
@@ -105,6 +106,19 @@ impl Solver {
     }
 
     pub fn check(&mut self, node: &Node) -> bool {
+        if node.operands.iter().any(|f| {
+            match f {
+                Formula::O(inner) => {
+                    match &**inner {
+                        Formula::F { interval, .. } | Formula::U { interval, .. } if node.current_time == interval.upper => true,
+                        _ => false
+                    }
+                },
+                _ => false
+            }
+        }) {
+            return false;
+        }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
         let real_ok = self.real_solver.check();
