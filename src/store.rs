@@ -5,7 +5,7 @@ use crate::{formula::*, node::Node};
 #[derive(Hash, PartialEq, Eq)]
 pub struct RejectedNode {
     operands: Vec<Formula>,
-    time: i64
+    time: i32
 }
 
 impl RejectedNode {
@@ -38,7 +38,7 @@ impl Store {
 }
 
 impl Formula {
-    fn quick_implies(&self, other: &Formula, self_time: i64, other_time: i64) -> bool {
+    fn quick_implies(&self, other: &Formula, self_time: i32, other_time: i32) -> bool {
         match (self, other) {
             (f1, f2) if f1 == f2 => true,
             (Formula::G { interval: i1, phi: f1, .. }, 

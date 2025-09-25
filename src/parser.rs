@@ -90,13 +90,17 @@ fn parse_interval(input: &str) -> IResult<&str, Interval> {
         delimited(
             char('['),
             (
-                preceded(space0, parse_number),
-                preceded(delimited(space0, char(','), space0), parse_number)
+                preceded(space0, parse_interval_number),
+                preceded(delimited(space0, char(','), space0), parse_interval_number)
             ),
             preceded(space0, char(']'))
         ),
         |(lower, upper)| Interval { lower, upper }
     ).parse(input)
+}
+
+fn parse_interval_number(input: &str) -> IResult<&str, i32> {
+    map_res(digit1, |s: &str| i32::from_str(s)).parse(input)
 }
 
 fn parse_number(input: &str) -> IResult<&str, i64> {

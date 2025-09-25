@@ -7,7 +7,7 @@ static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Node {
     pub operands: Vec<Formula>,
-    pub current_time: i64,
+    pub current_time: i32,
     pub implies_siblings: bool,
     pub id: usize,
 }
@@ -22,7 +22,7 @@ impl Node {
         }
     }
 
-    pub fn sorted_time_instants(&self) -> Vec<i64> {
+    pub fn sorted_time_instants(&self) -> Vec<i32> {
         fn top_level_interval(formula: &Formula) -> Option<&Interval> {
             match formula {
                 Formula::O(inner) => top_level_interval(inner),
@@ -34,7 +34,7 @@ impl Node {
             }
         }
 
-        let mut times: Vec<i64> = self.operands.iter().filter_map(top_level_interval).flat_map(|i| [i.lower, i.upper]).collect();
+        let mut times: Vec<i32> = self.operands.iter().filter_map(top_level_interval).flat_map(|i| [i.lower, i.upper]).collect();
 
         times.sort_unstable();
         times.dedup();

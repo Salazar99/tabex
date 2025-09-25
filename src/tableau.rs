@@ -13,6 +13,7 @@ pub struct TableauOptions {
     pub graph_output: bool,
     pub memoization: bool,
     pub simple_first: bool,
+    pub formula_optimizations: bool,
     pub jump_rule_enabled: bool
 }
 
@@ -23,6 +24,7 @@ impl Default for TableauOptions {
             graph_output: true,
             memoization: true,
             simple_first: true,
+            formula_optimizations: true,
             jump_rule_enabled: true
         }
     }
@@ -109,7 +111,10 @@ impl TableauData {
 
     fn add_graph_node(&mut self, node: &Node) {
         if let Some(graph) = &mut self.graph {
-            let dot_node = DotNode::new(format!("Node{}", node.id).as_str()).label(format!("{}", node.to_string()).as_str());
+            let mut dot_node = DotNode::new(format!("Node{}", node.id).as_str()).label(format!("{}", node.to_string()).as_str());
+            if node.implies_siblings {
+                dot_node = dot_node.style(dot_graph::Style::Filled).color(Some("lightgray"));
+            }
             graph.add_node(dot_node);
         }
     }

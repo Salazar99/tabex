@@ -3,11 +3,21 @@ use std::fs::OpenOptions;
 
 use crate::formula::*;
 use crate::node::*;
+use crate::rewrite::merge_globally;
+use crate::rewrite::rewrite_chain;
 use crate::tableau::TableauData;
 use crate::solver::Solver;
 
 impl TableauData {
     pub fn decompose(&self, node: &Node) -> Vec<Node> {
+        if self.options.formula_optimizations {
+            if let Some(res) = rewrite_chain(&node.operands) {
+                let mut new_node = node.clone();
+                new_node.operands = res;
+                return vec![new_node]
+            }
+        }
+
         if let Some(res) = node.decompose_and() {
             return res;
         }
@@ -22,7 +32,7 @@ impl TableauData {
                     return node.decompose_or_at(i);
                 }
                 Formula::Imply(left, right) => {
-                    return node.decompose_imply_at(i);
+                    return node.decompose_imply_at(i, self.options.formula_optimizations);
                 }
                 Formula::F { interval, .. } if operand.active(node.current_time) => {
                     return node.decompose_f_at(i);
@@ -37,7 +47,7 @@ impl TableauData {
             }
         }
 
-        if let Some(res) = node.decompose_jump(self.options.simple_first) {
+        if let Some(res) = node.decompose_jump(self.options.simple_first) {  
             return res;
         }
 
@@ -92,14 +102,15 @@ impl Node {
             return None;
         }
 
+        for formula in &g_nodes {
+            if let Formula::G { interval, phi, .. } = formula {
+                old_nodes.push(phi.temporal_expansion(self.current_time, interval));
+            }
+        }
+
         let mut new_node = self.clone();
         new_node.operands = old_nodes;
 
-        for formula in &g_nodes {
-            if let Formula::G { interval, phi, .. } = formula {
-                new_node.operands.push(phi.temporal_expansion(self.current_time, interval));
-            }
-        }
         Some(vec![new_node])
     }
 
@@ -117,7 +128,7 @@ impl Node {
         res
     }
 
-    pub fn decompose_imply_at(&self, i: usize) -> Vec<Node> {
+    pub fn decompose_imply_at(&self, i: usize, formula_optimizations: bool) -> Vec<Node> {
         let Formula::Imply(left, right) = &self.operands[i] else {
             panic!("decompose_imply_at called on non-Imply formula at index {}", i);
         };
@@ -126,8 +137,10 @@ impl Node {
         new_node1.operands[i] = Formula::Not(Box::new((**left).clone()));
 
         let mut new_node2 = self.clone();
-        new_node2.operands[i] = (**left).clone();
-        new_node2.operands.push((**right).clone());
+        new_node2.operands[i] = (**right).clone();
+        if formula_optimizations {
+            new_node2.operands.push((**left).clone());
+        }
 
         vec![new_node1, new_node2]
     }
@@ -205,7 +218,7 @@ impl Node {
     }
 
     pub fn decompose_jump(&self, simple_first: bool) -> Option<Vec<Node>> {
-        fn retime_poised(formula: &Formula, current_time: i64, jump: i64) -> Option<Formula> {
+        fn retime_poised(formula: &Formula, current_time: i32, jump: i32) -> Option<Formula> {
             let Some(ub) = formula.upper_bound() else {
               return None
             };
@@ -257,7 +270,7 @@ impl Node {
         };
 
         // Retain only temporal operators, and retimed O formulas
-        let new_operands: Vec<Formula> = self.operands.iter().filter_map(|op| match op {
+        let mut new_operands: Vec<Formula> = self.operands.iter().filter_map(|op| match op {
             f @ (Formula::G {..} | Formula::F {..} | Formula::U {..} | Formula::R {..}) => retime_poised(f, self.current_time, jump),
             Formula::O(inner) => retime_poised(inner, self.current_time, jump),
             _ => None,
@@ -266,7 +279,7 @@ impl Node {
         // Construct return value
         if new_operands.is_empty() {
             return None;
-        }            
+        }
         
         let mut new_node = self.clone();
         new_node.operands = new_operands;
@@ -286,7 +299,7 @@ impl Node {
 }
 
 impl Formula {
-    fn temporal_expansion(&self, current_time: i64, parent_interval: &Interval) ->  Formula {
+    fn temporal_expansion(&self, current_time: i32, parent_interval: &Interval) ->  Formula {
         match self {
             Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False | Formula::O(_) => self.clone(),
             Formula::F { interval, .. } 
@@ -317,15 +330,6 @@ impl Formula {
                 let new_right = right.temporal_expansion(current_time, parent_interval);
                 Formula::Imply(Box::new(new_left), Box::new(new_right))
             }
-        }
-    }
-
-    pub fn check_boolean_closure(&self) -> bool {
-        match self {
-            Formula::Not(inner) => inner.check_boolean_closure(),
-            Formula::And(v) | Formula::Or(v) => v.iter().all(|f| f.check_boolean_closure()),
-            Formula::Prop(_) | Formula::True | Formula::False => true,
-            _ => false,
         }
     }
 }

@@ -46,8 +46,8 @@ pub enum Expr {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Interval {
-    pub lower: i64,
-    pub upper: i64,
+    pub lower: i32,
+    pub upper: i32,
 }
 
 impl Interval {
@@ -55,7 +55,15 @@ impl Interval {
         self.lower <= other.lower && self.upper >= other.upper
     }
 
-    pub fn shift(&self, time: i64) -> Interval {
+    pub fn intersects(&self, other: &Interval) -> bool {
+        self.upper >= other.lower && other.upper >= self.lower
+    }
+
+    pub fn active(&self, current_time: i32) -> bool {
+        current_time >= self.lower && current_time <= self.upper
+    }
+
+    pub fn shift(&self, time: i32) -> Interval {
         Interval { lower: (self.lower - time).max(0), upper: (self.upper - time).max(0) }
     }
 }
@@ -74,10 +82,10 @@ pub enum Formula {
     Not(Box<Formula>),
     
     // Temporal
-    G { interval: Interval, parent_upper: Option<i64>, phi: Box<Formula> },
-    F { interval: Interval, parent_upper: Option<i64>, phi: Box<Formula> },
-    U { interval: Interval, parent_upper: Option<i64>, left: Box<Formula>, right: Box<Formula> },
-    R { interval: Interval, parent_upper: Option<i64>, left: Box<Formula>, right: Box<Formula> },
+    G { interval: Interval, parent_upper: Option<i32>, phi: Box<Formula> },
+    F { interval: Interval, parent_upper: Option<i32>, phi: Box<Formula> },
+    U { interval: Interval, parent_upper: Option<i32>, left: Box<Formula>, right: Box<Formula> },
+    R { interval: Interval, parent_upper: Option<i32>, left: Box<Formula>, right: Box<Formula> },
     O(Box<Formula>),
 }
 
@@ -145,7 +153,7 @@ impl Display for Formula {
 }
 
 impl Formula {
-    pub fn lower_bound(&self) -> Option<i64> {
+    pub fn lower_bound(&self) -> Option<i32> {
         match self {
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
@@ -155,7 +163,7 @@ impl Formula {
         }
     }
 
-    pub fn upper_bound(&self) -> Option<i64> {
+    pub fn upper_bound(&self) -> Option<i32> {
         match self {
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
@@ -194,7 +202,7 @@ impl Formula {
         }
     }
 
-    pub fn get_max_upper(&self) -> Option<i64> {
+    pub fn get_max_upper(&self) -> Option<i32> {
         match self {
             Formula::O(inner) 
             | Formula::Not(inner) => inner.get_max_upper(),
@@ -212,7 +220,7 @@ impl Formula {
 
     }
 
-    pub fn active(&self, current_time: i64) -> bool {
+    pub fn active(&self, current_time: i32) -> bool {
         match self {
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
@@ -222,7 +230,7 @@ impl Formula {
         }
     }
 
-    pub fn parent_active(&self, current_time: i64) -> bool {
+    pub fn parent_active(&self, current_time: i32) -> bool {
         match self {
             Formula::G { parent_upper: Some(upper), .. }
             | Formula::F { parent_upper: Some(upper), .. }
