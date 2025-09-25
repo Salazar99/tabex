@@ -18,6 +18,8 @@ use crate::parser::*;
 use crate::rewrite::rewrite_chain;
 use crate::tableau::*;
 
+const MLTL: bool = false;
+
 const GRAPH_OUTPUT: bool = true;
 const MEMOIZATION: bool = true;
 const SIMPLE_FIRST: bool = true;
@@ -25,20 +27,26 @@ const FORMULA_OPTIMIZATIONS: bool = true;
 const JUMP_RULE_ENALED: bool = true;
 
 fn main() {
-    let example = "G[0, 4] (F[0, 3] a)";
+    let file_content = fs::read_to_string("resources/formulas.stl").unwrap();
+    let example = file_content.lines().next().unwrap();
     let mut node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
     let options = TableauOptions { 
-        max_depth: 100, 
+        max_depth: 10000000, 
         graph_output: GRAPH_OUTPUT, 
         memoization: MEMOIZATION, 
         simple_first: SIMPLE_FIRST, 
         formula_optimizations: FORMULA_OPTIMIZATIONS,
         jump_rule_enabled: JUMP_RULE_ENALED 
     };
-    let mut tableau = TableauData::new(options);
     let start = std::time::Instant::now();
+    
+    let mut tableau = TableauData::new(options);
+    if !MLTL {
+        node.rewrite_u_r();
+    }
     node.flatten();
     let res = tableau.make_tableau(node);
+    
     let duration = start.elapsed();
     println!("Tableau result: {:?}", res);
 

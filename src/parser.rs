@@ -104,7 +104,10 @@ fn parse_interval_number(input: &str) -> IResult<&str, i32> {
 }
 
 fn parse_number(input: &str) -> IResult<&str, i64> {
-    map_res(digit1, |s: &str| i64::from_str(s)).parse(input)
+    map_res(
+        recognize(pair(opt(char('-')), digit1)),
+        |s: &str| i64::from_str(s)
+    ).parse(input)
 }
 
 fn parse_decimal(input: &str) -> IResult<&str, Ratio<i64>> {
@@ -205,6 +208,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             // Parenthesized formula (moved before Proposition)
             delimited(char('('), parse_formula, char(')')),
             // Proposition (comes after parenthesized)
+            map(tag("false"), |_| Formula::False),
+            map(tag("true"), |_| Formula::True),
             map(parse_expr, Formula::Prop),
         )).parse(input)
     }

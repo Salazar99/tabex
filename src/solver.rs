@@ -91,7 +91,7 @@ impl Solver {
             if self.current_assertions.insert(ass.clone()) {
                 match ass {
                     Assertion::Boolean { negated, ref var } => {
-                        self.boolean_solver.add_constraint(negated, var.to_string());
+                        self.boolean_solver.add_constraint(negated, var);
                     }
                     Assertion::Real { negated, ref op, ref left, ref right } => {
                         self.real_solver.add_constraint(negated, op.clone(), left.clone(), right.clone());
@@ -130,8 +130,8 @@ impl Solver {
 }
 
 struct BooleanSolver {
-    pos_props: HashSet<String>,
-    neg_props: HashSet<String>,
+    pos_props: HashSet<Arc<str>>,
+    neg_props: HashSet<Arc<str>>,
     result_cache: Option<bool>,
 }
 
@@ -144,15 +144,15 @@ impl BooleanSolver {
         }
     }
 
-    fn add_constraint(&mut self, negated: bool, prop: String) {
+    fn add_constraint(&mut self, negated: bool, prop: &Arc<str>) {
         if negated {
             self.neg_props.insert(prop.clone());
-            if self.pos_props.contains(&prop) {
+            if self.pos_props.contains(&**prop) {
                 self.result_cache = Some(false);
             }
         } else {
             self.pos_props.insert(prop.clone());
-            if self.neg_props.contains(&prop) {
+            if self.neg_props.contains(&**prop) {
                 self.result_cache = Some(false);
             }
         }

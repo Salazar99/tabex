@@ -9,9 +9,11 @@ pub fn merge_globally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
     for op in input.iter() {
         if let Formula::G { interval, parent_upper, phi } = op {
             let mut entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
-            entry.0 += 1;
-            entry.1.lower = entry.1.lower.min(interval.lower);
-            entry.1.upper = entry.1.upper.max(interval.upper);
+            if interval.intersects(&entry.1) {
+                entry.0 += 1;
+                entry.1.lower = entry.1.lower.min(interval.lower);
+                entry.1.upper = entry.1.upper.max(interval.upper);
+            }
         }
     }
 
@@ -150,5 +152,60 @@ pub fn rewrite_chain(input: &Vec<Formula>) -> Option<Vec<Formula>> {
         return Some(current)
     } else {
         None
+    }
+}
+
+impl Node {
+    pub fn rewrite_u_r(&mut self) {
+        fn inner_rewrite(formula: &Formula) -> Formula {
+            match formula {
+                Formula::And(ops) => Formula::And(ops.iter().map(|f| inner_rewrite(f)).collect()),
+                Formula::Or(ops) => Formula::Or(ops.iter().map(|f| inner_rewrite(f)).collect()),
+                Formula::O(i) => Formula::O(Box::new(inner_rewrite(i))),
+                Formula::Not(i) => Formula::Not(Box::new(inner_rewrite(i))),
+                Formula::G { phi, interval, parent_upper } => Formula::G { phi: Box::new(inner_rewrite(phi)), interval: interval.clone(), parent_upper: parent_upper.clone() },
+                Formula::F { phi, interval, parent_upper } => Formula::F { phi: Box::new(inner_rewrite(phi)), interval: interval.clone(), parent_upper: parent_upper.clone() },
+                Formula::Imply(left, right) => Formula::Imply(Box::new(inner_rewrite(left)), Box::new(inner_rewrite(right))),
+                Formula::U { interval, left, right, .. } => {
+                    let new_left = inner_rewrite(left);
+                    let new_right = inner_rewrite(right);
+                    let first = Formula::U { 
+                        interval: interval.clone(), 
+                        parent_upper: None, 
+                        left: Box::new(new_left.clone()), 
+                        right: Box::new(new_right.clone())
+                    };
+                    let second = Formula::G { 
+                        interval: Interval { lower: 0, upper: interval.lower }, 
+                        parent_upper: None, 
+                        phi: Box::new(new_left.clone()) 
+                    };
+                    Formula::And(vec![first, second])
+                } 
+                Formula::R { interval, left, right, .. } => {
+                    let new_left = inner_rewrite(left);
+                    let new_right = inner_rewrite(right);
+                    let first = Formula::F { 
+                        interval: Interval { lower: 0, upper: interval.lower }, 
+                        parent_upper: None, 
+                        phi: Box::new(new_left.clone())
+                    };
+                    let second = Formula::R { 
+                        interval: interval.clone(), 
+                        parent_upper: None, 
+                        left: Box::new(new_left.clone()),
+                        right: Box::new(new_right.clone())
+                    };
+                    Formula::Or(vec![first, second])
+                }
+                _ => formula.clone()
+            }
+        }
+        self.operands.iter_mut().for_each(|f| {
+            *f = inner_rewrite(f);
+            while let Some(rewritten) = rewrite_chain(&vec![f.clone()]) {
+                *f = rewritten[0].clone();
+            }
+        });
     }
 }

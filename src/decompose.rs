@@ -90,9 +90,7 @@ impl Node {
                 Formula::G { interval, phi, .. } if operand.active(self.current_time) => {
                     changed = true;
                     g_nodes.push(operand.clone());
-                    if self.current_time < interval.upper {
-                        old_nodes.push(Formula::O(Box::new(operand.clone())));
-                    }
+                    old_nodes.push(Formula::O(Box::new(operand.clone())));
                 }
                 _ => old_nodes.push(operand.clone()),
             }
@@ -210,9 +208,7 @@ impl Node {
         // Node in which R is not satisfied (q, OR)
         let mut new_node2 = self.clone();
         new_node2.operands[i] = right.temporal_expansion(self.current_time, interval);
-        if self.current_time < interval.upper {
-            new_node2.operands.push(Formula::O(Box::new(r_formula.clone())));
-        }
+        new_node2.operands.push(Formula::O(Box::new(r_formula.clone())));
 
         vec![new_node1, new_node2]
     }
@@ -270,7 +266,7 @@ impl Node {
         };
 
         // Retain only temporal operators, and retimed O formulas
-        let mut new_operands: Vec<Formula> = self.operands.iter().filter_map(|op| match op {
+        let new_operands: Vec<Formula> = self.operands.iter().filter_map(|op| match op {
             f @ (Formula::G {..} | Formula::F {..} | Formula::U {..} | Formula::R {..}) => retime_poised(f, self.current_time, jump),
             Formula::O(inner) => retime_poised(inner, self.current_time, jump),
             _ => None,
