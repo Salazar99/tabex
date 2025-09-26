@@ -14,7 +14,8 @@ pub struct TableauOptions {
     pub memoization: bool,
     pub simple_first: bool,
     pub formula_optimizations: bool,
-    pub jump_rule_enabled: bool
+    pub jump_rule_enabled: bool,
+    pub mltl: bool
 }
 
 impl Default for TableauOptions {
@@ -25,7 +26,8 @@ impl Default for TableauOptions {
             memoization: true,
             simple_first: true,
             formula_optimizations: true,
-            jump_rule_enabled: true
+            jump_rule_enabled: true,
+            mltl: false
         }
     }
 }
@@ -49,8 +51,13 @@ impl TableauData {
     }
 
     pub fn make_tableau(&mut self, mut root: Node) -> Option<bool> {
+        if !self.options.mltl {
+            root.rewrite_u_r();
+        }
+        root.push_negation();
+        root.flatten();
+        
         root.current_time = 0;
-
         self.add_graph_node(&root);
 
         let mut local_solver = Solver::new();
@@ -153,12 +160,9 @@ mod tests {
             simple_first: true,
             formula_optimizations: true,
             jump_rule_enabled: true,
+            mltl: mltl
         };
         let mut tableau = TableauData::new(options);
-        if !mltl {
-            node.rewrite_u_r();
-        }
-        node.flatten();
         tableau.make_tableau(node)
     }
 
@@ -252,6 +256,11 @@ mod tests {
     #[test]
     fn test_u_parent() {
         assert_eq!(make_test("(G[0,89] F[88,100] a2 U[0,78] !a1) && a1", true), Some(true));
+    }
+
+    #[test]
+    fn test_implication_negation() {
+        assert_eq!(make_test("G[0, 6] !a && (G[0, 3] !a -> F[0, 3] a)", false), Some(false))
     }
 
 }

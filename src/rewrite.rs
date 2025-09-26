@@ -204,9 +204,131 @@ impl Node {
         }
         self.operands.iter_mut().for_each(|f| {
             *f = inner_rewrite(f);
-            while let Some(rewritten) = rewrite_chain(&vec![f.clone()], self.current_time) {
-                *f = rewritten[0].clone();
-            }
         });
+    }
+
+    pub fn push_negation(&mut self) {
+        fn inner_rewrite(formula: &Formula) -> Formula {
+            if let Formula::Not(inner) = formula {
+                match &**inner {
+                    Formula::Not(i) => inner_rewrite(&i),
+                    Formula::And(ops) => Formula::Or(ops.iter().map(|f| inner_rewrite(&Formula::Not(Box::new(f.clone())))).collect()),
+                    Formula::Or(ops) => Formula::And(ops.iter().map(|f| inner_rewrite(&Formula::Not(Box::new(f.clone())))).collect()),
+                    Formula::Imply(left, right) => Formula::And(vec![*left.clone(), inner_rewrite(&Formula::Not(Box::new(*right.clone())))]),
+                    Formula::G { phi, interval, parent_upper } => Formula::F { 
+                        phi: Box::new(inner_rewrite(&Formula::Not(Box::new(*phi.clone())))), interval: interval.clone(), parent_upper: parent_upper.clone() 
+                    },
+                    Formula::F { phi, interval, parent_upper } => Formula::G {
+                        phi: Box::new(inner_rewrite(&Formula::Not(Box::new(*phi.clone())))), interval: interval.clone(), parent_upper: parent_upper.clone() 
+                    },
+                    Formula::U { interval, left, right, .. } => Formula::R { 
+                        interval: interval.clone(), 
+                        parent_upper: None, 
+                        left: Box::new(inner_rewrite(&Formula::Not(Box::new(*left.clone())))), 
+                        right: Box::new(inner_rewrite(&Formula::Not(Box::new(*right.clone()))))
+                    },
+                    Formula::R { interval, left, right, .. } => Formula::U { 
+                        interval: Interval { lower: 0, upper: interval.lower }, 
+                        parent_upper: None, 
+                        left: Box::new(inner_rewrite(&Formula::Not(Box::new(*left.clone())))), 
+                        right: Box::new(inner_rewrite(&Formula::Not(Box::new(*right.clone()))))
+                    },
+                    Formula::O(i) => Formula::O(Box::new(inner_rewrite(&Formula::Not(Box::new(*i.clone()))))),
+                    _ => formula.clone()
+                }
+            } else {
+                formula.clone()
+            }
+        }
+        self.operands.iter_mut().for_each(|f| {
+            *f = inner_rewrite(f);
+        });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parser::parse_formula;
+    use super::*;
+
+    fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
+        let (_, input_formula) = parse_formula(input).unwrap();
+        let mut input_node: Node = Node::from_operands(vec![input_formula]);
+        input_node.push_negation();
+        let (_, result_formula) = parse_formula(result).unwrap();
+        let result_node: Node = Node::from_operands(vec![result_formula]);
+        (input_node, result_node)
+    }
+
+    #[test]
+    fn push_negation_prop() {
+        let (res, exp) = make_test_push_negation("!a", "!a");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_double_negation() {
+        let (res, exp) = make_test_push_negation("!!a", "a");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_and() {
+        let (res, exp) = make_test_push_negation("!(a && b)", "(!a || !b)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_or() {
+        let (res, exp) = make_test_push_negation("!(a || b)", "(!a && !b)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_imply() {
+        let (res, exp) = make_test_push_negation("!(a -> b)", "(a && !b)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_globally() {
+        let (res, exp) = make_test_push_negation("!(G[0,5] a)", "F[0,5] (!a)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_finally() {
+        let (res, exp) = make_test_push_negation("!(F[0,5] a)", "G[0,5] (!a)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_until() {
+        let (res, exp) = make_test_push_negation("!(a U[0,5] b)", "(!a R[0,5] !b)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_release() {
+        let (res, exp) = make_test_push_negation("!(a R[0,5] b)", "(!a U[0,0] !b)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_not_next() {
+        let (res, exp) = make_test_push_negation("!(O a)", "O (!a)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_nested_globally_and() {
+        let (res, exp) = make_test_push_negation("!(G[0,5] (a && b))", "F[0,5] (!a || !b)");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_nested_until_or() {
+        let (res, exp) = make_test_push_negation("!(a U[0,5] (b || c))", "(!a R[0,5] (!b && !c))");
+        assert_eq!(res.operands, exp.operands);
     }
 }

@@ -36,15 +36,12 @@ fn main() {
         memoization: MEMOIZATION, 
         simple_first: SIMPLE_FIRST, 
         formula_optimizations: FORMULA_OPTIMIZATIONS,
-        jump_rule_enabled: JUMP_RULE_ENALED 
+        jump_rule_enabled: JUMP_RULE_ENALED,
+        mltl: MLTL
     };
     let start = std::time::Instant::now();
     
     let mut tableau = TableauData::new(options);
-    if !MLTL {
-        node.rewrite_u_r();
-    }
-    node.flatten();
     let res = tableau.make_tableau(node);
     
     let duration = start.elapsed();

@@ -129,6 +129,7 @@ impl Node {
         
         let mut new_node1 = self.clone();
         new_node1.operands[i] = Formula::Not(Box::new((**left).clone()));
+        new_node1.push_negation();
 
         let mut new_node2 = self.clone();
         new_node2.operands[i] = (**right).clone();
