@@ -153,19 +153,67 @@ fn parse_fraction(input: &str) -> IResult<&str, Ratio<i64>> {
 }
 
 pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
-    fn formula_term(input: &str) -> IResult<&str, Formula> {
+
+    fn parse_temporal(input: &str) -> IResult<&str, Formula> {
+        let (input, init) = parse_implication(input)?;
+        
+        fold_many0(
+            pair(
+                alt((
+                    map(pair(preceded(space0, tag("U")), parse_interval), |(_, interval)| ("U", Some(interval))),
+                    map(pair(preceded(space0, tag("R")), parse_interval), |(_, interval)| ("R", Some(interval))),
+                )),
+                preceded(space0, parse_logical_or)
+            ),
+            move || init.clone(),
+            |acc, ((op, interval), right)| match op {
+                "U" => Formula::U { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
+                "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
+                _ => panic!(), // Should not happen
+            }
+        ).parse(input)
+    }
+
+    fn parse_implication(input: &str) -> IResult<&str, Formula> {
+        let (input, init) = parse_logical_or(input)?;
+        
+        fold_many0(
+            pair(preceded(space0, tag("->")), preceded(space0, parse_temporal)),
+            move || init.clone(),
+            |acc, (_, right)| Formula::Imply(Box::new(acc), Box::new(right))
+        ).parse(input)
+    }
+
+    fn parse_logical_or(input: &str) -> IResult<&str, Formula> {
+        let (input, init) = parse_logical_and(input)?;
+        
+        fold_many0(
+            pair(preceded(space0, tag("||")), preceded(space0, parse_logical_and)),
+            move || init.clone(),
+            |acc, (_, right)| Formula::Or(vec![acc, right])
+        ).parse(input)
+    }
+
+    fn parse_logical_and(input: &str) -> IResult<&str, Formula> {
+        let (input, init) = parse_formula_term(input)?;
+        
+        fold_many0(
+            pair(preceded(space0, tag("&&")), preceded(space0, parse_formula_term)),
+            move || init.clone(),
+            |acc, (_, right)| Formula::And(vec![acc, right])
+        ).parse(input)
+    }
+
+    fn parse_formula_term(input: &str) -> IResult<&str, Formula> {
         alt((
-            // True
             map(tag("true"), |_| Formula::True),
-            // False
             map(tag("false"), |_| Formula::False),
-            // Globally: G[lower,upper] phi
             map(
                 (
                     tag("G"),
                     parse_interval,
                     space0,
-                    parse_formula
+                    parse_formula_term
                 ),
                 |(_, interval, _, phi)| Formula::G {
                     interval: interval,
@@ -173,13 +221,12 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     parent_upper: None,
                 }
             ),
-            // Finally: F[lower,upper] phi
             map(
                 (
                     tag("F"),
                     parse_interval,
                     space0,
-                    parse_formula
+                    parse_formula_term
                 ),
                 |(_, interval, _, phi)| Formula::F {
                     interval: interval,
@@ -187,72 +234,27 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     parent_upper: None,
                 }
             ),
-            // Once: O phi
             map(
                 (
                     char('O'),
                     space0,
-                    parse_formula
+                    parse_formula_term
                 ),
                 |(_, _, phi)| Formula::O(Box::new(phi))
             ),
-            // Not: !phi
             map(
                 (
                     char('!'),
                     space0,
-                    parse_formula
+                    parse_formula_term
                 ),
                 |(_, _, phi)| Formula::Not(Box::new(phi))
             ),
-            // Parenthesized formula (moved before Proposition)
             delimited(char('('), parse_formula, char(')')),
-            // Proposition (comes after parenthesized)
-            map(tag("false"), |_| Formula::False),
-            map(tag("true"), |_| Formula::True),
             map(parse_expr, Formula::Prop),
         )).parse(input)
     }
-    
-    fn formula_bin_op(input: &str) -> IResult<&str, (Option<Interval>, &str)> {
-        alt((
-            map(
-                pair(preceded(space0, tag("U")), parse_interval),
-                |(_, interval)| (Some(interval), "U")
-            ),
-            map(
-                pair(preceded(space0, tag("R")), parse_interval),
-                |(_, interval)| (Some(interval), "R")
-            ),
-            map(
-                preceded(space0, tag("&&")),
-                |_| (None, "&&")
-            ),
-            map(
-                preceded(space0, tag("||")),
-                |_| (None, "||")
-            ),
-            map(
-                preceded(space0, tag("->")),
-                |_| (None, "->")
-            )
-        )).parse(input)
-    }
-    
-    let (input, init) = formula_term(input)?;
-
-    fold_many0(
-        pair(formula_bin_op, preceded(space0, formula_term)),
-        move || init.clone(),
-        |acc, ((interval, op), right)| match op {
-            "U" => Formula::U { interval: interval.clone().unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
-            "R" => Formula::R { interval: interval.clone().unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
-            "&&" => Formula::And(vec![acc, right]),
-            "||" => Formula::Or(vec![acc, right]),
-            "->" => Formula::Imply(Box::new(acc), Box::new(right)),
-            _ => panic!(), // Should not happen
-        }
-    ).parse(input)
+    parse_temporal(input)
 }
 
 pub fn parse_stl_file(filename: &str) {
