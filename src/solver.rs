@@ -1,9 +1,8 @@
 use crate::node::Node;
 use crate::formula::{AExpr, ArithOp, Expr, Formula, RelOp};
 
-use std::any;
 use std::collections::BTreeMap;
-use z3::{Config, Context, Solver as Z3Solver, ast::{Real, Bool}};
+use z3::{Solver as Z3Solver, ast::{Real, Bool}};
 use std::collections::HashSet;
 
 // Use interned strings for better memory efficiency with repeated variable names
@@ -188,7 +187,7 @@ struct RealSolver {
 }
 
 impl RealSolver {
-     fn new() -> Self {
+    fn new() -> Self {
         RealSolver {
             z3_solver: Z3Solver::new(),
             z3_variables: BTreeMap::new(),
@@ -196,25 +195,21 @@ impl RealSolver {
         }
     }
 
-     fn get_empty_solver(&self) -> RealSolver {
-        RealSolver::new()
-    }
-
-     fn push(&mut self) {
+    fn push(&mut self) {
         self.z3_solver.push();
     }
 
-     fn pop(&mut self) {
+    fn pop(&mut self) {
         self.z3_solver.pop(1);
     }
 
-     fn add_constraint(&mut self, negated: bool, op: RelOp, left: AExpr, right: AExpr) {
+    fn add_constraint(&mut self, negated: bool, op: RelOp, left: AExpr, right: AExpr) {
         let ast = self.rel_to_z3(negated, op, left, right);
         self.z3_solver.assert(&ast);
         self.result_cache = None;
     }
 
-     fn check(&mut self) -> bool {
+    fn check(&mut self) -> bool {
         if let Some(res) = self.result_cache {
             res
         } else {
@@ -223,11 +218,6 @@ impl RealSolver {
             self.result_cache = Some(sat);
             sat
         }
-    }
-
-     fn reset(&mut self) {
-        self.result_cache = None;
-        self.z3_solver.reset();
     }
 
     fn aexpr_to_z3(&mut self, expr: &AExpr) -> Real {

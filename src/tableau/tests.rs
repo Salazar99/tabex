@@ -1,10 +1,9 @@
 mod tests {
-    use super::*;
     use crate::{node::Node, parser::parse_formula, tableau::{TableauData, TableauOptions}};
 
     fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         let (_, formula) = parse_formula(formula_str).unwrap();
-        let mut node = Node::from_operands(vec![formula]);
+        let node = Node::from_operands(vec![formula]);
         let options = TableauOptions {
             max_depth: 10000,
             graph_output: true,

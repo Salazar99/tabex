@@ -1,7 +1,4 @@
-use core::time;
-use std::{collections::HashMap, f32::INFINITY, hash::Hash, i32::MAX, result, vec};
-
-use z3::ast::Int;
+use std::{collections::HashMap, vec};
 
 use crate::{formula::{Formula, Interval}, node::Node};
 
@@ -12,7 +9,7 @@ pub fn merge_globally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
     let mut map: HashMap<(Formula, Option<i32>), (i32, Interval)> = HashMap::new();
     for op in input.iter() {
         if let Formula::G { interval, parent_upper, phi } = op {
-            let mut entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
+            let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
             if interval.intersects(&entry.1) {
                 entry.0 += 1;
                 entry.1.lower = entry.1.lower.min(interval.lower);
@@ -27,7 +24,7 @@ pub fn merge_globally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
 
     let mut new_operands = Vec::new();
     for op in input.iter() {
-        if let Formula::G { interval, parent_upper, phi } = op {
+        if let Formula::G { parent_upper, phi, .. } = op {
             let entry = map.get_mut(&(*phi.clone(), *parent_upper));
             if let Some(v) = entry {
                 if v.0 <= 1 && v.0 >= 0 {
@@ -50,7 +47,7 @@ pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
     let mut map: HashMap<(Formula, Option<i32>), (i32, Interval)> = HashMap::new();
     for op in input.iter() {
         if let Formula::F { interval, parent_upper, phi } = op {
-            let mut entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
+            let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
             if interval.intersects(&entry.1) {
                 entry.0 += 1;
                 entry.1.lower = entry.1.lower.max(interval.lower);
@@ -65,7 +62,7 @@ pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
 
     let mut new_operands = Vec::new();
     for op in input.iter() {
-        if let Formula::F { interval, parent_upper, phi } = op {
+        if let Formula::F { parent_upper, phi, .. } = op {
             let entry = map.get_mut(&(*phi.clone(), *parent_upper));
             if let Some(v) = entry {
                 if v.0 <= 1 && v.0 >= 0 {

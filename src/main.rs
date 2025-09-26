@@ -1,22 +1,8 @@
-#![allow(unused)]
 use std::fs;
-use std::time::Duration;
-use std::time::Instant;
 
-mod formula;
-mod node;
-mod decompose;
-mod parser;
-mod tableau;
-mod solver;
-mod store;
-mod rewrite;
-
-use crate::formula::*;
-use crate::node::*;
-use crate::parser::*;
-use crate::rewrite::rewrite_chain;
-use crate::tableau::*;
+use stlcc::node::*;
+use stlcc::parser::*;
+use stlcc::tableau::*;
 
 const MLTL: bool = false;
 
@@ -29,7 +15,7 @@ const JUMP_RULE_ENALED: bool = true;
 fn main() {
     let file_content = fs::read_to_string("resources/formulas.stl").unwrap();
     let example = file_content.lines().next().unwrap();
-    let mut node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
+    let node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
     let options = TableauOptions { 
         max_depth: 10000000, 
         graph_output: GRAPH_OUTPUT, 

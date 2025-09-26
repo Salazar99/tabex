@@ -1,9 +1,5 @@
-use std::collections::VecDeque;
-use std::iter;
 use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
-use nom::combinator::Opt;
 
-use crate::{decompose::*, store};
 use crate::node::Node;
 use crate::solver::Solver;
 use crate::store::{RejectedNode, Store};
@@ -74,7 +70,7 @@ impl TableauData {
         }
 
         local_solver.push();
-        let mut result: Option<bool> = if (!local_solver.check(&node)) {
+        let result: Option<bool> = if !local_solver.check(&node) {
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);

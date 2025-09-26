@@ -1,5 +1,4 @@
 mod tests {
-    use super::*;
     use crate::{node::Node, parser::parse_formula};
 
     fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
