@@ -11,7 +11,7 @@ use crate::solver::Solver;
 impl TableauData {
     pub fn decompose(&self, node: &Node) -> Vec<Node> {
         if self.options.formula_optimizations {
-            if let Some(res) = rewrite_chain(&node.operands) {
+            if let Some(res) = rewrite_chain(&node.operands, node.current_time) {
                 let mut new_node = node.clone();
                 new_node.operands = res;
                 return vec![new_node]
@@ -47,7 +47,7 @@ impl TableauData {
             }
         }
 
-        if let Some(res) = node.decompose_jump(self.options.simple_first) {  
+        if let Some(res) = node.decompose_jump(self.options.simple_first, self.options.jump_rule_enabled) {  
             return res;
         }
 
@@ -89,8 +89,10 @@ impl Node {
             match operand {
                 Formula::G { interval, phi, .. } if operand.active(self.current_time) => {
                     changed = true;
-                    g_nodes.push(operand.clone());
-                    old_nodes.push(Formula::O(Box::new(operand.clone())));
+                    old_nodes.push(phi.temporal_expansion(self.current_time, interval));
+                    if self.current_time < interval.upper {
+                        old_nodes.push(Formula::O(Box::new(operand.clone())));
+                    }
                 }
                 _ => old_nodes.push(operand.clone()),
             }
@@ -98,12 +100,6 @@ impl Node {
 
         if !changed {
             return None;
-        }
-
-        for formula in &g_nodes {
-            if let Formula::G { interval, phi, .. } = formula {
-                old_nodes.push(phi.temporal_expansion(self.current_time, interval));
-            }
         }
 
         let mut new_node = self.clone();
@@ -213,7 +209,7 @@ impl Node {
         vec![new_node1, new_node2]
     }
 
-    pub fn decompose_jump(&self, simple_first: bool) -> Option<Vec<Node>> {
+    pub fn decompose_jump(&self, simple_first: bool, jump_enabled: bool) -> Option<Vec<Node>> {
         fn retime_poised(formula: &Formula, current_time: i32, jump: i32) -> Option<Formula> {
             let Some(ub) = formula.upper_bound() else {
               return None
@@ -236,7 +232,7 @@ impl Node {
             Some(sub_formula)
         }
         
-        let step = self.operands.iter().filter_map(|f| {
+        let step = !jump_enabled || self.operands.iter().filter_map(|f| {
             if let Formula::O(inner) = f && !inner.parent_active(self.current_time) {
                 return Some(&**inner);
             }

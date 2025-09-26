@@ -1,3 +1,4 @@
+use core::time;
 use std::{collections::HashMap, f32::INFINITY, hash::Hash, i32::MAX, result, vec};
 
 use z3::ast::Int;
@@ -80,12 +81,12 @@ pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
     return Some(new_operands);
 }
 
-pub fn rewrite_globally_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
+pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     let mut changed = false;
     let mut new_operands = Vec::new();
 
     for op in input {
-        if let Formula::G { interval: g_int, phi, .. } = op && g_int.lower + 2 <= g_int.upper &&
+        if let Formula::G { interval: g_int, phi, .. } = op && g_int.lower + 2 <= g_int.upper && op.active(time) &&
             let Formula::F { interval: f_int, phi: psi, .. } = &**phi {
             let first = Formula::G { 
                 interval: Interval { lower: g_int.lower + 2, upper: g_int.upper }, 
@@ -122,7 +123,7 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
     }
 }
 
-pub fn rewrite_chain(input: &Vec<Formula>) -> Option<Vec<Formula>> {
+pub fn rewrite_chain(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     let mut current = input.clone();
     let mut changed_once = false;
 
@@ -136,7 +137,7 @@ pub fn rewrite_chain(input: &Vec<Formula>) -> Option<Vec<Formula>> {
             current = res;
             local_change = true;
         }
-        if let Some(res) = rewrite_globally_finally(&current) {
+        if let Some(res) = rewrite_globally_finally(&current, time) {
             current = res;
             local_change = true;
         }
@@ -203,7 +204,7 @@ impl Node {
         }
         self.operands.iter_mut().for_each(|f| {
             *f = inner_rewrite(f);
-            while let Some(rewritten) = rewrite_chain(&vec![f.clone()]) {
+            while let Some(rewritten) = rewrite_chain(&vec![f.clone()], self.current_time) {
                 *f = rewritten[0].clone();
             }
         });

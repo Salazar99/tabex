@@ -68,6 +68,9 @@ impl TableauData {
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);
+            if new_nodes.is_empty() {
+                return Some(true);
+            }
             self.process_children(new_nodes, node, local_solver, depth)
         };
         local_solver.pop();
@@ -93,10 +96,14 @@ impl TableauData {
 
             match result {
                 Some(true) => {
-                    if !implies_siblings { return Some(true) }
+                    if !implies_siblings {
+                        return Some(true)
+                    }
                 },
                 Some(false) => {
-                    if let Some(store) = &mut self.store { store.add_rejected(rejected_node) }
+                    if let Some(store) = &mut self.store { 
+                        store.add_rejected(rejected_node)
+                    }
                     if implies_siblings { return Some(false) }
                 },
                 None => depth_reached = true,
@@ -106,7 +113,7 @@ impl TableauData {
         if depth_reached {
             return None;
         }
-        return Some(true)
+        return Some(false)
     }
 
     fn add_graph_node(&mut self, node: &Node) {

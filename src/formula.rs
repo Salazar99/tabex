@@ -225,7 +225,7 @@ impl Formula {
             Formula::G { interval, .. } 
             | Formula::F { interval, .. } 
             | Formula::U { interval, .. }
-            | Formula::R { interval, .. } => current_time >= interval.lower && current_time <= interval.upper,
+            | Formula::R { interval, .. } => interval.active(current_time),
             _ => false,
         }
     }
