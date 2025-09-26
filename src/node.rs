@@ -34,7 +34,7 @@ impl Node {
             }
         }
 
-        let mut times: Vec<i32> = self.operands.iter().filter_map(top_level_interval).flat_map(|i| [i.lower, i.upper]).collect();
+        let mut times: Vec<i32> = self.operands.iter().filter_map(top_level_interval).flat_map(|i| [i.lower - 1, i.upper]).collect();
 
         times.sort_unstable();
         times.dedup();

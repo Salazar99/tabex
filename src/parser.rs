@@ -1,7 +1,7 @@
 #![allow(unused)]
 use nom::{
     branch::alt,
-    bytes::complete::tag,
+    bytes::complete::{tag, tag_no_case},
     character::{complete::{alpha1, char, digit1, space0}, multispace0},
     combinator::{map, map_res, opt, recognize},
     multi::{fold_many0, many0, separated_list1},
@@ -154,31 +154,11 @@ fn parse_fraction(input: &str) -> IResult<&str, Ratio<i64>> {
 
 pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
 
-    fn parse_temporal(input: &str) -> IResult<&str, Formula> {
-        let (input, init) = parse_implication(input)?;
-        
-        fold_many0(
-            pair(
-                alt((
-                    map(pair(preceded(space0, tag("U")), parse_interval), |(_, interval)| ("U", Some(interval))),
-                    map(pair(preceded(space0, tag("R")), parse_interval), |(_, interval)| ("R", Some(interval))),
-                )),
-                preceded(space0, parse_logical_or)
-            ),
-            move || init.clone(),
-            |acc, ((op, interval), right)| match op {
-                "U" => Formula::U { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
-                "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
-                _ => panic!(), // Should not happen
-            }
-        ).parse(input)
-    }
-
     fn parse_implication(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_logical_or(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("->")), preceded(space0, parse_temporal)),
+            pair(preceded(space0, tag("->")), preceded(space0, parse_implication)),
             move || init.clone(),
             |acc, (_, right)| Formula::Imply(Box::new(acc), Box::new(right))
         ).parse(input)
@@ -195,19 +175,39 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
     }
 
     fn parse_logical_and(input: &str) -> IResult<&str, Formula> {
-        let (input, init) = parse_formula_term(input)?;
+        let (input, init) = parse_binary_temporal(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("&&")), preceded(space0, parse_formula_term)),
+            pair(preceded(space0, tag("&&")), preceded(space0, parse_binary_temporal)),
             move || init.clone(),
             |acc, (_, right)| Formula::And(vec![acc, right])
         ).parse(input)
     }
 
+    fn parse_binary_temporal(input: &str) -> IResult<&str, Formula> {
+        let (input, init) = parse_formula_term(input)?;
+        
+        fold_many0(
+            pair(
+                alt((
+                    map(pair(preceded(space0, tag("U")), parse_interval), |(_, interval)| ("U", Some(interval))),
+                    map(pair(preceded(space0, tag("R")), parse_interval), |(_, interval)| ("R", Some(interval))),
+                )),
+                preceded(space0, parse_formula_term)
+            ),
+            move || init.clone(),
+            |acc, ((op, interval), right)| match op {
+                "U" => Formula::U { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
+                "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
+                _ => panic!(), // Should not happen
+            }
+        ).parse(input)
+    }
+
     fn parse_formula_term(input: &str) -> IResult<&str, Formula> {
         alt((
-            map(tag("true"), |_| Formula::True),
-            map(tag("false"), |_| Formula::False),
+            map(tag_no_case("true"), |_| Formula::True),
+            map(tag_no_case("false"), |_| Formula::False),
             map(
                 (
                     tag("G"),
@@ -254,7 +254,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             map(parse_expr, Formula::Prop),
         )).parse(input)
     }
-    parse_temporal(input)
+    
+    parse_implication(input)
 }
 
 pub fn parse_stl_file(filename: &str) {

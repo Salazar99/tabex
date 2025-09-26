@@ -114,6 +114,8 @@ impl Solver {
                         _ => false
                     }
                 },
+                Formula::False => true,
+                Formula::Not(inner) if matches!(**inner, Formula::True) => true,
                 _ => false
             }
         }) {
