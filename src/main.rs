@@ -13,7 +13,9 @@ const FORMULA_OPTIMIZATIONS: bool = true;
 const JUMP_RULE_ENALED: bool = true;
 
 fn main() {
-    let file_content = fs::read_to_string("resources/formulas.stl").unwrap();
+    let args: Vec<String> = std::env::args().collect();
+    let filename = args.get(1).expect("Please provide the formula filename as the first argument.");
+    let file_content = fs::read_to_string(filename).unwrap();
     let example = file_content.lines().next().unwrap();
     let node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
     
