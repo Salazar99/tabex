@@ -294,7 +294,7 @@ impl Node {
 impl Formula {
     fn temporal_expansion(&self, current_time: i32, parent_interval: &Interval) ->  Formula {
         match self {
-            Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False | Formula::O(_) => self.clone(),
+            Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False => self.clone(),
             Formula::F { interval, .. } 
             | Formula::G { interval, .. }
             | Formula::U { interval, .. }
@@ -323,6 +323,7 @@ impl Formula {
                 let new_right = right.temporal_expansion(current_time, parent_interval);
                 Formula::Imply(Box::new(new_left), Box::new(new_right))
             }
+            _ => panic!()
         }
     }
 }

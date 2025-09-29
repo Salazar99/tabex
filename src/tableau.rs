@@ -54,9 +54,11 @@ impl TableauData {
             root.rewrite_u_r();
         }
         root.push_negation();
+        if self.options.formula_optimizations {
+            root.shift_bounds();
+        }
         root.flatten();
         
-        root.current_time = 0;
         self.add_graph_node(&root);
 
         let mut local_solver = Solver::new();
@@ -71,6 +73,8 @@ impl TableauData {
 
         local_solver.push();
         let result: Option<bool> = if !local_solver.check(&node) {
+            Some(false)
+        } else if let Some(store) = &self.store && store.check_rejected(&RejectedNode::from_node(&node)) {
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);
@@ -94,7 +98,10 @@ impl TableauData {
             let implies_siblings = child.implies_siblings;
             let rejected_node: RejectedNode = RejectedNode::from_node(&child);
 
-            let result = if child.current_time == node.current_time {
+            let child_time = child.current_time;
+            let current_time = node.current_time;
+
+            let result = if child_time == current_time {
                 self.add_children(child, local_solver, depth + 1)
             } else {
                 self.add_children(child, &mut Solver::new(), depth + 1)
@@ -107,7 +114,7 @@ impl TableauData {
                     }
                 },
                 Some(false) => {
-                    if let Some(store) = &mut self.store { 
+                    if child_time > current_time && let Some(store) = &mut self.store { 
                         store.add_rejected(rejected_node)
                     }
                     if implies_siblings { return Some(false) }

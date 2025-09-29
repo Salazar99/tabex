@@ -6,7 +6,7 @@ use stlcc::tableau::*;
 
 const MLTL: bool = false;
 
-const GRAPH_OUTPUT: bool = true;
+const GRAPH_OUTPUT: bool = false;
 const MEMOIZATION: bool = true;
 const SIMPLE_FIRST: bool = true;
 const FORMULA_OPTIMIZATIONS: bool = true;
@@ -16,6 +16,7 @@ fn main() {
     let file_content = fs::read_to_string("resources/formulas.stl").unwrap();
     let example = file_content.lines().next().unwrap();
     let node = Node::from_operands(vec![parse_formula(example).unwrap().1]);
+    
     let options = TableauOptions { 
         max_depth: 10000000, 
         graph_output: GRAPH_OUTPUT, 
@@ -25,6 +26,7 @@ fn main() {
         jump_rule_enabled: JUMP_RULE_ENALED,
         mltl: MLTL
     };
+
     let start = std::time::Instant::now();
     
     let mut tableau = TableauData::new(options);

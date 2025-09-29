@@ -1,4 +1,5 @@
-use std::{collections::HashSet, hash::Hash};
+use core::fmt;
+use std::{collections::HashSet, fmt::Display, hash::Hash};
 
 use crate::{formula::*, node::Node};
 
@@ -11,6 +12,15 @@ pub struct RejectedNode {
 impl RejectedNode {
     pub fn from_node(node: &Node) -> Self {
         RejectedNode { operands: node.operands.clone(), time: node.current_time }
+    }
+}
+
+impl Display for RejectedNode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let join_with = |v: &[Formula], sep: &str| {
+            v.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(sep)
+        };
+        write!(f, "{} | {}", join_with(&self.operands, ", "), self.time)
     }
 }
 

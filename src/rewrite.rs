@@ -244,4 +244,75 @@ impl Node {
             *f = inner_rewrite(f);
         });
     }
+
+    pub fn shift_bounds(&mut self) {
+        fn get_shift(formula: &Formula) -> i32 {
+            match formula {
+                Formula::O(inner) 
+                | Formula::Not(inner) => get_shift(inner),
+                Formula::And(operands) 
+                | Formula::Or(operands) => {
+                    operands.iter().map(|op| get_shift(op)).min().unwrap()
+                },
+                Formula::Imply(left, right) => get_shift(left).min(get_shift(right)),
+                Formula::G { interval, .. } 
+                | Formula::F { interval, .. } 
+                | Formula::U { interval, .. }
+                | Formula::R { interval, .. } => interval.lower,
+                _ => -1,
+            }
+        }
+        fn shift_backward(formula: &mut Formula, shift: i32) {
+            match formula {
+                Formula::And(ops) => ops.iter_mut().for_each(|f| shift_backward(f, shift)),
+                Formula::Or(ops) => ops.iter_mut().for_each(|f| shift_backward(f, shift)),
+                Formula::Imply(left, right) => {
+                    shift_backward(left, shift);
+                    shift_backward(right, shift);
+                },
+                Formula::O(i) => shift_backward(i, shift),
+                Formula::Not(i) => shift_backward(i, shift),
+                Formula::G { interval, .. } | Formula::F { interval, .. } | Formula::U { interval, .. } | Formula::R { interval, .. } => {
+                    interval.lower -= shift;
+                    interval.upper -= shift;
+                },
+                _ => {}
+            }
+        }
+        fn inner_rewrite(formula: &mut Formula) {
+            match formula {
+                Formula::And(ops) => ops.iter_mut().for_each(|f| inner_rewrite(f)),
+                Formula::Or(ops) => ops.iter_mut().for_each(|f| inner_rewrite(f)),
+                Formula::O(i) | Formula::Not(i) => inner_rewrite(i),
+                Formula::Imply(left, right) => {
+                    inner_rewrite(left); 
+                    inner_rewrite(right);
+                },
+                Formula::G { phi, interval, .. } | Formula::F { phi, interval, .. } => {
+                    inner_rewrite(phi);
+                    let shift = get_shift(phi);
+                    if shift > 0 {
+                        shift_backward(phi, shift);
+                        interval.lower += shift;
+                        interval.upper += shift;
+                    }
+                },
+                Formula::U { interval, left, right, .. } | Formula::R { interval, left, right, .. } => {
+                    inner_rewrite(left);
+                    inner_rewrite(right);
+                    let shift = get_shift(left).min(get_shift(right));
+                    if shift > 0 {
+                        shift_backward(left, shift);
+                        shift_backward(right, shift);
+                        interval.lower += shift;
+                        interval.upper += shift;
+                    }
+                }
+                _ => {}
+            }
+        }
+        self.operands.iter_mut().for_each(|f| {
+            inner_rewrite(f);
+        });
+    }
 }

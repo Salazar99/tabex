@@ -1,14 +1,25 @@
-mod tests {
-    use crate::{node::Node, parser::parse_formula};
+use crate::{node::Node, parser::parse_formula};
 
-    fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
-        let (_, input_formula) = parse_formula(input).unwrap();
-        let mut input_node: Node = Node::from_operands(vec![input_formula]);
-        input_node.push_negation();
-        let (_, result_formula) = parse_formula(result).unwrap();
-        let result_node: Node = Node::from_operands(vec![result_formula]);
-        (input_node, result_node)
-    }
+fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
+    let (_, input_formula) = parse_formula(input).unwrap();
+    let mut input_node: Node = Node::from_operands(vec![input_formula]);
+    input_node.push_negation();
+    let (_, result_formula) = parse_formula(result).unwrap();
+    let result_node: Node = Node::from_operands(vec![result_formula]);
+    (input_node, result_node)
+}
+
+fn make_test_shift_bounds(input: &str, result: &str) -> (Node, Node) {
+    let (_, input_formula) = parse_formula(input).unwrap();
+    let mut input_node: Node = Node::from_operands(vec![input_formula]);
+    input_node.shift_bounds();
+    let (_, result_formula) = parse_formula(result).unwrap();
+    let result_node: Node = Node::from_operands(vec![result_formula]);
+    (input_node, result_node)
+}
+
+mod push_negation_tests {
+    use super::*;
 
     #[test]
     fn push_negation_prop() {
@@ -79,6 +90,67 @@ mod tests {
     #[test]
     fn push_negation_nested_until_or() {
         let (res, exp) = make_test_push_negation("!(a U[0,5] (b || c))", "(!a R[0,5] (!b && !c))");
+        assert_eq!(res.operands, exp.operands);
+    }
+}
+
+mod shift_bounds_tests {
+    use super::*;
+
+    #[test]
+    fn no_shift() {
+        let (res, exp) = make_test_shift_bounds("G[0,5] a", "G[0,5] a");
+        assert_eq!(res.operands, exp.operands);
+    }
+    
+    #[test]
+    fn nested_globally_finally() {
+        let (res, exp) = make_test_shift_bounds("G[3,50] (F[5,20] (B_a))", "G[8,55] (F[0,15] (B_a))");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn no_shift_complex() {
+        let (res, exp) = make_test_shift_bounds(
+            "G[10,60] ((B_a) -> (G[20,40] (!(B_a))))",
+            "G[10,60] ((B_a) -> (G[20,40] (!(B_a))))"
+        );
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn nested_finally_globally() {
+        let (res, exp) = make_test_shift_bounds(
+            "G[3,50] (F[5,20] (F[20,30] (G[20,40] (!(B_a)))))",
+            "G[48,95] (F[0,15] (F[0,10] (G[0,20] (!(B_a)))))"
+        );
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn finally_and_globally() {
+        let (res, exp) = make_test_shift_bounds(
+            "F[0,5] ((G[10,20] (B_a)) && (G[20,30] (B_a)))",
+            "F[10,15] ((G[0,10] (B_a)) && (G[10,20] (B_a)))"
+        );
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn until_globally() {
+        let (res, exp) = make_test_shift_bounds(
+            "(G[10,20] (B_a)) U[0,5] (G[20,30] (B_a))",
+            "(G[0,10] (B_a)) U[10,15] (G[10,20] (B_a))"
+        );
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn until_globally_or() {
+        let (res, exp) = make_test_shift_bounds(
+            "(G[10,20] (B_a)) U[0,5] ((G[20,30] (B_a)) || (B_a))",
+            "(G[10,20] (B_a)) U[0,5] ((G[20,30] (B_a)) || (B_a))"
+        );
         assert_eq!(res.operands, exp.operands);
     }
 }
