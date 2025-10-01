@@ -1,7 +1,7 @@
 use crate::node::Node;
 use crate::formula::{AExpr, ArithOp, Expr, Formula, RelOp};
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use z3::{Solver as Z3Solver, ast::{Real, Bool}};
 use std::collections::HashSet;
 
@@ -36,6 +36,13 @@ impl Solver {
             assertion_stack: Vec::with_capacity(64),
             current_assertions: HashSet::with_capacity(128),
         }
+    }
+
+    pub fn empty_solver(&self) -> Self {
+        let mut solver = Solver::new();
+        solver.real_solver.z3_variables = self.real_solver.z3_variables.clone();
+        solver.real_solver.z3_ast_cache = self.real_solver.z3_ast_cache.clone();
+        solver
     }
 
     pub fn push(&mut self) {
@@ -185,6 +192,7 @@ impl BooleanSolver {
 struct RealSolver {
     z3_solver: Z3Solver,
     z3_variables: BTreeMap<String, Real>,
+    z3_ast_cache: HashMap<(bool, RelOp, AExpr, AExpr), Bool>,
     result_cache: Option<bool>,
 }
 
@@ -193,6 +201,7 @@ impl RealSolver {
         RealSolver {
             z3_solver: Z3Solver::new(),
             z3_variables: BTreeMap::new(),
+            z3_ast_cache: HashMap::new(),
             result_cache: Some(true),
         }
     }
@@ -209,7 +218,14 @@ impl RealSolver {
     }
 
     fn add_constraint(&mut self, negated: bool, op: RelOp, left: AExpr, right: AExpr) {
-        let ast = self.rel_to_z3(negated, op, left, right);
+        let key = (negated, op.clone(), left.clone(), right.clone());
+        let ast = if let Some(b) = self.z3_ast_cache.get(&key) {
+            b.clone()
+        } else {
+            let value = self.rel_to_z3(negated, op, left, right);
+            self.z3_ast_cache.insert(key, value.clone());
+            value
+        };
         self.z3_solver.assert(&ast);
         self.result_cache = None;
     }

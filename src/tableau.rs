@@ -62,10 +62,10 @@ impl TableauData {
         self.add_graph_node(&root);
 
         let mut local_solver = Solver::new();
-        self.add_children(root, &mut local_solver, 0)
+        self.add_children(&root, &mut local_solver, 0)
     }
 
-    fn add_children(&mut self, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
+    fn add_children(&mut self, node: &Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
         if depth >= self.options.max_depth {
             println!("Max depth reached!");
             return None;
@@ -74,20 +74,20 @@ impl TableauData {
         local_solver.push();
         let result: Option<bool> = if !local_solver.check(&node) {
             Some(false)
-        } else if let Some(store) = &self.store && store.check_rejected(&RejectedNode::from_node(&node)) {
+        } else if node.implies_siblings && let Some(store) = &self.store && store.check_rejected(&RejectedNode::from_node(&node)) {
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);
             if new_nodes.is_empty() {
                 return Some(true);
             }
-            self.process_children(new_nodes, node, local_solver, depth)
+            self.process_children(&new_nodes, node, local_solver, depth)
         };
         local_solver.pop();
         result
     }
 
-    fn process_children(&mut self, children: Vec<Node>, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
+    fn process_children(&mut self, children: &Vec<Node>, node: &Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
         for child in children.iter() {
             self.add_graph_node(&child);
             self.add_graph_edge(&node, &child);
@@ -95,29 +95,23 @@ impl TableauData {
         
         let mut depth_reached = false;
         for child in children {
-            let implies_siblings = child.implies_siblings;
-            let rejected_node: RejectedNode = RejectedNode::from_node(&child);
-
-            let child_time = child.current_time;
-            let current_time = node.current_time;
-
-            let result = if child_time == current_time {
+            let result = if child.current_time == node.current_time {
                 self.add_children(child, local_solver, depth + 1)
             } else {
-                self.add_children(child, &mut Solver::new(), depth + 1)
+                self.add_children(child, &mut local_solver.empty_solver(), depth + 1)
             };
 
             match result {
                 Some(true) => {
-                    if !implies_siblings {
+                    if !child.implies_siblings {
                         return Some(true)
                     }
                 },
                 Some(false) => {
-                    if child_time > current_time && let Some(store) = &mut self.store { 
-                        store.add_rejected(rejected_node)
+                    if child.current_time > node.current_time && let Some(store) = &mut self.store { 
+                        store.add_rejected(RejectedNode::from_node(&child))
                     }
-                    if implies_siblings { return Some(false) }
+                    if child.implies_siblings { return Some(false) }
                 },
                 None => depth_reached = true,
             }
