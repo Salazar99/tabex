@@ -56,7 +56,7 @@ impl Store {
     }
 
     pub fn check_rejected(&self, node: &RejectedNode) -> bool {
-        self.store.iter().any(|n| n.implies(node))
+        self.store.iter().any(|rejected| node.implies(rejected))
     }
 }
 

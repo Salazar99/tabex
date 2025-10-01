@@ -74,7 +74,7 @@ impl TableauData {
         local_solver.push();
         let result: Option<bool> = if !local_solver.check(&node) {
             Some(false)
-        } else if node.implies_siblings && let Some(store) = &self.store && store.check_rejected(&RejectedNode::from_node(&node)) {
+        } else if let Some(store) = &self.store && store.check_rejected(&RejectedNode::from_node(&node)) {
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);
