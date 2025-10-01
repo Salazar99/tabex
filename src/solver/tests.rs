@@ -35,24 +35,24 @@ fn test_real_false() {
 #[test]
 fn test_push_pop_bool() {
     let mut solver = Solver::new();
-    assert_eq!(solver.result_cache, Some(true));
 
     solver.push();
 
     let node = parse_node("a && b"); 
     assert_eq!(solver.check(&node), true);
-    assert_eq!(solver.result_cache, Some(true));
 
     solver.push();
-    assert_eq!(solver.result_cache, Some(true));
 
-    let node_false = parse_node("!a");
+    let node_false = parse_node("!a, a");
     assert_eq!(solver.check(&node_false), false);
-    assert_eq!(solver.result_cache, Some(false));
 
     solver.pop();
 
+    solver.push();
     let node_true = parse_node("c");
     assert_eq!(solver.check(&node_true), true);
-    assert_eq!(solver.result_cache, Some(true));
+
+    solver.push();
+    let node_false_2 = parse_node("!a");
+    assert_eq!(solver.check(&node_false_2), false);
 }

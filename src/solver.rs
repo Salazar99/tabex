@@ -24,7 +24,6 @@ pub struct Solver {
     real_solver: RealSolver,
     assertion_stack: Vec<Vec<Assertion>>,
     current_assertions: HashSet<Assertion>,
-    result_cache: Option<bool>,
 }
 
 impl Solver {
@@ -32,7 +31,6 @@ impl Solver {
         Solver {
             boolean_solver: BooleanSolver::new(),
             real_solver: RealSolver::new(),
-            result_cache: Some(true),
             assertion_stack: Vec::with_capacity(64),
             current_assertions: HashSet::with_capacity(128),
         }
@@ -52,9 +50,6 @@ impl Solver {
 
     pub fn pop(&mut self) {
         if let Some(old_assertions) = self.assertion_stack.pop() {
-            if !old_assertions.is_empty() {
-                self.result_cache = None;
-            }
 
             for ass in old_assertions {
                 self.current_assertions.remove(&ass);
@@ -134,7 +129,6 @@ impl Solver {
         let bool_ok = self.boolean_solver.check();
         let real_ok = self.real_solver.check();
         let res = bool_ok && real_ok;
-        self.result_cache = Some(res);
         res
     }
 

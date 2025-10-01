@@ -66,11 +66,11 @@ impl Formula {
             (f1, f2) if f1 == f2 => true,
             (Formula::G { interval: i1, phi: f1, .. }, 
              Formula::G { interval: i2, phi: f2, .. }) => {
-                f1.quick_implies(f2) && i1.contains(&i2)
+                i1.contains(&i2) && f1.quick_implies(f2)
             }
             (Formula::F { interval: i1, phi: f1, .. },
              Formula::F { interval: i2, phi: f2, .. }) => {
-                f1.quick_implies(f2) && i2.contains(&i1)
+                i2.contains(&i1) && f1.quick_implies(f2)
             },
             (Formula::Not(f1), Formula::Not(f2)) => {
                 f1.quick_implies(&f2)
