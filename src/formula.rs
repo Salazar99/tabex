@@ -132,12 +132,12 @@ impl Display for Expr {
 impl Display for Formula {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Formula::And(v) => write!(f, "({})", join_with(v, " && ")),
-            Formula::Or(v) => write!(f, "({})", join_with(v, " || ")),
+            Formula::And(v) => write!(f, "{}", join_with(v, " && ")),
+            Formula::Or(v) => write!(f, "{}", join_with(v, " || ")),
             Formula::Not(inner) => write!(f, "!{}", inner),
             Formula::Imply(left, right) => write!(f, "({}) -> ({})", left, right),
-            Formula::G { interval, phi, .. } => write!(f, "G[{},{}] {}", interval.lower, interval.upper, phi),
-            Formula::F { interval, phi, .. } => write!(f, "F[{},{}] {}", interval.lower, interval.upper, phi),
+            Formula::G { interval, phi, .. } => write!(f, "G[{},{}] ({})", interval.lower, interval.upper, phi),
+            Formula::F { interval, phi, .. } => write!(f, "F[{},{}] ({})", interval.lower, interval.upper, phi),
             Formula::U { interval, left, right, .. } => {
                 write!(f, "({}) U[{},{}] ({})", left, interval.lower, interval.upper, right)
             }

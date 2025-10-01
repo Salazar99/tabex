@@ -18,6 +18,13 @@ fn make_test_shift_bounds(input: &str, result: &str) -> (Node, Node) {
     (input_node, result_node)
 }
 
+fn make_test_flatten(input: &str) -> Node {
+    let (_, input_formula) = parse_formula(input).unwrap();
+    let mut input_node: Node = Node::from_operands(vec![input_formula]);
+    input_node.flatten();
+    input_node
+}
+
 mod push_negation_tests {
     use super::*;
 
@@ -151,6 +158,68 @@ mod shift_bounds_tests {
             "(G[10,20] (B_a)) U[0,5] ((G[20,30] (B_a)) || (B_a))",
             "(G[10,20] (B_a)) U[0,5] ((G[20,30] (B_a)) || (B_a))"
         );
+        assert_eq!(res.operands, exp.operands);
+    }
+}
+
+mod flatten_tests {
+    use std::sync::Arc;
+
+    use crate::formula::{Expr, Formula, Interval};
+
+    use super::*;
+
+    #[test]
+    fn flatten_and() {
+        let res = make_test_flatten("(a && (b && c))");
+        let exp = Node::from_operands(vec![
+            Formula::Prop(Expr::Atom(Arc::from("a"))),
+            Formula::Prop(Expr::Atom(Arc::from("b"))),
+            Formula::Prop(Expr::Atom(Arc::from("c"))),
+        ]);
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn flatten_or() {
+        let res = make_test_flatten("(a || (b || c))");
+        let exp = Node::from_operands(vec![
+            Formula::Or(vec![
+                Formula::Prop(Expr::Atom(Arc::from("a"))),
+                Formula::Prop(Expr::Atom(Arc::from("b"))),
+                Formula::Prop(Expr::Atom(Arc::from("c"))),
+            ])
+        ]);
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn flatten_mixed() {
+        let res = make_test_flatten("(a && ((b || c) && (d && e)))");
+        let exp = Node::from_operands(vec![
+            Formula::Prop(Expr::Atom(Arc::from("a"))),
+            Formula::Or(vec![
+                Formula::Prop(Expr::Atom(Arc::from("b"))),
+                Formula::Prop(Expr::Atom(Arc::from("c"))),
+            ]),
+            Formula::Prop(Expr::Atom(Arc::from("d"))),
+            Formula::Prop(Expr::Atom(Arc::from("e"))),
+        ]);
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn flatten_nested() {
+        let res = make_test_flatten("G[0, 10] ((a && b) && c)");
+        let exp = Node::from_operands(vec![
+            Formula::G { parent_upper: None, interval: Interval { lower: 0, upper: 10 }, phi: Box::new(
+                Formula::And(vec![
+                    Formula::Prop(Expr::Atom(Arc::from("a"))),
+                    Formula::Prop(Expr::Atom(Arc::from("b"))),
+                    Formula::Prop(Expr::Atom(Arc::from("c"))),
+                ])
+            )}
+        ]);
         assert_eq!(res.operands, exp.operands);
     }
 }

@@ -315,4 +315,57 @@ impl Node {
             inner_rewrite(f);
         });
     }
+
+    pub fn flatten(&mut self) {
+        fn flatten_operand(formula: &mut Formula) {
+            match formula {
+                Formula::And(ops) => {
+                    ops.iter_mut().for_each(flatten_operand);
+                    let mut flattened: Vec<Formula> = Vec::new();
+                    ops.iter_mut().for_each(|f| {
+                        if let Formula::And(inner_ops) = f {
+                            flattened.append(inner_ops);
+                        } else {
+                            flattened.push(f.clone());
+                        }
+                    });
+                    *ops = flattened;
+                },
+                Formula::Or(ops) => {
+                    ops.iter_mut().for_each(flatten_operand);
+                    let mut flattened: Vec<Formula> = Vec::new();
+                    ops.iter_mut().for_each(|f| {
+                        if let Formula::Or(inner_ops) = f {
+                            flattened.append(inner_ops);
+                        } else {
+                            flattened.push(f.clone());
+                        }
+                    });
+                    *ops = flattened;
+                },
+                Formula::Not(inner)
+                | Formula::O(inner) 
+                | Formula::G { phi: inner, .. } 
+                | Formula::F { phi: inner, .. } => flatten_operand(inner),
+                Formula::U { left, right, .. } 
+                | Formula::R { left, right, .. }
+                | Formula::Imply(left, right) => {
+                    flatten_operand(left);
+                    flatten_operand(right);
+                },
+                _ => {}
+            }
+        }
+
+        let mut flattened: Vec<Formula> = Vec::new();
+        self.operands.iter_mut().for_each(|f| {
+            flatten_operand(f);
+            if let Formula::And(ops) = f {
+                flattened.append(ops);
+            } else {
+                flattened.push(f.clone());
+            }
+        });
+        self.operands = flattened;
+    }
 }

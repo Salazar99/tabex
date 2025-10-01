@@ -8,6 +8,9 @@ use std::collections::HashSet;
 // Use interned strings for better memory efficiency with repeated variable names
 use std::sync::Arc;
 
+#[cfg(test)]
+mod tests;
+
 type VariableName = Arc<str>;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
@@ -129,7 +132,6 @@ impl Solver {
     }
 
 }
-
 struct BooleanSolver {
     pos_props: HashSet<Arc<str>>,
     neg_props: HashSet<Arc<str>>,
@@ -201,6 +203,9 @@ impl RealSolver {
 
     fn pop(&mut self) {
         self.z3_solver.pop(1);
+        if self.result_cache == Some(false) {
+            self.result_cache = None;
+        }
     }
 
     fn add_constraint(&mut self, negated: bool, op: RelOp, left: AExpr, right: AExpr) {
