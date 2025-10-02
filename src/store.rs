@@ -3,28 +3,39 @@ use std::{collections::HashSet, fmt::Display, hash::Hash};
 
 use crate::{formula::*, node::Node};
 
-#[derive(Hash, PartialEq, Eq)]
+#[cfg(test)]
+mod tests;
+
+#[derive(Clone, Hash, PartialEq, Eq)]
 pub struct RejectedNode {
     operands: Vec<Formula>,
+    time: i32
 }
 
 impl RejectedNode {
     pub fn from_node(node: &Node) -> Self {
         RejectedNode { 
-            operands: node.operands.iter().map(|f| {
-                let mut new_f = f.clone();
-                match &mut new_f {
-                    Formula::G { interval, .. }
-                    | Formula::F { interval, .. }
-                    | Formula::U { interval, .. }
-                    | Formula::R { interval, .. } => {
-                        interval.shift(node.current_time);
-                    }
-                    _ => {}
-                }
-            new_f
-            }).collect() 
+            operands: node.operands.clone(),
+            time: node.current_time 
         }
+    }
+
+    fn implies(&self, other: &RejectedNode) -> bool {
+        if other.operands.iter().all(|rf| 
+            self.operands.iter().any(|lf| lf.quick_implies(rf, self.time, other.time))) {
+                return true
+        } else {
+            let mut times: Vec<i32> = self.operands.iter().filter_map(|f| f.lower_bound()).filter(|t| *t > self.time).collect();
+            times.sort_unstable();
+            times.dedup();
+            for time in times {
+                if other.operands.iter().all(|rf| 
+                    self.operands.iter().any(|lf| lf.quick_implies(rf, time, other.time))) {
+                        return true
+                }
+            }
+        }
+        return false
     }
 }
 
@@ -56,33 +67,26 @@ impl Store {
     }
 
     pub fn check_rejected(&self, node: &RejectedNode) -> bool {
-        self.store.iter().any(|rejected| node.implies(rejected))
+        return self.store.iter().any(|rejected: &RejectedNode| node.implies(rejected))
     }
 }
 
 impl Formula {
-    fn quick_implies(&self, other: &Formula) -> bool {
+    fn quick_implies(&self, other: &Formula, self_time: i32, other_time: i32) -> bool {
         match (self, other) {
             (f1, f2) if f1 == f2 => true,
             (Formula::G { interval: i1, phi: f1, .. }, 
              Formula::G { interval: i2, phi: f2, .. }) => {
-                i1.contains(&i2) && f1.quick_implies(f2)
+                i1.shift(self_time).contains(&i2.shift(other_time)) && f1.quick_implies(f2, self_time, other_time)
             }
             (Formula::F { interval: i1, phi: f1, .. },
              Formula::F { interval: i2, phi: f2, .. }) => {
-                i2.contains(&i1) && f1.quick_implies(f2)
+                i2.shift(other_time).contains(&i1.shift(self_time)) && f1.quick_implies(f2, self_time, other_time)
             },
             (Formula::Not(f1), Formula::Not(f2)) => {
-                f1.quick_implies(&f2)
+                f1.quick_implies(&f2, self_time, other_time)
             },
             _ => false
         }
-    }
-}
-
-impl RejectedNode {
-    fn implies(&self, other: &RejectedNode) -> bool {
-        other.operands.iter().all(|rf| 
-            self.operands.iter().any(|lf| lf.quick_implies(rf)))
     }
 }

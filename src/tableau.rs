@@ -74,8 +74,6 @@ impl TableauData {
         local_solver.push();
         let result: Option<bool> = if !local_solver.check(&node) {
             Some(false)
-        } else if let Some(store) = &self.store && store.check_rejected(&RejectedNode::from_node(&node)) {
-            Some(false)
         } else {
             let new_nodes = self.decompose(&node);
             if new_nodes.is_empty() {
@@ -102,7 +100,11 @@ impl TableauData {
             let result = if child.current_time == node.current_time {
                 self.add_children(child, local_solver, depth + 1)
             } else {
-                self.add_children(child, &mut local_solver.empty_solver(), depth + 1)
+                if let Some(store) = &self.store && store.check_rejected(&rejected_node) { 
+                    Some(false) 
+                } else {
+                    self.add_children(child, &mut local_solver.empty_solver(), depth + 1)
+                }
             };
 
             match result {

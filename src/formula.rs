@@ -62,9 +62,11 @@ impl Interval {
         current_time >= self.lower && current_time <= self.upper
     }
 
-    pub fn shift(&mut self, time: i32) {
-        self.lower = (self.lower - time).max(0);
-        self.upper = (self.upper - time).max(0);
+    pub fn shift(&self, time: i32) -> Interval {
+        Interval {
+            lower: self.lower - time,
+            upper: self.upper - time,
+        }
     }
 }
 
