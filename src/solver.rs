@@ -5,7 +5,6 @@ use std::collections::{BTreeMap, HashMap};
 use z3::{Solver as Z3Solver, ast::{Real, Bool}};
 use std::collections::HashSet;
 
-// Use interned strings for better memory efficiency with repeated variable names
 use std::sync::Arc;
 
 #[cfg(test)]

@@ -1,12 +1,7 @@
-#![allow(unused)]
-use std::fs::OpenOptions;
-
 use crate::formula::*;
 use crate::node::*;
-use crate::rewrite::merge_globally;
 use crate::rewrite::rewrite_chain;
 use crate::tableau::TableauData;
-use crate::solver::Solver;
 
 #[cfg(test)]
 mod tests;
@@ -34,16 +29,16 @@ impl TableauData {
                 Formula::Or(_) => {
                     return node.decompose_or_at(i);
                 }
-                Formula::Imply(left, right) => {
+                Formula::Imply( .. ) => {
                     return node.decompose_imply_at(i, self.options.formula_optimizations);
                 }
-                Formula::F { interval, .. } if operand.active(node.current_time) => {
+                Formula::F { .. } if operand.active(node.current_time) => {
                     return node.decompose_f_at(i);
                 }
-                Formula::U { interval, .. } if operand.active(node.current_time) => {
+                Formula::U { .. } if operand.active(node.current_time) => {
                     return node.decompose_u_at(i);
                 }
-                Formula::R { interval, .. } if operand.active(node.current_time) => {
+                Formula::R { .. } if operand.active(node.current_time) => {
                     return node.decompose_r_at(i);
                 }
                 _ => {}
@@ -83,10 +78,8 @@ impl Node {
     }
 
     pub fn decompose_g(&self) -> Option<Vec<Node>> {
-        let mut g_nodes: Vec<Formula> = Vec::new();
         let mut old_nodes: Vec<Formula> = Vec::new();
         let mut changed = false;
-        let mut jump1 = false;
 
         for operand in &self.operands {
             match operand {
@@ -235,7 +228,26 @@ impl Node {
             }
             Some(sub_formula)
         }
-        
+
+        fn sorted_time_instants(node: &Node) -> Vec<i32> {
+            fn top_level_interval(formula: &Formula, current_time: i32) -> Option<&Interval> {
+                match formula {
+                    Formula::O(inner) => top_level_interval(inner, current_time),
+                    Formula::G { interval, .. } 
+                    | Formula::F { interval, .. } 
+                    | Formula::U { interval, .. }
+                    | Formula::R { interval, .. } if !formula.parent_active(current_time) => Some(interval),
+                    _ => None
+                }
+            }
+
+            let mut times: Vec<i32> = node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| [i.lower - 1, i.upper]).collect();
+
+            times.sort_unstable();
+            times.dedup();
+            times
+        }
+
         let step = !jump_enabled || self.operands.iter().filter_map(|f| {
             if let Formula::O(inner) = f && !inner.parent_active(self.current_time) {
                 return Some(&**inner);
@@ -258,7 +270,7 @@ impl Node {
         let jump = if step {
             1
         } else {
-            if let Some(target_time) = self.sorted_time_instants(self.current_time).into_iter().find(|&t| t > self.current_time) {
+            if let Some(target_time) = sorted_time_instants(self).into_iter().find(|&t| t > self.current_time) {
                 target_time - self.current_time
             } else {
                 return None
@@ -298,10 +310,10 @@ impl Formula {
     fn temporal_expansion(&self, current_time: i32, parent_interval: &Interval) ->  Formula {
         match self {
             Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False => self.clone(),
-            Formula::F { interval, .. } 
-            | Formula::G { interval, .. }
-            | Formula::U { interval, .. }
-            | Formula::R { interval, .. } => {
+            Formula::F { .. } 
+            | Formula::G { .. }
+            | Formula::U { .. }
+            | Formula::R { .. } => {
                 let mut extract = self.clone();
                 if let Formula::F { interval: ref mut int, ref mut parent_upper, .. }
                     | Formula::G { interval: ref mut int, ref mut parent_upper, .. }

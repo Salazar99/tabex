@@ -1,4 +1,3 @@
-#![allow(unused)]
 use std::fmt::{self, Display};
 use std::sync::Arc;
 
@@ -180,16 +179,6 @@ impl Formula {
             Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.has_temporal()),
             Formula::Not(inner) => inner.has_temporal(),
             Formula::Imply(left, right) => left.has_temporal() || right.has_temporal(),
-            _ => false,
-        }
-    }
-
-    pub fn jump_problematic(&self) -> bool {
-        match self {
-            Formula::O(inner) => inner.complex_temporal_operator(),
-            Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.jump_problematic()),
-            Formula::Imply(left, right) => left.jump_problematic() || right.jump_problematic(),
-            Formula::Not(inner) => inner.jump_problematic(),
             _ => false,
         }
     }

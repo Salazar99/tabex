@@ -1,10 +1,9 @@
-#![allow(unused)]
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
-    character::{complete::{alpha1, char, digit1, space0}, multispace0},
+    character::{complete::{alpha1, char, digit1, space0}},
     combinator::{map, map_res, opt, recognize},
-    multi::{fold_many0, many0, separated_list1},
+    multi::{fold_many0, many0},
     sequence::{delimited, pair, preceded},
     IResult,
     Parser
@@ -128,25 +127,6 @@ fn parse_decimal(input: &str) -> IResult<&str, Ratio<i64>> {
                     Ratio::new(int_part * scale + frac_val, scale)
                 }
                 None => Ratio::from_integer(int_part),
-            }
-        }
-    ).parse(input)
-}
-
-fn parse_fraction(input: &str) -> IResult<&str, Ratio<i64>> {
-    map(
-        pair(
-            parse_number,
-            opt(
-                pair(
-                    char('/'),
-                    parse_number
-                )
-            )
-        ), |(num, denom)| {
-            match denom {
-                Some((_, d)) => Ratio::new(num, d),
-                None => Ratio::from_integer(num),
             }
         }
     ).parse(input)
