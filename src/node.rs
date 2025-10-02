@@ -2,7 +2,7 @@
 use std::{fmt::{self, Display}, sync::atomic::{AtomicUsize, Ordering}};
 use crate::formula::*;
 
-static NODE_ID: AtomicUsize = AtomicUsize::new(0);
+pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Node {
@@ -22,19 +22,19 @@ impl Node {
         }
     }
 
-    pub fn sorted_time_instants(&self) -> Vec<i32> {
-        fn top_level_interval(formula: &Formula) -> Option<&Interval> {
+    pub fn sorted_time_instants(&self, current_time: i32) -> Vec<i32> {
+        fn top_level_interval(formula: &Formula, current_time: i32) -> Option<&Interval> {
             match formula {
-                Formula::O(inner) => top_level_interval(inner),
-                Formula::G { parent_upper: None, interval, .. } 
-                | Formula::F { parent_upper: None, interval, .. } 
-                | Formula::U { parent_upper: None, interval, .. }
-                | Formula::R { parent_upper: None, interval, .. } => Some(interval),
+                Formula::O(inner) => top_level_interval(inner, current_time),
+                Formula::G { interval, .. } 
+                | Formula::F { interval, .. } 
+                | Formula::U { interval, .. }
+                | Formula::R { interval, .. } if !formula.parent_active(current_time) => Some(interval),
                 _ => None
             }
         }
 
-        let mut times: Vec<i32> = self.operands.iter().filter_map(top_level_interval).flat_map(|i| [i.lower - 1, i.lower, i.upper]).collect();
+        let mut times: Vec<i32> = self.operands.iter().filter_map(|f| top_level_interval(f, current_time)).flat_map(|i| [i.lower - 1, i.upper]).collect();
 
         times.sort_unstable();
         times.dedup();

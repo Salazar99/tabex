@@ -86,28 +86,28 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     let mut new_operands = Vec::new();
 
     for op in input {
-        if let Formula::G { interval: g_int, phi, .. } = op && g_int.lower + 2 <= g_int.upper && op.active(time) &&
+        if let Formula::G { interval: g_int, phi, parent_upper } = op && time + 2 <= g_int.upper && op.active(time) &&
             let Formula::F { interval: f_int, phi: psi, .. } = &**phi {
-            let first = Formula::G { 
-                interval: Interval { lower: g_int.lower + 2, upper: g_int.upper }, 
-                parent_upper: None, phi: phi.clone() 
-            };
-            let second = Formula::Or(vec![
-                Formula::F { 
-                    interval: Interval { lower: g_int.lower + f_int.lower + 1, upper: g_int.lower + f_int.upper }, 
-                    parent_upper: None, phi: psi.clone() 
-                },
-                Formula::And(vec![
-                    Formula::G { 
-                        interval: Interval { lower: g_int.lower + f_int.lower, upper: g_int.lower + f_int.lower }, 
-                        parent_upper: None, phi: psi.clone()
+                let first = Formula::G { 
+                    interval: Interval { lower: time + 2, upper: g_int.upper }, 
+                    parent_upper: *parent_upper, phi: phi.clone() 
+                };
+                let second = Formula::Or(vec![
+                    Formula::F { 
+                        interval: Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }, 
+                        parent_upper: None, phi: psi.clone() 
                     },
-                    Formula::G { 
-                        interval: Interval { lower: g_int.lower + f_int.upper + 1, upper: g_int.lower + f_int.upper + 1 }, 
-                        parent_upper: None, phi: psi.clone()
-                    },
-                ])
-            ]);
+                    Formula::And(vec![
+                        Formula::G { 
+                            interval: Interval { lower: time + f_int.lower, upper: time + f_int.lower }, 
+                            parent_upper: None, phi: psi.clone()
+                        },
+                        Formula::G { 
+                            interval: Interval { lower: time + f_int.upper + 1, upper: time + f_int.upper + 1 }, 
+                            parent_upper: None, phi: psi.clone()
+                        },
+                    ])
+                ]);
             new_operands.push(first);
             new_operands.push(second);
             changed = true;

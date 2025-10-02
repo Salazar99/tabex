@@ -5,7 +5,7 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
     let node = Node::from_operands(vec![formula]);
     let options = TableauOptions {
         max_depth: 10000,
-        graph_output: true,
+        graph_output: false,
         memoization: true,
         simple_first: true,
         formula_optimizations: true,

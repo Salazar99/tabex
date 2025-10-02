@@ -236,7 +236,7 @@ impl Formula {
             Formula::G { parent_upper: Some(upper), .. }
             | Formula::F { parent_upper: Some(upper), .. }
             | Formula::U { parent_upper: Some(upper), .. }
-            | Formula::R { parent_upper: Some(upper), .. } => current_time <= *upper,
+            | Formula::R { parent_upper: Some(upper), .. } => current_time < *upper,
             _ => false,
         }
     }

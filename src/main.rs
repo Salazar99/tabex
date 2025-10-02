@@ -6,7 +6,7 @@ use stlcc::tableau::*;
 
 const MLTL: bool = false;
 
-const GRAPH_OUTPUT: bool = false;
+const GRAPH_OUTPUT: bool = true;
 const MEMOIZATION: bool = true;
 const SIMPLE_FIRST: bool = true;
 const FORMULA_OPTIMIZATIONS: bool = true;
@@ -38,6 +38,7 @@ fn main() {
     println!("Tableau result: {:?}", res);
 
     if GRAPH_OUTPUT && let Ok(graph) = tableau.graph.unwrap().to_dot_string() {
+        println!("Node count: {:?}", NODE_ID);
         fs::write("resources/tmp/g.dot", &graph).expect("Unable to write file");
     }
 

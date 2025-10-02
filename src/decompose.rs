@@ -8,6 +8,9 @@ use crate::rewrite::rewrite_chain;
 use crate::tableau::TableauData;
 use crate::solver::Solver;
 
+#[cfg(test)]
+mod tests;
+
 impl TableauData {
     pub fn decompose(&self, node: &Node) -> Vec<Node> {
         if self.options.formula_optimizations {
@@ -226,7 +229,7 @@ impl Node {
                 | Formula::U { interval, .. }
                 | Formula::R { interval, .. } if jump != 1 && formula.parent_active(current_time) => {
                     interval.lower += jump;
-                    interval.upper += jump
+                    interval.upper += jump;
                 }
                 _ => {}
             }
@@ -255,7 +258,7 @@ impl Node {
         let jump = if step {
             1
         } else {
-            if let Some(target_time) = self.sorted_time_instants().into_iter().find(|&t| t > self.current_time) {
+            if let Some(target_time) = self.sorted_time_instants(self.current_time).into_iter().find(|&t| t > self.current_time) {
                 target_time - self.current_time
             } else {
                 return None
@@ -300,13 +303,13 @@ impl Formula {
             | Formula::U { interval, .. }
             | Formula::R { interval, .. } => {
                 let mut extract = self.clone();
-                if let Formula::F { interval: ref mut int, mut parent_upper, .. }
-                    | Formula::G { interval: ref mut int, mut parent_upper, .. }
-                    | Formula::U { interval: ref mut int, mut parent_upper, .. }
-                    | Formula::R { interval: ref mut int, mut parent_upper, .. } = extract {
-                    int.lower = interval.lower + current_time;
-                    int.upper = interval.upper + current_time;
-                    parent_upper = Some(parent_interval.upper);
+                if let Formula::F { interval: ref mut int, ref mut parent_upper, .. }
+                    | Formula::G { interval: ref mut int, ref mut parent_upper, .. }
+                    | Formula::U { interval: ref mut int, ref mut parent_upper, .. }
+                    | Formula::R { interval: ref mut int, ref mut parent_upper, .. } = extract {
+                    int.lower += current_time;
+                    int.upper += current_time;
+                    *parent_upper = Some(parent_interval.upper);
                 }
                 extract
             }
