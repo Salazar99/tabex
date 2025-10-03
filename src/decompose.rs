@@ -85,7 +85,7 @@ impl Node {
             match operand {
                 Formula::G { interval, phi, .. } if operand.active(self.current_time) => {
                     changed = true;
-                    old_nodes.push(phi.temporal_expansion(self.current_time, interval));
+                    old_nodes.push(phi.temporal_expansion(self.current_time, Some(&interval)));
                     if self.current_time < interval.upper {
                         old_nodes.push(Formula::O(Box::new(operand.clone())));
                     }
@@ -137,7 +137,7 @@ impl Node {
     }
 
     pub fn decompose_f_at(&self, i: usize) -> Vec<Node> {
-        let Formula::F { phi, interval, .. } = &self.operands[i] else {
+        let Formula::F { phi, .. } = &self.operands[i] else {
             panic!("decompose_f_at called on non-F formula at index {}", i);
         };
 
@@ -149,7 +149,7 @@ impl Node {
 
         // Node where F is satisfied (p)
         let mut new_node1 = self.clone();
-        new_node1.operands[i] = phi.temporal_expansion(self.current_time, interval);
+        new_node1.operands[i] = phi.temporal_expansion(self.current_time, None);
 
         // Node in which F is not satisfied (OF)
         let mut new_node2 = self.clone();
@@ -171,11 +171,11 @@ impl Node {
 
         // Node where U is satisfied (q)
         let mut new_node1 = self.clone();
-        new_node1.operands[i] = right.temporal_expansion(self.current_time, interval);
+        new_node1.operands[i] = right.temporal_expansion(self.current_time, None);
 
         // Node in which U is not satisfied (p, OU)
         let mut new_node2 = self.clone();
-        new_node2.operands[i] = left.temporal_expansion(self.current_time, interval);
+        new_node2.operands[i] = left.temporal_expansion(self.current_time, Some(&interval));
         new_node2.operands.push(Formula::O(Box::new(u_formula.clone())));
         
 
@@ -195,12 +195,12 @@ impl Node {
 
         // Node where R is satisfied (p and q)
         let mut new_node1: Node = self.clone();
-        new_node1.operands[i] = left.temporal_expansion(self.current_time, interval);
-        new_node1.operands.push(right.temporal_expansion(self.current_time, interval));
+        new_node1.operands[i] = left.temporal_expansion(self.current_time, None);
+        new_node1.operands.push(right.temporal_expansion(self.current_time, None));
 
         // Node in which R is not satisfied (q, OR)
         let mut new_node2 = self.clone();
-        new_node2.operands[i] = right.temporal_expansion(self.current_time, interval);
+        new_node2.operands[i] = right.temporal_expansion(self.current_time, Some(interval));
         new_node2.operands.push(Formula::O(Box::new(r_formula.clone())));
 
         vec![new_node1, new_node2]
@@ -241,7 +241,8 @@ impl Node {
                 }
             }
 
-            let mut times: Vec<i32> = node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| [i.lower - 1, i.upper]).collect();
+            let mut times: Vec<i32> = node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| 
+                [i.lower - 1, i.upper]).collect();
 
             times.sort_unstable();
             times.dedup();
@@ -307,7 +308,7 @@ impl Node {
 }
 
 impl Formula {
-    fn temporal_expansion(&self, current_time: i32, parent_interval: &Interval) ->  Formula {
+    fn temporal_expansion(&self, current_time: i32, parent_interval: Option<&Interval>) ->  Formula {
         match self {
             Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False => self.clone(),
             Formula::F { .. } 
@@ -321,7 +322,7 @@ impl Formula {
                     | Formula::R { interval: ref mut int, ref mut parent_upper, .. } = extract {
                     int.lower += current_time;
                     int.upper += current_time;
-                    *parent_upper = Some(parent_interval.upper);
+                    *parent_upper = if parent_interval.is_some() {Some(parent_interval.unwrap().upper)} else { None };
                 }
                 extract
             }

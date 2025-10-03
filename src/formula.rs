@@ -5,13 +5,13 @@ use num_rational::Ratio;
 
 type VariableName = Arc<str>;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ArithOp {
     Add,
     Sub
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum RelOp {
     Lt,
     Le,
@@ -21,7 +21,7 @@ pub enum RelOp {
     Ne,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum AExpr {
     Var(VariableName),
     Num(Ratio<i64>),
@@ -33,7 +33,7 @@ pub enum AExpr {
     },
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Expr {
     Atom(VariableName),
     Rel {
@@ -43,7 +43,7 @@ pub enum Expr {
     },
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Interval {
     pub lower: i32,
     pub upper: i32,
@@ -62,6 +62,18 @@ impl Interval {
         current_time >= self.lower && current_time <= self.upper
     }
 
+    pub fn contiguous(&self, other: &Interval) -> bool {
+        self.upper + 1 == other.lower || other.upper + 1 == self.lower
+    }
+
+    pub fn union(&self, other: &Interval) -> Interval {
+        Interval { lower: self.lower.min(other.lower), upper: self.upper.max(other.upper) }
+    }
+
+    pub fn intersection(&self, other: &Interval) -> Interval {
+        Interval { lower: self.lower.max(other.lower), upper: self.upper.min(other.upper) }
+    }
+
     pub fn shift(&self, time: i32) -> Interval {
         Interval {
             lower: self.lower - time,
@@ -70,7 +82,7 @@ impl Interval {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Formula {
     // Propositions
     Prop(Expr),

@@ -58,7 +58,7 @@ impl TableauData {
             root.shift_bounds();
         }
         root.flatten();
-        
+
         self.add_graph_node(&root);
 
         let mut local_solver = Solver::new();

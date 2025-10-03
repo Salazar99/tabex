@@ -1,4 +1,4 @@
-use std::{collections::HashMap, vec};
+use std::{collections::BTreeMap, vec};
 
 use crate::{formula::{Formula, Interval}, node::Node};
 
@@ -6,53 +6,52 @@ use crate::{formula::{Formula, Interval}, node::Node};
 mod tests;
 
 pub fn merge_globally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
-    let mut map: HashMap<(Formula, Option<i32>), (i32, Interval)> = HashMap::new();
-    for op in input.iter() {
-        if let Formula::G { interval, parent_upper, phi } = op {
-            let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
-            if interval.intersects(&entry.1) {
-                entry.0 += 1;
-                entry.1.lower = entry.1.lower.min(interval.lower);
-                entry.1.upper = entry.1.upper.max(interval.upper);
-            }
-        }
-    }
+    let mut new_operands = Vec::new();
+    let mut map: BTreeMap<(Formula, Option<i32>), (i32, Interval)> = BTreeMap::new();
 
+    for op in input.iter() {
+        if let Formula::G { interval, parent_upper, phi } = &op {
+            let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
+            if entry.1.intersects(interval) || entry.1.contiguous(interval) {
+                entry.0 += 1;
+                entry.1 = interval.union(&entry.1);
+            } else {
+                new_operands.push(op.clone());
+            }
+        } else {
+            new_operands.push(op.clone());
+        } 
+    }
+    
     if map.values().all(|(c, _)| *c <= 1) {
         return None
     }
 
-    let mut new_operands = Vec::new();
-    for op in input.iter() {
-        if let Formula::G { parent_upper, phi, .. } = op {
-            let entry = map.get_mut(&(*phi.clone(), *parent_upper));
-            if let Some(v) = entry {
-                if v.0 <= 1 && v.0 >= 0 {
-                    new_operands.push(op.clone());
-                } else if v.0 > 1 {
-                    let new_formula = Formula::G { interval: v.1.clone(), parent_upper: *parent_upper, phi: phi.clone() };
-                    new_operands.push(new_formula);
-                    v.0 = -1; // Mark as added
-                }
-            }
-        } else {
-            new_operands.push(op.clone());
-        }
+    for entry in map.into_iter() {
+        let (formula, parent_upper) = entry.0;
+        let (_, interval)= entry.1; 
+        let new_formula = Formula::G { interval: interval, parent_upper: parent_upper, phi: Box::new(formula) };
+        new_operands.push(new_formula);
     }
 
     return Some(new_operands);
 }
 
 pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
-    let mut map: HashMap<(Formula, Option<i32>), (i32, Interval)> = HashMap::new();
+    let mut new_operands = Vec::new();
+    let mut map: BTreeMap<(Formula, Option<i32>), (i32, Interval)> = BTreeMap::new();
+
     for op in input.iter() {
         if let Formula::F { interval, parent_upper, phi } = op {
             let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
-            if interval.intersects(&entry.1) {
+            if entry.1.contains(interval) {
                 entry.0 += 1;
-                entry.1.lower = entry.1.lower.max(interval.lower);
-                entry.1.upper = entry.1.upper.min(interval.upper);
+                entry.1 = interval.intersection(&entry.1);
+            } else {
+                new_operands.push(op.clone());
             }
+        } else {
+            new_operands.push(op.clone());
         }
     }
 
@@ -60,22 +59,11 @@ pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
         return None
     }
 
-    let mut new_operands = Vec::new();
-    for op in input.iter() {
-        if let Formula::F { parent_upper, phi, .. } = op {
-            let entry = map.get_mut(&(*phi.clone(), *parent_upper));
-            if let Some(v) = entry {
-                if v.0 <= 1 && v.0 >= 0 {
-                    new_operands.push(op.clone());
-                } else if v.0 > 1 {
-                    let new_formula = Formula::F { interval: v.1.clone(), parent_upper: *parent_upper, phi: phi.clone() };
-                    new_operands.push(new_formula);
-                    v.0 = -1; // Mark as added
-                }
-            }
-        } else {
-            new_operands.push(op.clone());
-        }
+    for entry in map.into_iter() {
+        let (formula, parent_upper) = entry.0;
+        let (_, interval)= entry.1; 
+        let new_formula = Formula::F { interval: interval, parent_upper: parent_upper, phi: Box::new(formula) };
+        new_operands.push(new_formula);
     }
 
     return Some(new_operands);
@@ -86,24 +74,24 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     let mut new_operands = Vec::new();
 
     for op in input {
-        if let Formula::G { interval: g_int, phi, parent_upper } = op && time + 2 <= g_int.upper && op.active(time) &&
-            let Formula::F { interval: f_int, phi: psi, .. } = &**phi {
+        if let Formula::G { interval: g_int, phi, parent_upper } = op && g_int.lower + 2 <= g_int.upper &&
+            let Formula::F { interval: f_int, phi: psi, .. } = &**phi && op.active(time + f_int.lower + 1) {
                 let first = Formula::G { 
-                    interval: Interval { lower: time + 2, upper: g_int.upper }, 
+                    interval: Interval { lower: g_int.lower + 2, upper: g_int.upper }, 
                     parent_upper: *parent_upper, phi: phi.clone() 
                 };
                 let second = Formula::Or(vec![
                     Formula::F { 
-                        interval: Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }, 
+                        interval: Interval { lower: g_int.lower + f_int.lower + 1, upper: g_int.lower + f_int.upper }, 
                         parent_upper: None, phi: psi.clone() 
                     },
                     Formula::And(vec![
                         Formula::G { 
-                            interval: Interval { lower: time + f_int.lower, upper: time + f_int.lower }, 
+                            interval: Interval { lower: g_int.lower + f_int.lower, upper: g_int.lower + f_int.lower }, 
                             parent_upper: None, phi: psi.clone()
                         },
                         Formula::G { 
-                            interval: Interval { lower: time + f_int.upper + 1, upper: time + f_int.upper + 1 }, 
+                            interval: Interval { lower: g_int.lower + f_int.upper + 1, upper: g_int.lower + f_int.upper + 1 }, 
                             parent_upper: None, phi: psi.clone()
                         },
                     ])
