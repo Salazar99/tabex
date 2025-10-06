@@ -312,6 +312,12 @@ mod rewrite_finally_tests {
         let (res, exp) = make_test_rewrite_finally("F[0,5] a && F[1,4] a", "F[1,4] a");
         assert_eq!(res.operands, exp.operands);
     }
+    
+    #[test]
+    fn rewrite_containment_2() {
+        let (res, exp) = make_test_rewrite_finally("F[1,4] a && F[0,5] a", "F[1,4] a");
+        assert_eq!(res.operands, exp.operands);
+    }
 
     #[test]
     fn rewrite_no_match() {

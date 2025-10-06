@@ -44,7 +44,7 @@ pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
     for op in input.iter() {
         if let Formula::F { interval, parent_upper, phi } = op {
             let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
-            if entry.1.contains(interval) {
+            if entry.1.contains(interval) || interval.contains(&entry.1) {
                 entry.0 += 1;
                 entry.1 = interval.intersection(&entry.1);
             } else {
@@ -75,7 +75,7 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
 
     for op in input {
         if let Formula::G { interval: g_int, phi, parent_upper } = op && g_int.lower + 2 <= g_int.upper &&
-            let Formula::F { interval: f_int, phi: psi, .. } = &**phi && op.active(time + f_int.lower + 1) {
+            let Formula::F { interval: f_int, phi: psi, .. } = &**phi && op.active(time) {
                 let first = Formula::G { 
                     interval: Interval { lower: g_int.lower + 2, upper: g_int.upper }, 
                     parent_upper: *parent_upper, phi: phi.clone() 
