@@ -77,11 +77,19 @@ impl Formula {
             (f1, f2) if f1 == f2 => true,
             (Formula::G { interval: i1, phi: f1, .. }, 
              Formula::G { interval: i2, phi: f2, .. }) => {
-                i1.shift(self_time).contains(&i2.shift(other_time)) && f1.quick_implies(f2, self_time, other_time)
+                return if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time)) {
+                    i1.contains(&i2) && f1.quick_implies(f2, self_time, other_time)
+                } else {
+                    false
+                }
             }
             (Formula::F { interval: i1, phi: f1, .. },
              Formula::F { interval: i2, phi: f2, .. }) => {
-                i2.shift(other_time).contains(&i1.shift(self_time)) && f1.quick_implies(f2, self_time, other_time)
+                return if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time)) {
+                    i2.contains(&i1) && f1.quick_implies(f2, self_time, other_time)
+                } else {
+                    false
+                }
             },
             (Formula::Not(f1), Formula::Not(f2)) => {
                 f1.quick_implies(&f2, self_time, other_time)

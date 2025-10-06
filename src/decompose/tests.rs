@@ -55,11 +55,11 @@ fn test_imply() {
 #[test]
 fn test_globally() {
     let expected1: Node = Node::from_operands(vec![
-        Formula::Prop(Expr::Atom("a".into())),
         Formula::O(Box::new(
             Formula::G { interval: Interval { lower: 0, upper: 5 }, 
             parent_upper: None, phi: Box::new(Formula::Prop(Expr::Atom("a".into()))) }
-        ))
+        )),
+        Formula::Prop(Expr::Atom("a".into())),
     ]);
     make_test_decompose("G[0,5] a", vec![expected1], None);
 }
@@ -81,10 +81,6 @@ fn test_finally() {
 #[test] 
 fn test_gf(){
     let expected1: Node = Node::from_operands(vec![
-        Formula::F {
-            interval: Interval { lower: 0, upper: 5 }, 
-            parent_upper: Some(5), phi: Box::new(Formula::Prop(Expr::Atom("a".into())))
-        },
         Formula::O(Box::new(
             Formula::G { 
                 interval: Interval { lower: 0, upper: 5 }, 
@@ -95,7 +91,11 @@ fn test_gf(){
                     phi: Box::new(Formula::Prop(Expr::Atom("a".into())))
                 }) 
             }
-        ))
+        )),
+        Formula::F {
+            interval: Interval { lower: 0, upper: 5 }, 
+            parent_upper: Some(5), phi: Box::new(Formula::Prop(Expr::Atom("a".into())))
+        },
     ]);
     let options = TableauOptions { formula_optimizations: false, ..Default::default() };
     make_test_decompose("G[0,5] F[0,5] a", vec![expected1], Some(options));
@@ -171,5 +171,27 @@ fn test_jump_step_closure() {
         ) }  
     ]);
     assert_eq!(node.current_time, 2);
+    assert_eq!(node.operands, expected.operands);
+}
+
+#[test]
+fn test_jump_end() {
+    let mut to_decompose = Node::from_operands(vec![
+        Formula::O(Box::new(
+            Formula::F { interval: Interval { lower: 20, upper: 50 }, parent_upper: None, phi: Box::new(Formula::Prop(Expr::Atom("a".into()))) }
+        ))
+    ]);
+    to_decompose.current_time = 20;
+    let res = to_decompose.decompose_jump(false, true);
+    assert!(res.is_some());
+    let vec = res.unwrap();
+    assert_eq!(vec.len(), 1);
+    let node = &vec[0];
+
+    let expected = Node::from_operands(vec![
+        Formula::F { interval: Interval { lower: 20, upper: 50 }, parent_upper: None, phi: Box::new(Formula::Prop(Expr::Atom("a".into()))) }
+    ]);
+
+    assert_eq!(node.current_time, 50);
     assert_eq!(node.operands, expected.operands);
 }

@@ -32,6 +32,12 @@ impl TableauData {
                 Formula::Imply( .. ) => {
                     return node.decompose_imply_at(i, self.options.formula_optimizations);
                 }
+                _ => {}
+            }
+        }
+
+        for (i, operand) in node.operands.iter().enumerate() {
+            match operand {
                 Formula::F { .. } if operand.active(node.current_time) => {
                     return node.decompose_f_at(i);
                 }
@@ -79,13 +85,12 @@ impl Node {
 
     pub fn decompose_g(&self) -> Option<Vec<Node>> {
         let mut old_nodes: Vec<Formula> = Vec::new();
-        let mut changed = false;
+        let mut g_nodes: Vec<Formula> = Vec::new();
 
         for operand in &self.operands {
             match operand {
-                Formula::G { interval, phi, .. } if operand.active(self.current_time) => {
-                    changed = true;
-                    old_nodes.push(phi.temporal_expansion(self.current_time, Some(&interval)));
+                Formula::G { interval, .. } if operand.active(self.current_time) => {
+                    g_nodes.push(operand.clone());
                     if self.current_time < interval.upper {
                         old_nodes.push(Formula::O(Box::new(operand.clone())));
                     }
@@ -93,9 +98,15 @@ impl Node {
                 _ => old_nodes.push(operand.clone()),
             }
         }
-
-        if !changed {
+        
+        if g_nodes.len() == 0 {
             return None;
+        }
+
+        for node in g_nodes {
+            if let Formula::G { interval, phi, .. } = node {
+                old_nodes.push(phi.temporal_expansion(self.current_time, Some(&interval)));
+            }
         }
 
         let mut new_node = self.clone();
@@ -103,6 +114,7 @@ impl Node {
 
         Some(vec![new_node])
     }
+    
 
     pub fn decompose_or_at(&self, i: usize) -> Vec<Node> {
         let Formula::Or(operands) = &self.operands[i] else {

@@ -1,77 +1,76 @@
-use std::{collections::BTreeMap, vec};
+use std::{collections::{btree_map::Entry, BTreeMap, BTreeSet}, vec};
 
 use crate::{formula::{Formula, Interval}, node::Node};
 
 #[cfg(test)]
 mod tests;
 
-pub fn merge_globally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
-    let mut new_operands = Vec::new();
-    let mut map: BTreeMap<(Formula, Option<i32>), (i32, Interval)> = BTreeMap::new();
+pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
+    let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
+    let mut to_remove = BTreeSet::new();
 
-    for op in input.iter() {
-        if let Formula::G { interval, parent_upper, phi } = &op {
-            let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
-            if entry.1.intersects(interval) || entry.1.contiguous(interval) {
-                entry.0 += 1;
-                entry.1 = interval.union(&entry.1);
-            } else {
-                new_operands.push(op.clone());
+    for (idx, op) in input.iter().enumerate() {
+        if let Formula::G { interval, parent_upper, phi } = op {
+            match map.entry((*phi.clone(), *parent_upper)) {
+                Entry::Occupied(mut occ) => {
+                    let (_, int) = occ.get_mut();
+                    if let (Some(interval_u), Some(int_u)) = (interval.shift_left(time), int.shift_left(time)) {
+                        if int_u.intersects(&interval_u) || int_u.contiguous(&interval_u) {
+                            to_remove.insert(idx);
+                            *int = int.union(interval);
+                        }
+                    }
+                }
+                Entry::Vacant(v) => { v.insert((idx, interval.clone())); }
             }
-        } else {
-            new_operands.push(op.clone());
-        } 
-    }
-    
-    if map.values().all(|(c, _)| *c <= 1) {
-        return None
-    }
-
-    for entry in map.into_iter() {
-        let (formula, parent_upper) = entry.0;
-        let (_, interval)= entry.1; 
-        let new_formula = Formula::G { interval: interval, parent_upper: parent_upper, phi: Box::new(formula) };
-        new_operands.push(new_formula);
-    }
-
-    return Some(new_operands);
-}
-
-pub fn merge_finally(input: &Vec<Formula>) -> Option<Vec<Formula>> {
-    let mut new_operands = Vec::new();
-    let mut map: BTreeMap<(Formula, Option<i32>), (i32, Interval)> = BTreeMap::new();
-
-    for op in input.iter() {
-        if let Formula::F { interval, parent_upper, phi } = op {
-            let entry = map.entry((*phi.clone(), *parent_upper)).or_insert((0, interval.clone()));
-            if entry.1.contains(interval) || interval.contains(&entry.1) {
-                entry.0 += 1;
-                entry.1 = interval.intersection(&entry.1);
-            } else {
-                new_operands.push(op.clone());
-            }
-        } else {
-            new_operands.push(op.clone());
         }
     }
 
-    if map.values().all(|(c, _)| *c <= 1) {
-        return None
+    if to_remove.is_empty() { return None; }
+    let mut new_operands = input.clone();
+    for el in map {
+        let (phi, pu) = el.0;
+        let (idx, interval) = el.1;
+        new_operands[idx] = Formula::G { interval: interval.clone(), parent_upper: pu, phi: Box::new(phi.clone()) };
+    }
+    
+    new_operands = new_operands.iter().enumerate()
+        .filter(|(i, _)| !to_remove.contains(i))
+        .map(|(_, f)| f.clone())
+        .collect();
+
+    Some(new_operands)
+}
+
+pub fn merge_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
+    let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
+    let mut to_remove = BTreeSet::new();
+
+    for (idx, op) in input.iter().enumerate() {
+        if let Formula::F { interval, parent_upper, phi } = op {
+            match map.entry((*phi.clone(), *parent_upper)) {
+                Entry::Occupied(mut occ) => {
+                    let (i, int) = occ.get_mut();
+                    if let (Some(interval_u), Some(int_u)) = (interval.shift_left(time), int.shift_left(time)) {
+                        if interval_u.contains(&int_u) {
+                            to_remove.insert(idx);
+                        } else if int_u.contains(&interval_u) {
+                            to_remove.insert(*i); *i = idx; *int = interval.clone();
+                        }
+                    }
+                }
+                Entry::Vacant(v) => { v.insert((idx, interval.clone())); }
+            }
+        }
     }
 
-    for entry in map.into_iter() {
-        let (formula, parent_upper) = entry.0;
-        let (_, interval)= entry.1; 
-        let new_formula = Formula::F { interval: interval, parent_upper: parent_upper, phi: Box::new(formula) };
-        new_operands.push(new_formula);
-    }
-
-    return Some(new_operands);
+    if to_remove.is_empty() { return None; }
+    Some(input.iter().enumerate().filter(|(i, _)| !to_remove.contains(i)).map(|(_, f)| f.clone()).collect())
 }
 
 pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
-    let mut changed = false;
     let mut new_operands = Vec::new();
+    let mut new_nodes = Vec::new();
 
     for op in input {
         if let Formula::G { interval: g_int, phi, parent_upper } = op && g_int.lower + 2 <= g_int.upper &&
@@ -97,18 +96,21 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
                     ])
                 ]);
             new_operands.push(first);
-            new_operands.push(second);
-            changed = true;
+            new_nodes.push(second);
         } else {
             new_operands.push(op.clone());
         }
     }
 
-    if !changed {
-        None
-    } else {
-        Some(new_operands)
+    if new_nodes.is_empty() {
+        return None;
     }
+
+    for node in new_nodes {
+        new_operands.push(node);
+    }
+
+    Some(new_operands)
 }
 
 pub fn rewrite_chain(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
@@ -117,11 +119,11 @@ pub fn rewrite_chain(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
 
     loop {
         let mut local_change = false;
-        if let Some(res) = merge_globally(&current) {
+        if let Some(res) = merge_globally(&current, time) {
             current = res;
             local_change = true;
         }
-        if let Some(res) = merge_finally(&current) {
+        if let Some(res) = merge_finally(&current, time) {
             current = res;
             local_change = true;
         }

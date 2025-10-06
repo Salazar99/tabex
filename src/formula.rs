@@ -74,10 +74,21 @@ impl Interval {
         Interval { lower: self.lower.max(other.lower), upper: self.upper.min(other.upper) }
     }
 
-    pub fn shift(&self, time: i32) -> Interval {
-        Interval {
-            lower: self.lower - time,
+    pub fn shift_left(&self, time: i32) -> Option<Interval> {
+        if time > self.upper {
+            return None
+        }
+
+        Some(Interval {
+            lower: (self.lower - time).max(0),
             upper: self.upper - time,
+        })
+    }
+
+    pub fn shift_right(&self, time: i32) -> Interval {
+        Interval {
+            lower: self.lower + time,
+            upper: self.upper + time,
         }
     }
 }
