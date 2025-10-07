@@ -1,3 +1,4 @@
+pub mod config;
 pub mod formula;
 pub mod node;
 pub mod decompose;
