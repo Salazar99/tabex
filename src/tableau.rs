@@ -54,10 +54,11 @@ impl Tableau {
             root.rewrite_u_r();
         }
         root.push_negation();
+        root.flatten();
+        
         if self.options.formula_optimizations {
             root.shift_bounds();
         }
-        root.flatten();
 
         self.add_graph_node(&root);
 

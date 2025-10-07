@@ -203,7 +203,7 @@ impl Node {
     }
 
     pub fn shift_bounds(&mut self) {
-        fn get_shift(formula: &Formula) -> i32 {
+        fn get_shift(formula: &Formula) -> Option<i32> {
             match formula {
                 Formula::O(inner) 
                 | Formula::Not(inner) => get_shift(inner),
@@ -215,8 +215,8 @@ impl Node {
                 Formula::G { interval, .. } 
                 | Formula::F { interval, .. } 
                 | Formula::U { interval, .. }
-                | Formula::R { interval, .. } => interval.lower,
-                _ => -1,
+                | Formula::R { interval, .. } => Some(interval.lower),
+                _ => None,
             }
         }
         fn shift_backward(formula: &mut Formula, shift: i32) {
@@ -247,8 +247,7 @@ impl Node {
                 },
                 Formula::G { phi, interval, .. } | Formula::F { phi, interval, .. } => {
                     inner_rewrite(phi);
-                    let shift = get_shift(phi);
-                    if shift > 0 {
+                    if let Some(shift) = get_shift(phi) {
                         shift_backward(phi, shift);
                         interval.lower += shift;
                         interval.upper += shift;
@@ -257,8 +256,7 @@ impl Node {
                 Formula::U { interval, left, right, .. } | Formula::R { interval, left, right, .. } => {
                     inner_rewrite(left);
                     inner_rewrite(right);
-                    let shift = get_shift(left).min(get_shift(right));
-                    if shift > 0 {
+                    if let Some(shift) = get_shift(left).min(get_shift(right)) {
                         shift_backward(left, shift);
                         shift_backward(right, shift);
                         interval.lower += shift;
