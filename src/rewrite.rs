@@ -73,24 +73,24 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     let mut new_nodes = Vec::new();
 
     for op in input {
-        if let Formula::G { interval: g_int, phi, parent_upper } = op && g_int.lower + 2 <= g_int.upper &&
+        if let Formula::G { interval: g_int, phi, parent_upper } = op && time + 2 <= g_int.upper &&
             let Formula::F { interval: f_int, phi: psi, .. } = &**phi && op.active(time) {
                 let first = Formula::G { 
-                    interval: Interval { lower: g_int.lower + 2, upper: g_int.upper }, 
+                    interval: Interval { lower: time + 2, upper: g_int.upper }, 
                     parent_upper: *parent_upper, phi: phi.clone() 
                 };
                 let second = Formula::Or(vec![
                     Formula::F { 
-                        interval: Interval { lower: g_int.lower + f_int.lower + 1, upper: g_int.lower + f_int.upper }, 
+                        interval: Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }, 
                         parent_upper: None, phi: psi.clone() 
                     },
                     Formula::And(vec![
                         Formula::G { 
-                            interval: Interval { lower: g_int.lower + f_int.lower, upper: g_int.lower + f_int.lower }, 
+                            interval: Interval { lower: time + f_int.lower, upper: time + f_int.lower }, 
                             parent_upper: None, phi: psi.clone()
                         },
                         Formula::G { 
-                            interval: Interval { lower: g_int.lower + f_int.upper + 1, upper: g_int.lower + f_int.upper + 1 }, 
+                            interval: Interval { lower: time + f_int.upper + 1, upper: time + f_int.upper + 1 }, 
                             parent_upper: None, phi: psi.clone()
                         },
                     ])
@@ -111,39 +111,6 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     }
 
     Some(new_operands)
-}
-
-pub fn rewrite_chain(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
-    let mut current = input.clone();
-    let mut changed_once = false;
-
-    loop {
-        let mut local_change = false;
-        if let Some(res) = merge_globally(&current, time) {
-            current = res;
-            local_change = true;
-        }
-        if let Some(res) = merge_finally(&current, time) {
-            current = res;
-            local_change = true;
-        }
-        if let Some(res) = rewrite_globally_finally(&current, time) {
-            current = res;
-            local_change = true;
-        }
-
-        if local_change {
-            changed_once = true;
-        } else {
-            break;
-        }
-    }
-
-    if changed_once {
-        return Some(current)
-    } else {
-        None
-    }
 }
 
 impl Node {
@@ -357,5 +324,33 @@ impl Node {
             }
         });
         self.operands = flattened;
+    }
+
+    pub fn rewrite_chain(&self) -> Option<Vec<Node>> {
+        let mut current = self.operands.clone();
+        let mut changed = false;
+
+        loop {
+            if let Some(res) = merge_globally(&current, self.current_time) {
+                current = res;
+                changed = true;
+            } else if let Some(res) = merge_finally(&current, self.current_time) {
+                current = res;
+                changed = true;
+            } else if let Some(res) = rewrite_globally_finally(&current, self.current_time) {
+                current = res;
+                changed = true;
+            } else {
+                break;
+            }
+        }
+
+        if changed {
+            let mut new_node = self.clone();
+            new_node.operands = current;
+            Some(vec![new_node])
+        } else {
+            None
+        }
     }
 }

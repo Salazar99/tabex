@@ -1,15 +1,23 @@
-use crate::{formula::{Expr, Formula, Interval}, node::Node, tableau::{TableauData, TableauOptions}};
+use crate::{formula::{Expr, Formula, Interval}, node::Node, tableau::{Tableau, TableauOptions}};
 
-fn make_test_decompose(input: &str, expected: Vec<Node>, options: Option<TableauOptions>) {
-    let (_, formula) = crate::parser::parse_formula(input).unwrap();
-    let node = Node::from_operands(vec![formula]);
-    let tableau_data = TableauData::new(
+fn tableau_data_gen(options: Option<TableauOptions>) -> Tableau {
+    Tableau::new(
         if let Some(tops) = options {
             tops
         } else {
             TableauOptions { graph_output: false, ..Default::default() }
         }
-    );
+    )
+}
+
+fn decompose_jump_opt() -> TableauOptions {
+    TableauOptions { jump_rule_enabled: true, graph_output: false, simple_first: false, ..Default::default() }
+}
+
+fn make_test_decompose(input: &str, expected: Vec<Node>, options: Option<TableauOptions>) {
+    let (_, formula) = crate::parser::parse_formula(input).unwrap();
+    let node = Node::from_operands(vec![formula]);
+    let tableau_data = tableau_data_gen(options);
     let decomposed = tableau_data.decompose(&node);
     let decomposed_operands = decomposed.iter().map(|n| n.operands.clone()).collect::<Vec<Vec<Formula>>>();
     let expected_operands = expected.iter().map(|n| n.operands.clone()).collect::<Vec<Vec<Formula>>>();
@@ -107,7 +115,7 @@ fn test_jump_only_prop() {
         Formula::Prop(Expr::Atom("a".into())),
         Formula::Prop(Expr::Atom("b".into()))
     ]);
-    let res = to_decompose.decompose_jump(false, true);
+    let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
     assert_eq!(res, None);
 }
 
@@ -123,7 +131,7 @@ fn test_jump_temporal_end() {
         }
     ]);
     to_decompose.current_time = 5;
-    let res = to_decompose.decompose_jump(false, true);
+    let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
     assert_eq!(res, None);
 }
 
@@ -138,7 +146,7 @@ fn test_jump_step_interval_end() {
         )),
     ]);
     to_decompose.current_time = 5;
-    let res = to_decompose.decompose_jump(false, true);
+    let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
     assert!(res.is_some());
     let vec = res.unwrap();
     assert_eq!(vec.len(), 1);
@@ -160,7 +168,7 @@ fn test_jump_step_closure() {
         )),
     ]);
     to_decompose.current_time = 1;
-    let res = to_decompose.decompose_jump(false, true);
+    let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
     assert!(res.is_some());
     let vec = res.unwrap();
     assert_eq!(vec.len(), 1);
@@ -182,7 +190,7 @@ fn test_jump_end() {
         ))
     ]);
     to_decompose.current_time = 20;
-    let res = to_decompose.decompose_jump(false, true);
+    let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
     assert!(res.is_some());
     let vec = res.unwrap();
     assert_eq!(vec.len(), 1);

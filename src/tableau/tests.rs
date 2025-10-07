@@ -1,4 +1,4 @@
-use crate::{node::Node, parser::parse_formula, tableau::{TableauData, TableauOptions}};
+use crate::{node::Node, parser::parse_formula, tableau::{Tableau, TableauOptions}};
 
 fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
     let (_, formula) = parse_formula(formula_str).unwrap();
@@ -12,7 +12,7 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         jump_rule_enabled: true,
         mltl: mltl
     };
-    let mut tableau = TableauData::new(options);
+    let mut tableau = Tableau::new(options);
     tableau.make_tableau(node)
 }
 
@@ -111,4 +111,9 @@ fn test_u_parent() {
 #[test]
 fn test_implication_negation() {
     assert_eq!(make_test("G[0, 6] !a && (G[0, 3] !a -> F[0, 3] a)", false), Some(false))
+}
+
+#[test]
+fn test_globally_imply_merge() {
+    assert_eq!(make_test("G[0, 10] (a -> G[10, 15] b) && G[0, 10] a && G[16, 16] !b", false), Some(false))
 }

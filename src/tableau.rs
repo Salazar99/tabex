@@ -31,18 +31,18 @@ impl Default for TableauOptions {
     }
 }
 
-pub struct TableauData {
+pub struct Tableau {
     pub options: TableauOptions,
     pub graph: Option<Graph>,
     pub store: Option<Store>,
 }
 
-impl TableauData {
+impl Tableau {
 
     pub fn new(options: TableauOptions) -> Self {
         let graph = if options.graph_output { Some(Graph::new("Tableau", Kind::Graph)) } else { None };
         let store = if options.memoization { Some(Store::new()) } else { None };
-        TableauData {
+        Tableau {
             options,
             graph,
             store

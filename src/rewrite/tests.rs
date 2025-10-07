@@ -1,4 +1,4 @@
-use crate::{node::Node, parser::parse_formula, rewrite::{rewrite_chain}};
+use crate::{node::Node, parser::parse_formula};
 
 fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
     let (_, input_formula) = parse_formula(input).unwrap();
@@ -29,7 +29,7 @@ fn make_test_rewrite_chain(input: &str, expected: &str) -> (Node, Node) {
     let (_, input_formula) = parse_formula(input).unwrap();
     let mut input_node: Node = Node::from_operands(vec![input_formula]);
     input_node.flatten();
-    input_node.operands = rewrite_chain(&input_node.operands, input_node.current_time).unwrap_or(input_node.operands);
+    input_node = input_node.rewrite_chain().unwrap_or(vec![input_node.clone()])[0].clone();
     let (_, expected_formula) = parse_formula(expected).unwrap();
     let mut expected_node: Node = Node::from_operands(vec![expected_formula]);
     expected_node.flatten();

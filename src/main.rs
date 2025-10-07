@@ -31,7 +31,7 @@ fn main() {
 
     let start = std::time::Instant::now();
     
-    let mut tableau = TableauData::new(options);
+    let mut tableau = Tableau::new(options);
     let res = tableau.make_tableau(node);
     
     let duration = start.elapsed();
