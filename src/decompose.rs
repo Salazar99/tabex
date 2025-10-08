@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::formula::*;
 use crate::node::*;
 use crate::tableau::Tableau;
@@ -143,7 +145,7 @@ impl Tableau {
     }
 
     pub fn decompose_f_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let FormulaKind::F { phi, .. } = &node.operands[i].kind else {
+        let FormulaKind::F { phi, interval,  .. } = &node.operands[i].kind else {
             panic!("decompose_f_at called on non-F formula at index {}", i);
         };
 
@@ -158,10 +160,14 @@ impl Tableau {
         new_node1.operands[i] = phi.temporal_expansion(node.current_time, None);
 
         // Node in which F is not satisfied (OF)
-        let mut new_node2 = node.clone();
-        new_node2.operands[i] = Formula::o(f_formula.clone());
-
-        vec![new_node1, new_node2]
+        if node.current_time < interval.upper {
+            let mut new_node2 = node.clone();
+            new_node2.operands[i] = Formula::o(f_formula.clone());
+    
+            vec![new_node1, new_node2]
+        } else {
+            vec![new_node1]
+        }
     }
 
     pub fn decompose_u_at(&self, node: &Node, i: usize) -> Vec<Node> {
@@ -179,12 +185,15 @@ impl Tableau {
         let mut new_node1 = node.clone();
         new_node1.operands[i] = right.temporal_expansion(node.current_time, None);
 
-        // Node in which U is not satisfied (p, OU)
-        let mut new_node2 = node.clone();
-        new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(&interval));
-        new_node2.operands.push(Formula::o(u_formula.clone()));
-        
-        vec![new_node1, new_node2]
+        if node.current_time < interval.upper {
+            // Node in which U is not satisfied (p, OU)
+            let mut new_node2 = node.clone();
+            new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(&interval));
+            new_node2.operands.push(Formula::o(u_formula.clone()));
+            
+            return vec![new_node1, new_node2]
+        }
+        return vec![new_node1]
     }
 
     pub fn decompose_r_at(&self, node: &Node, i: usize) -> Vec<Node> {

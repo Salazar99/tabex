@@ -81,8 +81,8 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
             let second = Formula::or(vec![
                 phi.with_interval(Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }),
                 Formula::and(vec![
-                    Formula::g(Interval {lower: time + f_int.lower, upper: time + f_int.lower}, *parent_upper, *psi.clone()),
-                    Formula::g(Interval {lower: time + f_int.upper + 1, upper: time + f_int.upper + 1}, *parent_upper, *psi.clone()),
+                    Formula::f(Interval {lower: time + f_int.lower, upper: time + f_int.lower}, *parent_upper, *psi.clone()),
+                    Formula::f(Interval {lower: time + f_int.upper + 1, upper: time + f_int.upper + 1}, *parent_upper, *psi.clone()),
                 ])
             ]);
             new_operands.push(first);

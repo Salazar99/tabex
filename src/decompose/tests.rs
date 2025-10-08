@@ -80,6 +80,14 @@ fn test_finally() {
     make_test_decompose("F[0,5] a", vec![expected1, expected2], None);
 }
 
+#[test]
+fn test_finally_end() {
+    let expected1: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("a".into())),
+    ]);
+    make_test_decompose("F[0,0] a", vec![expected1], None);
+}
+
 #[test] 
 fn test_gf(){
     let expected1: Node = Node::from_operands(vec![
@@ -88,6 +96,39 @@ fn test_gf(){
     ]);
     let options = TableauOptions { formula_optimizations: false, ..Default::default() };
     make_test_decompose("G[0,5] F[0,5] a", vec![expected1], Some(options));
+}
+
+#[test]
+fn test_until() {
+    let expected1: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("b".into())),
+    ]);
+    let expected2: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("a".into())),
+        Formula::o(Formula::u(Interval { lower: 0, upper: 5 }, None, Formula::prop(Expr::Atom("a".into())), Formula::prop(Expr::Atom("b".into()))))
+    ]);
+    make_test_decompose("a U[0,5] b", vec![expected1, expected2], None);
+}
+
+#[test]
+fn test_until_end() {
+    let expected1: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("b".into())),
+    ]);
+    make_test_decompose("a U[0, 0] b", vec![expected1], None);
+}
+
+#[test]
+fn test_release() {
+    let expected1: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("a".into())),
+        Formula::prop(Expr::Atom("b".into())),
+    ]);
+    let expected2: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("b".into())),
+        Formula::o(Formula::r(Interval { lower: 0, upper: 5 }, None, Formula::prop(Expr::Atom("a".into())), Formula::prop(Expr::Atom("b".into()))))
+    ]);
+    make_test_decompose("a R[0,5] b", vec![expected1, expected2], None);
 }
 
 #[test]
