@@ -73,25 +73,25 @@ impl Store {
 
 impl Formula {
     fn quick_implies(&self, other: &Formula, self_time: i32, other_time: i32) -> bool {
-        match (self, other) {
+        match (&self.kind, &other.kind) {
             (f1, f2) if f1 == f2 => true,
-            (Formula::G { interval: i1, phi: f1, .. }, 
-             Formula::G { interval: i2, phi: f2, .. }) => {
+            (FormulaKind::G { interval: i1, phi: f1, .. }, 
+             FormulaKind::G { interval: i2, phi: f2, .. }) => {
                 return if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time)) {
                     i1.contains(&i2) && f1.quick_implies(f2, self_time, other_time)
                 } else {
                     false
                 }
             }
-            (Formula::F { interval: i1, phi: f1, .. },
-             Formula::F { interval: i2, phi: f2, .. }) => {
+            (FormulaKind::F { interval: i1, phi: f1, .. },
+             FormulaKind::F { interval: i2, phi: f2, .. }) => {
                 return if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time)) {
                     i2.contains(&i1) && f1.quick_implies(f2, self_time, other_time)
                 } else {
                     false
                 }
             },
-            (Formula::Not(f1), Formula::Not(f2)) => {
+            (FormulaKind::Not(f1), FormulaKind::Not(f2)) => {
                 f1.quick_implies(&f2, self_time, other_time)
             },
             _ => false

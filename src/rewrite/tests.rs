@@ -184,9 +184,9 @@ mod flatten_tests {
     fn flatten_and() {
         let res = make_test_flatten("(a && (b && c))");
         let exp = Node::from_operands(vec![
-            Formula::Prop(Expr::Atom(Arc::from("a"))),
-            Formula::Prop(Expr::Atom(Arc::from("b"))),
-            Formula::Prop(Expr::Atom(Arc::from("c"))),
+            Formula::prop(Expr::Atom(Arc::from("a"))),
+            Formula::prop(Expr::Atom(Arc::from("b"))),
+            Formula::prop(Expr::Atom(Arc::from("c"))),
         ]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -195,10 +195,10 @@ mod flatten_tests {
     fn flatten_or() {
         let res = make_test_flatten("(a || (b || c))");
         let exp = Node::from_operands(vec![
-            Formula::Or(vec![
-                Formula::Prop(Expr::Atom(Arc::from("a"))),
-                Formula::Prop(Expr::Atom(Arc::from("b"))),
-                Formula::Prop(Expr::Atom(Arc::from("c"))),
+            Formula::or(vec![
+                Formula::prop(Expr::Atom(Arc::from("a"))),
+                Formula::prop(Expr::Atom(Arc::from("b"))),
+                Formula::prop(Expr::Atom(Arc::from("c"))),
             ])
         ]);
         assert_eq!(res.operands, exp.operands);
@@ -208,13 +208,13 @@ mod flatten_tests {
     fn flatten_mixed() {
         let res = make_test_flatten("(a && ((b || c) && (d && e)))");
         let exp = Node::from_operands(vec![
-            Formula::Prop(Expr::Atom(Arc::from("a"))),
-            Formula::Or(vec![
-                Formula::Prop(Expr::Atom(Arc::from("b"))),
-                Formula::Prop(Expr::Atom(Arc::from("c"))),
+            Formula::prop(Expr::Atom(Arc::from("a"))),
+            Formula::or(vec![
+                Formula::prop(Expr::Atom(Arc::from("b"))),
+                Formula::prop(Expr::Atom(Arc::from("c"))),
             ]),
-            Formula::Prop(Expr::Atom(Arc::from("d"))),
-            Formula::Prop(Expr::Atom(Arc::from("e"))),
+            Formula::prop(Expr::Atom(Arc::from("d"))),
+            Formula::prop(Expr::Atom(Arc::from("e"))),
         ]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -223,13 +223,13 @@ mod flatten_tests {
     fn flatten_nested() {
         let res = make_test_flatten("G[0, 10] ((a && b) && c)");
         let exp = Node::from_operands(vec![
-            Formula::G { parent_upper: None, interval: Interval { lower: 0, upper: 10 }, phi: Box::new(
-                Formula::And(vec![
-                    Formula::Prop(Expr::Atom(Arc::from("a"))),
-                    Formula::Prop(Expr::Atom(Arc::from("b"))),
-                    Formula::Prop(Expr::Atom(Arc::from("c"))),
+            Formula::g(Interval { lower: 0, upper: 10 }, None,
+                Formula::and(vec![
+                    Formula::prop(Expr::Atom(Arc::from("a"))),
+                    Formula::prop(Expr::Atom(Arc::from("b"))),
+                    Formula::prop(Expr::Atom(Arc::from("c"))),
                 ])
-            )}
+            )
         ]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -356,13 +356,13 @@ mod rewrite_globally_finally_tests {
 
     #[test]
     fn rewrite_match_simple() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] F[0,3] a", "G[2,5] F[0, 3] a && (F[1, 3] a || G[0, 0] a && G[4, 4] a)");
+        let (res, exp) = make_test_rewrite_chain("G[0,5] F[0,3] a", "G[2,5] F[0, 3] a && (F[1, 3] a || F[0, 0] a && F[4, 4] a)");
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_order() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] F[0,3] a && F[0,3] b", "G[2,5] F[0, 3] a && F[0,3] b && (F[1, 3] a || G[0, 0] a && G[4, 4] a)");
+        let (res, exp) = make_test_rewrite_chain("G[0,5] F[0,3] a && F[0,3] b", "G[2,5] F[0, 3] a && F[0,3] b && (F[1, 3] a || F[0, 0] a && F[4, 4] a)");
         assert_eq!(res.operands, exp.operands);
     }
 }

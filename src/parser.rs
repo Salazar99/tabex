@@ -140,7 +140,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         fold_many0(
             pair(preceded(space0, tag("->")), preceded(space0, parse_implication)),
             move || init.clone(),
-            |acc, (_, right)| Formula::Imply(Box::new(acc), Box::new(right))
+            |acc, (_, right)| Formula::imply(acc, right)
         ).parse(input)
     }
 
@@ -150,7 +150,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         fold_many0(
             pair(preceded(space0, tag("||")), preceded(space0, parse_logical_and)),
             move || init.clone(),
-            |acc, (_, right)| Formula::Or(vec![acc, right])
+            |acc, (_, right)| Formula::or(vec![acc, right])
         ).parse(input)
     }
 
@@ -160,7 +160,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         fold_many0(
             pair(preceded(space0, tag("&&")), preceded(space0, parse_binary_temporal)),
             move || init.clone(),
-            |acc, (_, right)| Formula::And(vec![acc, right])
+            |acc, (_, right)| Formula::and(vec![acc, right])
         ).parse(input)
     }
 
@@ -177,8 +177,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             ),
             move || init.clone(),
             |acc, ((op, interval), right)| match op {
-                "U" => Formula::U { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
-                "R" => Formula::R { interval: interval.unwrap(), left: Box::new(acc), right: Box::new(right), parent_upper: None },
+                "U" => Formula::u(interval.unwrap(), None, acc, right),
+                "R" => Formula::r(interval.unwrap(), None, acc, right),
                 _ => panic!(), // Should not happen
             }
         ).parse(input)
@@ -186,8 +186,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
 
     fn parse_formula_term(input: &str) -> IResult<&str, Formula> {
         alt((
-            map(tag_no_case("true"), |_| Formula::True),
-            map(tag_no_case("false"), |_| Formula::False),
+            map(tag_no_case("true"), |_| Formula::true_()),
+            map(tag_no_case("false"), |_| Formula::false_()),
             map(
                 (
                     tag("G"),
@@ -195,11 +195,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     space0,
                     parse_formula_term
                 ),
-                |(_, interval, _, phi)| Formula::G {
-                    interval: interval,
-                    phi: Box::new(phi),
-                    parent_upper: None,
-                }
+                |(_, interval, _, phi)| Formula::g(interval, None, phi)
             ),
             map(
                 (
@@ -208,11 +204,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     space0,
                     parse_formula_term
                 ),
-                |(_, interval, _, phi)| Formula::F {
-                    interval: interval,
-                    phi: Box::new(phi),
-                    parent_upper: None,
-                }
+                |(_, interval, _, phi)| Formula::f(interval, None, phi)
             ),
             map(
                 (
@@ -220,7 +212,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     space0,
                     parse_formula_term
                 ),
-                |(_, _, phi)| Formula::O(Box::new(phi))
+                |(_, _, phi)| Formula::o(phi)
             ),
             map(
                 (
@@ -228,10 +220,10 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                     space0,
                     parse_formula_term
                 ),
-                |(_, _, phi)| Formula::Not(Box::new(phi))
+                |(_, _, phi)| Formula::not(phi)
             ),
             delimited(char('('), parse_formula, char(')')),
-            map(parse_expr, Formula::Prop),
+            map(parse_expr, Formula::prop),
         )).parse(input)
     }
     

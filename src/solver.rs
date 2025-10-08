@@ -1,5 +1,5 @@
 use crate::node::Node;
-use crate::formula::{AExpr, ArithOp, Expr, Formula, RelOp};
+use crate::formula::{AExpr, ArithOp, Expr, Formula, FormulaKind, RelOp};
 
 use std::collections::{BTreeMap, HashMap};
 use z3::{Solver as Z3Solver, ast::{Real, Bool}};
@@ -62,18 +62,18 @@ impl Solver {
 
     fn add_constraints(&mut self, node: &Node) {
         fn get_assertion(formula: &Formula) -> Option<Assertion> {
-            match formula {
-                Formula::Prop(Expr::Atom(expr)) => Some(Assertion::Boolean {
+            match &formula.kind {
+                FormulaKind::Prop(Expr::Atom(expr)) => Some(Assertion::Boolean {
                     negated: false,
                     var: expr.clone(),
                 }),
-                Formula::Prop(Expr::Rel { left, right, op }) => Some(Assertion::Real {
+                FormulaKind::Prop(Expr::Rel { left, right, op }) => Some(Assertion::Real {
                     negated: false,
                     op: op.clone(),
                     left: left.clone(),
                     right: right.clone(),
                 }),
-                Formula::Not(inner) => {
+                FormulaKind::Not(inner) => {
                     match get_assertion(&inner)? {
                         Assertion::Boolean { negated, var } => Some(Assertion::Boolean {
                             negated: !negated,
@@ -110,15 +110,15 @@ impl Solver {
 
     pub fn check(&mut self, node: &Node) -> bool {
         if node.operands.iter().any(|f| {
-            match f {
-                Formula::O(inner) => {
-                    match &**inner {
-                        Formula::F { interval, .. } | Formula::U { interval, .. } if node.current_time == interval.upper => true,
+            match &f.kind {
+                FormulaKind::O(inner) => {
+                    match &inner.kind {
+                        FormulaKind::F { interval, .. } | FormulaKind::U { interval, .. } if node.current_time == interval.upper => true,
                         _ => false
                     }
                 },
-                Formula::False => true,
-                Formula::Not(inner) if matches!(**inner, Formula::True) => true,
+                FormulaKind::False => true,
+                FormulaKind::Not(inner) if matches!(inner.kind, FormulaKind::True) => true,
                 _ => false
             }
         }) {

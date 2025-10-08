@@ -22,11 +22,11 @@ impl Tableau {
         }
 
         for (i, operand) in node.operands.iter().enumerate() {
-            match operand {
-                Formula::Or(_) => {
+            match &operand.kind {
+                FormulaKind::Or(_) => {
                     return self.decompose_or_at(node, i);
                 }
-                Formula::Imply( .. ) => {
+                FormulaKind::Imply( .. ) => {
                     return self.decompose_imply_at(node, i);
                 }
                 _ => {}
@@ -34,14 +34,14 @@ impl Tableau {
         }
 
         for (i, operand) in node.operands.iter().enumerate() {
-            match operand {
-                Formula::F { .. } if operand.active(node.current_time) => {
+            match &operand.kind {
+                FormulaKind::F { .. } if operand.active(node.current_time) => {
                     return self.decompose_f_at(node, i);
                 }
-                Formula::U { .. } if operand.active(node.current_time) => {
+                FormulaKind::U { .. } if operand.active(node.current_time) => {
                     return self.decompose_u_at(node, i);
                 }
-                Formula::R { .. } if operand.active(node.current_time) => {
+                FormulaKind::R { .. } if operand.active(node.current_time) => {
                     return self.decompose_r_at(node, i);
                 }
                 _ => {}
@@ -60,12 +60,12 @@ impl Tableau {
         let mut changed = false;
         
         for operand in &node.operands {
-            match operand {
-                Formula::And(inner) => {
+            match &operand.kind {
+                FormulaKind::And(inner) => {
                     changed = true;
                     out.extend_from_slice(inner);
                 }
-                other => out.push(other.clone()),
+                _ => out.push(operand.clone()),
             }
         }
 
@@ -83,11 +83,11 @@ impl Tableau {
         let mut g_nodes: Vec<Formula> = Vec::new();
 
         for operand in &node.operands {
-            match operand {
-                Formula::G { interval, .. } if operand.active(node.current_time) => {
+            match &operand.kind {
+                FormulaKind::G { interval, .. } if operand.active(node.current_time) => {
                     g_nodes.push(operand.clone());
                     if node.current_time < interval.upper {
-                        old_nodes.push(Formula::O(Box::new(operand.clone())));
+                        old_nodes.push(Formula::o(operand.clone()));
                     }
                 }
                 _ => old_nodes.push(operand.clone()),
@@ -99,7 +99,7 @@ impl Tableau {
         }
 
         for formula in g_nodes {
-            if let Formula::G { interval, phi, .. } = formula {
+            if let FormulaKind::G { interval, phi, .. } = &formula.kind {
                 old_nodes.push(phi.temporal_expansion(node.current_time, Some(&interval)));
             }
         }
@@ -111,7 +111,7 @@ impl Tableau {
     } 
 
     pub fn decompose_or_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let Formula::Or(operands) = &node.operands[i] else {
+        let FormulaKind::Or(operands) = &node.operands[i].kind else {
             panic!("decompose_or_at called on non-Or formula at index {}", i);
         };
         
@@ -125,12 +125,12 @@ impl Tableau {
     }
 
     pub fn decompose_imply_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let Formula::Imply(left, right) = &node.operands[i] else {
+        let FormulaKind::Imply(left, right) = &node.operands[i].kind else {
             panic!("decompose_imply_at called on non-Imply formula at index {}", i);
         };
         
         let mut new_node1 = node.clone();
-        new_node1.operands[i] = Formula::Not(Box::new((**left).clone()));
+        new_node1.operands[i] = Formula::not((**left).clone());
         new_node1.push_negation();
 
         let mut new_node2 = node.clone();
@@ -143,7 +143,7 @@ impl Tableau {
     }
 
     pub fn decompose_f_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let Formula::F { phi, .. } = &node.operands[i] else {
+        let FormulaKind::F { phi, .. } = &node.operands[i].kind else {
             panic!("decompose_f_at called on non-F formula at index {}", i);
         };
 
@@ -159,13 +159,13 @@ impl Tableau {
 
         // Node in which F is not satisfied (OF)
         let mut new_node2 = node.clone();
-        new_node2.operands[i] = Formula::O(Box::new(f_formula.clone()));
+        new_node2.operands[i] = Formula::o(f_formula.clone());
 
         vec![new_node1, new_node2]
     }
 
     pub fn decompose_u_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let Formula::U { left, right, interval, .. } = &node.operands[i] else {
+        let FormulaKind::U { left, right, interval, .. } = &node.operands[i].kind else {
             panic!("decompose_u_at called on non-U formula at index {}", i);
         };
 
@@ -182,13 +182,13 @@ impl Tableau {
         // Node in which U is not satisfied (p, OU)
         let mut new_node2 = node.clone();
         new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(&interval));
-        new_node2.operands.push(Formula::O(Box::new(u_formula.clone())));
+        new_node2.operands.push(Formula::o(u_formula.clone()));
         
         vec![new_node1, new_node2]
     }
 
     pub fn decompose_r_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let Formula::R { interval, left, right, .. } = &node.operands[i] else {
+        let FormulaKind::R { interval, left, right, .. } = &node.operands[i].kind else {
             panic!("decompose_r_at called on non-R formula at index {}", i);
         };
 
@@ -206,7 +206,7 @@ impl Tableau {
         // Node in which R is not satisfied (q, OR)
         let mut new_node2 = node.clone();
         new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
-        new_node2.operands.push(Formula::O(Box::new(r_formula.clone())));
+        new_node2.operands.push(Formula::o(r_formula.clone()));
 
         vec![new_node1, new_node2]
     }
@@ -221,11 +221,11 @@ impl Tableau {
             }
 
             let mut sub_formula = formula.clone();
-            match &mut sub_formula {
-                Formula::G { interval, .. }
-                | Formula::F { interval, .. }
-                | Formula::U { interval, .. }
-                | Formula::R { interval, .. } if jump != 1 && formula.parent_active(current_time) => {
+            match &mut sub_formula.kind {
+                FormulaKind::G { interval, .. }
+                | FormulaKind::F { interval, .. }
+                | FormulaKind::U { interval, .. }
+                | FormulaKind::R { interval, .. } if jump != 1 && formula.parent_active(current_time) => {
                     interval.lower += jump;
                     interval.upper += jump;
                 }
@@ -236,12 +236,12 @@ impl Tableau {
 
         fn sorted_time_instants(node: &Node) -> Vec<i32> {
             fn top_level_interval(formula: &Formula, current_time: i32) -> Option<&Interval> {
-                match formula {
-                    Formula::O(inner) => top_level_interval(inner, current_time),
-                    Formula::G { interval, .. } 
-                    | Formula::F { interval, .. } 
-                    | Formula::U { interval, .. }
-                    | Formula::R { interval, .. } if !formula.parent_active(current_time) => Some(interval),
+                match &formula.kind {
+                    FormulaKind::O(inner) => top_level_interval(inner, current_time),
+                    FormulaKind::G { interval, .. } 
+                    | FormulaKind::F { interval, .. } 
+                    | FormulaKind::U { interval, .. }
+                    | FormulaKind::R { interval, .. } if !formula.parent_active(current_time) => Some(interval),
                     _ => None
                 }
             }
@@ -255,15 +255,15 @@ impl Tableau {
         }
 
         let step = !self.options.jump_rule_enabled || node.operands.iter().filter_map(|f| {
-            if let Formula::O(inner) = f && !inner.parent_active(node.current_time) {
+            if let FormulaKind::O(inner) = &f.kind && !inner.parent_active(node.current_time) {
                 return Some(&**inner);
             }
             None
         }).any(|f| {
-            f.upper_bound() == Some(node.current_time) || match f {
-                Formula::G { phi, interval, .. } 
-                    | Formula::U { left: phi, interval, .. }
-                    | Formula::R { right: phi, interval, .. } => {
+            f.upper_bound() == Some(node.current_time) || match &f.kind {
+                FormulaKind::G { phi, interval, .. } 
+                    | FormulaKind::U { left: phi, interval, .. }
+                    | FormulaKind::R { right: phi, interval, .. } => {
                         match phi.get_max_upper() {
                             None => false,
                             Some(max_upper) => node.current_time < interval.lower + max_upper
@@ -284,9 +284,9 @@ impl Tableau {
         };
 
         // Retain only temporal operators, and retimed O formulas
-        let new_operands: Vec<Formula> = node.operands.iter().filter_map(|op| match op {
-            f @ (Formula::G {..} | Formula::F {..} | Formula::U {..} | Formula::R {..}) => retime_poised(f, node.current_time, jump),
-            Formula::O(inner) => retime_poised(inner, node.current_time, jump),
+        let new_operands: Vec<Formula> = node.operands.iter().filter_map(|op| match &op.kind {
+            FormulaKind::G {..} | FormulaKind::F {..} | FormulaKind::U {..} | FormulaKind::R {..} => retime_poised(op, node.current_time, jump),
+            FormulaKind::O(inner) => retime_poised(inner, node.current_time, jump),
             _ => None,
         }).collect();
 
@@ -313,36 +313,36 @@ impl Tableau {
 }
 
 impl Formula {
-    fn temporal_expansion(&self, current_time: i32, parent_interval: Option<&Interval>) ->  Formula {
-        match self {
-            Formula::Prop(_) | Formula::Not(_) | Formula::True | Formula::False => self.clone(),
-            Formula::F { .. } 
-            | Formula::G { .. }
-            | Formula::U { .. }
-            | Formula::R { .. } => {
+    fn temporal_expansion(&self, current_time: i32, parent_interval: Option<&Interval>) -> Formula {
+        match &self.kind {
+            FormulaKind::Prop(_) | FormulaKind::Not(_) | FormulaKind::True | FormulaKind::False => self.clone(),
+            FormulaKind::F { .. } 
+            | FormulaKind::G { .. }
+            | FormulaKind::U { .. }
+            | FormulaKind::R { .. } => {
                 let mut extract = self.clone();
-                if let Formula::F { interval: ref mut int, ref mut parent_upper, .. }
-                    | Formula::G { interval: ref mut int, ref mut parent_upper, .. }
-                    | Formula::U { interval: ref mut int, ref mut parent_upper, .. }
-                    | Formula::R { interval: ref mut int, ref mut parent_upper, .. } = extract {
+                if let FormulaKind::F { interval: ref mut int, ref mut parent_upper, .. }
+                    | FormulaKind::G { interval: ref mut int, ref mut parent_upper, .. }
+                    | FormulaKind::U { interval: ref mut int, ref mut parent_upper, .. }
+                    | FormulaKind::R { interval: ref mut int, ref mut parent_upper, .. } = extract.kind {
                     int.lower += current_time;
                     int.upper += current_time;
                     *parent_upper = if parent_interval.is_some() {Some(parent_interval.unwrap().upper)} else { None };
                 }
                 extract
             }
-            Formula::And(operands) => {
+            FormulaKind::And(operands) => {
                 let new_operands = operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect();
-                Formula::And(new_operands)
+                Formula::and(new_operands)
             }
-            Formula::Or(operands) => {
+            FormulaKind::Or(operands) => {
                 let new_operands = operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect();
-                Formula::Or(new_operands)
+                Formula::or(new_operands)
             }
-            Formula::Imply(left, right) => {
+            FormulaKind::Imply(left, right) => {
                 let new_left = left.temporal_expansion(current_time, parent_interval);
                 let new_right = right.temporal_expansion(current_time, parent_interval);
-                Formula::Imply(Box::new(new_left), Box::new(new_right))
+                Formula::imply(new_left, new_right)
             }
             _ => panic!()
         }

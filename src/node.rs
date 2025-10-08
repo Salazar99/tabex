@@ -35,9 +35,6 @@ impl Clone for Node {
 
 impl Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let join_with = |v: &[Formula], sep: &str| {
-            v.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(sep)
-        };
         write!(f, "{} | {}", join_with(&self.operands, ", "), self.current_time)
     }
 }
