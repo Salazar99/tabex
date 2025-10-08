@@ -30,9 +30,8 @@ pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     if to_remove.is_empty() { return None; }
     let mut new_operands = input.clone();
     for el in map {
-        let (phi, pu) = el.0;
         let (idx, new_interval) = el.1;
-        new_operands[idx] = Formula::g(new_interval, pu, phi);
+        new_operands[idx] = new_operands[idx].with_interval(new_interval);
     }
     
     new_operands = new_operands.iter().enumerate()
@@ -75,19 +74,19 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     let mut new_nodes = Vec::new();
 
     for op in input {
-        if let FormulaKind::G { interval: g_int, phi, .. } = &op.kind && time + 2 <= g_int.upper &&
-            let FormulaKind::F { interval: f_int, .. } = &phi.kind && op.active(time) {
-                let first = op.with_interval(Interval { lower: time + 2, upper: g_int.upper });
+        if let FormulaKind::G { interval: g_int, phi, .. } = &op.kind && time + 2 <= g_int.upper 
+         && let FormulaKind::F { interval: f_int, phi: psi, parent_upper } = &phi.kind && op.active(time) {
+            let first = op.with_interval(Interval { lower: time + 2, upper: g_int.upper });
 
-                let second = Formula::or(vec![
-                    phi.with_interval(Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }),
-                    Formula::and(vec![
-                        phi.with_interval(Interval { lower: time + f_int.lower, upper: time + f_int.lower }),
-                        phi.with_interval(Interval { lower: time + f_int.upper + 1, upper: time + f_int.upper + 1 })
-                    ])
-                ]);
-                new_operands.push(first);
-                new_nodes.push(second);
+            let second = Formula::or(vec![
+                phi.with_interval(Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }),
+                Formula::and(vec![
+                    Formula::g(Interval {lower: time + f_int.lower, upper: time + f_int.lower}, *parent_upper, *psi.clone()),
+                    Formula::g(Interval {lower: time + f_int.upper + 1, upper: time + f_int.upper + 1}, *parent_upper, *psi.clone()),
+                ])
+            ]);
+            new_operands.push(first);
+            new_nodes.push(second);
         } else {
             new_operands.push(op.clone());
         }
@@ -147,10 +146,14 @@ impl Node {
                     FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| inner_rewrite(&Formula::not(f.clone()))).collect()),
                     FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| inner_rewrite(&Formula::not(f.clone()))).collect()),
                     FormulaKind::Imply(left, right) => Formula::and(vec![*left.clone(), inner_rewrite(&Formula::not(*right.clone()))]),
-                    FormulaKind::G { phi, interval, parent_upper } => Formula::f(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*phi.clone()))),
-                    FormulaKind::F { phi, interval, parent_upper } => Formula::g(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*phi.clone()))),
-                    FormulaKind::U { interval, left, right, parent_upper } => Formula::r(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*left.clone())), inner_rewrite(&Formula::not(*right.clone()))),
-                    FormulaKind::R { interval, left, right, parent_upper } => Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, inner_rewrite(&Formula::not(*left.clone())), inner_rewrite(&Formula::not(*right.clone()))),
+                    FormulaKind::G { phi, interval, parent_upper } => 
+                        Formula::f(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*phi.clone()))),
+                    FormulaKind::F { phi, interval, parent_upper } => 
+                        Formula::g(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*phi.clone()))),
+                    FormulaKind::U { interval, left, right, parent_upper } => 
+                        Formula::r(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*left.clone())), inner_rewrite(&Formula::not(*right.clone()))),
+                    FormulaKind::R { interval, left, right, parent_upper } => 
+                        Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, inner_rewrite(&Formula::not(*left.clone())), inner_rewrite(&Formula::not(*right.clone()))),
                     FormulaKind::O(i) => Formula::o(inner_rewrite(&Formula::not(*i.clone()))),
                     _ => formula.clone()
                 }
@@ -238,9 +241,9 @@ impl Node {
                 FormulaKind::And(ops) => {
                     ops.iter_mut().for_each(flatten_operand);
                     let mut flattened: Vec<Formula> = Vec::new();
-                    for f in ops.iter() {
-                        if let FormulaKind::And(inner_ops) = &f.kind {
-                            flattened.extend(inner_ops.iter().cloned());
+                    for f in ops.iter_mut() {
+                        if let FormulaKind::And(inner_ops) = &mut f.kind {
+                            flattened.append(inner_ops);
                         } else {
                             flattened.push(f.clone());
                         }
@@ -250,9 +253,9 @@ impl Node {
                 FormulaKind::Or(ops) => {
                     ops.iter_mut().for_each(flatten_operand);
                     let mut flattened: Vec<Formula> = Vec::new();
-                    for f in ops.iter() {
-                        if let FormulaKind::Or(inner_ops) = &f.kind {
-                            flattened.extend(inner_ops.iter().cloned());
+                    for f in ops.iter_mut() {
+                        if let FormulaKind::Or(inner_ops) = &mut f.kind {
+                            flattened.append(inner_ops);
                         } else {
                             flattened.push(f.clone());
                         }
@@ -276,8 +279,8 @@ impl Node {
         let mut flattened: Vec<Formula> = Vec::new();
         for f in &mut self.operands {
             flatten_operand(f);
-            if let FormulaKind::And(ops) = &f.kind {
-                flattened.extend(ops.iter().cloned());
+            if let FormulaKind::And(ops) = &mut f.kind {
+                flattened.append(ops);
             } else {
                 flattened.push(f.clone());
             }

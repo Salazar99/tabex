@@ -117,10 +117,30 @@ pub enum FormulaKind {
     O(Box<Formula>),
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialOrd)]
+#[derive(Clone, Debug, Hash)]
 pub struct Formula {
     pub id: usize,
     pub kind: FormulaKind
+}
+
+impl PartialEq for Formula {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
+}
+
+impl Eq for Formula {}
+
+impl PartialOrd for Formula {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.kind.partial_cmp(&other.kind)
+    }
+}
+
+impl Ord for Formula {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.kind.cmp(&other.kind)
+    }
 }
 
 impl Formula {
@@ -154,14 +174,6 @@ impl Formula {
 
     pub fn not(inner: Formula) -> Self {
         Self::new(FormulaKind::Not(Box::new(inner)))
-    }
-
-    pub fn and2(left: Formula, right: Formula) -> Self {
-        Self::and(vec![left, right])
-    }
-
-    pub fn or2(left: Formula, right: Formula) -> Self {
-        Self::or(vec![left, right])
     }
 
     pub fn g(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
@@ -289,18 +301,6 @@ impl Formula {
             _ => panic!("Cannot set interval on non-temporal formula"),
         }
         to_return
-    }
-}
-
-impl PartialEq for Formula {
-    fn eq(&self, other: &Self) -> bool {
-        self.kind == other.kind
-    }
-}
-
-impl Ord for Formula {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.kind.cmp(&other.kind)
     }
 }
 
