@@ -214,24 +214,68 @@ impl Formula {
         Self::new(FormulaKind::O(Box::new(inner)))
     }
 
-    pub fn lower_bound(&self) -> Option<i32> {
+    
+    pub fn with_interval(&self, interval: Interval) -> Self {
+        let mut to_return = self.clone();
+        match &mut to_return.kind {
+            FormulaKind::G { interval: int, .. } 
+            | FormulaKind::F { interval: int, .. }
+            | FormulaKind::U { interval: int, .. }
+            | FormulaKind::R { interval: int, .. } => *int = interval,
+            _ => panic!("Cannot set interval on non-temporal formula"),
+        }
+        to_return
+    }
+
+    pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
+        let mut to_return = self.clone();
+        match &mut to_return.kind {
+            FormulaKind::G { parent_upper: pu, .. } 
+            | FormulaKind::F { parent_upper: pu, .. }
+            | FormulaKind::U { parent_upper: pu, .. }
+            | FormulaKind::R { parent_upper: pu, .. } => *pu = parent_upper,
+            _ => panic!("Cannot set parent_upper on non-temporal formula"),
+        }
+        to_return
+    }
+
+    pub fn with_operands(&self, operands: Vec<Formula>) -> Self {
+        let mut to_return = self.clone();
+        match &mut to_return.kind {
+            FormulaKind::And(ops) | FormulaKind::Or(ops) => *ops = operands,
+            _ => panic!("Cannot set operands on formulas different from And/Or"),
+        }
+        to_return
+    }
+
+    pub fn with_implications(&self, left: Formula, right: Formula) -> Self {
+        let mut to_return = self.clone();
+        match &mut to_return.kind {
+            FormulaKind::Imply(l, r) => {
+                *l = Box::new(left);
+                *r = Box::new(right);
+            }
+            _ => panic!("Cannot set implications on formulas different from Imply"),
+        }
+        to_return
+    }
+
+    pub fn get_interval(&self) -> Option<Interval> {
         match &self.kind {
             FormulaKind::G { interval, .. } 
             | FormulaKind::F { interval, .. } 
             | FormulaKind::U { interval, .. }
-            | FormulaKind::R { interval, .. } => Some(interval.lower),
+            | FormulaKind::R { interval, .. } => Some(interval.clone()),
             _ => None,
         }
     }
 
+    pub fn lower_bound(&self) -> Option<i32> {
+        self.get_interval().map(|i| i.lower)
+    }
+
     pub fn upper_bound(&self) -> Option<i32> {
-        match &self.kind {
-            FormulaKind::G { interval, .. } 
-            | FormulaKind::F { interval, .. } 
-            | FormulaKind::U { interval, .. } 
-            | FormulaKind::R { interval, .. } => Some(interval.upper),
-            _ => None,
-        }
+        self.get_interval().map(|i| i.upper)
     }
 
     pub fn has_temporal(&self) -> bool {
@@ -244,7 +288,7 @@ impl Formula {
         }
     }
 
-    pub fn complex_temporal_operator(&self) -> bool {
+    pub fn is_complex_temporal_operator(&self) -> bool {
         match &self.kind {
             FormulaKind::G { phi, .. }
             | FormulaKind::U { left: phi, .. }
@@ -271,7 +315,7 @@ impl Formula {
 
     }
 
-    pub fn active(&self, current_time: i32) -> bool {
+    pub fn is_active_at(&self, current_time: i32) -> bool {
         match &self.kind {
             FormulaKind::G { interval, .. } 
             | FormulaKind::F { interval, .. } 
@@ -281,7 +325,7 @@ impl Formula {
         }
     }
 
-    pub fn parent_active(&self, current_time: i32) -> bool {
+    pub fn is_parent_active_at(&self, current_time: i32) -> bool {
         match self.kind {
             FormulaKind::G { parent_upper: Some(upper), .. }
             | FormulaKind::F { parent_upper: Some(upper), .. }
@@ -289,18 +333,6 @@ impl Formula {
             | FormulaKind::R { parent_upper: Some(upper), .. } => current_time < upper,
             _ => false,
         }
-    }
-
-    pub fn with_interval(&self, interval: Interval) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::G { interval: int, .. } 
-            | FormulaKind::F { interval: int, .. }
-            | FormulaKind::U { interval: int, .. }
-            | FormulaKind::R { interval: int, .. } => *int = interval,
-            _ => panic!("Cannot set interval on non-temporal formula"),
-        }
-        to_return
     }
 }
 

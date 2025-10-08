@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::vec;
 
 use crate::formula::*;
@@ -37,13 +38,13 @@ impl Tableau {
 
         for (i, operand) in node.operands.iter().enumerate() {
             match &operand.kind {
-                FormulaKind::F { .. } if operand.active(node.current_time) => {
+                FormulaKind::F { .. } if operand.is_active_at(node.current_time) => {
                     return self.decompose_f_at(node, i);
                 }
-                FormulaKind::U { .. } if operand.active(node.current_time) => {
+                FormulaKind::U { .. } if operand.is_active_at(node.current_time) => {
                     return self.decompose_u_at(node, i);
                 }
-                FormulaKind::R { .. } if operand.active(node.current_time) => {
+                FormulaKind::R { .. } if operand.is_active_at(node.current_time) => {
                     return self.decompose_r_at(node, i);
                 }
                 _ => {}
@@ -58,22 +59,22 @@ impl Tableau {
     }
 
     pub fn decompose_and(&self, node: &Node) -> Option<Vec<Node>> {
-        let mut out = Vec::with_capacity(node.operands.len() * 2);
+        let mut flattened_operands = Vec::with_capacity(node.operands.len() * 2);
         let mut changed = false;
         
         for operand in &node.operands {
             match &operand.kind {
                 FormulaKind::And(inner) => {
+                    flattened_operands.extend_from_slice(inner);
                     changed = true;
-                    out.extend_from_slice(inner);
                 }
-                _ => out.push(operand.clone()),
+                _ => flattened_operands.push(operand.clone()),
             }
         }
 
         if changed { 
             let mut new_node = node.clone();
-            new_node.operands = out;
+            new_node.operands = flattened_operands;
             Some(vec![new_node]) 
         } else {
             None
@@ -86,7 +87,7 @@ impl Tableau {
 
         for operand in &node.operands {
             match &operand.kind {
-                FormulaKind::G { interval, .. } if operand.active(node.current_time) => {
+                FormulaKind::G { interval, .. } if operand.is_active_at(node.current_time) => {
                     g_nodes.push(operand.clone());
                     if node.current_time < interval.upper {
                         old_nodes.push(Formula::o(operand.clone()));
@@ -149,7 +150,7 @@ impl Tableau {
             panic!("decompose_f_at called on non-F formula at index {}", i);
         };
 
-        if !node.operands[i].active(node.current_time) {
+        if !node.operands[i].is_active_at(node.current_time) {
             panic!("decompose_f_at called on F formula that is not active at current time {}", node.current_time);
         }
         
@@ -175,7 +176,7 @@ impl Tableau {
             panic!("decompose_u_at called on non-U formula at index {}", i);
         };
 
-        if !node.operands[i].active(node.current_time) {
+        if !node.operands[i].is_active_at(node.current_time) {
             panic!("decompose_u_at called on U formula that is not active at current time {}", node.current_time);
         }
         
@@ -201,7 +202,7 @@ impl Tableau {
             panic!("decompose_r_at called on non-R formula at index {}", i);
         };
 
-        if !node.operands[i].active(node.current_time) {
+        if !node.operands[i].is_active_at(node.current_time) {
             panic!("decompose_r_at called on R formula that is not active at current time {}", node.current_time);
         }
         
@@ -222,49 +223,38 @@ impl Tableau {
 
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
         fn retime_poised(formula: &Formula, current_time: i32, jump: i32) -> Option<Formula> {
-            let Some(ub) = formula.upper_bound() else {
-              return None
+            let Some(interval) = formula.get_interval() else {
+                return None;
             };
-            if current_time >= ub {
+            if current_time >= interval.upper {
                 return None;
             }
 
-            let mut sub_formula = formula.clone();
-            match &mut sub_formula.kind {
-                FormulaKind::G { interval, .. }
-                | FormulaKind::F { interval, .. }
-                | FormulaKind::U { interval, .. }
-                | FormulaKind::R { interval, .. } if jump != 1 && formula.parent_active(current_time) => {
-                    interval.lower += jump;
-                    interval.upper += jump;
-                }
-                _ => {}
+            if jump != 1 && formula.is_parent_active_at(current_time) {
+                Some(formula.with_interval(interval.shift_right(jump)) )
+            } else {
+                Some(formula.clone())
             }
-            Some(sub_formula)
         }
 
-        fn sorted_time_instants(node: &Node) -> Vec<i32> {
+        fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
             fn top_level_interval(formula: &Formula, current_time: i32) -> Option<&Interval> {
                 match &formula.kind {
                     FormulaKind::O(inner) => top_level_interval(inner, current_time),
                     FormulaKind::G { interval, .. } 
                     | FormulaKind::F { interval, .. } 
                     | FormulaKind::U { interval, .. }
-                    | FormulaKind::R { interval, .. } if !formula.parent_active(current_time) => Some(interval),
+                    | FormulaKind::R { interval, .. } if !formula.is_parent_active_at(current_time) => Some(interval),
                     _ => None
                 }
             }
-
-            let mut times: Vec<i32> = node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| 
-                [i.lower - 1, i.upper]).collect();
-
-            times.sort_unstable();
-            times.dedup();
-            times
+            node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| 
+                [i.lower - 1, i.upper]).collect()
         }
 
+        // Verify jump rule condition
         let step = !self.options.jump_rule_enabled || node.operands.iter().filter_map(|f| {
-            if let FormulaKind::O(inner) = &f.kind && !inner.parent_active(node.current_time) {
+            if let FormulaKind::O(inner) = &f.kind && !inner.is_parent_active_at(node.current_time) {
                 return Some(&**inner);
             }
             None
@@ -282,6 +272,7 @@ impl Tableau {
                 }
             });
             
+        // Select jump length
         let jump = if step {
             1
         } else {
@@ -309,7 +300,7 @@ impl Tableau {
         new_node.current_time += jump;
         
         if self.options.simple_first {
-            let simple_operands: Vec<Formula> = new_node.operands.iter().filter(|f| !f.complex_temporal_operator()).cloned().collect();
+            let simple_operands: Vec<Formula> = new_node.operands.iter().filter(|f| !f.is_complex_temporal_operator()).cloned().collect();
             if !simple_operands.is_empty() && simple_operands.len() < new_node.operands.len(){
                 let mut simple_node = new_node.clone();
                 simple_node.operands = simple_operands;
@@ -325,33 +316,18 @@ impl Formula {
     fn temporal_expansion(&self, current_time: i32, parent_interval: Option<&Interval>) -> Formula {
         match &self.kind {
             FormulaKind::Prop(_) | FormulaKind::Not(_) | FormulaKind::True | FormulaKind::False => self.clone(),
-            FormulaKind::F { .. } 
-            | FormulaKind::G { .. }
-            | FormulaKind::U { .. }
-            | FormulaKind::R { .. } => {
-                let mut extract = self.clone();
-                if let FormulaKind::F { interval: ref mut int, ref mut parent_upper, .. }
-                    | FormulaKind::G { interval: ref mut int, ref mut parent_upper, .. }
-                    | FormulaKind::U { interval: ref mut int, ref mut parent_upper, .. }
-                    | FormulaKind::R { interval: ref mut int, ref mut parent_upper, .. } = extract.kind {
-                    int.lower += current_time;
-                    int.upper += current_time;
-                    *parent_upper = if parent_interval.is_some() {Some(parent_interval.unwrap().upper)} else { None };
-                }
-                extract
+            FormulaKind::F { interval, .. } | FormulaKind::G { interval, .. }
+            | FormulaKind::U { interval, .. } | FormulaKind::R { interval, .. } => {
+                self.with_interval(interval.shift_right(current_time)).with_parent_upper(parent_interval.map(|p| p.upper))
             }
-            FormulaKind::And(operands) => {
-                let new_operands = operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect();
-                Formula::and(new_operands)
-            }
-            FormulaKind::Or(operands) => {
-                let new_operands = operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect();
-                Formula::or(new_operands)
+            FormulaKind::And(operands) | FormulaKind::Or(operands) => {
+                self.with_operands(operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect())
             }
             FormulaKind::Imply(left, right) => {
-                let new_left = left.temporal_expansion(current_time, parent_interval);
-                let new_right = right.temporal_expansion(current_time, parent_interval);
-                Formula::imply(new_left, new_right)
+                self.with_implications(
+                    left.temporal_expansion(current_time, parent_interval), 
+                    right.temporal_expansion(current_time, parent_interval)
+                )
             }
             _ => panic!()
         }

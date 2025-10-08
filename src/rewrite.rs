@@ -75,7 +75,7 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
 
     for op in input {
         if let FormulaKind::G { interval: g_int, phi, .. } = &op.kind && time + 2 <= g_int.upper 
-         && let FormulaKind::F { interval: f_int, phi: psi, parent_upper } = &phi.kind && op.active(time) {
+         && let FormulaKind::F { interval: f_int, phi: psi, parent_upper } = &phi.kind && op.is_active_at(time) {
             let first = op.with_interval(Interval { lower: time + 2, upper: g_int.upper });
 
             let second = Formula::or(vec![
