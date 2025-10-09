@@ -3,6 +3,8 @@ use std::sync::Arc;
 
 use num_rational::Ratio;
 
+use crate::transform::{RecursiveFormulaTransformer, NegationNormalFormTransformer};
+
 type VariableName = Arc<str>;
 
 
@@ -170,7 +172,7 @@ impl Formula {
         Self::new(FormulaKind::Imply {
             left: Box::new(left.clone()),
             right: Box::new(right),
-            not_left: Box::new(Formula::not(left).rec_negative_normal_form_rewrite()),
+            not_left: Box::new(NegationNormalFormTransformer.visit(&Formula::not(left)))
         })
     }
 

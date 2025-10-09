@@ -7,3 +7,4 @@ pub mod tableau;
 pub mod solver;
 pub mod store;
 pub mod rewrite;
+pub mod transform;
