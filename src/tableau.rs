@@ -63,8 +63,11 @@ impl Tableau {
         }
         preprocess_root(&mut root, &self.options);
 
-        self.add_graph_node(&root);
+        for node in root.operands.iter_mut() {
+            node.assign_ids();
+        }
 
+        self.add_graph_node(&root);
         let mut local_solver = Solver::new();
         self.add_children(root, &mut local_solver, 0)
     }

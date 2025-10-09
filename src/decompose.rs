@@ -29,7 +29,7 @@ impl Tableau {
                 FormulaKind::Or(_) => {
                     return self.decompose_or_at(node, i);
                 }
-                FormulaKind::Imply( .. ) => {
+                FormulaKind::Imply { .. } => {
                     return self.decompose_imply_at(node, i);
                 }
                 _ => {}
@@ -98,13 +98,12 @@ impl Tableau {
     }
 
     pub fn decompose_imply_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let FormulaKind::Imply(left, right) = &node.operands[i].kind else {
+        let FormulaKind::Imply { left, right, not_left } = &node.operands[i].kind else {
             panic!("decompose_imply_at called on non-Imply formula at index {}", i);
         };
         
         let mut new_node1 = node.clone();
-        new_node1.operands[i] = Formula::not((**left).clone());
-        new_node1.push_negation();
+        new_node1.operands[i] = (**not_left).clone();
 
         let mut new_node2 = node.clone();
         new_node2.operands[i] = (**right).clone();
@@ -294,10 +293,11 @@ impl Formula {
             FormulaKind::And(operands) | FormulaKind::Or(operands) => {
                 self.with_operands(operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect())
             }
-            FormulaKind::Imply(left, right) => {
+            FormulaKind::Imply { left, right, not_left } => {
                 self.with_implications(
                     left.temporal_expansion(current_time, parent_interval), 
-                    right.temporal_expansion(current_time, parent_interval)
+                    right.temporal_expansion(current_time, parent_interval),
+                    not_left.temporal_expansion(current_time, parent_interval)
                 )
             }
             _ => panic!()

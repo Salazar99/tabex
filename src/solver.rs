@@ -90,7 +90,7 @@ impl Solver {
                 _ => None,
             }
         }
-        node.operands.iter().filter_map(|f| get_assertion(f)).for_each(|ass| {
+        node.operands.iter().filter_map(get_assertion).for_each(|ass| {
             if self.current_assertions.insert(ass.clone()) {
                 match ass {
                     Assertion::Boolean { negated, ref var } => {
@@ -111,12 +111,6 @@ impl Solver {
     pub fn check(&mut self, node: &Node) -> bool {
         if node.operands.iter().any(|f| {
             match &f.kind {
-                FormulaKind::O(inner) => {
-                    match &inner.kind {
-                        FormulaKind::F { interval, .. } | FormulaKind::U { interval, .. } if node.current_time == interval.upper => true,
-                        _ => false
-                    }
-                },
                 FormulaKind::False => true,
                 FormulaKind::Not(inner) if matches!(inner.kind, FormulaKind::True) => true,
                 _ => false

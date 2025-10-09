@@ -75,14 +75,14 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
 
     for op in input {
         if let FormulaKind::G { interval: g_int, phi, .. } = &op.kind && time + 2 <= g_int.upper 
-         && let FormulaKind::F { interval: f_int, phi: psi, parent_upper } = &phi.kind && op.is_active_at(time) {
+         && let FormulaKind::F { interval: f_int, .. } = &phi.kind && op.is_active_at(time) {
             let first = op.with_interval(Interval { lower: time + 2, upper: g_int.upper });
 
             let second = Formula::or(vec![
                 phi.with_interval(Interval { lower: time + f_int.lower + 1, upper: time + f_int.upper }),
                 Formula::and(vec![
-                    Formula::f(Interval {lower: time + f_int.lower, upper: time + f_int.lower}, *parent_upper, *psi.clone()),
-                    Formula::f(Interval {lower: time + f_int.upper + 1, upper: time + f_int.upper + 1}, *parent_upper, *psi.clone()),
+                    phi.with_interval(Interval {lower: time + f_int.lower, upper: time + f_int.lower}),
+                    phi.with_interval(Interval {lower: time + f_int.upper + 1, upper: time + f_int.upper + 1})
                 ])
             ]);
             new_operands.push(first);
@@ -113,7 +113,7 @@ impl Node {
                 | FormulaKind::Not(i)
                 | FormulaKind::G { phi: i, .. }
                 | FormulaKind::F { phi: i, ..} => inner_rewrite(i),
-                FormulaKind::Imply(left, right) => { inner_rewrite(left); inner_rewrite(right);},
+                FormulaKind::Imply { left, right, not_left } => { inner_rewrite(left); inner_rewrite(right); inner_rewrite(not_left); },
                 FormulaKind::U { interval, left, right, .. } => {
                     inner_rewrite(left);
                     inner_rewrite(right);
@@ -153,7 +153,7 @@ impl Node {
                 | FormulaKind::Or(operands) => {
                     operands.iter().map(|op| get_shift(op)).min().unwrap_or(None)
                 },
-                FormulaKind::Imply(left, right) => get_shift(left).min(get_shift(right)),
+                FormulaKind::Imply { left, right, not_left } => get_shift(left).min(get_shift(right)).min(get_shift(not_left)),
                 FormulaKind::G { interval, .. } 
                 | FormulaKind::F { interval, .. } 
                 | FormulaKind::U { interval, .. }
@@ -165,9 +165,10 @@ impl Node {
             match &mut formula.kind {
                 FormulaKind::And(ops) => ops.iter_mut().for_each(|f| shift_backward(f, shift)),
                 FormulaKind::Or(ops) => ops.iter_mut().for_each(|f| shift_backward(f, shift)),
-                FormulaKind::Imply(left, right) => {
+                FormulaKind::Imply { left, right, not_left } => {
                     shift_backward(left, shift);
                     shift_backward(right, shift);
+                    shift_backward(not_left, shift);
                 },
                 FormulaKind::O(i) => shift_backward(i, shift),
                 FormulaKind::Not(i) => shift_backward(i, shift),
@@ -183,9 +184,10 @@ impl Node {
                 FormulaKind::And(ops) => ops.iter_mut().for_each(|f| inner_rewrite(f)),
                 FormulaKind::Or(ops) => ops.iter_mut().for_each(|f| inner_rewrite(f)),
                 FormulaKind::O(i) | FormulaKind::Not(i) => inner_rewrite(i),
-                FormulaKind::Imply(left, right) => {
+                FormulaKind::Imply { left, right, not_left } => {
                     inner_rewrite(left); 
                     inner_rewrite(right);
+                    inner_rewrite(not_left);
                 },
                 FormulaKind::G { phi, interval, .. } | FormulaKind::F { phi, interval, .. } => {
                     inner_rewrite(phi);
@@ -245,10 +247,14 @@ impl Node {
                 | FormulaKind::G { phi: inner, .. } 
                 | FormulaKind::F { phi: inner, .. } => flatten_operand(inner),
                 FormulaKind::U { left, right, .. } 
-                | FormulaKind::R { left, right, .. }
-                | FormulaKind::Imply(left, right) => {
+                | FormulaKind::R { left, right, .. } => {
                     flatten_operand(left);
                     flatten_operand(right);
+                }
+                FormulaKind::Imply { left, right, not_left } => {
+                    flatten_operand(left);
+                    flatten_operand(right);
+                    flatten_operand(not_left);
                 },
                 _ => {}
             }
@@ -302,7 +308,7 @@ impl Formula {
                 FormulaKind::Not(i) => i.push_negation(),
                 FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| Formula::not(f.clone()).push_negation()).collect()),
                 FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| Formula::not(f.clone()).push_negation()).collect()),
-                FormulaKind::Imply(left, right) => Formula::and(vec![*left.clone(), Formula::not(*right.clone()).push_negation()]),
+                FormulaKind::Imply { left, right, .. } => Formula::and(vec![*left.clone(), Formula::not(*right.clone()).push_negation()]),
                 FormulaKind::G { phi, interval, parent_upper } => 
                     Formula::f(interval.clone(), *parent_upper, Formula::not(*phi.clone()).push_negation()),
                 FormulaKind::F { phi, interval, parent_upper } => 
