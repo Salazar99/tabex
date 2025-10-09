@@ -170,7 +170,7 @@ impl Formula {
         Self::new(FormulaKind::Imply {
             left: Box::new(left.clone()),
             right: Box::new(right),
-            not_left: Box::new(Formula::not(left).negative_normal_form_rewrite()),
+            not_left: Box::new(Formula::not(left).rec_negative_normal_form_rewrite()),
         })
     }
 
