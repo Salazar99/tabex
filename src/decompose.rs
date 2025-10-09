@@ -9,28 +9,28 @@ use crate::tableau::Tableau;
 mod tests;
 
 impl Tableau {
-    pub fn decompose(&self, node: &Node) -> Vec<Node> {
+    pub fn decompose(&self, node: &Node) -> Option<Vec<Node>> {
         if self.options.formula_optimizations {
             if let Some(res) = node.rewrite_chain() {
-                return res;
+                return Some(res);
             }
         }
 
         if let Some(res) = self.decompose_and(node) {
-            return res;
+            return Some(res);
         }
 
         if let Some(res) = self.decompose_g(node) {
-            return res;
+            return Some(res);
         }
 
         for (i, operand) in node.operands.iter().enumerate() {
             match &operand.kind {
                 FormulaKind::Or(_) => {
-                    return self.decompose_or_at(node, i);
+                    return Some(self.decompose_or_at(node, i));
                 }
                 FormulaKind::Imply { .. } => {
-                    return self.decompose_imply_at(node, i);
+                    return Some(self.decompose_imply_at(node, i));
                 }
                 _ => {}
             }
@@ -39,23 +39,19 @@ impl Tableau {
         for (i, operand) in node.operands.iter().enumerate() {
             match &operand.kind {
                 FormulaKind::F { .. } if operand.is_active_at(node.current_time) => {
-                    return self.decompose_f_at(node, i);
+                    return Some(self.decompose_f_at(node, i));
                 }
                 FormulaKind::U { .. } if operand.is_active_at(node.current_time) => {
-                    return self.decompose_u_at(node, i);
+                    return Some(self.decompose_u_at(node, i));
                 }
                 FormulaKind::R { .. } if operand.is_active_at(node.current_time) => {
-                    return self.decompose_r_at(node, i);
+                    return Some(self.decompose_r_at(node, i));
                 }
                 _ => {}
             }
         }
 
-        if let Some(res) = self.decompose_jump(node) {
-            return res;
-        }
-
-        vec![]
+        self.decompose_jump(node)
     }
 
     pub fn decompose_and(&self, node: &Node) -> Option<Vec<Node>> {

@@ -18,7 +18,7 @@ fn make_test_decompose(input: &str, expected: Vec<Node>, options: Option<Tableau
     let (_, formula) = crate::parser::parse_formula(input).unwrap();
     let node = Node::from_operands(vec![formula]);
     let tableau_data = tableau_data_gen(options);
-    let decomposed = tableau_data.decompose(&node);
+    let decomposed = tableau_data.decompose(&node).unwrap();
     let decomposed_operands = decomposed.iter().map(|n| n.operands.clone()).collect::<Vec<Vec<Formula>>>();
     let expected_operands = expected.iter().map(|n| n.operands.clone()).collect::<Vec<Vec<Formula>>>();
     assert_eq!(decomposed_operands, expected_operands);

@@ -83,7 +83,6 @@ impl Tableau {
 
     fn add_children(&mut self, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
         if depth >= self.options.max_depth {
-            println!("Max depth reached!");
             return None;
         }
 
@@ -92,10 +91,11 @@ impl Tableau {
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);
-            if new_nodes.is_empty() {
+            if new_nodes.is_none() {
                 return Some(true);
+            } else {
+                self.process_children(new_nodes.unwrap(), node, local_solver, depth)
             }
-            self.process_children(new_nodes, node, local_solver, depth)
         };
         local_solver.pop();
         result

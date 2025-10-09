@@ -5,7 +5,7 @@ use num_rational::Ratio;
 
 use crate::transform::{RecursiveFormulaTransformer, NegationNormalFormTransformer};
 
-type VariableName = Arc<str>;
+pub type VariableName = Arc<str>;
 
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
