@@ -139,30 +139,8 @@ impl Node {
     }
 
     pub fn push_negation(&mut self) {
-        fn inner_rewrite(formula: &Formula) -> Formula {
-            if let FormulaKind::Not(inner) = &formula.kind {
-                match &inner.kind {
-                    FormulaKind::Not(i) => inner_rewrite(i),
-                    FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| inner_rewrite(&Formula::not(f.clone()))).collect()),
-                    FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| inner_rewrite(&Formula::not(f.clone()))).collect()),
-                    FormulaKind::Imply(left, right) => Formula::and(vec![*left.clone(), inner_rewrite(&Formula::not(*right.clone()))]),
-                    FormulaKind::G { phi, interval, parent_upper } => 
-                        Formula::f(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*phi.clone()))),
-                    FormulaKind::F { phi, interval, parent_upper } => 
-                        Formula::g(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*phi.clone()))),
-                    FormulaKind::U { interval, left, right, parent_upper } => 
-                        Formula::r(interval.clone(), *parent_upper, inner_rewrite(&Formula::not(*left.clone())), inner_rewrite(&Formula::not(*right.clone()))),
-                    FormulaKind::R { interval, left, right, parent_upper } => 
-                        Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, inner_rewrite(&Formula::not(*left.clone())), inner_rewrite(&Formula::not(*right.clone()))),
-                    FormulaKind::O(i) => Formula::o(inner_rewrite(&Formula::not(*i.clone()))),
-                    _ => formula.clone()
-                }
-            } else {
-                formula.clone()
-            }
-        }
         self.operands.iter_mut().for_each(|f| {
-            *f = inner_rewrite(f);
+            *f = f.push_negation();
         });
     }
 
@@ -313,6 +291,31 @@ impl Node {
             Some(vec![new_node])
         } else {
             None
+        }
+    }
+}
+
+impl Formula {
+    pub fn push_negation(&self) -> Formula {
+        if let FormulaKind::Not(inner) = &self.kind {
+            match &inner.kind {
+                FormulaKind::Not(i) => i.push_negation(),
+                FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| Formula::not(f.clone()).push_negation()).collect()),
+                FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| Formula::not(f.clone()).push_negation()).collect()),
+                FormulaKind::Imply(left, right) => Formula::and(vec![*left.clone(), Formula::not(*right.clone()).push_negation()]),
+                FormulaKind::G { phi, interval, parent_upper } => 
+                    Formula::f(interval.clone(), *parent_upper, Formula::not(*phi.clone()).push_negation()),
+                FormulaKind::F { phi, interval, parent_upper } => 
+                    Formula::g(interval.clone(), *parent_upper, Formula::not(*phi.clone()).push_negation()),
+                FormulaKind::U { interval, left, right, parent_upper } => 
+                    Formula::r(interval.clone(), *parent_upper, Formula::not(*left.clone()).push_negation(), Formula::not(*right.clone()).push_negation()),
+                FormulaKind::R { interval, left, right, parent_upper } => 
+                    Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, Formula::not(*left.clone()).push_negation(), Formula::not(*right.clone()).push_negation()),
+                FormulaKind::O(i) => Formula::o(Formula::not(*i.clone()).push_negation()),
+                _ => self.clone()
+            }
+        } else {
+            self.clone()
         }
     }
 }

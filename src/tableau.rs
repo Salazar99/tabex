@@ -21,7 +21,7 @@ impl Default for TableauOptions {
     fn default() -> Self {
         TableauOptions {
             max_depth: 1000,
-            graph_output: true,
+            graph_output: false,
             memoization: true,
             simple_first: true,
             formula_optimizations: true,
@@ -50,15 +50,18 @@ impl Tableau {
     }
 
     pub fn make_tableau(&mut self, mut root: Node) -> Option<bool> {
-        if !self.options.mltl {
-            root.rewrite_u_r();
+        fn preprocess_root(root: &mut Node, options: &TableauOptions) {
+            if !options.mltl {
+                root.rewrite_u_r();
+            }
+            root.flatten();
+            root.push_negation();
+
+            if options.formula_optimizations {
+                root.shift_bounds();
+            }
         }
-        root.push_negation();
-        root.flatten();
-        
-        if self.options.formula_optimizations {
-            root.shift_bounds();
-        }
+        preprocess_root(&mut root, &self.options);
 
         self.add_graph_node(&root);
 

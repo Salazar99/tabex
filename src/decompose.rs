@@ -59,72 +59,42 @@ impl Tableau {
     }
 
     pub fn decompose_and(&self, node: &Node) -> Option<Vec<Node>> {
-        let mut flattened_operands = Vec::with_capacity(node.operands.len() * 2);
         let mut changed = false;
-        
-        for operand in &node.operands {
-            match &operand.kind {
-                FormulaKind::And(inner) => {
-                    flattened_operands.extend_from_slice(inner);
-                    changed = true;
-                }
-                _ => flattened_operands.push(operand.clone()),
-            }
-        }
+        let flattened_operands: Vec<Formula> = node.operands.iter().flat_map(|f| match &f.kind {
+            FormulaKind::And(inner) => { changed = true; inner.clone() },
+            _ => vec![f.clone()],
+        }).collect();
 
-        if changed { 
-            let mut new_node = node.clone();
-            new_node.operands = flattened_operands;
-            Some(vec![new_node]) 
-        } else {
-            None
-        }
+        changed.then(|| vec![Node { operands: flattened_operands, ..node.clone() }])
     }
 
     pub fn decompose_g(&self, node: &Node) -> Option<Vec<Node>> {
-        let mut old_nodes: Vec<Formula> = Vec::new();
-        let mut g_nodes: Vec<Formula> = Vec::new();
-
-        for operand in &node.operands {
-            match &operand.kind {
-                FormulaKind::G { interval, .. } if operand.is_active_at(node.current_time) => {
-                    g_nodes.push(operand.clone());
-                    if node.current_time < interval.upper {
-                        old_nodes.push(Formula::o(operand.clone()));
-                    }
+        let mut changed = false;
+        let flattened_operands: Vec<Formula> = node.operands.iter().flat_map(|f| match &f.kind {
+            FormulaKind::G { interval, phi, .. } if f.is_active_at(node.current_time) => {
+                changed = true;
+                if f.is_active_at(node.current_time + 1)  {
+                    vec![Formula::o(f.clone()), phi.temporal_expansion(node.current_time, Some(&interval))]
+                } else {
+                    vec![phi.temporal_expansion(node.current_time, Some(&interval))]
                 }
-                _ => old_nodes.push(operand.clone()),
             }
-        }
-        
-        if g_nodes.len() == 0 {
-            return None;
-        }
+            _ => vec![f.clone()],
+        }).collect();
 
-        for formula in g_nodes {
-            if let FormulaKind::G { interval, phi, .. } = &formula.kind {
-                old_nodes.push(phi.temporal_expansion(node.current_time, Some(&interval)));
-            }
-        }
-
-        let mut new_node = node.clone();
-        new_node.operands = old_nodes;
-
-        Some(vec![new_node])
+        changed.then(|| vec![Node { operands: flattened_operands, ..node.clone() }])
     } 
 
     pub fn decompose_or_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let FormulaKind::Or(operands) = &node.operands[i].kind else {
+        let FormulaKind::Or(or_operands) = &node.operands[i].kind else {
             panic!("decompose_or_at called on non-Or formula at index {}", i);
         };
         
-        let mut res = Vec::with_capacity(operands.len());
-        for op in operands {
-            let mut new_node = node.clone();
-            new_node.operands[i] = op.clone();
-            res.push(new_node);
-        }
-        res
+        or_operands.iter().map(|or_operand| {       
+            let mut new_operands = node.operands.clone();
+            new_operands[i] = or_operand.clone();
+            Node { operands: new_operands, ..node.clone() }
+        }).collect()
     }
 
     pub fn decompose_imply_at(&self, node: &Node, i: usize) -> Vec<Node> {
@@ -139,14 +109,16 @@ impl Tableau {
         let mut new_node2 = node.clone();
         new_node2.operands[i] = (**right).clone();
         if self.options.formula_optimizations {
-            new_node2.operands.push((**left).clone());
+            new_node2.operands.insert(i, (**left).clone());
         }
 
         vec![new_node1, new_node2]
     }
 
     pub fn decompose_f_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let FormulaKind::F { phi, interval,  .. } = &node.operands[i].kind else {
+        let f_formula = &node.operands[i];
+
+        let FormulaKind::F { phi, interval,  .. } = &f_formula.kind else {
             panic!("decompose_f_at called on non-F formula at index {}", i);
         };
 
@@ -154,7 +126,6 @@ impl Tableau {
             panic!("decompose_f_at called on F formula that is not active at current time {}", node.current_time);
         }
         
-        let f_formula = &node.operands[i];
 
         // Node where F is satisfied (p)
         let mut new_node1 = node.clone();
@@ -172,15 +143,15 @@ impl Tableau {
     }
 
     pub fn decompose_u_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let FormulaKind::U { left, right, interval, .. } = &node.operands[i].kind else {
+        let u_formula = &node.operands[i];
+
+        let FormulaKind::U { left, right, interval, .. } = &u_formula.kind else {
             panic!("decompose_u_at called on non-U formula at index {}", i);
         };
 
         if !node.operands[i].is_active_at(node.current_time) {
             panic!("decompose_u_at called on U formula that is not active at current time {}", node.current_time);
         }
-        
-        let u_formula = &node.operands[i];
 
         // Node where U is satisfied (q)
         let mut new_node1 = node.clone();
@@ -198,15 +169,15 @@ impl Tableau {
     }
 
     pub fn decompose_r_at(&self, node: &Node, i: usize) -> Vec<Node> {
-        let FormulaKind::R { interval, left, right, .. } = &node.operands[i].kind else {
+        let r_formula = &node.operands[i];
+
+        let FormulaKind::R { interval, left, right, .. } = &r_formula.kind else {
             panic!("decompose_r_at called on non-R formula at index {}", i);
         };
 
         if !node.operands[i].is_active_at(node.current_time) {
             panic!("decompose_r_at called on R formula that is not active at current time {}", node.current_time);
         }
-        
-        let r_formula = &node.operands[i];
 
         // Node where R is satisfied (p and q)
         let mut new_node1: Node = node.clone();

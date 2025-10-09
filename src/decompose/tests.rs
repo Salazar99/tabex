@@ -50,8 +50,8 @@ fn test_imply() {
         Formula::not(Formula::prop(Expr::Atom("a".into()))),
     ]);
     let expected_optimization: Node = Node::from_operands(vec![
+        Formula::prop(Expr::Atom("a".into())),
         Formula::prop(Expr::Atom("b".into())),
-        Formula::prop(Expr::Atom("a".into()))
     ]);
     let expected_non_optimization: Node = Node::from_operands(vec![
         Formula::prop(Expr::Atom("b".into()))

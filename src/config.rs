@@ -13,7 +13,7 @@ pub struct CliArgs {
     pub max_depth: usize,
 
     /// Enable graph output
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = false)]
     pub graph_output: bool,
 
     /// Enable memoization
