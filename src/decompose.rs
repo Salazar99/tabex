@@ -222,6 +222,24 @@ impl Tableau {
                 [i.lower - 1, i.upper]).collect()
         }
 
+        pub fn get_max_upper(formula: &Formula) -> Option<i32> {
+            match &formula.kind {
+                FormulaKind::O(inner) 
+                | FormulaKind::Not(inner) => get_max_upper(&inner),
+                FormulaKind::And(operands) 
+                | FormulaKind::Or(operands) => {
+                    operands.iter().map(|op| get_max_upper(op)).max().unwrap_or(None)
+                },
+                FormulaKind::Imply { left, right, .. } => get_max_upper(&left).max(get_max_upper(&right)),
+                FormulaKind::G { interval, .. } 
+                | FormulaKind::F { interval, .. } 
+                | FormulaKind::U { interval, .. }
+                | FormulaKind::R { interval, .. } => Some(interval.upper),
+                _ => None,
+            }
+
+        }
+
         // Verify jump rule condition
         let step = !self.options.jump_rule_enabled || node.operands.iter().filter_map(|f| {
             if let FormulaKind::O(inner) = &f.kind && !inner.is_parent_active_at(node.current_time) {
@@ -233,7 +251,7 @@ impl Tableau {
                 FormulaKind::G { phi, interval, .. } 
                     | FormulaKind::U { left: phi, interval, .. }
                     | FormulaKind::R { right: phi, interval, .. } => {
-                        match phi.get_max_upper() {
+                        match get_max_upper(&phi) {
                             None => false,
                             Some(max_upper) => node.current_time < interval.lower + max_upper
                         }
@@ -294,7 +312,7 @@ impl Formula {
                 self.with_operands(operands.iter().map(|op| op.temporal_expansion(current_time, parent_interval)).collect())
             }
             FormulaKind::Imply { left, right, not_left } => {
-                self.with_implications(
+                self.with_implication(
                     left.temporal_expansion(current_time, parent_interval), 
                     right.temporal_expansion(current_time, parent_interval),
                     not_left.temporal_expansion(current_time, parent_interval)

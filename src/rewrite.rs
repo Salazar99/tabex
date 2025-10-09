@@ -104,44 +104,29 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
 }
 
 impl Node {
-    pub fn rewrite_u_r(&mut self) {
-        fn inner_rewrite(formula: &mut Formula) {
-            match &mut formula.kind {
-                FormulaKind::And(ops)
-                | FormulaKind::Or(ops) => ops.iter_mut().for_each(|f| inner_rewrite(f)),
-                FormulaKind::O(i)
-                | FormulaKind::Not(i)
-                | FormulaKind::G { phi: i, .. }
-                | FormulaKind::F { phi: i, ..} => inner_rewrite(i),
-                FormulaKind::Imply { left, right, not_left } => { inner_rewrite(left); inner_rewrite(right); inner_rewrite(not_left); },
-                FormulaKind::U { interval, left, right, .. } => {
-                    inner_rewrite(left);
-                    inner_rewrite(right);
-                    formula.kind = FormulaKind::And(vec![
-                        Formula::g(Interval { lower: 0, upper: interval.lower }, None, (**left).clone()),
-                        formula.clone(),
-                    ]);
-                } 
-                FormulaKind::R { interval, left, right, .. } => {
-                    inner_rewrite(left);
-                    inner_rewrite(right);
-                    formula.kind = FormulaKind::Or(vec![
-                        Formula::f(Interval { lower: 0, upper: interval.lower }, None, (**left).clone()),
-                        formula.clone(),
-                    ]);
-                }
-                _ => {}
-            }
-        }
+    pub fn mltl_rewrite(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            inner_rewrite(f);
+            *f = f.mltl_rewrite();
         });
     }
 
-    pub fn push_negation(&mut self) {
+    pub fn negative_normal_form_rewrite(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            *f = f.push_negation();
+            *f = f.negative_normal_form_rewrite();
         });
+    }
+
+    pub fn flatten(&mut self) {
+        let mut flattened: Vec<Formula> = Vec::new();
+        for f in &self.operands {
+            let flat = f.flat_rewrite();
+            if let FormulaKind::And(ops) = &flat.kind {
+                flattened.extend(ops.iter().cloned());
+            } else {
+                flattened.push(flat);
+            }
+        }
+        self.operands = flattened;
     }
 
     pub fn shift_bounds(&mut self) {
@@ -215,63 +200,6 @@ impl Node {
         });
     }
 
-    pub fn flatten(&mut self) {
-        fn flatten_operand(formula: &mut Formula) {
-            match &mut formula.kind {
-                FormulaKind::And(ops) => {
-                    ops.iter_mut().for_each(flatten_operand);
-                    let mut flattened: Vec<Formula> = Vec::new();
-                    for f in ops.iter_mut() {
-                        if let FormulaKind::And(inner_ops) = &mut f.kind {
-                            flattened.append(inner_ops);
-                        } else {
-                            flattened.push(f.clone());
-                        }
-                    }
-                    *ops = flattened;
-                },
-                FormulaKind::Or(ops) => {
-                    ops.iter_mut().for_each(flatten_operand);
-                    let mut flattened: Vec<Formula> = Vec::new();
-                    for f in ops.iter_mut() {
-                        if let FormulaKind::Or(inner_ops) = &mut f.kind {
-                            flattened.append(inner_ops);
-                        } else {
-                            flattened.push(f.clone());
-                        }
-                    }
-                    *ops = flattened;
-                },
-                FormulaKind::Not(inner)
-                | FormulaKind::O(inner) 
-                | FormulaKind::G { phi: inner, .. } 
-                | FormulaKind::F { phi: inner, .. } => flatten_operand(inner),
-                FormulaKind::U { left, right, .. } 
-                | FormulaKind::R { left, right, .. } => {
-                    flatten_operand(left);
-                    flatten_operand(right);
-                }
-                FormulaKind::Imply { left, right, not_left } => {
-                    flatten_operand(left);
-                    flatten_operand(right);
-                    flatten_operand(not_left);
-                },
-                _ => {}
-            }
-        }
-
-        let mut flattened: Vec<Formula> = Vec::new();
-        for f in &mut self.operands {
-            flatten_operand(f);
-            if let FormulaKind::And(ops) = &mut f.kind {
-                flattened.append(ops);
-            } else {
-                flattened.push(f.clone());
-            }
-        }
-        self.operands = flattened;
-    }
-
     pub fn rewrite_chain(&self) -> Option<Vec<Node>> {
         let mut current = self.operands.clone();
         let mut changed = false;
@@ -302,26 +230,101 @@ impl Node {
 }
 
 impl Formula {
-    pub fn push_negation(&self) -> Formula {
-        if let FormulaKind::Not(inner) = &self.kind {
-            match &inner.kind {
-                FormulaKind::Not(i) => i.push_negation(),
-                FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| Formula::not(f.clone()).push_negation()).collect()),
-                FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| Formula::not(f.clone()).push_negation()).collect()),
-                FormulaKind::Imply { left, right, .. } => Formula::and(vec![*left.clone(), Formula::not(*right.clone()).push_negation()]),
-                FormulaKind::G { phi, interval, parent_upper } => 
-                    Formula::f(interval.clone(), *parent_upper, Formula::not(*phi.clone()).push_negation()),
-                FormulaKind::F { phi, interval, parent_upper } => 
-                    Formula::g(interval.clone(), *parent_upper, Formula::not(*phi.clone()).push_negation()),
-                FormulaKind::U { interval, left, right, parent_upper } => 
-                    Formula::r(interval.clone(), *parent_upper, Formula::not(*left.clone()).push_negation(), Formula::not(*right.clone()).push_negation()),
-                FormulaKind::R { interval, left, right, parent_upper } => 
-                    Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, Formula::not(*left.clone()).push_negation(), Formula::not(*right.clone()).push_negation()),
-                FormulaKind::O(i) => Formula::o(Formula::not(*i.clone()).push_negation()),
-                _ => self.clone()
+    pub fn negative_normal_form_rewrite(&self) -> Formula {
+        match &self.kind {
+            FormulaKind::Not(inner) => {
+                match &inner.kind {
+                    FormulaKind::Not(i) => i.negative_normal_form_rewrite(),
+                    FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| Formula::not(f.clone()).negative_normal_form_rewrite()).collect()),
+                    FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| Formula::not(f.clone()).negative_normal_form_rewrite()).collect()),
+                    FormulaKind::Imply { left, right, .. } => Formula::and(vec![*left.clone(), Formula::not(*right.clone()).negative_normal_form_rewrite()]),
+                    FormulaKind::G { phi, interval, parent_upper } => 
+                        Formula::f(interval.clone(), *parent_upper, Formula::not(*phi.clone()).negative_normal_form_rewrite()),
+                    FormulaKind::F { phi, interval, parent_upper } => 
+                        Formula::g(interval.clone(), *parent_upper, Formula::not(*phi.clone()).negative_normal_form_rewrite()),
+                    FormulaKind::U { interval, left, right, parent_upper } => 
+                        Formula::r(interval.clone(), *parent_upper, Formula::not(*left.clone()).negative_normal_form_rewrite(), Formula::not(*right.clone()).negative_normal_form_rewrite()),
+                    FormulaKind::R { interval, left, right, parent_upper } => 
+                        Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, Formula::not(*left.clone()).negative_normal_form_rewrite(), Formula::not(*right.clone()).negative_normal_form_rewrite()),
+                    FormulaKind::O(i) => Formula::o(Formula::not(*i.clone()).negative_normal_form_rewrite()),
+                    _ => self.clone()
+                }
             }
-        } else {
-            self.clone()
+            FormulaKind::And(ops) | FormulaKind::Or(ops) => {
+                self.with_operands(ops.iter().map(|f| f.negative_normal_form_rewrite()).collect())
+            }
+            FormulaKind::Imply { left, right, not_left } => {
+                self.with_implication(left.negative_normal_form_rewrite(), right.negative_normal_form_rewrite(), not_left.negative_normal_form_rewrite())
+            }
+            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
+                self.with_operand(phi.negative_normal_form_rewrite())
+            }
+            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
+                self.with_operand_couple(left.negative_normal_form_rewrite(), right.negative_normal_form_rewrite())
+            }
+            _ => self.clone()
+        }
+    }
+
+    pub fn mltl_rewrite(&self) -> Formula {
+        debug_assert!(self.is_negation_normal_form(), "Normalization failed: formula not in NNF");
+
+        match &self.kind {
+            FormulaKind::And(ops) | FormulaKind::Or(ops) => 
+                self.with_operands(ops.iter().map(|f| f.mltl_rewrite()).collect()),
+            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
+                self.with_operand(phi.mltl_rewrite())
+            }
+            FormulaKind::Imply { left, right, not_left } => 
+                self.with_implication(left.mltl_rewrite(), right.mltl_rewrite(), not_left.mltl_rewrite()),
+            FormulaKind::U { interval, left, right, .. } => {
+                let g_part = Formula::g(Interval { lower: 0, upper: interval.lower }, None, left.mltl_rewrite());
+                Formula::and(vec![g_part, self.with_operand_couple(left.mltl_rewrite(), right.mltl_rewrite())])
+            }
+            FormulaKind::R { interval, left, right, .. } => {
+                let f_part = Formula::f(Interval { lower: 0, upper: interval.lower }, None, left.mltl_rewrite());
+                Formula::or(vec![f_part, self.with_operand_couple(left.mltl_rewrite(), right.mltl_rewrite())])
+            }
+            _ => self.clone()
+        }
+    }
+
+    pub fn flat_rewrite(&self) -> Formula {
+        debug_assert!(self.is_negation_normal_form(),"Normalization failed: formula not in NNF");
+
+        match &self.kind {
+            FormulaKind::And(ops) => {
+                self.with_operands(
+                    ops.iter().map(|op| op.flat_rewrite()).flat_map(|flat_op| {
+                        if let FormulaKind::And(inner_ops) = &flat_op.kind { 
+                            inner_ops.clone() 
+                        } else { 
+                            vec![flat_op] 
+                        }
+                    }).collect()
+                )
+            }
+            FormulaKind::Or(ops) => {
+                self.with_operands(
+                    ops.iter().map(|op| op.flat_rewrite()).flat_map(|flat_op| {
+                        if let FormulaKind::Or(inner_ops) = &flat_op.kind { 
+                            inner_ops.clone() 
+                        } else { 
+                            vec![flat_op] 
+                        }
+                    }).collect()
+                )
+            }
+            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
+                self.with_operand(phi.flat_rewrite())
+            }
+            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
+                self.with_operand_couple(left.flat_rewrite(), right.flat_rewrite())
+            }
+            FormulaKind::Imply { left, right, not_left } => {
+                self.with_implication(left.flat_rewrite(), right.flat_rewrite(), not_left.flat_rewrite())
+            }
+            _ => self.clone()
         }
     }
 }

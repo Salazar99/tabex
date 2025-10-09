@@ -3,7 +3,7 @@ use crate::{node::Node, parser::parse_formula};
 fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
     let (_, input_formula) = parse_formula(input).unwrap();
     let mut input_node: Node = Node::from_operands(vec![input_formula]);
-    input_node.push_negation();
+    input_node.negative_normal_form_rewrite();
     let (_, result_formula) = parse_formula(result).unwrap();
     let result_node: Node = Node::from_operands(vec![result_formula]);
     (input_node, result_node)
@@ -108,6 +108,12 @@ mod push_negation_tests {
     #[test]
     fn push_negation_nested_until_or() {
         let (res, exp) = make_test_push_negation("!(a U[0,5] (b || c))", "(!a R[0,5] (!b && !c))");
+        assert_eq!(res.operands, exp.operands);
+    }
+
+    #[test]
+    fn push_negation_inside() {
+        let (res, exp) = make_test_push_negation("G[0,5] !(a && b)", "G[0,5] (!a || !b)");
         assert_eq!(res.operands, exp.operands);
     }
 }

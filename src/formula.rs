@@ -1,14 +1,10 @@
 use std::fmt::{self, Display};
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
 use num_rational::Ratio;
-use std::collections::HashSet;
-use dot_graph::{Graph, Kind, Node, Edge}; // Assuming this is the import for the dot_graph crate
 
 type VariableName = Arc<str>;
 
-pub static FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ArithOp {
@@ -174,7 +170,7 @@ impl Formula {
         Self::new(FormulaKind::Imply {
             left: Box::new(left.clone()),
             right: Box::new(right),
-            not_left: Box::new(Formula::not(left).push_negation()),
+            not_left: Box::new(Formula::not(left).negative_normal_form_rewrite()),
         })
     }
 
@@ -220,6 +216,27 @@ impl Formula {
         Self::new(FormulaKind::O(Box::new(inner)))
     }
 
+    pub fn with_operand(&self, operand: Formula) -> Self {
+        let mut to_return = self.clone();
+        match &mut to_return.kind {
+            FormulaKind::Not(inner) | FormulaKind::O(inner) => *inner = Box::new(operand),
+            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => *phi = Box::new(operand),
+            _ => panic!("Cannot set operand on formula without a single inner operand"),
+        }
+        to_return
+    }
+
+    pub fn with_operand_couple(&self, left: Formula, right: Formula) -> Self {
+        let mut to_return = self.clone();
+        match &mut to_return.kind {
+            FormulaKind::U { left: l, right: r, .. } | FormulaKind::R { left: l, right: r, .. } => {
+                *l = Box::new(left);
+                *r = Box::new(right);
+            }
+            _ => panic!("Cannot set operands on formula without two inner operands"),
+        }
+        to_return
+    }
     
     pub fn with_interval(&self, interval: Interval) -> Self {
         let mut to_return = self.clone();
@@ -254,13 +271,13 @@ impl Formula {
         to_return
     }
 
-    pub fn with_implications(&self, new_left: Formula, new_right: Formula, new_not_left: Formula) -> Self {
+    pub fn with_implication(&self, left: Formula, right: Formula, not_left: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return.kind {
-            FormulaKind::Imply { left, right, not_left } => {
-                *left = Box::new(new_left);
-                *right = Box::new(new_right);
-                *not_left = Box::new(new_not_left);
+            FormulaKind::Imply { left: l, right: r, not_left: nl } => {
+                *l = Box::new(left);
+                *r = Box::new(right);
+                *nl = Box::new(not_left);
             }
             _ => panic!("Cannot set implications on formulas different from Imply"),
         }
@@ -304,24 +321,6 @@ impl Formula {
         }
     }
 
-    pub fn get_max_upper(&self) -> Option<i32> {
-        match &self.kind {
-            FormulaKind::O(inner) 
-            | FormulaKind::Not(inner) => inner.get_max_upper(),
-            FormulaKind::And(operands) 
-            | FormulaKind::Or(operands) => {
-                operands.iter().map(|op| op.get_max_upper()).max().unwrap_or(None)
-            },
-            FormulaKind::Imply { left, right, .. } => left.get_max_upper().max(right.get_max_upper()),
-            FormulaKind::G { interval, .. } 
-            | FormulaKind::F { interval, .. } 
-            | FormulaKind::U { interval, .. }
-            | FormulaKind::R { interval, .. } => Some(interval.upper),
-            _ => None,
-        }
-
-    }
-
     pub fn is_active_at(&self, current_time: i32) -> bool {
         match &self.kind {
             FormulaKind::G { interval, .. } 
@@ -341,108 +340,27 @@ impl Formula {
             _ => false,
         }
     }
-    
-    pub fn assign_ids(&mut self) {
-        if self.id.is_none() {
-            self.id = Some(FORMULA_ID.fetch_add(1, Ordering::Relaxed));
-        }
-        match &mut self.kind {
-            FormulaKind::And(ops) | FormulaKind::Or(ops) => {
-                for op in ops {
-                    op.assign_ids();
-                }
-            }
-            FormulaKind::Imply { left, right, not_left } => {
-                left.assign_ids();
-                right.assign_ids();
-                not_left.assign_ids();
-            }
-            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
-                phi.assign_ids();
-            }
-            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
-                left.assign_ids();
-                right.assign_ids();
-            }
-            _ => {}
+
+    pub fn is_negation_normal_form(&self) -> bool {
+        match &self.kind {
+            FormulaKind::Not(inner) => matches!(inner.kind, FormulaKind::Prop(_) | FormulaKind::True | FormulaKind::False),
+            FormulaKind::And(ops) | FormulaKind::Or(ops) => ops.iter().all(|f| f.is_negation_normal_form()),
+            FormulaKind::Imply { left, right, not_left } => left.is_negation_normal_form() && right.is_negation_normal_form() && not_left.is_negation_normal_form(),
+            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => phi.is_negation_normal_form(),
+            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => left.is_negation_normal_form() && right.is_negation_normal_form(),
+            _ => true,
         }
     }
 
-    pub fn id_tree(&self) {
-        if self.id.is_none() {
-            panic!("Formula ids not assigned. Call assign_ids() on a mutable formula before generating the .dot graph.");
+    pub fn is_flat(&self) -> bool {
+        match &self.kind {
+            FormulaKind::And(ops) => !ops.iter().any(|f| matches!(f.kind, FormulaKind::And(_))),
+            FormulaKind::Or(ops) => !ops.iter().any(|f| matches!(f.kind, FormulaKind::Or(_))),
+            FormulaKind::Imply { left, right, not_left } => left.is_flat() && right.is_flat() && not_left.is_flat(),
+            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => phi.is_flat(),
+            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => left.is_flat() && right.is_flat(),
+            _ => true,
         }
-
-        let mut graph = Graph::new("formula", Kind::Digraph);
-        let mut visited: HashSet<usize> = HashSet::new();
-
-        fn esc_label(s: &str) -> String {
-            s.replace('\\', "\\\\").replace('"', "\\\"")
-        }
-
-        fn walk(f: &Formula, graph: &mut Graph, visited: &mut HashSet<usize>) {
-            let id = f.id.expect("missing id");
-            if !visited.insert(id) {
-                return;
-            }
-
-            let label = match &f.kind {
-                FormulaKind::Prop(_) | FormulaKind::True | FormulaKind::False | FormulaKind::Not(_) | FormulaKind::O(_) => {
-                    // leaf: show the whole formula
-                    format!("{}: {}", id, f)
-                }
-                // internal: show only the operator
-                FormulaKind::And(_) => format!("{}: &&", id),
-                FormulaKind::Or(_) => format!("{}: ||", id),
-                FormulaKind::Imply { .. } => format!("{}: ->", id),
-                FormulaKind::G { interval, .. } => format!("{}: G{}", id, interval ),
-                FormulaKind::F { interval, .. } => format!("{}: F{}", id, interval),
-                FormulaKind::U { interval, .. } => format!("{}: U{}", id, interval),
-                FormulaKind::R { interval, .. } => format!("{}: R{}", id, interval),
-            };
-            let node = Node::new(&format!("n{}", id)).label(&esc_label(&label));
-            graph.add_node(node);
-
-            match &f.kind {
-                FormulaKind::And(ops) | FormulaKind::Or(ops) => {
-                    for op in ops {
-                        let cid = op.id.expect("child missing id");
-                        let edge = Edge::new(&format!("n{}", id), &format!("n{}", cid), "");
-                        graph.add_edge(edge);
-                        walk(op, graph, visited);
-                    }
-                }
-                FormulaKind::Imply { left, right, not_left } => {
-                    let lid = left.id.expect("child missing id");
-                    let rid = right.id.expect("child missing id");
-                    let nid = not_left.id.expect("child missing id");
-                    graph.add_edge(Edge::new(&format!("n{}", id), &format!("n{}", lid), ""));
-                    graph.add_edge(Edge::new(&format!("n{}", id), &format!("n{}", rid), ""));
-                    graph.add_edge(Edge::new(&format!("n{}", id), &format!("n{}", nid), ""));
-                    walk(left, graph, visited);
-                    walk(right, graph, visited);
-                    walk(not_left, graph, visited);
-                }
-                FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
-                    let cid = phi.id.expect("child missing id");
-                    graph.add_edge(Edge::new(&format!("n{}", id), &format!("n{}", cid), ""));
-                    walk(phi, graph, visited);
-                }
-                FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
-                    let lid = left.id.expect("child missing id");
-                    let rid = right.id.expect("child missing id");
-                    graph.add_edge(Edge::new(&format!("n{}", id), &format!("n{}", lid), ""));
-                    graph.add_edge(Edge::new(&format!("n{}", id), &format!("n{}", rid), ""));
-                    walk(left, graph, visited);
-                    walk(right, graph, visited);
-                }
-                _ => {}
-            }
-        }
-
-        walk(self, &mut graph, &mut visited);
-
-        println!("{}", graph.to_dot_string().unwrap());
     }
 }
 

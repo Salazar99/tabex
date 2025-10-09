@@ -1,8 +1,6 @@
-use crate::{node::Node, parser::parse_formula, tableau::{Tableau, TableauOptions}};
+use crate::{tableau::{Tableau, TableauOptions}};
 
 fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
-    let (_, formula) = parse_formula(formula_str).unwrap();
-    let node = Node::from_operands(vec![formula]);
     let options = TableauOptions {
         max_depth: 10000,
         graph_output: false,
@@ -13,7 +11,7 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         mltl: mltl
     };
     let mut tableau = Tableau::new(options);
-    tableau.make_tableau(node)
+    tableau.make_tableau(formula_str)
 }
 
 #[test]
@@ -100,7 +98,7 @@ fn test_jump1_u() {
 
 #[test]
 fn test_g_is_derived() {
-    assert_eq!(make_test("G[0,6]  (! (a0 U[2,10] (F[0,6] (! a0))))", true), Some(true));
+    assert_eq!(make_test("G[0,6] (!(a0 U[2,10] (F[0,6] (a0))))", true), Some(true));
 }
 
 #[test]
