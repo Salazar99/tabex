@@ -138,9 +138,15 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_logical_or(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("->")), preceded(space0, parse_implication)),
+            pair(preceded(space0, alt((tag("->"), tag("<->")))), preceded(space0, parse_implication)),
             move || init.clone(),
-            |acc, (_, right)| Formula::imply(acc, right)
+            |acc, (op_out, right)| {
+                match op_out {
+                    "->" => Formula::imply(acc, right),
+                    "<->" => Formula::or(vec![Formula::and(vec![acc.clone(), right.clone()]), Formula::and(vec![Formula::not(acc), Formula::not(right)])]),
+                    _ => unreachable!(),
+                }
+            }
         ).parse(input)
     }
 
