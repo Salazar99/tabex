@@ -1,6 +1,9 @@
 use std::{fmt::{self, Display}, sync::atomic::{AtomicUsize, Ordering}};
 use crate::formula::*;
 
+pub mod rewrite;
+pub mod decompose;
+
 pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, PartialEq, Eq, Hash)]

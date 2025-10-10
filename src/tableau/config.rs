@@ -1,5 +1,28 @@
 use clap::Parser;
-use crate::tableau::TableauOptions;
+
+pub struct TableauOptions {
+    pub max_depth: usize,
+    pub graph_output: bool,
+    pub memoization: bool,
+    pub simple_first: bool,
+    pub formula_optimizations: bool,
+    pub jump_rule_enabled: bool,
+    pub mltl: bool
+}
+
+impl Default for TableauOptions {
+    fn default() -> Self {
+        TableauOptions {
+            max_depth: 1000,
+            graph_output: false,
+            memoization: true,
+            simple_first: true,
+            formula_optimizations: true,
+            jump_rule_enabled: true,
+            mltl: false
+        }
+    }
+}
 
 #[derive(Parser)]
 #[command(name = "stlcc")]

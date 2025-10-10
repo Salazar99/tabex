@@ -1,4 +1,4 @@
-use crate::{node::Node, parser::parse_formula};
+use crate::{node::Node, formula::parser::parse_formula};
 
 fn make_test_rewrite_chain(input: &str, expected: &str) -> (Node, Node) {
     let (_, input_formula) = parse_formula(input).unwrap();

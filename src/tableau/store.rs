@@ -86,9 +86,6 @@ impl Formula {
                     false
                 }
             },
-            (FormulaKind::Not(f1), FormulaKind::Not(f2)) => {
-                f1.quick_implies(&f2, self_time, other_time)
-            },
             _ => false
         }
     }

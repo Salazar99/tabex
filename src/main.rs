@@ -2,7 +2,7 @@ use std::fs;
 
 use stlcc::node::*;
 use stlcc::tableau::*;
-use stlcc::config::{get_tableau_options, ConfigSource};
+use stlcc::tableau::config::{get_tableau_options, ConfigSource};
 
 fn main() {
     let (options, filename) = get_tableau_options(ConfigSource::Cli);

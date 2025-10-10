@@ -1,7 +1,6 @@
 use std::collections::BTreeSet;
 use std::vec;
 
-use crate::formula::*;
 use crate::node::*;
 use crate::tableau::Tableau;
 

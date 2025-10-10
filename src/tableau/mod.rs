@@ -5,36 +5,14 @@ use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
 
 use crate::formula::{Formula, FormulaKind};
 use crate::node::Node;
-use crate::parser::parse_formula;
-use crate::solver::Solver;
-use crate::store::{RejectedNode, Store};
+use crate::formula::parser::parse_formula;
+use crate::tableau::solver::Solver;
+use crate::tableau::store::{RejectedNode, Store};
+use crate::tableau::config::TableauOptions;
 
-#[cfg(test)]
-mod tests;
-
-pub struct TableauOptions {
-    pub max_depth: usize,
-    pub graph_output: bool,
-    pub memoization: bool,
-    pub simple_first: bool,
-    pub formula_optimizations: bool,
-    pub jump_rule_enabled: bool,
-    pub mltl: bool
-}
-
-impl Default for TableauOptions {
-    fn default() -> Self {
-        TableauOptions {
-            max_depth: 1000,
-            graph_output: false,
-            memoization: true,
-            simple_first: true,
-            formula_optimizations: true,
-            jump_rule_enabled: true,
-            mltl: false
-        }
-    }
-}
+pub mod config;
+pub mod solver;
+pub mod store;
 
 pub struct Tableau {
     pub options: TableauOptions,

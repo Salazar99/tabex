@@ -1,4 +1,4 @@
-use crate::{node::Node, parser::parse_formula, store::{RejectedNode, Store}};
+use crate::{node::Node, formula::parser::parse_formula, store::{RejectedNode, Store}};
 
 fn make_check_rejected_test(store_content: Vec<&str>, test_node: &str) -> bool {
     let mut store = Store::new();

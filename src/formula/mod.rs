@@ -3,10 +3,12 @@ use std::sync::Arc;
 
 use num_rational::Ratio;
 
-use crate::transform::{RecursiveFormulaTransformer, NegationNormalFormTransformer};
+use crate::formula::transform::{RecursiveFormulaTransformer, NegationNormalFormTransformer};
+
+pub mod parser;
+pub mod transform;
 
 pub type VariableName = Arc<str>;
-
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ArithOp {

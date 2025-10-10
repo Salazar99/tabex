@@ -1,4 +1,4 @@
-use crate::{formula::{Expr, Formula, Interval}, node::Node, tableau::{Tableau, TableauOptions}};
+use crate::{formula::{Expr, Formula, Interval, parser::parse_formula}, node::Node, tableau::{Tableau, config::TableauOptions}};
 
 fn tableau_data_gen(options: Option<TableauOptions>) -> Tableau {
     Tableau::new(
@@ -15,7 +15,7 @@ fn decompose_jump_opt() -> TableauOptions {
 }
 
 fn make_test_decompose(input: &str, expected: Vec<Node>, options: Option<TableauOptions>) {
-    let (_, formula) = crate::parser::parse_formula(input).unwrap();
+    let (_, formula) = parse_formula(input).unwrap();
     let node = Node::from_operands(vec![formula]);
     let tableau_data = tableau_data_gen(options);
     let decomposed = tableau_data.decompose(&node).unwrap();

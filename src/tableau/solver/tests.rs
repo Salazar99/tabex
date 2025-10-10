@@ -1,7 +1,7 @@
-use crate::{node::Node, solver::Solver};
+use crate::{formula::parser::parse_formula, node::Node, solver::Solver};
 
 fn parse_node(input: &str) -> Node {
-    let (_, formula) = crate::parser::parse_formula(input).unwrap();
+    let (_, formula) = parse_formula(input).unwrap();
     let mut node = Node::from_operands(vec![formula]);
     node.flatten();
     node
