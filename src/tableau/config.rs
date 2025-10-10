@@ -7,7 +7,8 @@ pub struct TableauOptions {
     pub simple_first: bool,
     pub formula_optimizations: bool,
     pub jump_rule_enabled: bool,
-    pub mltl: bool
+    pub mltl: bool,
+    pub smtlib_result: bool
 }
 
 impl Default for TableauOptions {
@@ -19,7 +20,8 @@ impl Default for TableauOptions {
             simple_first: true,
             formula_optimizations: true,
             jump_rule_enabled: true,
-            mltl: false
+            mltl: false,
+            smtlib_result: false
         }
     }
 }
@@ -58,6 +60,10 @@ pub struct CliArgs {
     /// Use MLTL semantics
     #[arg(long, default_value_t = false)]
     pub mltl: bool,
+
+    /// Print result in smtlib format
+    #[arg(long, default_value_t = false)]
+    pub smtlib_result: bool,
 }
 
 pub enum ConfigSource {
@@ -76,6 +82,7 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 formula_optimizations: args.formula_optimizations,
                 jump_rule_enabled: args.jump_rule_enabled,
                 mltl: args.mltl,
+                smtlib_result: args.smtlib_result
             };
             (options, args.formula_file)
         }
