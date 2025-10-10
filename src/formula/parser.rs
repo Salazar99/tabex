@@ -148,7 +148,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_logical_and(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("||")), preceded(space0, parse_logical_and)),
+            pair(preceded(space0, alt((tag("||"), tag("|")))), preceded(space0, parse_logical_and)),
             move || init.clone(),
             |acc, (_, right)| Formula::or(vec![acc, right])
         ).parse(input)
@@ -158,7 +158,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_binary_temporal(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("&&")), preceded(space0, parse_binary_temporal)),
+            pair(preceded(space0, alt((tag("&&"), tag("&")))), preceded(space0, parse_binary_temporal)),
             move || init.clone(),
             |acc, (_, right)| Formula::and(vec![acc, right])
         ).parse(input)
