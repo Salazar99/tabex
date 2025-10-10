@@ -1,4 +1,5 @@
-use crate::{formula::parser::parse_formula, node::Node, solver::Solver};
+use crate::{formula::parser::parse_formula, node::Node, tableau::solver::Solver};
+
 
 fn parse_node(input: &str) -> Node {
     let (_, formula) = parse_formula(input).unwrap();

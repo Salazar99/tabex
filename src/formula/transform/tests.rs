@@ -1,4 +1,6 @@
-use crate::{node::Node, parser::parse_formula};
+use crate::{formula::parser::parse_formula, node::Node};
+
+
 
 fn make_test_push_negation(input: &str, result: &str) -> (Node, Node) {
     let (_, input_formula) = parse_formula(input).unwrap();
