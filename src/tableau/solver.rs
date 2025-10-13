@@ -2,6 +2,7 @@ use crate::node::Node;
 use crate::formula::{AExpr, ArithOp, Expr, Formula, FormulaKind, RelOp};
 
 use std::collections::{BTreeMap, HashMap};
+use z3::ast::Ast;
 use z3::{Solver as Z3Solver, ast::{Real, Bool}};
 use std::collections::HashSet;
 
@@ -10,15 +11,31 @@ use std::sync::Arc;
 #[cfg(test)]
 mod tests;
 
-type VariableName = Arc<str>;
+#[derive(Clone, Debug)]
+pub struct Assertion {
+    pub id: Option<usize>,
+    pub expr: Expr,
+    pub negated: bool,
+}
 
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub enum Assertion {
-    Boolean { negated: bool, var: VariableName },
-    Real { negated: bool, op: RelOp, left: AExpr, right: AExpr },
+impl PartialEq for Assertion {
+    fn eq(&self, other: &Self) -> bool {
+        self.expr == other.expr && self.negated == other.negated
+    }
+}
+
+impl Eq for Assertion {}
+
+impl std::hash::Hash for Assertion {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.expr.hash(state);
+        self.negated.hash(state);
+    }
 }
 
 pub struct Solver {
+    unsat_core_extraction: bool,
+
     boolean_solver: BooleanSolver,
     real_solver: RealSolver,
     assertion_stack: Vec<Vec<Assertion>>,
@@ -26,17 +43,19 @@ pub struct Solver {
 }
 
 impl Solver {
-    pub fn new() -> Self {
+    pub fn new(unsat_core_extraction: bool) -> Self {
         Solver {
-            boolean_solver: BooleanSolver::new(),
-            real_solver: RealSolver::new(),
+            unsat_core_extraction: unsat_core_extraction,
+
+            boolean_solver: BooleanSolver::new(unsat_core_extraction),
+            real_solver: RealSolver::new(unsat_core_extraction),
             assertion_stack: Vec::with_capacity(64),
             current_assertions: HashSet::with_capacity(128),
         }
     }
 
     pub fn empty_solver(&self) -> Self {
-        let mut solver = Solver::new();
+        let mut solver = Solver::new(self.unsat_core_extraction);
         solver.real_solver.z3_variables = self.real_solver.z3_variables.clone();
         solver.real_solver.z3_ast_cache = self.real_solver.z3_ast_cache.clone();
         solver
@@ -52,8 +71,11 @@ impl Solver {
 
             for ass in old_assertions {
                 self.current_assertions.remove(&ass);
-                if let Assertion::Boolean { negated, ref var } = ass {
-                    self.boolean_solver.remove_constraint(negated, var);
+                match &ass.expr {
+                    Expr::Atom(var) => {
+                        self.boolean_solver.remove_constraint(ass.negated, var);
+                    }
+                    _ => {} // Real constraints are handled by Z3 push/pop
                 }
             }
         }
@@ -61,43 +83,28 @@ impl Solver {
     }
 
     fn add_constraints(&mut self, node: &Node) {
-        fn get_assertion(formula: &Formula) -> Option<Assertion> {
+        fn get_assertion(formula: &Formula, id: Option<usize>) -> Option<Assertion> {
             match &formula.kind {
-                FormulaKind::Prop(Expr::Atom(expr)) => Some(Assertion::Boolean {
-                    negated: false,
-                    var: expr.clone(),
-                }),
-                FormulaKind::Prop(Expr::Rel { left, right, op }) => Some(Assertion::Real {
-                    negated: false,
-                    op: op.clone(),
-                    left: left.clone(),
-                    right: right.clone(),
-                }),
+                FormulaKind::Prop(expr) => Some(Assertion { id, expr: expr.clone(), negated: false }),
                 FormulaKind::Not(inner) => {
-                    match get_assertion(&inner)? {
-                        Assertion::Boolean { negated, var } => Some(Assertion::Boolean {
-                            negated: !negated,
-                            var,
-                        }),
-                        Assertion::Real { negated, op, left, right } => Some(Assertion::Real {
-                            negated: !negated,
-                            op,
-                            left,
-                            right,
-                        }),
-                    }
+                    get_assertion(inner, id).map(|mut ass| {
+                        ass.negated = !ass.negated;
+                        ass
+                    })
                 }
                 _ => None,
             }
         }
-        node.operands.iter().filter_map(get_assertion).for_each(|ass| {
+        node.operands.iter().filter_map(|f| {
+            get_assertion(f, f.id)
+        }).for_each(|ass| {
             if self.current_assertions.insert(ass.clone()) {
-                match ass {
-                    Assertion::Boolean { negated, ref var } => {
-                        self.boolean_solver.add_constraint(negated, var);
+                match &ass.expr {
+                    Expr::Atom(var) => {
+                        self.boolean_solver.add_constraint(ass.negated, var, ass.id);
                     }
-                    Assertion::Real { negated, ref op, ref left, ref right } => {
-                        self.real_solver.add_constraint(negated, op.clone(), left.clone(), right.clone());
+                    Expr::Rel { left, right, op } => {
+                        self.real_solver.add_constraint(ass.negated, op.clone(), left.clone(), right.clone(), ass.id);
                     }
                 }
                 
@@ -125,32 +132,49 @@ impl Solver {
         res
     }
 
+    pub fn extract_unsat_core(&self) -> Option<Vec<usize>> {
+        if let Some(vec) = self.boolean_solver.unsat_core.clone() {
+            return Some(vec);
+        }
+        return self.real_solver.unsat_core.clone();
+    }
+
 }
 struct BooleanSolver {
-    pos_props: HashSet<Arc<str>>,
-    neg_props: HashSet<Arc<str>>,
+    unsat_core_extraction: bool,
+    unsat_core: Option<Vec<usize>>,
+    pos_props: HashMap<Arc<str>, Option<usize>>,
+    neg_props: HashMap<Arc<str>, Option<usize>>,
     result_cache: Option<bool>,
 }
 
 impl BooleanSolver {
-    fn new() -> Self {
+    fn new(unsat_core_extraction: bool) -> Self {
         BooleanSolver {
-            pos_props: HashSet::with_capacity(64),
-            neg_props: HashSet::with_capacity(64),
+            unsat_core_extraction: unsat_core_extraction,
+            unsat_core: None,
+            pos_props: HashMap::with_capacity(64),
+            neg_props: HashMap::with_capacity(64),
             result_cache: Some(true),
         }
     }
 
-    fn add_constraint(&mut self, negated: bool, prop: &Arc<str>) {
+    fn add_constraint(&mut self, negated: bool, prop: &Arc<str>, id: Option<usize>) {
         if negated {
-            self.neg_props.insert(prop.clone());
-            if self.pos_props.contains(&**prop) {
+            self.neg_props.insert(prop.clone(), id);
+            if let Some(id_stored) = self.pos_props.get(&**prop) {
                 self.result_cache = Some(false);
+                if self.unsat_core_extraction {
+                    self.unsat_core = Some(vec![id_stored.unwrap(), id.unwrap()])
+                }
             }
         } else {
-            self.pos_props.insert(prop.clone());
-            if self.neg_props.contains(&**prop) {
+            self.pos_props.insert(prop.clone(), id);
+            if let Some(id_stored) = self.neg_props.get(&**prop) {
                 self.result_cache = Some(false);
+                if self.unsat_core_extraction {
+                    self.unsat_core = Some(vec![id.unwrap(), id_stored.unwrap()])
+                }
             }
         }
     }
@@ -170,13 +194,23 @@ impl BooleanSolver {
         if let Some(res) = self.result_cache {
             res
         } else {
-            let res = self.pos_props.is_disjoint(&self.neg_props);
+            let res = !self.pos_props.keys().any(|pos| self.neg_props.contains_key(pos));
             self.result_cache = Some(res);
+            if self.unsat_core_extraction && !res {
+                for (prop, id) in self.pos_props.iter() {
+                    if let Some(neg_id) = self.neg_props.get(prop) {
+                        self.unsat_core = Some(vec![id.unwrap(), neg_id.unwrap()]);
+                        break;
+                    }
+                }
+            }
             res
         }
     }
 }
 struct RealSolver {
+    unsat_core_extraction: bool,
+    unsat_core: Option<Vec<usize>>,
     z3_solver: Z3Solver,
     z3_variables: BTreeMap<String, Real>,
     z3_ast_cache: HashMap<(bool, RelOp, AExpr, AExpr), Bool>,
@@ -184,8 +218,10 @@ struct RealSolver {
 }
 
 impl RealSolver {
-    fn new() -> Self {
+    fn new(unsat_core_extraction: bool) -> Self {
         RealSolver {
+            unsat_core_extraction: unsat_core_extraction,
+            unsat_core: None,
             z3_solver: Z3Solver::new(),
             z3_variables: BTreeMap::new(),
             z3_ast_cache: HashMap::new(),
@@ -204,7 +240,7 @@ impl RealSolver {
         }
     }
 
-    fn add_constraint(&mut self, negated: bool, op: RelOp, left: AExpr, right: AExpr) {
+    fn add_constraint(&mut self, negated: bool, op: RelOp, left: AExpr, right: AExpr, id: Option<usize>) {
         let key = (negated, op.clone(), left.clone(), right.clone());
         let ast = if let Some(b) = self.z3_ast_cache.get(&key) {
             b.clone()
@@ -213,7 +249,13 @@ impl RealSolver {
             self.z3_ast_cache.insert(key, value.clone());
             value
         };
-        self.z3_solver.assert(&ast);
+
+        if !self.unsat_core_extraction {
+            self.z3_solver.assert(ast);
+        } else {
+            let p = z3::ast::Bool::new_const(format!("p_{}", id.unwrap_or(0)).as_str());
+            self.z3_solver.assert_and_track(ast, &p);
+        }
         self.result_cache = None;
     }
 
@@ -223,6 +265,19 @@ impl RealSolver {
         } else {
             let res = self.z3_solver.check();
             let sat = res == z3::SatResult::Sat;
+            if self.unsat_core_extraction && !sat {
+                let unsat_core = self.z3_solver.get_unsat_core();
+                let mut core_ids = Vec::new();
+                for expr in unsat_core.iter() {
+                    let name = expr.decl().name();
+                    if name.starts_with("p_") {
+                        if let Ok(id) = name[2..].parse::<usize>() {
+                            core_ids.push(id);
+                        }
+                    }
+                }
+                self.unsat_core = Some(core_ids);
+            }
             self.result_cache = Some(sat);
             sat
         }
