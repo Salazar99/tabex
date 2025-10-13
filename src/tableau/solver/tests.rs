@@ -68,6 +68,31 @@ fn test_push_pop_bool() {
 }
 
 #[test]
+fn test_push_pop_real() {
+    let mut solver = Solver::new(false);
+
+    solver.push();
+
+    let node = parse_node("R_x > 0 && R_x < 5"); 
+    assert_eq!(solver.check(&node), true);
+
+    solver.push();
+
+    let node_false = parse_node("R_x < 0");
+    assert_eq!(solver.check(&node_false), false);
+
+    solver.pop();
+
+    solver.push();
+    let node_true = parse_node("R_y > 1");
+    assert_eq!(solver.check(&node_true), true);
+
+    solver.push();
+    let node_false_2 = parse_node("R_x < 0");
+    assert_eq!(solver.check(&node_false_2), false);
+}
+
+#[test]
 fn test_unsat_core_not_enabled() {
     let mut solver = Solver::new(false);
 
@@ -113,6 +138,26 @@ fn test_unsat_core_bool_sat() {
 }
 
 #[test]
+fn test_unsat_core_bool_one_excluded() {
+    let mut solver = Solver::new(true);
+
+    let mut one = Formula::prop(Expr::Atom(Arc::from("a")));
+    one.id = Some(0);
+    let mut two = Formula::not(Formula::prop(Expr::Atom(Arc::from("a"))));
+    two.id = Some(1);
+    let mut three = Formula::prop(Expr::Atom(Arc::from("b")));
+    three.id = Some(2);
+
+    let node = Node::from_operands(vec![one, two, three]);
+
+    assert_eq!(solver.check(&node), false);
+    let core = solver.extract_unsat_core().unwrap();
+    assert_eq!(core.len(), 2);
+    assert!(core.contains(&0));
+    assert!(core.contains(&1));
+}
+
+#[test]
 fn test_unsat_core_real() {
     let mut solver = Solver::new(true);
 
@@ -148,4 +193,30 @@ fn test_unsat_core_real_sat() {
 
     assert_eq!(solver.check(&node), true);
     assert_eq!(solver.extract_unsat_core(), None);
+}
+
+#[test]
+fn test_unsat_core_real_one_excluded() {
+    let mut solver = Solver::new(true);
+
+    let mut one = Formula::prop(Expr::Rel { 
+        op: crate::formula::RelOp::Ge, left: crate::formula::AExpr::Var(Arc::from("x")), right: crate::formula::AExpr::Num(Ratio::from_integer(5))
+    });
+    one.id = Some(0);
+    let mut two = Formula::prop(Expr::Rel { 
+        op: crate::formula::RelOp::Le, left: crate::formula::AExpr::Var(Arc::from("x")), right: crate::formula::AExpr::Num(Ratio::from_integer(0))
+    });
+    two.id = Some(1);
+    let mut three = Formula::prop(Expr::Rel { 
+        op: crate::formula::RelOp::Ge, left: crate::formula::AExpr::Var(Arc::from("y")), right: crate::formula::AExpr::Num(Ratio::from_integer(1))
+    });
+    three.id = Some(2);
+
+    let node = Node::from_operands(vec![one, two, three]);
+
+    assert_eq!(solver.check(&node), false);
+    let core = solver.extract_unsat_core().unwrap();
+    assert_eq!(core.len(), 2);
+    assert!(core.contains(&0));
+    assert!(core.contains(&1));
 }
