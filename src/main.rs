@@ -14,12 +14,19 @@ fn main() {
     let res = tableau.make_tableau(example);
     let duration = start.elapsed();
     
-    println!("Tableau result: {:?}", res);
+    if tableau.options.smtlib_result {
+        match res {
+            Some(true) => println!("sat"),
+            Some(false) => println!("unsat"),
+            None => println!("unknown"),
+        }
+    } else {
+        println!("Tableau result: {:?}", res);
+        println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
+    }
 
     if tableau.options.graph_output && let Ok(graph) = tableau.graph.unwrap().to_dot_string() {
         println!("Node count: {:?}", NODE_ID);
         fs::write("resources/tmp/g.dot", &graph).expect("Unable to write file");
     }
-
-    println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
 }

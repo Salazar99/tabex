@@ -1,10 +1,10 @@
 use nom::{
     branch::alt,
     bytes::complete::{tag, tag_no_case},
-    character::{complete::{alpha1, char, digit1, space0}},
+    character::complete::{alpha1, char, digit1, space0},
     combinator::{map, map_res, opt, recognize},
     multi::{fold_many0, many0},
-    sequence::{delimited, pair, preceded},
+    sequence::{delimited, pair, preceded, terminated},
     IResult,
     Parser
 };
@@ -12,6 +12,9 @@ use num_rational::Ratio;
 use std::{fs, path::Path, str::FromStr};
 
 use crate::formula::*;
+
+ #[cfg(test)]
+ mod tests;
 
 fn parse_arith_op(input: &str) -> IResult<&str, ArithOp> {
     alt((
@@ -138,9 +141,15 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_logical_or(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("->")), preceded(space0, parse_implication)),
+            pair(preceded(space0, alt((tag("->"), tag("<->")))), preceded(space0, parse_implication)),
             move || init.clone(),
-            |acc, (_, right)| Formula::imply(acc, right)
+            |acc, (op_out, right)| {
+                match op_out {
+                    "->" => Formula::imply(acc, right),
+                    "<->" => Formula::or(vec![Formula::and(vec![acc.clone(), right.clone()]), Formula::and(vec![Formula::not(acc), Formula::not(right)])]),
+                    _ => unreachable!(),
+                }
+            }
         ).parse(input)
     }
 
@@ -148,7 +157,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_logical_and(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("||")), preceded(space0, parse_logical_and)),
+            pair(preceded(space0, alt((tag("||"), tag("|")))), preceded(space0, parse_logical_and)),
             move || init.clone(),
             |acc, (_, right)| Formula::or(vec![acc, right])
         ).parse(input)
@@ -158,7 +167,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         let (input, init) = parse_binary_temporal(input)?;
         
         fold_many0(
-            pair(preceded(space0, tag("&&")), preceded(space0, parse_binary_temporal)),
+            pair(preceded(space0, alt((tag("&&"), tag("&")))), preceded(space0, parse_binary_temporal)),
             move || init.clone(),
             |acc, (_, right)| Formula::and(vec![acc, right])
         ).parse(input)
@@ -222,7 +231,11 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
                 ),
                 |(_, _, phi)| Formula::not(phi)
             ),
-            delimited(char('('), parse_formula, char(')')),
+            delimited(
+                preceded(space0, char('(')),
+                delimited(space0, parse_formula, space0),
+                terminated(char(')'), space0),
+            ),
             map(parse_expr, Formula::prop),
         )).parse(input)
     }
