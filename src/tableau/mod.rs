@@ -34,8 +34,18 @@ impl Tableau {
 
     pub fn make_tableau(&mut self, formula: &str) -> Option<bool> {
         // Parsing Stage
-        let mut root = Node::from_operands(vec![parse_formula(formula).unwrap().1]);
-        
+        let mut root = {
+            let parsed = parse_formula(formula);
+            let formula_ast = match parsed {
+                Ok((_, f)) => f,
+                Err(err) => {
+                    eprintln!("Failed to parse formula '{}': {:?}", formula, err);
+                    panic!("{}", formula);
+                }
+            };
+            Node::from_operands(vec![formula_ast])
+        };
+
         // Normalization Stage
         root.negative_normal_form_rewrite();
         root.flatten();

@@ -14,7 +14,7 @@ pub struct TableauOptions {
 impl Default for TableauOptions {
     fn default() -> Self {
         TableauOptions {
-            max_depth: 1000,
+            max_depth: 1000000,
             graph_output: false,
             memoization: true,
             simple_first: true,
@@ -34,35 +34,35 @@ pub struct CliArgs {
     pub formula_file: String,
 
     /// Maximum depth for tableau construction
-    #[arg(long, default_value_t = 10000000)]
+    #[arg(long, default_value_t = TableauOptions::default().max_depth)]
     pub max_depth: usize,
 
     /// Enable graph output
-    #[arg(long, default_value_t = false)]
+    #[arg(long, default_value_t = TableauOptions::default().graph_output)]
     pub graph_output: bool,
 
     /// Enable memoization
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = TableauOptions::default().memoization)]
     pub memoization: bool,
 
     /// Process simple formulas first
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = TableauOptions::default().simple_first)]
     pub simple_first: bool,
 
     /// Enable formula syntactic optimizations
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = TableauOptions::default().formula_optimizations)]
     pub formula_optimizations: bool,
 
     /// Enable jump rule
-    #[arg(long, default_value_t = true)]
+    #[arg(long, default_value_t = TableauOptions::default().jump_rule_enabled)]
     pub jump_rule_enabled: bool,
 
     /// Use MLTL semantics
-    #[arg(long, default_value_t = false)]
+    #[arg(long, default_value_t = TableauOptions::default().mltl)]
     pub mltl: bool,
 
     /// Print result in smtlib format
-    #[arg(long, default_value_t = false)]
+    #[arg(long, default_value_t = TableauOptions::default().smtlib_result)]
     pub smtlib_result: bool,
 }
 
