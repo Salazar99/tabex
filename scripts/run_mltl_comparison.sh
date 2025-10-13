@@ -53,6 +53,8 @@ if [ ! -d "${outdir}" ]; then
     mkdir -p "${outdir}"
 fi
 
+ulimit -s unlimited
+
 set -x
 
 if [[ " ${bench_sets[@]} " =~ " nasa-boeing " ]]; then
