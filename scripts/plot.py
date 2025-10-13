@@ -3,9 +3,7 @@
 import os, os.path, sys, argparse
 import plotly.graph_objects as go
 import pandas as pd
-import plotly.io as pio
 import math
-pio.kaleido.scope.mathjax = None
 
 def valid_result(r):
     return r in {'sat', 'unsat'}
@@ -188,10 +186,10 @@ if __name__ == "__main__":
         ),
         showlegend=not args.no_legend,
         legend=dict(
-            yanchor="top",
-            y=0.99,
-            xanchor="left",
-            x=0.01,
+            yanchor="bottom",
+            y=0.08,
+            xanchor="right",
+            x=0.99,
             # font=dict(size=8),
         )
     )
