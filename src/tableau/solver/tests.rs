@@ -113,6 +113,22 @@ fn mltl_boolean() {
 }
 
 #[test]
+fn empty_solver_not_mltl() {
+    let solver = Solver::new(false, false);
+    assert_eq!(solver.real_solver.is_some(), true);
+    let empty_solver = solver.empty_solver();
+    assert_eq!(empty_solver.real_solver.is_some(), true);
+}
+
+#[test]
+fn empty_solver_mltl() {
+    let solver = Solver::new(false, true);
+    assert_eq!(solver.real_solver.is_none(), true);
+    let empty_solver = solver.empty_solver();
+    assert_eq!(empty_solver.real_solver.is_none(), true);
+}
+
+#[test]
 fn test_unsat_core_not_enabled() {
     let mut solver = Solver::new(false, false);
 
