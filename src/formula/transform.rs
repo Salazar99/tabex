@@ -1,21 +1,21 @@
-use crate::{formula::{Formula, FormulaKind, Interval}, node::Node};
+use crate::{formula::{Formula, Interval}, node::Node};
 
 #[cfg(test)]
 mod tests;
 
 pub trait RecursiveFormulaTransformer {
     fn visit(&self, formula: &Formula) -> Formula {
-        match &formula.kind {
-            FormulaKind::And(ops) => self.visit_and(formula, ops),
-            FormulaKind::Or(ops) => self.visit_or(formula, ops),
-            FormulaKind::Not(inner) => self.visit_not(formula, inner),
-            FormulaKind::O(inner) => self.visit_next(formula, inner),
-            FormulaKind::G { interval, phi, parent_upper } => self.visit_globally(formula, interval, phi, parent_upper),
-            FormulaKind::F { interval, phi, parent_upper } => self.visit_finally(formula, interval, phi, parent_upper),
-            FormulaKind::U { interval, left, right, parent_upper } => self.visit_until(formula, interval, left, right, parent_upper),
-            FormulaKind::R { interval, left, right, parent_upper } => self.visit_release(formula, interval, left, right, parent_upper),
-            FormulaKind::Imply { left, right, not_left } => self.visit_imply(formula, left, right, not_left),
-            FormulaKind::Prop(_) | FormulaKind::True | FormulaKind::False => self.visit_leaf(formula),
+        match &formula {
+            Formula::And(ops) => self.visit_and(formula, ops),
+            Formula::Or(ops) => self.visit_or(formula, ops),
+            Formula::Not(inner) => self.visit_not(formula, inner),
+            Formula::O(inner) => self.visit_next(formula, inner),
+            Formula::G { interval, phi, parent_upper } => self.visit_globally(formula, interval, phi, parent_upper),
+            Formula::F { interval, phi, parent_upper } => self.visit_finally(formula, interval, phi, parent_upper),
+            Formula::U { interval, left, right, parent_upper } => self.visit_until(formula, interval, left, right, parent_upper),
+            Formula::R { interval, left, right, parent_upper } => self.visit_release(formula, interval, left, right, parent_upper),
+            Formula::Imply { left, right, not_left } => self.visit_imply(formula, left, right, not_left),
+            Formula::Prop(_) => self.visit_leaf(formula),
         }
     }
 
@@ -63,20 +63,20 @@ pub trait RecursiveFormulaTransformer {
 pub struct NegationNormalFormTransformer;
 impl RecursiveFormulaTransformer for NegationNormalFormTransformer {
     fn visit_not(&self, formula: &Formula, inner: &Formula) -> Formula {
-        match &inner.kind {
-            FormulaKind::Not(i) => self.visit(i),
-            FormulaKind::And(ops) => Formula::or(ops.iter().map(|f| self.visit(&Formula::not(f.clone()))).collect()),
-            FormulaKind::Or(ops) => Formula::and(ops.iter().map(|f| self.visit(&Formula::not(f.clone()))).collect()),
-            FormulaKind::Imply { left, right, .. } => Formula::and(vec![*left.clone(), self.visit(&Formula::not(*right.clone()))]),
-            FormulaKind::G { phi, interval, parent_upper } => 
+        match &inner {
+            Formula::Not(i) => self.visit(i),
+            Formula::And(ops) => Formula::or(ops.iter().map(|f| self.visit(&Formula::not(f.clone()))).collect()),
+            Formula::Or(ops) => Formula::and(ops.iter().map(|f| self.visit(&Formula::not(f.clone()))).collect()),
+            Formula::Imply { left, right, .. } => Formula::and(vec![*left.clone(), self.visit(&Formula::not(*right.clone()))]),
+            Formula::G { phi, interval, parent_upper } => 
                 Formula::f(interval.clone(), *parent_upper, self.visit(&Formula::not(*phi.clone()))),
-            FormulaKind::F { phi, interval, parent_upper } => 
+            Formula::F { phi, interval, parent_upper } => 
                 Formula::g(interval.clone(), *parent_upper, self.visit(&Formula::not(*phi.clone()))),
-            FormulaKind::U { interval, left, right, parent_upper } => 
+            Formula::U { interval, left, right, parent_upper } => 
                 Formula::r(interval.clone(), *parent_upper, self.visit(&Formula::not(*left.clone())), self.visit(&Formula::not(*right.clone()))),
-            FormulaKind::R { interval, left, right, parent_upper } => 
+            Formula::R { interval, left, right, parent_upper } => 
                 Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, self.visit(&Formula::not(*left.clone())), self.visit(&Formula::not(*right.clone()))),
-            FormulaKind::O(i) => Formula::o(self.visit(&Formula::not(*i.clone()))),
+            Formula::O(i) => Formula::o(self.visit(&Formula::not(*i.clone()))),
             _ => formula.clone()
         }
     }
@@ -100,7 +100,7 @@ impl RecursiveFormulaTransformer for FlatTransformer {
     fn visit_and(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
         formula.with_operands(
             ops.iter().map(|op| self.visit(op)).flat_map(|flat_op| {
-                if let FormulaKind::And(inner_ops) = &flat_op.kind { 
+                if let Formula::And(inner_ops) = &flat_op { 
                     inner_ops.clone() 
                 } else { 
                     vec![flat_op] 
@@ -112,7 +112,7 @@ impl RecursiveFormulaTransformer for FlatTransformer {
     fn visit_or(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
         formula.with_operands(
             ops.iter().map(|op| self.visit(op)).flat_map(|flat_op| {
-                if let FormulaKind::Or(inner_ops) = &flat_op.kind { 
+                if let Formula::Or(inner_ops) = &flat_op { 
                     inner_ops.clone() 
                 } else { 
                     vec![flat_op] 
@@ -187,11 +187,11 @@ impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
 
 impl Formula {
     fn get_shift(&self) -> Option<i32> {
-        match &self.kind {
-            FormulaKind::And(operands) | FormulaKind::Or(operands) => {
+        match &self {
+            Formula::And(operands) | Formula::Or(operands) => {
                 operands.iter().map(|op| op.get_shift()).min().unwrap_or(None)
             }
-            FormulaKind::Imply { left, right, not_left } => {
+            Formula::Imply { left, right, not_left } => {
                 left.get_shift().min(right.get_shift()).min(not_left.get_shift())
             }
             _ => self.lower_bound(),
@@ -216,7 +216,7 @@ impl Node {
         let mut flattened: Vec<Formula> = Vec::new();
         for f in &self.operands {
             let flat = FlatTransformer.visit(f);
-            if let FormulaKind::And(ops) = &flat.kind {
+            if let Formula::And(ops) = &flat {
                 flattened.extend(ops.iter().cloned());
             } else {
                 flattened.push(flat);

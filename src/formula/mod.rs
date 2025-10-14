@@ -1,4 +1,7 @@
+use std::cmp::Ordering;
 use std::fmt::{self, Display};
+use std::hash::{Hash};
+use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 
 use num_rational::Ratio;
@@ -39,13 +42,72 @@ pub enum AExpr {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum Expr {
+pub enum ExprKind {
     Atom(VariableName),
     Rel {
         op: RelOp,
         left: AExpr,
         right: AExpr,
     },
+    True,
+    False
+}
+
+#[derive(Clone, Debug)]
+pub struct Expr {
+    pub id: usize,
+    pub kind: ExprKind
+}
+
+impl PartialEq for Expr {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
+}
+
+impl Eq for Expr {}
+
+impl std::hash::Hash for Expr {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.kind.hash(state);
+    }
+}
+
+impl PartialOrd for Expr {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.kind.partial_cmp(&other.kind)
+    }
+}
+
+impl Ord for Expr {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.kind.cmp(&other.kind)
+    }
+}
+
+impl Expr {
+    fn from_expr(kind: ExprKind) -> Self {
+        Expr {
+            id: FORMULA_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
+            kind
+        }
+    }
+
+    pub fn bool(var: VariableName) -> Self {
+        Expr::from_expr(ExprKind::Atom(var))
+    }
+
+    pub fn real(op: RelOp, left: AExpr, right: AExpr) -> Self {
+        Expr::from_expr(ExprKind::Rel { op, left, right })
+    }
+
+    pub fn true_expr() -> Self {
+        Expr::from_expr(ExprKind::True)
+    }
+
+    pub fn false_expr() -> Self {
+        Expr::from_expr(ExprKind::False)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -98,12 +160,10 @@ impl Interval {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum FormulaKind {
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Formula {
     // Propositions
     Prop(Expr),
-    True,
-    False,
     
     // Boolean/structural
     And(Vec<Formula>),
@@ -119,112 +179,76 @@ pub enum FormulaKind {
     O(Box<Formula>),
 }
 
-#[derive(Clone, Debug, Hash)]
-pub struct Formula {
-    pub id: Option<usize>,
-    pub kind: FormulaKind
-}
-
-impl PartialEq for Formula {
-    fn eq(&self, other: &Self) -> bool {
-        self.kind == other.kind
-    }
-}
-
-impl Eq for Formula {}
-
-impl PartialOrd for Formula {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.kind.partial_cmp(&other.kind)
-    }
-}
-
-impl Ord for Formula {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.kind.cmp(&other.kind)
-    }
-}
+pub static FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
 
 impl Formula {
-    pub fn new(kind: FormulaKind) -> Self {
-        Self { id: None, kind: kind }
-    }
-
     pub fn prop(expr: Expr) -> Self {
-        Self::new(FormulaKind::Prop(expr))
-    }
-
-    pub fn true_() -> Self {
-        Self::new(FormulaKind::True)
-    }
-
-    pub fn false_() -> Self {
-        Self::new(FormulaKind::False)
+        Formula::Prop(expr)
     }
 
     pub fn and(operands: Vec<Formula>) -> Self {
-        Self::new(FormulaKind::And(operands))
+        Formula::And(operands)
     }
 
     pub fn or(operands: Vec<Formula>) -> Self {
-        Self::new(FormulaKind::Or(operands))
+        Formula::Or(operands)
     }
 
     pub fn imply(left: Formula, right: Formula) -> Self {
-        Self::new(FormulaKind::Imply {
+        Formula::Imply {
             left: Box::new(left.clone()),
             right: Box::new(right),
             not_left: Box::new(NegationNormalFormTransformer.visit(&Formula::not(left)))
-        })
+        }
     }
 
     pub fn not(inner: Formula) -> Self {
-        Self::new(FormulaKind::Not(Box::new(inner)))
+        Formula::Not(Box::new(inner))
     }
 
     pub fn g(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
-        Self::new(FormulaKind::G {
+        Formula::G {
             interval,
             parent_upper: parent_upper,
             phi: Box::new(phi),
-        })
+        }
     }
 
     pub fn f(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
-        Self::new(FormulaKind::F {
+        Formula::F {
             interval,
             parent_upper: parent_upper,
             phi: Box::new(phi),
-        })
+        }
     }
 
     pub fn u(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
-        Self::new(FormulaKind::U {
+        Formula::U {
             interval,
             parent_upper: parent_upper,
             left: Box::new(left),
             right: Box::new(right),
-        })
+        }
     }
 
     pub fn r(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
-        Self::new(FormulaKind::R {
+        Formula::R {
             interval,
             parent_upper: parent_upper,
             left: Box::new(left),
             right: Box::new(right),
-        })
+        }
     }
 
     pub fn o(inner: Formula) -> Self {
-        Self::new(FormulaKind::O(Box::new(inner)))
+        Formula::O(Box::new(inner))
     }
 
     pub fn with_operand(&self, operand: Formula) -> Self {
         let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::Not(inner) | FormulaKind::O(inner) => *inner = Box::new(operand),
-            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => *phi = Box::new(operand),
+        match &mut to_return {
+            Formula::Not(inner) | Formula::O(inner) => *inner = Box::new(operand),
+            Formula::G { phi, .. } | Formula::F { phi, .. } => *phi = Box::new(operand),
             _ => panic!("Cannot set operand on formula without a single inner operand"),
         }
         to_return
@@ -232,8 +256,8 @@ impl Formula {
 
     pub fn with_operand_couple(&self, left: Formula, right: Formula) -> Self {
         let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::U { left: l, right: r, .. } | FormulaKind::R { left: l, right: r, .. } => {
+        match &mut to_return {
+            Formula::U { left: l, right: r, .. } | Formula::R { left: l, right: r, .. } => {
                 *l = Box::new(left);
                 *r = Box::new(right);
             }
@@ -244,11 +268,11 @@ impl Formula {
     
     pub fn with_interval(&self, interval: Interval) -> Self {
         let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::G { interval: int, .. } 
-            | FormulaKind::F { interval: int, .. }
-            | FormulaKind::U { interval: int, .. }
-            | FormulaKind::R { interval: int, .. } => *int = interval,
+        match &mut to_return {
+            Formula::G { interval: int, .. } 
+            | Formula::F { interval: int, .. }
+            | Formula::U { interval: int, .. }
+            | Formula::R { interval: int, .. } => *int = interval,
             _ => panic!("Cannot set interval on non-temporal formula"),
         }
         to_return
@@ -256,11 +280,11 @@ impl Formula {
 
     pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
         let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::G { parent_upper: pu, .. } 
-            | FormulaKind::F { parent_upper: pu, .. }
-            | FormulaKind::U { parent_upper: pu, .. }
-            | FormulaKind::R { parent_upper: pu, .. } => *pu = parent_upper,
+        match &mut to_return {
+            Formula::G { parent_upper: pu, .. } 
+            | Formula::F { parent_upper: pu, .. }
+            | Formula::U { parent_upper: pu, .. }
+            | Formula::R { parent_upper: pu, .. } => *pu = parent_upper,
             _ => panic!("Cannot set parent_upper on non-temporal formula"),
         }
         to_return
@@ -268,8 +292,8 @@ impl Formula {
 
     pub fn with_operands(&self, operands: Vec<Formula>) -> Self {
         let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::And(ops) | FormulaKind::Or(ops) => *ops = operands,
+        match &mut to_return {
+            Formula::And(ops) | Formula::Or(ops) => *ops = operands,
             _ => panic!("Cannot set operands on formulas different from And/Or"),
         }
         to_return
@@ -277,8 +301,8 @@ impl Formula {
 
     pub fn with_implication(&self, left: Formula, right: Formula, not_left: Formula) -> Self {
         let mut to_return = self.clone();
-        match &mut to_return.kind {
-            FormulaKind::Imply { left: l, right: r, not_left: nl } => {
+        match &mut to_return {
+            Formula::Imply { left: l, right: r, not_left: nl } => {
                 *l = Box::new(left);
                 *r = Box::new(right);
                 *nl = Box::new(not_left);
@@ -289,11 +313,11 @@ impl Formula {
     }
 
     pub fn get_interval(&self) -> Option<Interval> {
-        match &self.kind {
-            FormulaKind::G { interval, .. } 
-            | FormulaKind::F { interval, .. } 
-            | FormulaKind::U { interval, .. }
-            | FormulaKind::R { interval, .. } => Some(interval.clone()),
+        match &self {
+            Formula::G { interval, .. } 
+            | Formula::F { interval, .. } 
+            | Formula::U { interval, .. }
+            | Formula::R { interval, .. } => Some(interval.clone()),
             _ => None,
         }
     }
@@ -307,62 +331,62 @@ impl Formula {
     }
 
     pub fn has_temporal(&self) -> bool {
-        match &self.kind {
-            FormulaKind::G { .. } | FormulaKind::F { .. } | FormulaKind::U { .. } | FormulaKind::R { .. } => true,
-            FormulaKind::And(v) | FormulaKind::Or(v) => v.iter().any(|f| f.has_temporal()),
-            FormulaKind::Not(inner) => inner.has_temporal(),
-            FormulaKind::Imply { left, right, .. } => left.has_temporal() || right.has_temporal(),
+        match &self {
+            Formula::G { .. } | Formula::F { .. } | Formula::U { .. } | Formula::R { .. } => true,
+            Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.has_temporal()),
+            Formula::Not(inner) => inner.has_temporal(),
+            Formula::Imply { left, right, .. } => left.has_temporal() || right.has_temporal(),
             _ => false,
         }
     }
 
     pub fn is_complex_temporal_operator(&self) -> bool {
-        match &self.kind {
-            FormulaKind::G { phi, .. }
-            | FormulaKind::U { left: phi, .. }
-            | FormulaKind::R { right: phi, .. } => phi.has_temporal(),
+        match &self {
+            Formula::G { phi, .. }
+            | Formula::U { left: phi, .. }
+            | Formula::R { right: phi, .. } => phi.has_temporal(),
             _ => false,
         }
     }
 
     pub fn is_active_at(&self, current_time: i32) -> bool {
-        match &self.kind {
-            FormulaKind::G { interval, .. } 
-            | FormulaKind::F { interval, .. } 
-            | FormulaKind::U { interval, .. }
-            | FormulaKind::R { interval, .. } => interval.active(current_time),
+        match &self {
+            Formula::G { interval, .. } 
+            | Formula::F { interval, .. } 
+            | Formula::U { interval, .. }
+            | Formula::R { interval, .. } => interval.active(current_time),
             _ => false,
         }
     }
 
     pub fn is_parent_active_at(&self, current_time: i32) -> bool {
-        match self.kind {
-            FormulaKind::G { parent_upper: Some(upper), .. }
-            | FormulaKind::F { parent_upper: Some(upper), .. }
-            | FormulaKind::U { parent_upper: Some(upper), .. }
-            | FormulaKind::R { parent_upper: Some(upper), .. } => current_time < upper,
+        match self {
+            Formula::G { parent_upper: Some(upper), .. }
+            | Formula::F { parent_upper: Some(upper), .. }
+            | Formula::U { parent_upper: Some(upper), .. }
+            | Formula::R { parent_upper: Some(upper), .. } => current_time < *upper,
             _ => false,
         }
     }
 
     pub fn is_negation_normal_form(&self) -> bool {
-        match &self.kind {
-            FormulaKind::Not(inner) => matches!(inner.kind, FormulaKind::Prop(_) | FormulaKind::True | FormulaKind::False),
-            FormulaKind::And(ops) | FormulaKind::Or(ops) => ops.iter().all(|f| f.is_negation_normal_form()),
-            FormulaKind::Imply { left, right, not_left } => left.is_negation_normal_form() && right.is_negation_normal_form() && not_left.is_negation_normal_form(),
-            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => phi.is_negation_normal_form(),
-            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => left.is_negation_normal_form() && right.is_negation_normal_form(),
+        match &self {
+            Formula::Not(inner) => matches!(**inner, Formula::Prop(_)),
+            Formula::And(ops) | Formula::Or(ops) => ops.iter().all(|f| f.is_negation_normal_form()),
+            Formula::Imply { left, right, not_left } => left.is_negation_normal_form() && right.is_negation_normal_form() && not_left.is_negation_normal_form(),
+            Formula::G { phi, .. } | Formula::F { phi, .. } => phi.is_negation_normal_form(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => left.is_negation_normal_form() && right.is_negation_normal_form(),
             _ => true,
         }
     }
 
     pub fn is_flat(&self) -> bool {
-        match &self.kind {
-            FormulaKind::And(ops) => !ops.iter().any(|f| matches!(f.kind, FormulaKind::And(_))),
-            FormulaKind::Or(ops) => !ops.iter().any(|f| matches!(f.kind, FormulaKind::Or(_))),
-            FormulaKind::Imply { left, right, not_left } => left.is_flat() && right.is_flat() && not_left.is_flat(),
-            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => phi.is_flat(),
-            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => left.is_flat() && right.is_flat(),
+        match &self {
+            Formula::And(ops) => !ops.iter().any(|f| matches!(f, Formula::And(_))),
+            Formula::Or(ops) => !ops.iter().any(|f| matches!(f, Formula::Or(_))),
+            Formula::Imply { left, right, not_left } => left.is_flat() && right.is_flat() && not_left.is_flat(),
+            Formula::G { phi, .. } | Formula::F { phi, .. } => phi.is_flat(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => left.is_flat() && right.is_flat(),
             _ => true,
         }
     }
@@ -389,11 +413,11 @@ impl Display for AExpr {
     }
 }
 
-impl Display for Expr {
+impl Display for ExprKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Expr::Atom(s) => write!(f, "{}", s),
-            Expr::Rel { op, left, right } => {
+            ExprKind::Atom(s) => write!(f, "{}", s),
+            ExprKind::Rel { op, left, right } => {
                 let sym = match op {
                     RelOp::Lt => "<",
                     RelOp::Le => "<=",
@@ -404,7 +428,15 @@ impl Display for Expr {
                 };
                 write!(f, "{} {} {}", left, sym, right)
             }
+            ExprKind::True => write!(f, "true"),
+            ExprKind::False => write!(f, "false"),
         }
+    }
+}
+
+impl Display for Expr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}_{}", self.kind, self.id)
     }
 }
 
@@ -414,31 +446,23 @@ impl Display for Interval {
     }
 }
 
-impl Display for FormulaKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            FormulaKind::And(v) => write!(f, "{}", join_with(v, " && ")),
-            FormulaKind::Or(v) => write!(f, "{}", join_with(v, " || ")),
-            FormulaKind::Not(inner) => write!(f, "!{}", inner),
-            FormulaKind::Imply { left, right, .. } => write!(f, "({}) -> ({})", left, right),
-            FormulaKind::G { interval, phi, .. } => write!(f, "G{} ({})", interval, phi),
-            FormulaKind::F { interval, phi, .. } => write!(f, "F{} ({})", interval, phi),
-            FormulaKind::U { interval, left, right, .. } => {
-                write!(f, "({}) U{} ({})", left, interval, right)
-            }
-            FormulaKind::R { interval, left, right, .. } => {
-                write!(f, "({}) R{} ({})", left, interval, right)
-            }
-            FormulaKind::O(inner) => write!(f, "O ({})", inner),
-            FormulaKind::Prop(p) => write!(f, "{}", p),
-            FormulaKind::True => write!(f, "true"),
-            FormulaKind::False => write!(f, "false"),
-        }
-    }
-}
-
 impl Display for Formula {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.kind)
+        match self {
+            Formula::And(v) => write!(f, "{}", join_with(v, " && ")),
+            Formula::Or(v) => write!(f, "{}", join_with(v, " || ")),
+            Formula::Not(inner) => write!(f, "!{}", inner),
+            Formula::Imply { left, right, .. } => write!(f, "({}) -> ({})", left, right),
+            Formula::G { interval, phi, .. } => write!(f, "G{} ({})", interval, phi),
+            Formula::F { interval, phi, .. } => write!(f, "F{} ({})", interval, phi),
+            Formula::U { interval, left, right, .. } => {
+                write!(f, "({}) U{} ({})", left, interval, right)
+            }
+            Formula::R { interval, left, right, .. } => {
+                write!(f, "({}) R{} ({})", left, interval, right)
+            }
+            Formula::O(inner) => write!(f, "O ({})", inner),
+            Formula::Prop(expr) => write!(f, "{}", expr),
+        }
     }
 }

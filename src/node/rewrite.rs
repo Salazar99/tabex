@@ -1,6 +1,6 @@
 use std::{collections::{btree_map::Entry, BTreeMap, BTreeSet}, vec};
 
-use crate::{formula::{Formula, FormulaKind, Interval}, node::Node};
+use crate::{formula::{Formula, Interval}, node::Node};
 
 #[cfg(test)]
 mod tests;
@@ -10,7 +10,7 @@ pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
-        if let FormulaKind::G { interval, phi, parent_upper } = &op.kind {
+        if let Formula::G { interval, phi, parent_upper } = &op {
             let key = (*phi.clone(), parent_upper.clone());
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
@@ -47,7 +47,7 @@ pub fn merge_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
-        if let FormulaKind::F { phi, parent_upper, interval} = &op.kind {
+        if let Formula::F { phi, parent_upper, interval} = &op {
             let key = (*phi.clone(), parent_upper.clone());
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
@@ -74,8 +74,8 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     let mut new_nodes = Vec::new();
 
     for op in input {
-        if let FormulaKind::G { interval: g_int, phi, .. } = &op.kind && time + 2 <= g_int.upper 
-         && let FormulaKind::F { interval: f_int, .. } = &phi.kind && op.is_active_at(time) {
+        if let Formula::G { interval: g_int, phi, .. } = &op && time + 2 <= g_int.upper 
+         && let Formula::F { interval: f_int, .. } = &**phi && op.is_active_at(time) {
             let first = op.with_interval(Interval { lower: time + 2, upper: g_int.upper });
 
             let second = Formula::or(vec![

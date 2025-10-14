@@ -181,9 +181,9 @@ mod flatten_tests {
     fn flatten_and() {
         let res = make_test_flatten("(a && (b && c))");
         let exp = Node::from_operands(vec![
-            Formula::prop(Expr::Atom(Arc::from("a"))),
-            Formula::prop(Expr::Atom(Arc::from("b"))),
-            Formula::prop(Expr::Atom(Arc::from("c"))),
+            Formula::prop(Expr::bool(Arc::from("a"))),
+            Formula::prop(Expr::bool(Arc::from("b"))),
+            Formula::prop(Expr::bool(Arc::from("c"))),
         ]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -193,9 +193,9 @@ mod flatten_tests {
         let res = make_test_flatten("(a || (b || c))");
         let exp = Node::from_operands(vec![
             Formula::or(vec![
-                Formula::prop(Expr::Atom(Arc::from("a"))),
-                Formula::prop(Expr::Atom(Arc::from("b"))),
-                Formula::prop(Expr::Atom(Arc::from("c"))),
+                Formula::prop(Expr::bool(Arc::from("a"))),
+                Formula::prop(Expr::bool(Arc::from("b"))),
+                Formula::prop(Expr::bool(Arc::from("c"))),
             ])
         ]);
         assert_eq!(res.operands, exp.operands);
@@ -205,13 +205,13 @@ mod flatten_tests {
     fn flatten_mixed() {
         let res = make_test_flatten("(a && ((b || c) && (d && e)))");
         let exp = Node::from_operands(vec![
-            Formula::prop(Expr::Atom(Arc::from("a"))),
+            Formula::prop(Expr::bool(Arc::from("a"))),
             Formula::or(vec![
-                Formula::prop(Expr::Atom(Arc::from("b"))),
-                Formula::prop(Expr::Atom(Arc::from("c"))),
+                Formula::prop(Expr::bool(Arc::from("b"))),
+                Formula::prop(Expr::bool(Arc::from("c"))),
             ]),
-            Formula::prop(Expr::Atom(Arc::from("d"))),
-            Formula::prop(Expr::Atom(Arc::from("e"))),
+            Formula::prop(Expr::bool(Arc::from("d"))),
+            Formula::prop(Expr::bool(Arc::from("e"))),
         ]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -222,9 +222,9 @@ mod flatten_tests {
         let exp = Node::from_operands(vec![
             Formula::g(Interval { lower: 0, upper: 10 }, None,
                 Formula::and(vec![
-                    Formula::prop(Expr::Atom(Arc::from("a"))),
-                    Formula::prop(Expr::Atom(Arc::from("b"))),
-                    Formula::prop(Expr::Atom(Arc::from("c"))),
+                    Formula::prop(Expr::bool(Arc::from("a"))),
+                    Formula::prop(Expr::bool(Arc::from("b"))),
+                    Formula::prop(Expr::bool(Arc::from("c"))),
                 ])
             )
         ]);

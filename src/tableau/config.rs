@@ -8,7 +8,8 @@ pub struct TableauOptions {
     pub formula_optimizations: bool,
     pub jump_rule_enabled: bool,
     pub mltl: bool,
-    pub smtlib_result: bool
+    pub smtlib_result: bool,
+    pub unsat_core_extraction: bool,
 }
 
 impl Default for TableauOptions {
@@ -21,7 +22,8 @@ impl Default for TableauOptions {
             formula_optimizations: true,
             jump_rule_enabled: true,
             mltl: false,
-            smtlib_result: false
+            smtlib_result: false,
+            unsat_core_extraction: false
         }
     }
 }
@@ -64,6 +66,10 @@ pub struct CliArgs {
     /// Print result in smtlib format
     #[arg(long, default_value_t = TableauOptions::default().smtlib_result)]
     pub smtlib_result: bool,
+
+    /// Enable unsat core extraction
+    #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
+    pub unsat_core_extraction: bool,
 }
 
 pub enum ConfigSource {
@@ -82,7 +88,8 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 formula_optimizations: args.formula_optimizations,
                 jump_rule_enabled: args.jump_rule_enabled,
                 mltl: args.mltl,
-                smtlib_result: args.smtlib_result
+                smtlib_result: args.smtlib_result,
+                unsat_core_extraction: args.unsat_core_extraction,
             };
             (options, args.formula_file)
         }

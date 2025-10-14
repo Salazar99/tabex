@@ -1,11 +1,8 @@
-use std::collections::HashSet;
-use std::sync::atomic::{AtomicUsize, Ordering};
-
 use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
 
-use crate::formula::{Formula, FormulaKind};
 use crate::node::Node;
 use crate::formula::parser::parse_formula;
+use crate::tableau::core::UnsatCore;
 use crate::tableau::solver::Solver;
 use crate::tableau::store::{RejectedNode, Store};
 use crate::tableau::config::TableauOptions;
@@ -16,21 +13,25 @@ mod tests;
 pub mod config;
 pub mod solver;
 pub mod store;
+pub mod core;
 
 pub struct Tableau {
     pub options: TableauOptions,
     pub graph: Option<Graph>,
     pub store: Option<Store>,
+    pub unsat_core: Option<UnsatCore>
 }
 
 impl Tableau {
     pub fn new(options: TableauOptions) -> Self {
         let graph = if options.graph_output { Some(Graph::new("Tableau", Kind::Graph)) } else { None };
         let store = if options.memoization { Some(Store::new()) } else { None };
+        let unsat_core = if options.unsat_core_extraction { Some(UnsatCore::new()) } else { None };
         Tableau {
             options,
             graph,
-            store
+            store,
+            unsat_core
         }
     }
 
@@ -54,20 +55,20 @@ impl Tableau {
         if !self.options.mltl {
             root.mltl_rewrite();
         }
-        
-        // Id Assignment Stage
-        for formula in root.operands.iter_mut() {
-            formula.assign_ids();
-        }
 
         // Formula Optimization Stage
         if self.options.formula_optimizations {
             root.shift_bounds();
         }
+        
+        // Id Assignment Stage
+        if let Some(core) = &mut self.unsat_core {
+            core.initialize_root_node(&root);
+        }
 
         // Solving Stage
         self.add_graph_node(&root);
-        let mut local_solver = Solver::new(self.options.mltl);
+        let mut local_solver = Solver::new(self.options.unsat_core_extraction, self.options.mltl);
         self.add_children(root, &mut local_solver, 0)
     }
 
@@ -78,6 +79,11 @@ impl Tableau {
 
         local_solver.push();
         let result: Option<bool> = if !local_solver.check(&node) {
+            if let Some(core) = &mut self.unsat_core {
+                if let Some(new_core) = local_solver.extract_unsat_core() {
+                    core.add_to_unsat_core(new_core);
+                }
+            }
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);
@@ -154,112 +160,5 @@ impl Tableau {
             );
             graph.add_edge(edge);
         }
-    }
-}
-
-pub static FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
-
-impl Formula {
-    pub fn assign_ids(&mut self) {
-        if self.id.is_none() {
-            self.id = Some(FORMULA_ID.fetch_add(1, Ordering::Relaxed));
-        }
-        match &mut self.kind {
-            FormulaKind::And(ops) | FormulaKind::Or(ops) => {
-                for op in ops {
-                    op.assign_ids();
-                }
-            }
-            FormulaKind::Imply { left, right, not_left } => {
-                left.assign_ids();
-                right.assign_ids();
-                not_left.assign_ids();
-            }
-            FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
-                phi.assign_ids();
-            }
-            FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
-                left.assign_ids();
-                right.assign_ids();
-            }
-            _ => {}
-        }
-    }
-
-    pub fn id_tree(&self) {
-        if self.id.is_none() {
-            panic!("Formula ids not assigned. Call assign_ids() on a mutable formula before generating the .dot graph.");
-        }
-
-        let mut graph = Graph::new("formula", Kind::Digraph);
-        let mut visited: HashSet<usize> = HashSet::new();
-
-        fn esc_label(s: &str) -> String {
-            s.replace('\\', "\\\\").replace('"', "\\\"")
-        }
-
-        fn walk(f: &Formula, graph: &mut Graph, visited: &mut HashSet<usize>) {
-            let id = f.id.expect("missing id");
-            if !visited.insert(id) {
-                return;
-            }
-
-            let label = match &f.kind {
-                FormulaKind::Prop(_) | FormulaKind::True | FormulaKind::False | FormulaKind::Not(_) | FormulaKind::O(_) => {
-                    // leaf: show the whole formula
-                    format!("{}: {}", id, f)
-                }
-                // internal: show only the operator
-                FormulaKind::And(_) => format!("{}: &&", id),
-                FormulaKind::Or(_) => format!("{}: ||", id),
-                FormulaKind::Imply { .. } => format!("{}: ->", id),
-                FormulaKind::G { interval, .. } => format!("{}: G{}", id, interval ),
-                FormulaKind::F { interval, .. } => format!("{}: F{}", id, interval),
-                FormulaKind::U { interval, .. } => format!("{}: U{}", id, interval),
-                FormulaKind::R { interval, .. } => format!("{}: R{}", id, interval),
-            };
-            let node = DotNode::new(&format!("n{}", id)).label(&esc_label(&label));
-            graph.add_node(node);
-
-            match &f.kind {
-                FormulaKind::And(ops) | FormulaKind::Or(ops) => {
-                    for op in ops {
-                        let cid = op.id.expect("child missing id");
-                        let edge = DotEdge::new(&format!("n{}", id), &format!("n{}", cid), "");
-                        graph.add_edge(edge);
-                        walk(op, graph, visited);
-                    }
-                }
-                FormulaKind::Imply { left, right, not_left } => {
-                    let lid = left.id.expect("child missing id");
-                    let rid = right.id.expect("child missing id");
-                    let nid = not_left.id.expect("child missing id");
-                    graph.add_edge(DotEdge::new(&format!("n{}", id), &format!("n{}", lid), ""));
-                    graph.add_edge(DotEdge::new(&format!("n{}", id), &format!("n{}", rid), ""));
-                    graph.add_edge(DotEdge::new(&format!("n{}", id), &format!("n{}", nid), ""));
-                    walk(left, graph, visited);
-                    walk(right, graph, visited);
-                    walk(not_left, graph, visited);
-                }
-                FormulaKind::G { phi, .. } | FormulaKind::F { phi, .. } => {
-                    let cid = phi.id.expect("child missing id");
-                    graph.add_edge(DotEdge::new(&format!("n{}", id), &format!("n{}", cid), ""));
-                    walk(phi, graph, visited);
-                }
-                FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
-                    let lid = left.id.expect("child missing id");
-                    let rid = right.id.expect("child missing id");
-                    graph.add_edge(DotEdge::new(&format!("n{}", id), &format!("n{}", lid), ""));
-                    graph.add_edge(DotEdge::new(&format!("n{}", id), &format!("n{}", rid), ""));
-                    walk(left, graph, visited);
-                    walk(right, graph, visited);
-                }
-                _ => {}
-            }
-        }
-
-        walk(self, &mut graph, &mut visited);
-
-        println!("{}", graph.to_dot_string().unwrap());
     }
 }
