@@ -7,6 +7,9 @@ use crate::tableau::solver::Solver;
 use crate::tableau::store::{RejectedNode, Store};
 use crate::tableau::config::TableauOptions;
 
+#[cfg(test)]
+mod tests;
+
 pub mod config;
 pub mod solver;
 pub mod store;
@@ -20,7 +23,6 @@ pub struct Tableau {
 }
 
 impl Tableau {
-
     pub fn new(options: TableauOptions) -> Self {
         let graph = if options.graph_output { Some(Graph::new("Tableau", Kind::Graph)) } else { None };
         let store = if options.memoization { Some(Store::new()) } else { None };

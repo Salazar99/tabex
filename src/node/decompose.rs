@@ -214,7 +214,7 @@ impl Tableau {
                 }
             }
             node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| 
-                [i.lower - 1, i.upper]).collect()
+                [i.lower - 1, i.lower, i.upper]).collect()
         }
 
         pub fn get_max_upper(formula: &Formula) -> Option<i32> {

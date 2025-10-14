@@ -8,7 +8,8 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         simple_first: true,
         formula_optimizations: true,
         jump_rule_enabled: true,
-        mltl: mltl
+        mltl: mltl,
+        smtlib_result: false,
     };
     let mut tableau = Tableau::new(options);
     tableau.make_tableau(formula_str)
@@ -114,4 +115,9 @@ fn test_implication_negation() {
 #[test]
 fn test_globally_imply_merge() {
     assert_eq!(make_test("G[0, 10] (a -> G[10, 15] b) && G[0, 10] a && G[16, 16] !b", false), Some(false))
+}
+
+#[test]
+fn test_until_mltl() {
+    assert_eq!(make_test("a U[39, 77] (G[0, 15] a) && G[82, 100] !a", true), Some(true));
 }
