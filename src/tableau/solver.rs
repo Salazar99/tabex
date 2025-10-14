@@ -36,11 +36,11 @@ impl Solver {
     }
 
     pub fn empty_solver(&self) -> Self {
-        let mut solver = Solver::new(self.real_solver.is_some());
-        solver.real_solver.as_mut().map(|real_solver| {
-            real_solver.z3_variables = self.real_solver.as_ref().unwrap().z3_variables.clone();
-            real_solver.z3_ast_cache = self.real_solver.as_ref().unwrap().z3_ast_cache.clone();
-        });
+        let mut solver = Solver::new(self.real_solver.is_none());
+        if let (Some(src), Some(dst)) = (self.real_solver.as_ref(), solver.real_solver.as_mut()) {
+            dst.z3_variables = src.z3_variables.clone();
+            dst.z3_ast_cache = src.z3_ast_cache.clone();
+        }
         solver
     }
 

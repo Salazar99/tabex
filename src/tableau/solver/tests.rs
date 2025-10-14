@@ -72,3 +72,19 @@ fn boolean_mltl() {
     let node = parse_node("a && b");
     assert_eq!(solver.check(&node), true);
 }
+
+#[test]
+fn empty_solver_not_mltl() {
+    let solver = Solver::new(false);
+    assert_eq!(solver.real_solver.is_some(), true);
+    let empty_solver = solver.empty_solver();
+    assert_eq!(empty_solver.real_solver.is_some(), true);
+}
+
+#[test]
+fn empty_solver_mltl() {
+    let solver = Solver::new(true);
+    assert_eq!(solver.real_solver.is_none(), true);
+    let empty_solver = solver.empty_solver();
+    assert_eq!(empty_solver.real_solver.is_none(), true);
+}
