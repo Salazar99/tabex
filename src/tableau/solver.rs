@@ -20,31 +20,33 @@ pub enum Assertion {
 
 pub struct Solver {
     boolean_solver: BooleanSolver,
-    real_solver: RealSolver,
+    real_solver: Option<RealSolver>,
     assertion_stack: Vec<Vec<Assertion>>,
     current_assertions: HashSet<Assertion>,
 }
 
 impl Solver {
-    pub fn new() -> Self {
+    pub fn new(mltl: bool) -> Self {
         Solver {
             boolean_solver: BooleanSolver::new(),
-            real_solver: RealSolver::new(),
+            real_solver: if !mltl { Some(RealSolver::new()) } else { None },
             assertion_stack: Vec::with_capacity(64),
             current_assertions: HashSet::with_capacity(128),
         }
     }
 
     pub fn empty_solver(&self) -> Self {
-        let mut solver = Solver::new();
-        solver.real_solver.z3_variables = self.real_solver.z3_variables.clone();
-        solver.real_solver.z3_ast_cache = self.real_solver.z3_ast_cache.clone();
+        let mut solver = Solver::new(self.real_solver.is_some());
+        solver.real_solver.as_mut().map(|real_solver| {
+            real_solver.z3_variables = self.real_solver.as_ref().unwrap().z3_variables.clone();
+            real_solver.z3_ast_cache = self.real_solver.as_ref().unwrap().z3_ast_cache.clone();
+        });
         solver
     }
 
     pub fn push(&mut self) {
         self.assertion_stack.push(Vec::with_capacity(16));
-        self.real_solver.push();
+        self.real_solver.as_mut().map(|real_solver| real_solver.push());
     }
 
     pub fn pop(&mut self) {
@@ -57,7 +59,7 @@ impl Solver {
                 }
             }
         }
-        self.real_solver.pop();
+        self.real_solver.as_mut().map(|real_solver| real_solver.pop());
     }
 
     fn add_constraints(&mut self, node: &Node) {
@@ -97,7 +99,7 @@ impl Solver {
                         self.boolean_solver.add_constraint(negated, var);
                     }
                     Assertion::Real { negated, ref op, ref left, ref right } => {
-                        self.real_solver.add_constraint(negated, op.clone(), left.clone(), right.clone());
+                        self.real_solver.as_mut().unwrap().add_constraint(negated, op.clone(), left.clone(), right.clone());
                     }
                 }
                 
@@ -120,7 +122,7 @@ impl Solver {
         }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
-        let real_ok = self.real_solver.check();
+        let real_ok = self.real_solver.as_mut().map_or(false, |real_solver| real_solver.check());
         let res = bool_ok && real_ok;
         res
     }

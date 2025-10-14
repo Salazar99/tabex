@@ -9,7 +9,7 @@ fn parse_node(input: &str) -> Node {
 }
 
 fn make_solver_test(input: &str) -> bool {
-    let mut solver = Solver::new();
+    let mut solver = Solver::new(false);
     solver.check(&parse_node(input))
 }
 
@@ -35,7 +35,7 @@ fn test_real_false() {
 
 #[test]
 fn test_push_pop_bool() {
-    let mut solver = Solver::new();
+    let mut solver = Solver::new(false);
 
     solver.push();
 
@@ -56,4 +56,12 @@ fn test_push_pop_bool() {
     solver.push();
     let node_false_2 = parse_node("!a");
     assert_eq!(solver.check(&node_false_2), false);
+}
+
+#[test]
+#[should_panic]
+fn real_constraint_with_mltl() {
+    let mut solver = Solver::new(true);
+    let node = parse_node("R_x > 0");
+    solver.check(&node);
 }

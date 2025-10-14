@@ -65,7 +65,7 @@ impl Tableau {
 
         // Solving Stage
         self.add_graph_node(&root);
-        let mut local_solver = Solver::new();
+        let mut local_solver = Solver::new(self.options.mltl);
         self.add_children(root, &mut local_solver, 0)
     }
 
