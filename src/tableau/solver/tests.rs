@@ -65,3 +65,10 @@ fn real_constraint_with_mltl() {
     let node = parse_node("R_x > 0");
     solver.check(&node);
 }
+
+#[test]
+fn boolean_mltl() {
+    let mut solver = Solver::new(true);
+    let node = parse_node("a && b");
+    assert_eq!(solver.check(&node), true);
+}

@@ -122,7 +122,7 @@ impl Solver {
         }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
-        let real_ok = self.real_solver.as_mut().map_or(false, |real_solver| real_solver.check());
+        let real_ok = self.real_solver.as_mut().map_or(true, |real_solver| real_solver.check());
         let res = bool_ok && real_ok;
         res
     }
