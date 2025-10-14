@@ -13,7 +13,7 @@ fn parse_node(input: &str) -> Node {
 }
 
 fn make_solver_test(input: &str) -> bool {
-    let mut solver = Solver::new(false);
+    let mut solver = Solver::new(false, false);
     solver.check(&parse_node(input))
 }
 
@@ -39,7 +39,7 @@ fn test_real_false() {
 
 #[test]
 fn test_push_pop_bool() {
-    let mut solver = Solver::new(false);
+    let mut solver = Solver::new(false, false);
 
     solver.push();
 
@@ -64,7 +64,7 @@ fn test_push_pop_bool() {
 
 #[test]
 fn test_push_pop_real() {
-    let mut solver = Solver::new(false);
+    let mut solver = Solver::new(false, false);
 
     solver.push();
 
@@ -88,8 +88,23 @@ fn test_push_pop_real() {
 }
 
 #[test]
+#[should_panic]
+fn mltl_real_constraint() {
+    let mut solver = Solver::new(false, true);
+    let node = parse_node("R_x > 0");
+    solver.check(&node);
+}
+
+#[test]
+fn mltl_boolean() {
+    let mut solver = Solver::new(false, true);
+    let node = parse_node("a && b");
+    assert_eq!(solver.check(&node), true);
+}
+
+#[test]
 fn test_unsat_core_not_enabled() {
-    let mut solver = Solver::new(false);
+    let mut solver = Solver::new(false, false);
 
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
@@ -102,7 +117,7 @@ fn test_unsat_core_not_enabled() {
 
 #[test]
 fn test_unsat_core_bool() {
-    let mut solver = Solver::new(true);
+    let mut solver = Solver::new(true, false);
 
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
@@ -119,7 +134,7 @@ fn test_unsat_core_bool() {
 
 #[test]
 fn test_unsat_core_bool_sat() {
-    let mut solver = Solver::new(true);
+    let mut solver = Solver::new(true, false);
 
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::prop(Expr::bool(Arc::from("b")));
@@ -132,7 +147,7 @@ fn test_unsat_core_bool_sat() {
 
 #[test]
 fn test_unsat_core_bool_one_excluded() {
-    let mut solver = Solver::new(true);
+    let mut solver = Solver::new(true, false);
 
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
@@ -153,7 +168,7 @@ fn test_unsat_core_bool_one_excluded() {
 
 #[test]
 fn test_unsat_core_real() {
-    let mut solver = Solver::new(true);
+    let mut solver = Solver::new(true, false);
 
     let one = Formula::prop(Expr::real ( 
         crate::formula::RelOp::Ge, crate::formula::AExpr::Var(Arc::from("x")), crate::formula::AExpr::Num(Ratio::from_integer(5))
@@ -173,7 +188,7 @@ fn test_unsat_core_real() {
 
 #[test]
 fn test_unsat_core_real_sat() {
-    let mut solver = Solver::new(true);
+    let mut solver = Solver::new(true, false);
 
     let one = Formula::prop(Expr::real(
         crate::formula::RelOp::Ge,
@@ -194,7 +209,7 @@ fn test_unsat_core_real_sat() {
 
 #[test]
 fn test_unsat_core_real_one_excluded() {
-    let mut solver = Solver::new(true);
+    let mut solver = Solver::new(true, false);
 
     let one = Formula::prop(Expr::real(
         crate::formula::RelOp::Ge,

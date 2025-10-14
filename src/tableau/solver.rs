@@ -37,34 +37,35 @@ pub struct Solver {
     unsat_core_extraction: bool,
 
     boolean_solver: BooleanSolver,
-    real_solver: RealSolver,
+    real_solver: Option<RealSolver>,
 }
 
 impl Solver {
-    pub fn new(unsat_core_extraction: bool) -> Self {
+    pub fn new(unsat_core_extraction: bool, mltl: bool) -> Self {
         Solver {
-            unsat_core_extraction: unsat_core_extraction,
-
             boolean_solver: BooleanSolver::new(unsat_core_extraction),
-            real_solver: RealSolver::new(unsat_core_extraction),
+            real_solver: if !mltl { Some(RealSolver::new(unsat_core_extraction)) } else { None },
+            unsat_core_extraction: unsat_core_extraction,
         }
     }
 
     pub fn empty_solver(&self) -> Self {
-        let mut solver = Solver::new(self.unsat_core_extraction);
-        solver.real_solver.z3_variables = self.real_solver.z3_variables.clone();
-        solver.real_solver.z3_ast_cache = self.real_solver.z3_ast_cache.clone();
+        let mut solver = Solver::new(self.unsat_core_extraction, self.real_solver.is_some());
+        solver.real_solver.as_mut().map(|real_solver| {
+            real_solver.z3_variables = self.real_solver.as_ref().unwrap().z3_variables.clone();
+            real_solver.z3_ast_cache = self.real_solver.as_ref().unwrap().z3_ast_cache.clone();
+        });
         solver
     }
 
     pub fn push(&mut self) {
         self.boolean_solver.push();
-        self.real_solver.push();
+        self.real_solver.as_mut().map(|real_solver| real_solver.push());
     }
 
     pub fn pop(&mut self) {
         self.boolean_solver.pop();
-        self.real_solver.pop();
+        self.real_solver.as_mut().map(|real_solver| real_solver.pop());
     }
 
     fn add_constraints(&mut self, node: &Node) {
@@ -86,7 +87,7 @@ impl Solver {
                     self.boolean_solver.add_constraint(ass.negated, var, ass.id);
                 }
                 ExprKind::Rel { left, right, op } => {
-                    self.real_solver.add_constraint(ass.negated, op.clone(), left.clone(), right.clone(), ass.id);
+                    self.real_solver.as_mut().unwrap().add_constraint(ass.negated, op.clone(), left.clone(), right.clone(), ass.id);
                 },
                 _ => {}
             }
@@ -105,7 +106,7 @@ impl Solver {
         }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
-        let real_ok = self.real_solver.check();
+        let real_ok = self.real_solver.as_mut().map_or(true, |real_solver| real_solver.check());
         let res = bool_ok && real_ok;
         res
     }
@@ -114,7 +115,7 @@ impl Solver {
         if let Some(vec) = self.boolean_solver.unsat_core.clone() {
             return Some(vec);
         }
-        return self.real_solver.unsat_core.clone();
+        return self.real_solver.as_ref().map_or(None, |real_solver| real_solver.unsat_core.clone());
     }
 
 }
