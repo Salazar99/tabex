@@ -10,6 +10,7 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         jump_rule_enabled: true,
         mltl: mltl,
         smtlib_result: false,
+        unsat_core_extraction: false,
     };
     let mut tableau = Tableau::new(options);
     tableau.make_tableau(formula_str)
