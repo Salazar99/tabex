@@ -83,6 +83,9 @@ impl Solver {
         node.operands.iter().filter_map(|f| {
             get_assertion(f, f.id)
         }).for_each(|ass| {
+            if self.unsat_core_extraction && ass.id.is_none() {
+                panic!("ID must be provided when unsat core extraction is enabled");
+            }
             match &ass.expr {
                 Expr::Atom(var) => {
                     self.boolean_solver.add_constraint(ass.negated, var, ass.id);

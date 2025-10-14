@@ -6,6 +6,7 @@ use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
 use crate::formula::{Formula, FormulaKind};
 use crate::node::Node;
 use crate::formula::parser::parse_formula;
+use crate::tableau::core::UnsatCore;
 use crate::tableau::solver::Solver;
 use crate::tableau::store::{RejectedNode, Store};
 use crate::tableau::config::TableauOptions;
@@ -13,11 +14,13 @@ use crate::tableau::config::TableauOptions;
 pub mod config;
 pub mod solver;
 pub mod store;
+pub mod core;
 
 pub struct Tableau {
     pub options: TableauOptions,
     pub graph: Option<Graph>,
     pub store: Option<Store>,
+    pub unsat_core: Option<UnsatCore>
 }
 
 impl Tableau {
@@ -25,10 +28,12 @@ impl Tableau {
     pub fn new(options: TableauOptions) -> Self {
         let graph = if options.graph_output { Some(Graph::new("Tableau", Kind::Graph)) } else { None };
         let store = if options.memoization { Some(Store::new()) } else { None };
+        let unsat_core = if options.unsat_core_extraction { Some(UnsatCore::new()) } else { None };
         Tableau {
             options,
             graph,
-            store
+            store,
+            unsat_core
         }
     }
 
@@ -52,15 +57,16 @@ impl Tableau {
         if !self.options.mltl {
             root.mltl_rewrite();
         }
-        
-        // Id Assignment Stage
-        for formula in root.operands.iter_mut() {
-            formula.assign_ids();
-        }
 
         // Formula Optimization Stage
         if self.options.formula_optimizations {
             root.shift_bounds();
+        }
+        
+        // Id Assignment Stage
+        if let Some(core) = &mut self.unsat_core {
+            root.assign_ids();            
+            core.initialize_root_node(&root);
         }
 
         // Solving Stage
@@ -76,6 +82,11 @@ impl Tableau {
 
         local_solver.push();
         let result: Option<bool> = if !local_solver.check(&node) {
+            if let Some(core) = &mut self.unsat_core {
+                if let Some(new_core) = local_solver.extract_unsat_core() {
+                    core.add_to_unsat_core(new_core);
+                }
+            }
             Some(false)
         } else {
             let new_nodes = self.decompose(&node);

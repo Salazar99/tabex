@@ -9,11 +9,6 @@ fn parse_node(input: &str) -> Node {
     let (_, formula) = parse_formula(input).unwrap();
     let mut node = Node::from_operands(vec![formula]);
     node.flatten();
-
-    for formula in node.operands.iter_mut() {
-        formula.assign_ids();
-    }
-
     node
 }
 
@@ -105,6 +100,19 @@ fn test_unsat_core_not_enabled() {
 
     assert_eq!(solver.check(&node), false);
     assert_eq!(solver.extract_unsat_core(), None);
+}
+
+#[test]
+#[should_panic]
+fn test_unsat_core_enabled_no_id() {
+    let mut solver = Solver::new(true);
+
+    let one = Formula::prop(Expr::Atom(Arc::from("a")));
+    let two = Formula::not(Formula::prop(Expr::Atom(Arc::from("a"))));
+    
+    let node = Node::from_operands(vec![one, two]); 
+
+    solver.check(&node);
 }
 
 #[test]
