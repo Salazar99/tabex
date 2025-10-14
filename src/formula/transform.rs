@@ -15,7 +15,7 @@ pub trait RecursiveFormulaTransformer {
             Formula::U { interval, left, right, parent_upper } => self.visit_until(formula, interval, left, right, parent_upper),
             Formula::R { interval, left, right, parent_upper } => self.visit_release(formula, interval, left, right, parent_upper),
             Formula::Imply { left, right, not_left } => self.visit_imply(formula, left, right, not_left),
-            Formula::Prop(_, _) | Formula::True(_) | Formula::False(_) => self.visit_leaf(formula),
+            Formula::Prop(_) => self.visit_leaf(formula),
         }
     }
 

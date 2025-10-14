@@ -39,8 +39,8 @@ impl UnsatCore {
                     add_formula_inner(core, right, parent_id);
                     add_formula_inner(core, not_left, parent_id);
                 }
-                Formula::Prop(id, _) | Formula::True(id) | Formula::False(id) => {
-                    core.map.insert(*id, parent_id);
+                Formula::Prop(expr) => {
+                    core.map.insert(expr.id, parent_id);
                 }
             }
         }

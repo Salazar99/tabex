@@ -298,7 +298,7 @@ impl Tableau {
 impl Formula {
     fn temporal_expansion(&self, current_time: i32, parent_interval: Option<&Interval>) -> Formula {
         match &self {
-            Formula::Prop(_, _) | Formula::Not(_) | Formula::True(_) | Formula::False(_) => self.clone(),
+            Formula::Prop(_) | Formula::Not(_) => self.clone(),
             Formula::F { interval, .. } | Formula::G { interval, .. }
             | Formula::U { interval, .. } | Formula::R { interval, .. } => {
                 self.with_interval(interval.shift_right(current_time)).with_parent_upper(parent_interval.map(|p| p.upper))

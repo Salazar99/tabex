@@ -1,7 +1,7 @@
+use std::cmp::Ordering;
 use std::fmt::{self, Display};
-use std::hash::{Hash, Hasher};
-use std::cmp::Ordering as CmpOrdering;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::hash::{Hash};
+use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 
 use num_rational::Ratio;
@@ -42,13 +42,72 @@ pub enum AExpr {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum Expr {
+pub enum ExprKind {
     Atom(VariableName),
     Rel {
         op: RelOp,
         left: AExpr,
         right: AExpr,
     },
+    True,
+    False
+}
+
+#[derive(Clone, Debug)]
+pub struct Expr {
+    pub id: usize,
+    pub kind: ExprKind
+}
+
+impl PartialEq for Expr {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
+}
+
+impl Eq for Expr {}
+
+impl std::hash::Hash for Expr {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.kind.hash(state);
+    }
+}
+
+impl PartialOrd for Expr {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.kind.partial_cmp(&other.kind)
+    }
+}
+
+impl Ord for Expr {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.kind.cmp(&other.kind)
+    }
+}
+
+impl Expr {
+    fn from_expr(kind: ExprKind) -> Self {
+        Expr {
+            id: FORMULA_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
+            kind
+        }
+    }
+
+    pub fn bool(var: VariableName) -> Self {
+        Expr::from_expr(ExprKind::Atom(var))
+    }
+
+    pub fn real(op: RelOp, left: AExpr, right: AExpr) -> Self {
+        Expr::from_expr(ExprKind::Rel { op, left, right })
+    }
+
+    pub fn true_expr() -> Self {
+        Expr::from_expr(ExprKind::True)
+    }
+
+    pub fn false_expr() -> Self {
+        Expr::from_expr(ExprKind::False)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -101,12 +160,10 @@ impl Interval {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Formula {
     // Propositions
-    Prop(usize, Expr),
-    True(usize),
-    False(usize),
+    Prop(Expr),
     
     // Boolean/structural
     And(Vec<Formula>),
@@ -122,201 +179,11 @@ pub enum Formula {
     O(Box<Formula>),
 }
 
-impl PartialEq for Formula {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Formula::Prop(_, a), Formula::Prop(_, b)) => a == b,
-            (Formula::True(_), Formula::True(_)) => true,
-            (Formula::False(_), Formula::False(_)) => true,
-            (Formula::And(a), Formula::And(b)) => a == b,
-            (Formula::Or(a), Formula::Or(b)) => a == b,
-            (Formula::Imply { left: la, right: ra, not_left: nla }, Formula::Imply { left: lb, right: rb, not_left: nlb }) => la == lb && ra == rb && nla == nlb,
-            (Formula::Not(a), Formula::Not(b)) => a == b,
-            (Formula::G { interval: ia, parent_upper: pa, phi: phia }, Formula::G { interval: ib, parent_upper: pb, phi: phib }) => ia == ib && pa == pb && phia == phib,
-            (Formula::F { interval: ia, parent_upper: pa, phi: phia }, Formula::F { interval: ib, parent_upper: pb, phi: phib }) => ia == ib && pa == pb && phia == phib,
-            (Formula::U { interval: ia, parent_upper: pa, left: la, right: ra }, Formula::U { interval: ib, parent_upper: pb, left: lb, right: rb }) => ia == ib && pa == pb && la == lb && ra == rb,
-            (Formula::R { interval: ia, parent_upper: pa, left: la, right: ra }, Formula::R { interval: ib, parent_upper: pb, left: lb, right: rb }) => ia == ib && pa == pb && la == lb && ra == rb,
-            (Formula::O(a), Formula::O(b)) => a == b,
-            _ => false,
-        }
-    }
-}
-
-impl Eq for Formula {}
-
-impl Hash for Formula {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        match self {
-            Formula::Prop(_, expr) => {
-                0u8.hash(state);
-                expr.hash(state);
-            }
-            Formula::True(_) => 1u8.hash(state),
-            Formula::False(_) => 2u8.hash(state),
-            Formula::And(v) => {
-                3u8.hash(state);
-                v.hash(state);
-            }
-            Formula::Or(v) => {
-                4u8.hash(state);
-                v.hash(state);
-            }
-            Formula::Imply { left, right, not_left } => {
-                5u8.hash(state);
-                left.hash(state);
-                right.hash(state);
-                not_left.hash(state);
-            }
-            Formula::Not(inner) => {
-                6u8.hash(state);
-                inner.hash(state);
-            }
-            Formula::G { interval, parent_upper, phi } => {
-                7u8.hash(state);
-                interval.hash(state);
-                parent_upper.hash(state);
-                phi.hash(state);
-            }
-            Formula::F { interval, parent_upper, phi } => {
-                8u8.hash(state);
-                interval.hash(state);
-                parent_upper.hash(state);
-                phi.hash(state);
-            }
-            Formula::U { interval, parent_upper, left, right } => {
-                9u8.hash(state);
-                interval.hash(state);
-                parent_upper.hash(state);
-                left.hash(state);
-                right.hash(state);
-            }
-            Formula::R { interval, parent_upper, left, right } => {
-                10u8.hash(state);
-                interval.hash(state);
-                parent_upper.hash(state);
-                left.hash(state);
-                right.hash(state);
-            }
-            Formula::O(inner) => {
-                11u8.hash(state);
-                inner.hash(state);
-            }
-        }
-    }
-}
-
-fn discriminant_value(f: &Formula) -> u8 {
-    match f {
-        Formula::Prop(..) => 0,
-        Formula::True(..) => 1,
-        Formula::False(..) => 2,
-        Formula::And(..) => 3,
-        Formula::Or(..) => 4,
-        Formula::Imply {..} => 5,
-        Formula::Not(..) => 6,
-        Formula::G {..} => 7,
-        Formula::F {..} => 8,
-        Formula::U {..} => 9,
-        Formula::R {..} => 10,
-        Formula::O(..) => 11,
-    }
-}
-
-impl PartialOrd for Formula {
-    fn partial_cmp(&self, other: &Self) -> Option<CmpOrdering> {
-        match (self, other) {
-            (Formula::Prop(_, a), Formula::Prop(_, b)) => a.partial_cmp(b),
-            (Formula::True(_), Formula::True(_)) => Some(CmpOrdering::Equal),
-            (Formula::False(_), Formula::False(_)) => Some(CmpOrdering::Equal),
-            (Formula::Prop(_, _), _) => Some(CmpOrdering::Less),
-            (_, Formula::Prop(_, _)) => Some(CmpOrdering::Greater),
-            (Formula::True(_), _) => Some(CmpOrdering::Less),
-            (_, Formula::True(_)) => Some(CmpOrdering::Greater),
-            (Formula::False(_), _) => Some(CmpOrdering::Less),
-            (_, Formula::False(_)) => Some(CmpOrdering::Greater),
-            (Formula::And(a), Formula::And(b)) => a.partial_cmp(b),
-            (Formula::Or(a), Formula::Or(b)) => a.partial_cmp(b),
-            (Formula::Imply { left: la, right: ra, not_left: nla }, Formula::Imply { left: lb, right: rb, not_left: nlb }) => {
-                match la.partial_cmp(lb) {
-                    Some(CmpOrdering::Equal) => match ra.partial_cmp(rb) {
-                        Some(CmpOrdering::Equal) => nla.partial_cmp(nlb),
-                        other => other,
-                    },
-                    other => other,
-                }
-            }
-            (Formula::Not(a), Formula::Not(b)) => a.partial_cmp(b),
-            (Formula::G { interval: ia, parent_upper: pa, phi: phia }, Formula::G { interval: ib, parent_upper: pb, phi: phib }) => {
-                match ia.partial_cmp(ib) {
-                    Some(CmpOrdering::Equal) => match pa.partial_cmp(pb) {
-                        Some(CmpOrdering::Equal) => phia.partial_cmp(phib),
-                        other => other,
-                    },
-                    other => other,
-                }
-            }
-            (Formula::F { interval: ia, parent_upper: pa, phi: phia }, Formula::F { interval: ib, parent_upper: pb, phi: phib }) => {
-                match ia.partial_cmp(ib) {
-                    Some(CmpOrdering::Equal) => match pa.partial_cmp(pb) {
-                        Some(CmpOrdering::Equal) => phia.partial_cmp(phib),
-                        other => other,
-                    },
-                    other => other,
-                }
-            }
-            (Formula::U { interval: ia, parent_upper: pa, left: la, right: ra }, Formula::U { interval: ib, parent_upper: pb, left: lb, right: rb }) => {
-                match ia.partial_cmp(ib) {
-                    Some(CmpOrdering::Equal) => match pa.partial_cmp(pb) {
-                        Some(CmpOrdering::Equal) => match la.partial_cmp(lb) {
-                            Some(CmpOrdering::Equal) => ra.partial_cmp(rb),
-                            other => other,
-                        },
-                        other => other,
-                    },
-                    other => other,
-                }
-            }
-            (Formula::R { interval: ia, parent_upper: pa, left: la, right: ra }, Formula::R { interval: ib, parent_upper: pb, left: lb, right: rb }) => {
-                match ia.partial_cmp(ib) {
-                    Some(CmpOrdering::Equal) => match pa.partial_cmp(pb) {
-                        Some(CmpOrdering::Equal) => match la.partial_cmp(lb) {
-                            Some(CmpOrdering::Equal) => ra.partial_cmp(rb),
-                            other => other,
-                        },
-                        other => other,
-                    },
-                    other => other,
-                }
-            }
-            (Formula::O(a), Formula::O(b)) => a.partial_cmp(b),
-            (a, b) => {
-                let da = discriminant_value(a);
-                let db = discriminant_value(b);
-                da.partial_cmp(&db)
-            }
-        }
-    }
-}
-
-impl Ord for Formula {
-    fn cmp(&self, other: &Self) -> CmpOrdering {
-        self.partial_cmp(other).unwrap()
-    }
-}
-
 pub static FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
 
 impl Formula {
     pub fn prop(expr: Expr) -> Self {
-        Formula::Prop(FORMULA_ID.fetch_add(1, Ordering::Relaxed), expr)
-    }
-
-    pub fn true_() -> Self {
-        Formula::True(FORMULA_ID.fetch_add(1, Ordering::Relaxed))
-    }
-
-    pub fn false_() -> Self {
-        Formula::False(FORMULA_ID.fetch_add(1, Ordering::Relaxed))
+        Formula::Prop(expr)
     }
 
     pub fn and(operands: Vec<Formula>) -> Self {
@@ -504,7 +371,7 @@ impl Formula {
 
     pub fn is_negation_normal_form(&self) -> bool {
         match &self {
-            Formula::Not(inner) => matches!(**inner, Formula::Prop(_, _) | Formula::True(_) | Formula::False(_)),
+            Formula::Not(inner) => matches!(**inner, Formula::Prop(_)),
             Formula::And(ops) | Formula::Or(ops) => ops.iter().all(|f| f.is_negation_normal_form()),
             Formula::Imply { left, right, not_left } => left.is_negation_normal_form() && right.is_negation_normal_form() && not_left.is_negation_normal_form(),
             Formula::G { phi, .. } | Formula::F { phi, .. } => phi.is_negation_normal_form(),
@@ -546,11 +413,11 @@ impl Display for AExpr {
     }
 }
 
-impl Display for Expr {
+impl Display for ExprKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Expr::Atom(s) => write!(f, "{}", s),
-            Expr::Rel { op, left, right } => {
+            ExprKind::Atom(s) => write!(f, "{}", s),
+            ExprKind::Rel { op, left, right } => {
                 let sym = match op {
                     RelOp::Lt => "<",
                     RelOp::Le => "<=",
@@ -561,7 +428,15 @@ impl Display for Expr {
                 };
                 write!(f, "{} {} {}", left, sym, right)
             }
+            ExprKind::True => write!(f, "true"),
+            ExprKind::False => write!(f, "false"),
         }
+    }
+}
+
+impl Display for Expr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}_{}", self.kind, self.id)
     }
 }
 
@@ -587,9 +462,7 @@ impl Display for Formula {
                 write!(f, "({}) R{} ({})", left, interval, right)
             }
             Formula::O(inner) => write!(f, "O ({})", inner),
-            Formula::Prop(id, p) => write!(f, "{}_{}", p, id),
-            Formula::True(id) => write!(f, "true_{}", id),
-            Formula::False(id) => write!(f, "false_{}", id),
+            Formula::Prop(expr) => write!(f, "{}", expr),
         }
     }
 }

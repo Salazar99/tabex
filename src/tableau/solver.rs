@@ -1,5 +1,5 @@
 use crate::node::Node;
-use crate::formula::{AExpr, ArithOp, Expr, Formula, RelOp};
+use crate::formula::{AExpr, ArithOp, ExprKind, Formula, RelOp};
 
 use std::collections::{BTreeMap, HashMap};
 use z3::ast::Ast;
@@ -14,7 +14,7 @@ mod tests;
 #[derive(Clone, Debug)]
 pub struct Assertion {
     pub id: usize,
-    pub expr: Expr,
+    pub expr: ExprKind,
     pub negated: bool,
 }
 
@@ -70,7 +70,7 @@ impl Solver {
     fn add_constraints(&mut self, node: &Node) {
         fn get_assertion(formula: &Formula) -> Option<Assertion> {
             match &formula {
-                Formula::Prop(id, expr) => Some(Assertion { id: *id, expr: expr.clone(), negated: false }),
+                Formula::Prop(expr) => Some(Assertion { id: expr.id, expr: expr.kind.clone(), negated: false }),
                 Formula::Not(inner) => {
                     get_assertion(inner).map(|mut ass| {
                         ass.negated = !ass.negated;
@@ -80,16 +80,15 @@ impl Solver {
                 _ => None,
             }
         }
-        node.operands.iter().filter_map(|f| {
-            get_assertion(f)
-        }).for_each(|ass| {
+        node.operands.iter().filter_map(get_assertion).for_each(|ass| {
             match &ass.expr {
-                Expr::Atom(var) => {
+                ExprKind::Atom(var) => {
                     self.boolean_solver.add_constraint(ass.negated, var, ass.id);
                 }
-                Expr::Rel { left, right, op } => {
+                ExprKind::Rel { left, right, op } => {
                     self.real_solver.add_constraint(ass.negated, op.clone(), left.clone(), right.clone(), ass.id);
-                }
+                },
+                _ => {}
             }
         });
     }
@@ -97,8 +96,8 @@ impl Solver {
     pub fn check(&mut self, node: &Node) -> bool {
         if node.operands.iter().any(|f| {
             match &f {
-                Formula::False(_) => true,
-                Formula::Not(inner) if matches!(**inner, Formula::True(_)) => true,
+                Formula::Prop(expr) if matches!(expr.kind, ExprKind::False) => true,
+                Formula::Not(inner) => if let Formula::Prop(expr) = &**inner && matches!(expr.kind, ExprKind::True) {true} else {false},
                 _ => false
             }
         }) {

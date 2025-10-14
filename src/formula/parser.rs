@@ -68,7 +68,6 @@ fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
 
 fn parse_expr(input: &str) -> IResult<&str, Expr> {
     alt((
-        // Relational expression: left op right (must come before Atom)
         map(
             (
                 parse_aexpr,
@@ -77,12 +76,13 @@ fn parse_expr(input: &str) -> IResult<&str, Expr> {
                 nom::character::complete::space0,
                 parse_aexpr
             ),
-            |(left, _, op, _, right)| Expr::Rel { op, left, right }
+            |(left, _, op, _, right)| Expr::real(op, left, right)
         ),
-        // Atom: identifier (comes last as fallback)
+        map(tag_no_case("true"), |_| Expr::true_expr()),
+        map(tag_no_case("false"), |_| Expr::false_expr()),
         map(
             recognize(pair(alpha1, many0(alt((alpha1, digit1, tag("_")))))),
-            |s: &str| Expr::Atom(s.into())
+            |s: &str| Expr::bool(s.into())
         ),
     )).parse(input)
 }
@@ -195,8 +195,6 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
 
     fn parse_formula_term(input: &str) -> IResult<&str, Formula> {
         alt((
-            map(tag_no_case("true"), |_| Formula::true_()),
-            map(tag_no_case("false"), |_| Formula::false_()),
             map(
                 (
                     tag("G"),
