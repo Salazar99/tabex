@@ -1,6 +1,9 @@
 use crate::{formula::{Formula}, node::Node};
 use std::collections::{HashMap, HashSet};
 
+#[cfg(test)]
+mod tests;
+
 pub struct UnsatCore {
     map: HashMap<usize, usize>,
     node: Option<Node>,
@@ -77,6 +80,8 @@ impl UnsatCore {
                     result.push(formula.clone());
                 }
             }
+        } else {
+            panic!("UnsatCore not initialized with root node");
         }
         result
     }

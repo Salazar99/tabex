@@ -18,6 +18,16 @@ fn make_solver_test(input: &str) -> bool {
 }
 
 #[test]
+fn test_false_expr() {
+    assert_eq!(make_solver_test("false"), false);
+}
+
+#[test]
+fn test_not_true_expr() {
+    assert_eq!(make_solver_test("!true"), false);
+}
+
+#[test]
 fn test_bool_true() {
     assert_eq!(make_solver_test("a && b"), true);
 }
@@ -236,5 +246,49 @@ fn test_unsat_core_real_one_excluded() {
     let core = solver.extract_unsat_core().unwrap();
     assert_eq!(core.len(), 2);
     assert!(core.contains(&id));
+    assert!(core.contains(&id2));
+}
+
+#[test]
+fn test_unsat_core_false() {
+    let mut solver = Solver::new(true, false);
+
+    let one = Formula::prop(Expr::bool(Arc::from("a")));
+    let two = Formula::prop(Expr::false_expr());
+    let three = Formula::prop(Expr::real(
+        crate::formula::RelOp::Ge,
+        crate::formula::AExpr::Var(Arc::from("x")),
+        crate::formula::AExpr::Num(Ratio::from_integer(5)),
+    ));
+
+    let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
+
+    assert_eq!(solver.check(&node), false);
+    
+    let id2 = if let Formula::Prop(expr) = two { expr.id } else { unreachable!() };
+    
+    let core = solver.extract_unsat_core().unwrap();
+    assert!(core.contains(&id2));
+}
+
+#[test]
+fn test_unsat_core_not_true() {
+    let mut solver = Solver::new(true, false);
+
+    let one = Formula::prop(Expr::bool(Arc::from("a")));
+    let two = Formula::not(Formula::prop(Expr::true_expr()));
+    let three = Formula::prop(Expr::real(
+        crate::formula::RelOp::Ge,
+        crate::formula::AExpr::Var(Arc::from("x")),
+        crate::formula::AExpr::Num(Ratio::from_integer(5)),
+    ));
+
+    let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
+
+    assert_eq!(solver.check(&node), false);
+    
+    let id2 = if let Formula::Not(inner) = two && let Formula::Prop(expr) = *inner { expr.id } else { unreachable!() };
+    
+    let core = solver.extract_unsat_core().unwrap();
     assert!(core.contains(&id2));
 }

@@ -95,14 +95,24 @@ impl Solver {
     }
 
     pub fn check(&mut self, node: &Node) -> bool {
-        if node.operands.iter().any(|f| {
-            match &f {
-                Formula::Prop(expr) if matches!(expr.kind, ExprKind::False) => true,
-                Formula::Not(inner) => if let Formula::Prop(expr) = &**inner && matches!(expr.kind, ExprKind::True) {true} else {false},
-                _ => false
+        for f in node.operands.iter() {
+            match f {
+                Formula::Prop(expr) if matches!(expr.kind, ExprKind::False) => {
+                    if self.unsat_core_extraction {
+                        self.boolean_solver.unsat_core = Some(vec![expr.id]);
+                    }
+                    return false;
+                }
+                Formula::Not(inner) => {
+                    if let Formula::Prop(expr) = &**inner && matches!(expr.kind, ExprKind::True) {
+                    if self.unsat_core_extraction {
+                        self.boolean_solver.unsat_core = Some(vec![expr.id]);
+                    }
+                    return false;
+                    }
+                }
+                _ => {}
             }
-        }) {
-            return false;
         }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
