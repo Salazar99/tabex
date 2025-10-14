@@ -23,12 +23,6 @@ impl Node {
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }
-
-    pub fn assign_ids(&mut self) {
-        for op in &mut self.operands {
-            op.assign_ids();
-        }
-    }
 }
 
 impl Clone for Node {

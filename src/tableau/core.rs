@@ -1,4 +1,4 @@
-use crate::{formula::{Formula, FormulaKind}, node::Node};
+use crate::{formula::{Formula}, node::Node};
 use std::collections::{HashMap, HashSet};
 
 pub struct UnsatCore {
@@ -16,39 +16,39 @@ impl UnsatCore {
         }
     }
 
-    fn add_formula_rec(&mut self, formula: &Formula) {
-        fn add_formula_inner(core: &mut UnsatCore, formula: &Formula, id: usize) {
-            match &formula.kind {
-                FormulaKind::And(children) | FormulaKind::Or(children) => {
+    fn add_formula_rec(&mut self, formula: &Formula, index: usize) {
+        fn add_formula_inner(core: &mut UnsatCore, formula: &Formula, parent_id: usize) {
+            match &formula {
+                Formula::And(children) | Formula::Or(children) => {
                     for child in children {
-                        add_formula_inner(core, child, id);
+                        add_formula_inner(core, child, parent_id);
                     }
                 }
-                FormulaKind::O(child)  => {
-                    add_formula_inner(core, child, id);
+                Formula::O(child) | Formula::Not(child) => {
+                    add_formula_inner(core, child, parent_id);
                 }
-                FormulaKind::G {phi, ..} | FormulaKind::F {phi, ..} => {
-                    add_formula_inner(core, phi, id);
+                Formula::G {phi, ..} | Formula::F {phi, ..} => {
+                    add_formula_inner(core, phi, parent_id);
                 }
-                FormulaKind::U { left, right, .. } | FormulaKind::R { left, right, .. } => {
-                    add_formula_inner(core, left, id);
-                    add_formula_inner(core, right, id);
+                Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
+                    add_formula_inner(core, left, parent_id);
+                    add_formula_inner(core, right, parent_id);
                 }
-                FormulaKind::Imply { left, right, not_left } => {
-                    add_formula_inner(core, left, id);
-                    add_formula_inner(core, right, id);
-                    add_formula_inner(core, not_left, id);
+                Formula::Imply { left, right, not_left } => {
+                    add_formula_inner(core, left, parent_id);
+                    add_formula_inner(core, right, parent_id);
+                    add_formula_inner(core, not_left, parent_id);
                 }
-                _ => {
-                    core.map.insert(formula.id.unwrap(), id);
+                Formula::Prop(id, _) | Formula::True(id) | Formula::False(id) => {
+                    core.map.insert(*id, parent_id);
                 }
             }
         }
-        add_formula_inner(self, formula, formula.id.unwrap());
+        add_formula_inner(self, formula, index);
     }
     
-    fn add_formula(&mut self, formula: &Formula) {
-        self.add_formula_rec(formula);
+    fn add_formula(&mut self, formula: &Formula, index: usize) {
+        self.add_formula_rec(formula, index);
     }
 
     fn get_tree_ends(&self) -> HashSet<usize> {
@@ -56,8 +56,8 @@ impl UnsatCore {
     }
 
     pub fn initialize_root_node(&mut self, node: &Node) {
-        for formula in &node.operands {
-            self.add_formula(formula);
+        for (idx, formula) in node.operands.iter().enumerate() {
+            self.add_formula(formula, idx);
         }
         self.node = Some(node.clone());
     }
@@ -72,8 +72,8 @@ impl UnsatCore {
         let mut result = Vec::new();
         let high_level_unsat_core = self.get_tree_ends();
         if let Some(node) = &self.node {
-            for formula in &node.operands {
-                if high_level_unsat_core.contains(&formula.id.unwrap()) {
+            for (idx, formula) in node.operands.iter().enumerate() {
+                if high_level_unsat_core.contains(&idx) {
                     result.push(formula.clone());
                 }
             }
