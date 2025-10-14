@@ -41,20 +41,20 @@ pub struct CliArgs {
     #[arg(long, default_value_t = TableauOptions::default().graph_output)]
     pub graph_output: bool,
 
-    /// Enable memoization
-    #[arg(long, default_value_t = TableauOptions::default().memoization)]
+    /// Disable memoization
+    #[arg(long = "no-memoization", action = clap::ArgAction::SetFalse)]
     pub memoization: bool,
 
-    /// Process simple formulas first
-    #[arg(long, default_value_t = TableauOptions::default().simple_first)]
+    /// Disable process simple formulas first
+    #[arg(long = "no-simple-first", action = clap::ArgAction::SetFalse)]
     pub simple_first: bool,
 
-    /// Enable formula syntactic optimizations
-    #[arg(long, default_value_t = TableauOptions::default().formula_optimizations)]
+    /// Disable formula syntactic optimizations
+    #[arg(long = "no-formula-optimizations", action = clap::ArgAction::SetFalse)]
     pub formula_optimizations: bool,
 
-    /// Enable jump rule
-    #[arg(long, default_value_t = TableauOptions::default().jump_rule_enabled)]
+    /// Disable jump rule
+    #[arg(long = "no-jump-rule", action = clap::ArgAction::SetFalse)]
     pub jump_rule_enabled: bool,
 
     /// Use MLTL semantics
