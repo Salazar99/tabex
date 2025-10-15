@@ -51,7 +51,7 @@ impl Tableau {
 
     fn try_tableau(&mut self, formula: &Formula) -> Option<bool> {
         let mut options: TableauOptions = self.options.clone();
-        options.max_depth = 5;
+        options.max_depth = 1000;
         options.subformula_check = false;
 
         let mut local = Tableau::new(options);
