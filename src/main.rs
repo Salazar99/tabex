@@ -12,7 +12,7 @@ fn main() {
     
     let start = std::time::Instant::now();
     let mut tableau = Tableau::new(options);
-    let res = tableau.make_tableau(example);
+    let res = tableau.make_tableau_from_str(example);
     let duration = start.elapsed();
     
     if tableau.options.smtlib_result {

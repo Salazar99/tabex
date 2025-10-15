@@ -2,18 +2,11 @@ use crate::{tableau::{Tableau, TableauOptions}};
 
 fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
     let options = TableauOptions {
-        max_depth: 10000,
-        graph_output: false,
-        memoization: true,
-        simple_first: true,
-        formula_optimizations: true,
-        jump_rule_enabled: true,
         mltl: mltl,
-        smtlib_result: false,
-        unsat_core_extraction: false,
+        ..Default::default()
     };
     let mut tableau = Tableau::new(options);
-    tableau.make_tableau(formula_str)
+    tableau.make_tableau_from_str(formula_str)
 }
 
 #[test]

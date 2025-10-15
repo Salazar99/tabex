@@ -35,20 +35,7 @@ impl Tableau {
         }
     }
 
-    pub fn make_tableau(&mut self, formula: &str) -> Option<bool> {
-        // Parsing Stage
-        let mut root = {
-            let parsed = parse_formula(formula);
-            let formula_ast = match parsed {
-                Ok((_, f)) => f,
-                Err(err) => {
-                    eprintln!("Failed to parse formula '{}': {:?}", formula, err);
-                    panic!("{}", formula);
-                }
-            };
-            Node::from_operands(vec![formula_ast])
-        };
-
+    pub fn make_tableau_from_root(&mut self, mut root: Node) -> Option<bool> {
         // Normalization Stage
         root.negative_normal_form_rewrite();
         root.flatten();
@@ -70,6 +57,23 @@ impl Tableau {
         self.add_graph_node(&root);
         let mut local_solver = Solver::new(self.options.unsat_core_extraction, self.options.mltl);
         self.add_children(root, &mut local_solver, 0)
+    }
+
+    pub fn make_tableau_from_str(&mut self, formula: &str) -> Option<bool> {
+        // Parsing Stage
+        let root = {
+            let parsed = parse_formula(formula);
+            let formula_ast = match parsed {
+                Ok((_, f)) => f,
+                Err(err) => {
+                    eprintln!("Failed to parse formula '{}': {:?}", formula, err);
+                    panic!("{}", formula);
+                }
+            };
+            Node::from_operands(vec![formula_ast])
+        };
+
+        self.make_tableau_from_root(root)
     }
 
     fn add_children(&mut self, node: Node, local_solver: &mut Solver, depth: usize) -> Option<bool> {
