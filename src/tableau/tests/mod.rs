@@ -115,3 +115,8 @@ fn test_globally_imply_merge() {
 fn test_until_mltl() {
     assert_eq!(make_test("a U[39, 77] (G[0, 15] a) && G[82, 100] !a", true), Some(true));
 }
+
+#[test]
+fn test_gfg() {
+    assert_eq!(make_test("G[5, 10] F[8, 10] a && G[16, 17] !a", false), Some(true));
+}

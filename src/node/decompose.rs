@@ -203,18 +203,17 @@ impl Tableau {
         }
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
-            fn top_level_interval(formula: &Formula, current_time: i32) -> Option<&Interval> {
+            fn top_level_interval(formula: &Formula, current_time: i32) -> Option<Vec<i32>> {
                 match &formula {
                     Formula::O(inner) => top_level_interval(inner, current_time),
-                    Formula::G { interval, .. } 
-                    | Formula::F { interval, .. } 
-                    | Formula::U { interval, .. }
-                    | Formula::R { interval, .. } if !formula.is_parent_active_at(current_time) => Some(interval),
+                    Formula::G { interval, .. }
+                    | Formula::F { interval, .. }
+                    | Formula::U { interval, .. } 
+                    | Formula::R { interval, .. } if !formula.is_parent_active_at(current_time) => Some(vec![interval.lower - 1, interval.lower, interval.upper]),
                     _ => None
                 }
             }
-            node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| 
-                [i.lower - 1, i.lower, i.upper]).collect()
+            node.operands.iter().filter_map(|f| top_level_interval(f, node.current_time)).flat_map(|i| i).collect()
         }
 
         pub fn get_max_upper(formula: &Formula) -> Option<i32> {
