@@ -8,6 +8,7 @@ pub struct UnsatCore {
     map: HashMap<usize, usize>,
     node: Option<Node>,
     pub unsat_core: HashSet<usize>,
+    single_id: Option<usize>
 }
 
 impl UnsatCore {
@@ -16,6 +17,7 @@ impl UnsatCore {
             map: HashMap::new(),
             node: None,
             unsat_core: HashSet::new(),
+            single_id: None
         }
     }
 
@@ -71,7 +73,14 @@ impl UnsatCore {
         }
     }
 
+    pub fn set_single_unsat_core(&mut self, id: usize) {
+        self.single_id = Some(id);
+    }
+
     pub fn get_unsat_core(&self) -> Vec<Formula> {
+        if let Some(id) = self.single_id {
+            return vec![self.node.as_ref().unwrap().operands[id].clone()];
+        } 
         let mut result = Vec::new();
         let high_level_unsat_core = self.get_tree_ends();
         if let Some(node) = &self.node {

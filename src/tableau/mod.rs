@@ -14,6 +14,7 @@ pub mod config;
 pub mod solver;
 pub mod store;
 pub mod core;
+pub mod recursive;
 
 pub struct Tableau {
     pub options: TableauOptions,
@@ -51,6 +52,22 @@ impl Tableau {
         // Id Assignment Stage
         if let Some(core) = &mut self.unsat_core {
             core.initialize_root_node(&root);
+        }
+
+        // Subformula Check Stage
+        if self.options.subformula_check {
+            if let Some(false) = root.operands.iter().enumerate().find_map(|(idx, formula)| {
+            if let Some(false) = self.check_subformulas_recursively(formula) {
+                if let Some(core) = &mut self.unsat_core {
+                core.set_single_unsat_core(idx);
+                }
+                Some(false)
+            } else {
+                None
+            }
+            }) {
+            return Some(false);
+            }
         }
 
         // Solving Stage
