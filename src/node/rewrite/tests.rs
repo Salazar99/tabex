@@ -1,13 +1,17 @@
-use crate::{node::Node, formula::parser::parse_formula};
+use std::sync::Arc;
 
-fn make_test_rewrite_chain(input: &str, expected: &str, time_input: i32) -> (Node, Node) {
-    let (_, input_formula) = parse_formula(input).unwrap();
-    let mut input_node: Node = Node::from_operands(vec![input_formula]);
+use crate::{formula::{Expr, Formula, Interval}, node::Node};
+
+fn prop(name: &str) -> Formula {
+    Formula::prop(Expr::bool(Arc::from(name)))
+}
+
+fn make_test_rewrite_chain(input: Vec<Formula>, expected: Vec<Formula>, time_input: i32) -> (Node, Node) {
+    let mut input_node: Node = Node::from_operands(input);
     input_node.current_time = time_input;
     input_node.flatten();
     input_node = input_node.rewrite_chain().unwrap_or(vec![input_node.clone()])[0].clone();
-    let (_, expected_formula) = parse_formula(expected).unwrap();
-    let mut expected_node: Node = Node::from_operands(vec![expected_formula]);
+    let mut expected_node: Node = Node::from_operands(expected);
     expected_node.flatten();
     (input_node, expected_node)
 }
@@ -17,49 +21,106 @@ mod rewrite_globally_tests {
 
     #[test]
     fn no_rewrite() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a", "G[0,5] a", 0);
+        let a = prop("a");
+        let f = Formula::g(Interval { lower: 0, upper: 5 }, None, a);
+        let (res, exp) = make_test_rewrite_chain(vec![
+            f.clone()
+        ], vec![
+            f
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_containment() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && G[1,4] a", "G[0,5] a", 0);
+        let a = prop("a");
+        let f1 = Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone());
+        let f2 = Formula::g(Interval { lower: 1, upper: 4 }, None, a);
+        let (res, exp) = make_test_rewrite_chain(vec![
+            f1.clone(),
+            f2.clone()
+        ], vec![
+            f1
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_union_intersection() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && G[4,10] a", "G[0,10] a", 0);
+        let a = prop("a");
+        let f1 = Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone());
+        let f2 = Formula::g(Interval { lower: 4, upper: 10 }, None, a.clone());
+        let (res, exp) = make_test_rewrite_chain(vec![
+            f1.clone(),
+            f2.clone()
+        ], vec![
+            Formula::g(Interval { lower: 0, upper: 10 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_union_contiguous() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && G[6,10] a", "G[0,10] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::g(Interval { lower: 6, upper: 10 }, None, a.clone())
+        ], vec![
+            Formula::g(Interval { lower: 0, upper: 10 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_no_match() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && G[7,10] a", "G[0,5] a && G[7,10] a", 0);
+        let a = prop("a");
+        let f = Formula::and(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::g(Interval { lower: 7, upper: 10 }, None, a)
+        ]);
+        let (res, exp) = make_test_rewrite_chain(vec![f.clone()], vec![f], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_multiple() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && G[8,12] a && G[4,8] a", "G[0,12] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::g(Interval { lower: 8, upper: 12 }, None, a.clone()),
+            Formula::g(Interval { lower: 4, upper: 8 }, None, a.clone())
+        ], vec![
+            Formula::g(Interval { lower: 0, upper: 12 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_multiple_one_excluded() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && G[10,12] a && G[4,7] a", "G[0,7] a && G[10,12] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::g(Interval { lower: 10, upper: 12 }, None, a.clone()),
+            Formula::g(Interval { lower: 4, upper: 7 }, None, a.clone())
+        ], vec![
+            Formula::g(Interval { lower: 0, upper: 7 }, None, a.clone()),
+            Formula::g(Interval { lower: 10, upper: 12 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_single_count_match() {
-        let (res, exp) = make_test_rewrite_chain("G[0,10] a && G[11, 20] a && G[0, 10] b", "G[0,20] a && G[0, 10] b", 0);
+        let a = prop("a");
+        let b = prop("b");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 10 }, None, a.clone()),
+            Formula::g(Interval { lower: 11, upper: 20 }, None, a.clone()),
+            Formula::g(Interval { lower: 0, upper: 10 }, None, b.clone())
+        ], vec![
+            Formula::g(Interval { lower: 0, upper: 20 }, None, a),
+            Formula::g(Interval { lower: 0, upper: 10 }, None, b)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 } 
@@ -69,83 +130,188 @@ mod rewrite_finally_tests {
 
     #[test]
     fn no_rewrite() {
-        let (res, exp) = make_test_rewrite_chain("F[0,5] a", "F[0,5] a", 0);
+        let a = prop("a");
+        let f = Formula::f(Interval { lower: 0, upper: 5 }, None, a);
+        let (res, exp) = make_test_rewrite_chain(vec![f.clone()], vec![f], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_containment() {
-        let (res, exp) = make_test_rewrite_chain("F[0,5] a && F[1,4] a", "F[1,4] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 1, upper: 4 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
     
     #[test]
     fn rewrite_containment_2() {
-        let (res, exp) = make_test_rewrite_chain("F[1,4] a && F[0,5] a", "F[1,4] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone()),
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 1, upper: 4 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_no_match() {
-        let (res, exp) = make_test_rewrite_chain("F[0,5] a && F[4,10] a", "F[0,5] a && F[4,10] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 4, upper: 10 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 4, upper: 10 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_multiple() {
-        let (res, exp) = make_test_rewrite_chain("F[0,10] a && F[1,5] a && F[2,4] a", "F[2,4] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 10 }, None, a.clone()),
+            Formula::f(Interval { lower: 1, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 2, upper: 4 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 2, upper: 4 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_multiple_one_excluded() {
-        let (res, exp) = make_test_rewrite_chain("F[0,5] a && F[10,12] a && F[1,4] a", "F[10,12] a && F[1,4] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 10, upper: 12 }, None, a.clone()),
+            Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 10, upper: 12 }, None, a.clone()),
+            Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone()),
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
      #[test]
     fn rewrite_single_count_match() {
-        let (res, exp) = make_test_rewrite_chain("F[0,20] a && F[5, 15] a && F[0, 10] b", "F[5,15] a && F[0, 10] b", 0);
+        let a = prop("a");
+        let b = prop("b");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 20 }, None, a.clone()),
+            Formula::f(Interval { lower: 5, upper: 15 }, None, a.clone()),
+            Formula::f(Interval { lower: 0, upper: 10 }, None, b.clone())
+        ], vec![
+            Formula::f(Interval { lower: 5, upper: 15 }, None, a),
+            Formula::f(Interval { lower: 0, upper: 10 }, None, b)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_equal() {
-        let (res, exp) = make_test_rewrite_chain("F[0,5] a && F[0,5] a", "F[0,5] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_equal_position() {
-        let (res, exp) = make_test_rewrite_chain("F[0,5] a && b && F[0,5] a", "F[0,5] a && b", 0);
+        let a = prop("a");
+        let b = prop("b");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            b.clone(),
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            b,
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_finally_time_shift() {
-        let (res, exp) = make_test_rewrite_chain("F[18, 20] a && F[17, 19] a && F[18, 18] a", "F[18, 18] a", 18);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::f(Interval { lower: 18, upper: 20 }, None, a.clone()),
+            Formula::f(Interval { lower: 17, upper: 19 }, None, a.clone()),
+            Formula::f(Interval { lower: 18, upper: 18 }, None, a.clone())
+        ], vec![
+            Formula::f(Interval { lower: 18, upper: 18 }, None, a)
+        ], 18);
         assert_eq!(res.operands, exp.operands);
     }
 }
 
 mod rewrite_globally_finally_tests {
+    use std::vec;
+
     use super::*;
 
     #[test]
     fn rewrite_no_match() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] a && F[1,3] a && F[2,4] a", "G[0,5] a && F[1,3] a && F[2,4] a", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
+            Formula::f(Interval { lower: 2, upper: 4 }, None, a.clone())
+        ], vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
+            Formula::f(Interval { lower: 2, upper: 4 }, None, a)
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_match_simple() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] F[0,3] a", "G[2,5] F[0, 3] a && (F[1, 3] a || F[0, 0] a && F[4, 4] a)", 0);
+        let a = prop("a");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone())),
+        ], vec![
+            Formula::g(Interval { lower: 2, upper: 5 }, None, Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone())),
+            Formula::or(vec![
+                Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
+                Formula::and(vec![
+                    Formula::f(Interval { lower: 0, upper: 0 }, None, a.clone()),
+                    Formula::f(Interval { lower: 4, upper: 4 }, None, a.clone())
+                ])
+            ])
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_order() {
-        let (res, exp) = make_test_rewrite_chain("G[0,5] F[0,3] a && F[0,3] b", "G[2,5] F[0, 3] a && F[0,3] b && (F[1, 3] a || F[0, 0] a && F[4, 4] a)", 0);
+        let a = prop("a");
+        let b = prop("b");
+        let (res, exp) = make_test_rewrite_chain(vec![
+            Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone())),
+            Formula::f(Interval { lower: 0, upper: 3 }, None, b.clone())
+        ], vec![
+            Formula::g(Interval { lower: 2, upper: 5 }, None, Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone())),
+            Formula::f(Interval { lower: 0, upper: 3 }, None, b.clone()),
+            Formula::or(vec![
+                Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
+                Formula::and(vec![
+                    Formula::f(Interval { lower: 0, upper: 0 }, None, a.clone()),
+                    Formula::f(Interval { lower: 4, upper: 4 }, None, a.clone())
+                ])
+            ])
+        ], 0);
         assert_eq!(res.operands, exp.operands);
     }
 }
