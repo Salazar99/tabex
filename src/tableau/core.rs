@@ -66,9 +66,7 @@ impl UnsatCore {
     }
 
     pub fn add_to_unsat_core(&mut self, core: Vec<usize>) {
-        for id in core {
-            self.unsat_core.insert(id);
-        }
+        self.unsat_core.extend(core);
     }
 
     pub fn get_unsat_core(&self) -> Vec<Formula> {

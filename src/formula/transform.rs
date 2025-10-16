@@ -1,4 +1,4 @@
-use crate::{formula::{Formula, Interval}, node::Node};
+use crate::{formula::{Expr, Formula, Interval}, node::Node};
 
 #[cfg(test)]
 mod tests;
@@ -15,7 +15,7 @@ pub trait RecursiveFormulaTransformer {
             Formula::U { interval, left, right, parent_upper } => self.visit_until(formula, interval, left, right, parent_upper),
             Formula::R { interval, left, right, parent_upper } => self.visit_release(formula, interval, left, right, parent_upper),
             Formula::Imply { left, right, not_left } => self.visit_imply(formula, left, right, not_left),
-            Formula::Prop(_) => self.visit_leaf(formula),
+            Formula::Prop(expr) => self.visit_leaf(formula, expr),
         }
     }
 
@@ -55,7 +55,7 @@ pub trait RecursiveFormulaTransformer {
         formula.with_implication(self.visit(left), self.visit(right), self.visit(not_left))
     }
 
-    fn visit_leaf(&self, formula: &Formula) -> Formula {
+    fn visit_leaf(&self, formula: &Formula, _expr: &Expr) -> Formula {
         formula.clone()
     }
 }
@@ -77,7 +77,7 @@ impl RecursiveFormulaTransformer for NegationNormalFormTransformer {
             Formula::R { interval, left, right, parent_upper } => 
                 Formula::u(Interval { lower: 0, upper: interval.lower }, *parent_upper, self.visit(&Formula::not(*left.clone())), self.visit(&Formula::not(*right.clone()))),
             Formula::O(i) => Formula::o(self.visit(&Formula::not(*i.clone()))),
-            _ => formula.clone()
+            Formula::Prop(_) => formula.clone(),
         }
     }
 }
@@ -182,6 +182,13 @@ impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
 
     fn visit_release(&self, formula: &Formula, interval: &Interval, _left: &Formula, _right: &Formula, _parent_upper: &Option<i32>) -> Formula {
         formula.with_interval(interval.shift_left(self.0).unwrap())
+    }
+}
+
+pub struct DupeFormula;
+impl RecursiveFormulaTransformer for DupeFormula {
+    fn visit_leaf(&self, _formula: &Formula, expr: &Expr) -> Formula {
+        Formula::prop(Expr::from_expr(expr.kind.clone()))
     }
 }
 

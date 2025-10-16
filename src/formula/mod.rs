@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::fmt::{self, Display};
 use std::hash::{Hash};
 use std::sync::atomic::AtomicUsize;
@@ -6,7 +5,7 @@ use std::sync::Arc;
 
 use num_rational::Ratio;
 
-use crate::formula::transform::{RecursiveFormulaTransformer, NegationNormalFormTransformer};
+use crate::formula::transform::{DupeFormula, NegationNormalFormTransformer, RecursiveFormulaTransformer};
 
 pub mod parser;
 pub mod transform;
@@ -53,36 +52,10 @@ pub enum ExprKind {
     False
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Expr {
     pub id: usize,
     pub kind: ExprKind
-}
-
-impl PartialEq for Expr {
-    fn eq(&self, other: &Self) -> bool {
-        self.kind == other.kind
-    }
-}
-
-impl Eq for Expr {}
-
-impl std::hash::Hash for Expr {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.kind.hash(state);
-    }
-}
-
-impl PartialOrd for Expr {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.kind.partial_cmp(&other.kind)
-    }
-}
-
-impl Ord for Expr {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.kind.cmp(&other.kind)
-    }
 }
 
 impl Expr {
@@ -198,7 +171,7 @@ impl Formula {
         Formula::Imply {
             left: Box::new(left.clone()),
             right: Box::new(right),
-            not_left: Box::new(NegationNormalFormTransformer.visit(&Formula::not(left)))
+            not_left: Box::new(NegationNormalFormTransformer.visit(&Formula::not(DupeFormula.visit(&left))))
         }
     }
 
@@ -436,7 +409,7 @@ impl Display for ExprKind {
 
 impl Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}_{}", self.kind, self.id)
+        write!(f, "{} ~ {}", self.kind, self.id)
     }
 }
 

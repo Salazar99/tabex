@@ -39,6 +39,7 @@ impl Tableau {
         // Normalization Stage
         root.negative_normal_form_rewrite();
         root.flatten();
+        
         if !self.options.mltl {
             root.mltl_rewrite();
         }
