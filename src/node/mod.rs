@@ -23,6 +23,17 @@ impl Node {
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }
+
+    pub fn is_poised(&self) -> bool {
+        for formula in &self.operands {
+            match formula {
+                Formula::Prop(_) | Formula::Not(_) | Formula::O(_) => continue,
+                f if !f.is_active_at(self.current_time) => continue,
+                _ => return false
+            }
+        }
+        true
+    }
 }
 
 impl Clone for Node {
