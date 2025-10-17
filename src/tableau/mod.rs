@@ -256,7 +256,7 @@ impl Tableau {
 
                     let new_job = if depth >= self.options.max_depth {
                         None
-                    } else if child.current_time > node.current_time {
+                    } else if child.current_time == node.current_time {
                         Some(Job { node: child, depth: depth + 1, father_time: Some(node.current_time), solver: solver.clone() })
                     } else {
                         Some(Job { node: child, depth: depth + 1, father_time: Some(node.current_time), solver: solver.empty_solver() })
