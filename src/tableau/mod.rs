@@ -1,4 +1,4 @@
-use dot_graph::{Graph, Kind, Node as DotNode, Edge as DotEdge};
+use dot_graph::{Graph, Kind};
 
 use crate::node::Node;
 use crate::formula::parser::parse_formula;
@@ -14,6 +14,7 @@ pub mod config;
 pub mod solver;
 pub mod store;
 pub mod core;
+pub mod graph;
 
 pub struct Tableau {
     pub options: TableauOptions,
@@ -110,7 +111,7 @@ impl Tableau {
         
         let mut depth_reached = false;
         for child in children {
-            let implies_siblings = child.implies_siblings;
+            let implies_siblings = child.implies.is_some();
             let child_time = child.current_time;
             let rejected_node = RejectedNode::from_node(&child);
 
@@ -144,26 +145,5 @@ impl Tableau {
             return None;
         }
         return Some(false)
-    }
-
-    fn add_graph_node(&mut self, node: &Node) {
-        if let Some(graph) = &mut self.graph {
-            let mut dot_node = DotNode::new(format!("Node{}", node.id).as_str()).label(format!("{}", node.to_string()).as_str());
-            if node.implies_siblings {
-                dot_node = dot_node.style(dot_graph::Style::Filled).color(Some("lightgray"));
-            }
-            graph.add_node(dot_node);
-        }
-    }
-
-    fn add_graph_edge(&mut self, from: &Node, to: &Node) {
-        if let Some(graph) = &mut self.graph {
-            let edge = DotEdge::new(
-                format!("Node{}", from.id).as_str(),
-                format!("Node{}", to.id).as_str(),
-                ""
-            );
-            graph.add_edge(edge);
-        }
     }
 }

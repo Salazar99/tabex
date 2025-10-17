@@ -10,7 +10,7 @@ pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 pub struct Node {
     pub operands: Vec<Formula>,
     pub current_time: i32,
-    pub implies_siblings: bool,
+    pub implies: Option<Vec<usize>>,
     pub id: usize,
 }
 
@@ -19,7 +19,7 @@ impl Node {
         Self {
             operands,
             current_time: 0,
-            implies_siblings: false,
+            implies: None,
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }
@@ -30,7 +30,7 @@ impl Clone for Node {
         Self {
             operands: self.operands.clone(),
             current_time: self.current_time,
-            implies_siblings: false,
+            implies: None,
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }
