@@ -44,15 +44,16 @@ impl Tableau {
             root.mltl_rewrite();
         }
 
-        root.simplify();
+        // Formula Optimization Stage
+        if self.options.formula_simplifications {
+            root.simplify();
+        }
+
         root.flatten();
 
-        // Formula Optimization Stage
         if self.options.formula_optimizations {
             root.shift_bounds();
         }
-
-        root.id_tree();
         
         // Id Assignment Stage
         if let Some(core) = &mut self.unsat_core {

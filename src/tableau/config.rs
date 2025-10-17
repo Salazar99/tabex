@@ -10,6 +10,7 @@ pub struct TableauOptions {
     pub mltl: bool,
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
+    pub formula_simplifications: bool,
 }
 
 impl Default for TableauOptions {
@@ -23,7 +24,8 @@ impl Default for TableauOptions {
             jump_rule_enabled: true,
             mltl: false,
             smtlib_result: false,
-            unsat_core_extraction: false
+            unsat_core_extraction: false,
+            formula_simplifications: false,
         }
     }
 }
@@ -70,6 +72,10 @@ pub struct CliArgs {
     /// Enable unsat core extraction
     #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
     pub unsat_core_extraction: bool,
+
+    /// Enable formula syntactic simplifications
+    #[arg(long, default_value_t = TableauOptions::default().formula_simplifications)]
+    pub formula_simplifications: bool,
 }
 
 pub enum ConfigSource {
@@ -90,6 +96,7 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 mltl: args.mltl,
                 smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
+                formula_simplifications: args.formula_simplifications,
             };
             (options, args.formula_file)
         }
