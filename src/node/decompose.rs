@@ -286,7 +286,7 @@ impl Tableau {
             if !simple_operands.is_empty() && simple_operands.len() < new_node.operands.len(){
                 let mut simple_node = new_node.clone();
                 simple_node.operands = simple_operands;
-                simple_node.implies_siblings = true;
+                simple_node.implies = Some(vec![new_node.id]);
                 return Some(vec![simple_node, new_node])
             }
         }
