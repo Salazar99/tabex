@@ -21,26 +21,47 @@ if platform.system() == 'Darwin':
 else:
     time_bin = '/usr/bin/time'
 
-def get_tableau_args(args):
-    tableau_args = []
-    if args.no_jump:
-        tableau_args.append('--no-jump')
-    if args.no_formula_optimizations:
-        tableau_args.append('--no-formula-optimizations')
-    if args.no_children_order_optimizations:
-        tableau_args.append('--no-children-order-optimizations')
-    if args.no_early_local_consistency_check:
-        tableau_args.append('--no-early-local-consistency-check')
+def get_stlcc_args(args):
+    stlcc_args = []
     if args.no_memoization:
-        tableau_args.append('--no-memoization')
-    if args.no_simple_nodes:
-        tableau_args.append('--no-simple-nodes')
-    if args.no_g_f:
-        tableau_args.append('--no-g-f')
+        stlcc_args.append('--no-memoization')
+    if args.no_simple_first:
+        stlcc_args.append('--no-simple-first')
+    if args.no_formula_optimizations:
+        stlcc_args.append('--no-formula-optimizations')
+    if args.no_jump_rule:
+        stlcc_args.append('--no-jump-rule')
     if args.formula_simplifications:
-        tableau_args.append('--formula-simplifications')
+        stlcc_args.append('--formula-simplifications')
 
-    return tableau_args
+    return stlcc_args
+
+
+def get_stltree_args(args):
+    stltree_args = []
+    if args.fol:
+        stltree_args.append('--fol')
+    if args.smt:
+        stltree_args.append('--smt')
+    if args.mltl:
+        stltree_args.append('--mltl')
+    if args.no_jump:
+        stltree_args.append('--no-jump')
+    if args.no_formula_optimizations:
+        stltree_args.append('--no-formula-optimizations')
+    if args.no_children_order_optimizations:
+        stltree_args.append('--no-children-order-optimizations')
+    if args.no_early_local_consistency_check:
+        stltree_args.append('--no-early-local-consistency-check')
+    if args.no_memoization:
+        stltree_args.append('--no-memoization')
+    if args.no_simple_nodes:
+        stltree_args.append('--no-simple-nodes')
+    if args.no_g_f:
+        stltree_args.append('--no-g-f')
+
+    return stltree_args
+
 
 def caps_command(timeout, max_mem):
     if timeout > 0 or max_mem > 0:
@@ -63,9 +84,11 @@ def caps_command(timeout, max_mem):
 
 def bench_command(fname, args):
     match args.engine:
-        case 'tableau':
+        case 'stlcc':
             prog_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(), 'target/release/stlcc')
-            return [prog_path, '--smtlib-result', '--mltl'] + get_tableau_args(args) + [fname]
+            return [prog_path, '--smtlib-result'] + get_stlcc_args(args) + [fname]
+        case 'stltree':
+            return ['python3', args.stltree_path, '--smtlib-result'] + get_stltree_args(args) + [fname]
         case 'smt-quant':
             return ['bash', '-c', "'", args.translator_path, '-smtlib', f'"$(cat {fname})"', '|', args.z3_path, '-in', "'"]
     assert False
@@ -165,7 +188,7 @@ def pretty_print(results, csvfile):
             cw.writerows(results)
 
 
-if __name__ == '__main__':
+def make_arg_parser():
     argp = argparse.ArgumentParser()
     argp.add_argument('-i', '--iters', type=int, default=1, help='Number of executions for each benchmark')
     argp.add_argument('-j', '--jobs', type=int, default=1, help='Maximum number of benchmarks to execute in parallel')
@@ -174,24 +197,39 @@ if __name__ == '__main__':
     argp.add_argument('-v', '--verbose', action='count', default=0, help='Show individual benchmark results')
     argp.add_argument('--csv', type=str, default='', help='Output result in CSV format in the specified file')
     argp.add_argument('-b', '--base-path', type=str, default=None, help='Base path for benchmark files')
-    argp.add_argument('--formula-simplifications', action='store_true', help='Enable formula simplifications in tableau.')
-    argp.add_argument('--no-jump', action='store_true', help='Disable jump rule in tableau.')
-    argp.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
-    argp.add_argument('--no-children-order-optimizations', action='store_true', help='Disable children order optimizations in tableau.')
-    argp.add_argument('--no-early-local-consistency-check', action='store_true', help='Perform local consistency checks on poised tableau nodes only.')
-    argp.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
-    argp.add_argument('--no-simple-nodes', action='store_true', help='Disable simple nodes optimization in tableau.')
-    argp.add_argument('--no-g-f', action='store_true', help='Do not use special rules for G and F in the tableau.')
     argp.add_argument('benchmarks', type=str, help='File containing a list of banchmark files, one per line')
     subparsers = argp.add_subparsers(required=True, dest='engine')
 
-    tableau_p = subparsers.add_parser('tableau', help='Use the tree-shaped tableau')
+    stlcc_p = subparsers.add_parser('stlcc', help='Use the Rust implementation of the tree-shaped tableau (stlcc)')
+    stlcc_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
+    stlcc_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
+    stlcc_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
+    stlcc_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
+    stlcc_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
+    stlcc_p.add_argument('--formula-simplifications', action='store_true', help='Enable syntactic formula simplifications in tableau.')
+
+    stltree_p = subparsers.add_parser('stltree', help='Use the Python implementation of the tree-shaped tableau (stltree)')
+    stltree_p.add_argument('stltree_path', type=str)
+    stltree_p.add_argument('--fol', action='store_true', help='Use FOL satisfiability checker instead of tree-based tableau')
+    stltree_p.add_argument('--smt', action='store_true', help='Use SMT-based bounded satisfiability checker instead of tree-based tableau')
+    stltree_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
+    stltree_p.add_argument('--no-jump', action='store_true', help='Disable jump rule in tableau.')
+    stltree_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
+    stltree_p.add_argument('--no-children-order-optimizations', action='store_true', help='Disable children order optimizations in tableau.')
+    stltree_p.add_argument('--no-early-local-consistency-check', action='store_true', help='Perform local consistency checks on poised tableau nodes only.')
+    stltree_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
+    stltree_p.add_argument('--no-simple-nodes', action='store_true', help='Disable simple nodes optimization in tableau.')
+    stltree_p.add_argument('--no-g-f', action='store_true', help='Do not use special rules for G and F in the tableau.')
     
     smt_quant_p = subparsers.add_parser('smt-quant', help='Use the SMT encoding with quantifiers and ILP')
     smt_quant_p.add_argument('translator_path', type=str)
     smt_quant_p.add_argument('z3_path', type=str, default='z3', nargs='?')
 
-    args = argp.parse_args()
+    return argp
+
+
+if __name__ == '__main__':
+    args = make_arg_parser().parse_args()
 
     print('Running benchmarks...')
     results = exec_all(expand_files(args.benchmarks, args.base_path), args)
