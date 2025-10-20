@@ -548,12 +548,12 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         // 2. constant folding: left side simplifications
         if let Formula::Prop(e) = &new_left {
             match e.kind {
-                // true U[a,b](φ) = F[a,b](φ)
+                // true U[a,b](f) = F[a,b](f)
                 ExprKind::True => {
                     return self.visit(&Formula::f(interval.clone(), *parent_upper, new_right));
                 }
 
-                // false U[a,b](φ) = F[a,a](φ)
+                // false U[a,b](f) = F[a,a](f)
                 ExprKind::False => {
                     let reduced = Interval { 
                         lower: interval.lower, 
@@ -569,9 +569,9 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         // 3. constant folding: right side simplifications
         if let Formula::Prop(e) = &new_right {
             match e.kind {
-                // φ U[a,b](true) = true
+                // f U[a,b](true) = true
                 ExprKind::True => return Formula::prop(Expr::true_expr()),
-                // φ U[a,b](false) = false
+                // f U[a,b](false) = false
                 ExprKind::False => return Formula::prop(Expr::false_expr()),
                 _ => {}
             }
@@ -612,12 +612,10 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         // constant folding on right operand
         if let Formula::Prop(e) = &new_right {
             match e.kind {
-                // φ R[a,b](true) = true
+                // f R[a,b](true) = true
                 ExprKind::True => return Formula::prop(Expr::true_expr()),
-                // φ R[a,b](false) = G[a,b](φ)
-                ExprKind::False => {
-                    return self.visit(&Formula::g(interval.clone(), *parent_upper, new_left));
-                }
+                // f R[a,b](false) = false
+                ExprKind::False => return Formula::prop(Expr::false_expr()),
                 _ => {}
             }
         }
@@ -625,10 +623,10 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         // constant folding on left operand
         if let Formula::Prop(e) = &new_left {
             match e.kind {
-                // true R[a,b](ψ) = true
-                ExprKind::True => return Formula::prop(Expr::true_expr()),
-                // false R[a,b](ψ) = ψ
-                ExprKind::False => return new_right,
+                // true R[a,b](f) = F[a,a] f
+                ExprKind::True => return self.visit(&Formula::f(Interval { lower: interval.lower, upper: interval.lower }, *parent_upper, new_right)),
+                // false R[a,b](f) = G[a,b] f
+                ExprKind::False => return self.visit(&Formula::g(interval.clone(), *parent_upper, new_right)),
                 _ => {}
             }
         }
