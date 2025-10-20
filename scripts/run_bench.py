@@ -37,6 +37,8 @@ def get_tableau_args(args):
         tableau_args.append('--no-simple-nodes')
     if args.no_g_f:
         tableau_args.append('--no-g-f')
+    if args.formula_simplifications:
+        tableau_args.append('--formula-simplifications')
 
     return tableau_args
 
@@ -172,6 +174,7 @@ if __name__ == '__main__':
     argp.add_argument('-v', '--verbose', action='count', default=0, help='Show individual benchmark results')
     argp.add_argument('--csv', type=str, default='', help='Output result in CSV format in the specified file')
     argp.add_argument('-b', '--base-path', type=str, default=None, help='Base path for benchmark files')
+    argp.add_argument('--formula-simplifications', action='store_true', help='Enable formula simplifications in tableau.')
     argp.add_argument('--no-jump', action='store_true', help='Disable jump rule in tableau.')
     argp.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
     argp.add_argument('--no-children-order-optimizations', action='store_true', help='Disable children order optimizations in tableau.')
