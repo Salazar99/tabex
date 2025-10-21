@@ -128,5 +128,5 @@ fn test_depth_reached() {
         ..Default::default()
     };
     let mut tableau = Tableau::new(options);
-    assert_eq!(tableau.make_tableau_from_str("G[0,1000] F[0, 100] a"), None);
+    assert_eq!(tableau.make_tableau_from_str("(G[0,1000] F[0, 100] a) || (a && !a)"), None);
 }
