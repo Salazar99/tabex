@@ -81,6 +81,10 @@ impl Expr {
     pub fn false_expr() -> Self {
         Expr::from_expr(ExprKind::False)
     }
+
+    pub fn eq_kind(&self, other: &Self) -> bool {
+        self.kind == other.kind
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -361,6 +365,32 @@ impl Formula {
             Formula::G { phi, .. } | Formula::F { phi, .. } => phi.is_flat(),
             Formula::U { left, right, .. } | Formula::R { left, right, .. } => left.is_flat() && right.is_flat(),
             _ => true,
+        }
+    }
+
+    pub fn eq_structural(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Formula::Prop(a), Formula::Prop(b)) => a.eq_kind(b),
+            (Formula::And(a), Formula::And(b)) => a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.eq_structural(y)),
+            (Formula::Or(a), Formula::Or(b)) => a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.eq_structural(y)),
+            (Formula::Not(a), Formula::Not(b)) => a.eq_structural(b),
+            (Formula::Imply { left: al, right: ar, not_left: anl }, Formula::Imply { left: bl, right: br, not_left: bnl }) => {
+                al.eq_structural(bl) && ar.eq_structural(br) && anl.eq_structural(bnl)
+            }
+            (Formula::G { interval: ai, phi: ap, .. }, Formula::G { interval: bi, phi: bp, .. }) => {
+                ai == bi && ap.eq_structural(bp)
+            }
+            (Formula::F { interval: ai, phi: ap, .. }, Formula::F { interval: bi, phi: bp, .. }) => {
+                ai == bi && ap.eq_structural(bp)
+            }
+            (Formula::U { interval: ai, left: al, right: ar, .. }, Formula::U { interval: bi, left: bl, right: br, .. }) => {
+                ai == bi && al.eq_structural(bl) && ar.eq_structural(br)
+            }
+            (Formula::R { interval: ai, left: al, right: ar, .. }, Formula::R { interval: bi, left: bl, right: br, .. }) => {
+                ai == bi && al.eq_structural(bl) && ar.eq_structural(br)
+            }
+            (Formula::O(a), Formula::O(b)) => a.eq_structural(b),
+            _ => false,
         }
     }
 }
