@@ -82,13 +82,18 @@ impl Tableau {
     pub fn make_tableau_from_root(&mut self, mut root: Node) -> Option<bool> {
         // Normalization Stage
         root.negative_normal_form_rewrite();
-        root.flatten();
-        
+
         if !self.options.mltl {
             root.mltl_rewrite();
         }
 
         // Formula Optimization Stage
+        if self.options.formula_simplifications {
+            root.simplify();
+        }
+
+        root.flatten();
+
         if self.options.formula_optimizations {
             root.shift_bounds();
         }
