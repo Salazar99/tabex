@@ -33,7 +33,6 @@ impl std::hash::Hash for Assertion {
     }
 }
 
-#[derive(Clone)]
 pub struct Solver {
     unsat_core_extraction: bool,
 
@@ -131,7 +130,6 @@ impl Solver {
 
 }
 
-#[derive(Clone)]
 struct BooleanSolver {
     pos_props: HashMap<Arc<str>, usize>,
     neg_props: HashMap<Arc<str>, usize>,
@@ -220,7 +218,6 @@ impl BooleanSolver {
     }
 }
 
-#[derive(Clone)]
 struct RealSolver {    
     z3_solver: Z3Solver,
     z3_variables: BTreeMap<String, Real>,

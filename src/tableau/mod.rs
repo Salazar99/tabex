@@ -1,4 +1,6 @@
-use std::collections::{HashSet, VecDeque};
+use std::cell::RefCell;
+use std::collections::{VecDeque};
+use std::rc::Rc;
 
 use dot_graph::{Graph, Kind};
 
@@ -25,106 +27,12 @@ pub struct Tableau {
     pub unsat_core: Option<UnsatCore>
 }
 
-struct Job {
+struct Frame {
     node: Node,
+    children: VecDeque<Node>,
     depth: usize,
-    father_time: Option<i32>,
-    solver: Solver
-}
-
-struct SimpleFirstPool {
-    expandable: HashSet<usize>,
-    implied: HashSet<usize>
-}
-
-impl SimpleFirstPool {
-    fn from_implied(id: usize, implied: Vec<usize>) -> Self {
-        SimpleFirstPool { expandable: HashSet::from_iter(vec![id]), implied: implied.into_iter().collect()}
-    }
-
-    fn pop(&mut self, id: usize) -> Option<HashSet<usize>> {
-        self.expandable.remove(&id);
-        if self.expandable.is_empty() {
-            Some(self.implied.clone())
-        } else {
-            None
-        }
-    }
-
-    fn contains(&self, id: usize) -> bool {
-        self.expandable.contains(&id)
-    }
-}
-
-struct Worker {
-    stack: VecDeque<Job>,
-    pools: Vec<SimpleFirstPool>,
-    excluded_nodes: HashSet<usize>
-}
-
-impl Worker {
-    fn pop_true(&mut self, id: usize) -> bool {
-        let mut to_remove = vec![];
-        for (i, pool) in self.pools.iter_mut().enumerate() {
-            if pool.contains(id) {
-                to_remove.push(i);
-            }
-        }
-
-        if to_remove.is_empty() {
-            return false;
-        }
-
-        for i in to_remove.into_iter().rev() {
-            self.pools[i].pop(id);
-            if self.pools[i].expandable.is_empty() {
-                self.pools.remove(i);
-            }
-        }
-        return true;
-    }
-
-    fn pop_false(&mut self, id: usize) -> Option<Vec<HashSet<usize>>>{
-        let mut to_remove = vec![];
-        let mut res = vec![];
-        for (i, pool) in self.pools.iter_mut().enumerate() {
-            if pool.contains(id) {
-                if let Some(implied) = pool.pop(id) {
-                    res.push(implied);
-                    to_remove.push(i);
-                }
-            }
-        }
-
-        if to_remove.is_empty() {
-            return None;
-        }
-        for i in to_remove.into_iter().rev() {
-            self.pools.remove(i);
-        }
-        Some(res)
-    }
-
-    fn remove_id_from_pools(&mut self, id: usize) {
-        for pool in self.pools.iter_mut() {
-            pool.expandable.remove(&id);
-        }
-    }
-
-    fn new_pool(&mut self, id: usize, implies: Option<Vec<usize>>) {
-        if let Some(implied) = implies {
-            self.pools.push(SimpleFirstPool::from_implied(id, implied));
-        }
-    }
-
-    fn get_pool(&mut self, id: usize) -> Option<&mut SimpleFirstPool> {
-        for pool in self.pools.iter_mut() {
-            if pool.contains(id) {
-                return Some(pool);
-            }
-        }
-        None
-    }
+    solver: Rc<RefCell<Solver>>,
+    result: Option<bool>,
 }
 
 impl Tableau {
@@ -179,106 +87,146 @@ impl Tableau {
         // Solving Stage
         self.add_graph_node(&root);
 
-        let mut worker = Worker {
-            stack: VecDeque::new(),
-            pools: Vec::new(),
-            excluded_nodes: HashSet::new()
-        };
-
-        let solver = Solver::new(self.options.unsat_core_extraction, self.options.mltl);
-        worker.stack.push_front(Job { node: root, depth: 0, father_time: None, solver: solver });
-
-        while let Some(job) = worker.stack.pop_front() {
-            let father_time = job.father_time;
-            let node_time = job.node.current_time;
-            let node_id = job.node.id;
-            let rejected_node = RejectedNode::from_node(&job.node);
-
-            worker.new_pool(node_id, job.node.implies.clone());
-            match self.process_job(job, &mut worker) {
-                Some(true) => {
-                    if !worker.pop_true(node_id) {
-                        return Some(true)
-                    }
-                },
-                Some(false) => {
-                    if let (Some(father_time), Some(store)) = (father_time, &mut self.store) && node_time > father_time {
-                        store.add_rejected(rejected_node);
-                    }
-                    if let Some(to_exclude) = worker.pop_false(node_id) {
-                        for v in to_exclude {
-                            worker.excluded_nodes.extend(v);
-                        }
-                    }
-                },
-                None => {},
-            }
+        let mut solver = Solver::new(self.options.unsat_core_extraction, self.options.mltl);
+        solver.push();
+        
+        if !solver.check(&root) {
+            return Some(false)
         }
 
+        let children = match self.decompose(&root) {
+            None => { return Some(true); }
+            Some(c) => {
+                for child in c.iter() {
+                    self.add_graph_node(&child);
+                    self.add_graph_edge(&root, &child);
+                }
+                c
+            },
+        };
+        
+        let mut stack = VecDeque::new();
+        
+        stack.push_front(Frame { node: root, children: children.into(), depth: 0, solver: Rc::new(RefCell::new(solver)), result: None });
+
+        while let Some(mut job) = stack.pop_front() {
+            match job.children.pop_front() {
+                None => {
+                    if let Some(parent) = stack.front_mut() {
+                        parent.solver.borrow_mut().pop();
+                        match job.result {
+                            Some(true) => {
+                                if job.node.implies.is_none() {
+                                    parent.result = Some(true);
+                                    parent.children.drain(..);
+                                }
+                            }
+                            Some(false) => { 
+                                parent.result = Some(false);
+                                if job.node.implies.is_some() {
+                                    parent.children.drain(..);
+                                }
+                                if parent.node.current_time < job.node.current_time && let Some(store) = &mut self.store {
+                                    let rejected_node = RejectedNode::from_node(&job.node);
+                                    store.add_rejected(rejected_node);
+                                }
+                            }
+                            None => { parent.result = None }
+                        }
+                    } else {
+                        return job.result;
+                    }
+                }
+                Some(child ) => {
+                    let implies = child.implies.is_some();
+
+                    job.solver.borrow_mut().push();
+                    let res = self.process_job(child, job.node.current_time, &mut job.solver, job.depth);
+
+                    match res.0 {
+                        Some(true) => {
+                            if !implies {
+                                job.children.drain(..);
+                                job.result = Some(true);
+                            }
+                        }
+                        Some(false) => {
+                            job.result = Some(false);
+                            if job.node.implies.is_some() {
+                                job.children.drain(..);
+                            }
+                        }
+                        None => {
+                            if res.1.is_none() {
+                                job.result = None;
+                            }
+                        }
+                    }
+                    
+                    stack.push_front(job);
+                    if let Some(new_job) = res.1 {
+                        stack.push_front(new_job);
+                    }
+                }
+            }
+        }
         Some(false)
     }
 
-    fn process_job(&mut self, job: Job, worker: &mut Worker) -> Option<bool> {
-        let Job { node, depth, father_time, mut solver } = job;
 
-        if worker.excluded_nodes.remove(&node.id) {
-            return Some(false);
+    fn process_job(&mut self, node: Node, parent_time: i32, solver: &mut Rc<RefCell<Solver>>, depth: usize) -> (Option<bool>, Option<Frame>) {
+        if depth >= self.options.max_depth {
+            solver.borrow_mut().pop();
+            return (None, None);
         }
 
-        if !solver.check(&node) {
+        if !solver.borrow_mut().check(&node) {
             if let Some(core) = &mut self.unsat_core {
-                if let Some(new_core) = solver.extract_unsat_core() {
+                if let Some(new_core) = solver.borrow_mut().extract_unsat_core() {
                     core.add_to_unsat_core(new_core);
                 }
             }
-            return Some(false);
+            solver.borrow_mut().pop();
+            return (Some(false), None);
         } 
 
-        if let (Some(father_time), Some(store)) = (father_time, &mut self.store) && father_time < node.current_time {
+        if let Some(store) = &mut self.store && parent_time < node.current_time {
             let rejected_node = RejectedNode::from_node(&node);
             if store.check_rejected(&rejected_node) {
-                return Some(false);
+                solver.borrow_mut().pop();
+                return (Some(false), None);
             }
         }
 
         let new_nodes = self.decompose(&node);
         match new_nodes {
-            None => return Some(true),
-            Some(mut children) => {
+            None => {
+                solver.borrow_mut().pop();
+                return (Some(true), None)
+            }
+            Some(children) => {
                 for child in children.iter() {
                     self.add_graph_node(&child);
                     self.add_graph_edge(&node, &child);
                 }
 
-                children.reverse();
-                for child in children {
-                    let child_id = child.id;
+                let solver_ref = if parent_time < node.current_time {
+                    Rc::new(RefCell::new(solver.borrow().empty_solver())) 
+                } else {
+                    solver.clone()
+                };
 
-                    let new_job = if depth >= self.options.max_depth {
-                        None
-                    } else if child.current_time == node.current_time {
-                        Some(Job { node: child, depth: depth + 1, father_time: Some(node.current_time), solver: solver.clone() })
-                    } else {
-                        Some(Job { node: child, depth: depth + 1, father_time: Some(node.current_time), solver: solver.empty_solver() })
-                    };
-
-                    match new_job {
-                        Some(job) => {
-                            worker.stack.push_front(job);
-                            match worker.get_pool(node.id) {
-                                Some(pool) => {
-                                    pool.expandable.insert(child_id);
-                                },
-                                None => {}
-                            }
-                        },
-                        _ => {}
-                    }
-                }
-                worker.remove_id_from_pools(node.id);
+                let job = Frame {
+                    node: node,
+                    children: children.into(),
+                    depth: depth + 1,
+                    solver: solver_ref,
+                    result: None
+                };
+                return (None, Some(job))
             }
         }
-        None
+
     }
 
 }
