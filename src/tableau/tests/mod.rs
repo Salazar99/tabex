@@ -120,3 +120,13 @@ fn test_until_mltl() {
 fn test_gfg() {
     assert_eq!(make_test("G[5, 10] F[8, 10] a && G[16, 17] !a", false), Some(true));
 }
+
+#[test]
+fn test_depth_reached() {
+    let options = TableauOptions {
+        max_depth: 10,
+        ..Default::default()
+    };
+    let mut tableau = Tableau::new(options);
+    assert_eq!(tableau.make_tableau_from_str("(G[0,1000] F[0, 100] a) || (a && !a)"), None);
+}
