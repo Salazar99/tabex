@@ -34,6 +34,13 @@ enum FrameResult {
     Undefined
 }
 
+enum JobOutcome {
+    Sat,
+    Unsat,
+    Undefined,
+    Decomposed(Frame),
+}
+
 struct Frame {
     node: Node,
     children: VecDeque<Node>,
@@ -163,18 +170,16 @@ impl Tableau {
                     job.solver.borrow_mut().push();
                     let res = self.process_job(child, job.node.current_time, &mut job.solver, job.depth);
 
-                    match res.0 {
-                        Some(true) if !implies => {
+                    match res {
+                        JobOutcome::Sat if !implies => {
                             job.children.drain(..);
                             job.result = Some(FrameResult::Sat);
                         }
-                        None => {
+                        JobOutcome::Undefined => {
                             job.result = Some(FrameResult::Undefined);
-                            if res.1.is_none() {
-                                any_undefined = true;
-                            }
+                            any_undefined = true;
                         }
-                        Some(false) => {
+                        JobOutcome::Unsat => {
                             job.result = Some(FrameResult::Unsat);
                             if job.node.implies.is_some() {
                                 job.children.drain(..);
@@ -184,7 +189,7 @@ impl Tableau {
                     }
                     
                     stack.push_front(job);
-                    if let Some(new_job) = res.1 {
+                    if let JobOutcome::Decomposed(new_job) = res {
                         stack.push_front(new_job);
                     }
                 }
@@ -194,10 +199,10 @@ impl Tableau {
     }
 
 
-    fn process_job(&mut self, node: Node, parent_time: i32, solver: &mut Rc<RefCell<Solver>>, depth: usize) -> (Option<bool>, Option<Frame>) {
+    fn process_job(&mut self, node: Node, parent_time: i32, solver: &mut Rc<RefCell<Solver>>, depth: usize) -> JobOutcome {
         if depth >= self.options.max_depth {
             solver.borrow_mut().pop();
-            return (None, None);
+            return JobOutcome::Undefined;
         }
 
         if !solver.borrow_mut().check(&node) {
@@ -207,14 +212,14 @@ impl Tableau {
                 }
             }
             solver.borrow_mut().pop();
-            return (Some(false), None);
+            return JobOutcome::Unsat;
         } 
 
         if let Some(store) = &mut self.store && parent_time < node.current_time {
             let rejected_node = RejectedNode::from_node(&node);
             if store.check_rejected(&rejected_node) {
                 solver.borrow_mut().pop();
-                return (Some(false), None);
+                return JobOutcome::Unsat;
             }
         }
 
@@ -222,7 +227,7 @@ impl Tableau {
         match new_nodes {
             None => {
                 solver.borrow_mut().pop();
-                return (Some(true), None)
+                return JobOutcome::Sat;
             }
             Some(children) => {
                 for child in children.iter() {
@@ -243,7 +248,7 @@ impl Tableau {
                     solver: solver_ref,
                     result: None,
                 };
-                return (None, Some(job))
+                return JobOutcome::Decomposed(job);
             }
         }
 
