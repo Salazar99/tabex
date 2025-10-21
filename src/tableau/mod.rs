@@ -27,12 +27,19 @@ pub struct Tableau {
     pub unsat_core: Option<UnsatCore>
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum FrameResult {
+    Sat,
+    Unsat,
+    Undefined
+}
+
 struct Frame {
     node: Node,
     children: VecDeque<Node>,
     depth: usize,
     solver: Rc<RefCell<Solver>>,
-    result: Option<bool>,
+    result: Option<FrameResult>,
 }
 
 impl Tableau {
@@ -106,7 +113,7 @@ impl Tableau {
         };
         
         let mut stack = VecDeque::new();
-        
+        let mut any_undefined = false;
         stack.push_front(Frame { node: root, children: children.into(), depth: 0, solver: Rc::new(RefCell::new(solver)), result: None });
 
         while let Some(mut job) = stack.pop_front() {
@@ -115,14 +122,14 @@ impl Tableau {
                     if let Some(parent) = stack.front_mut() {
                         parent.solver.borrow_mut().pop();
                         match job.result {
-                            Some(true) => {
+                            Some(FrameResult::Sat) => {
                                 if job.node.implies.is_none() {
-                                    parent.result = Some(true);
+                                    parent.result = Some(FrameResult::Sat);
                                     parent.children.drain(..);
                                 }
                             }
-                            Some(false) => { 
-                                parent.result = Some(false);
+                            Some(FrameResult::Unsat) => { 
+                                parent.result = Some(FrameResult::Unsat);
                                 if job.node.implies.is_some() {
                                     parent.children.drain(..);
                                 }
@@ -131,10 +138,23 @@ impl Tableau {
                                     store.add_rejected(rejected_node);
                                 }
                             }
-                            None => { parent.result = None }
+                            Some(FrameResult::Undefined) => { 
+                                parent.result = Some(FrameResult::Undefined);
+                                any_undefined = true;
+                            }
+                            None => {
+                                panic!()
+                            }
                         }
                     } else {
-                        return job.result;
+                        return match job.result {
+                            Some(FrameResult::Sat) => Some(true),
+                            Some(FrameResult::Unsat) => {
+                                if any_undefined { None } else { Some(false) }
+                            }
+                            Some(FrameResult::Undefined) => None,
+                            None => panic!(),
+                        };
                     }
                 }
                 Some(child ) => {
@@ -144,23 +164,23 @@ impl Tableau {
                     let res = self.process_job(child, job.node.current_time, &mut job.solver, job.depth);
 
                     match res.0 {
-                        Some(true) => {
-                            if !implies {
-                                job.children.drain(..);
-                                job.result = Some(true);
+                        Some(true) if !implies => {
+                            job.children.drain(..);
+                            job.result = Some(FrameResult::Sat);
+                        }
+                        None => {
+                            job.result = Some(FrameResult::Undefined);
+                            if res.1.is_none() {
+                                any_undefined = true;
                             }
                         }
                         Some(false) => {
-                            job.result = Some(false);
+                            job.result = Some(FrameResult::Unsat);
                             if job.node.implies.is_some() {
                                 job.children.drain(..);
                             }
                         }
-                        None => {
-                            if res.1.is_none() {
-                                job.result = None;
-                            }
-                        }
+                        _ => {}
                     }
                     
                     stack.push_front(job);
@@ -170,7 +190,7 @@ impl Tableau {
                 }
             }
         }
-        Some(false)
+        None
     }
 
 
@@ -221,7 +241,7 @@ impl Tableau {
                     children: children.into(),
                     depth: depth + 1,
                     solver: solver_ref,
-                    result: None
+                    result: None,
                 };
                 return (None, Some(job))
             }
