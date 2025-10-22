@@ -11,6 +11,7 @@ pub struct TableauOptions {
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
     pub formula_simplifications: bool,
+    pub smt: bool
 }
 
 impl Default for TableauOptions {
@@ -26,6 +27,7 @@ impl Default for TableauOptions {
             smtlib_result: false,
             unsat_core_extraction: false,
             formula_simplifications: false,
+            smt: false
         }
     }
 }
@@ -76,6 +78,10 @@ pub struct CliArgs {
     /// Enable formula syntactic simplifications
     #[arg(long, default_value_t = TableauOptions::default().formula_simplifications)]
     pub formula_simplifications: bool,
+
+    /// Enable SMT solving
+    #[arg(long, default_value_t = TableauOptions::default().smt)]
+    pub smt: bool,
 }
 
 pub enum ConfigSource {
@@ -97,6 +103,7 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
                 formula_simplifications: args.formula_simplifications,
+                smt: args.smt
             };
             (options, args.formula_file)
         }

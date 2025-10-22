@@ -346,7 +346,7 @@ impl RealSolver {
             RelOp::Gt => l.gt(&r),
             RelOp::Ge => l.ge(&r),
             RelOp::Eq => l.eq(&r),
-            RelOp::Ne => l.eq(&r).not(),
+            RelOp::Ne => l.ne(&r),
         };
         if negated { b.not() } else { b }
     }
