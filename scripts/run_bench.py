@@ -23,6 +23,8 @@ else:
 
 def get_stlcc_args(args):
     stlcc_args = []
+    if args.mltl:
+        stlcc_args.append('--mltl')
     if args.no_memoization:
         stlcc_args.append('--no-memoization')
     if args.no_simple_first:
