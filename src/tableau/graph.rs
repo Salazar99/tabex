@@ -13,7 +13,7 @@ impl Tableau {
         }
     }
 
-    pub(crate)  fn add_graph_edge(&mut self, from: &Node, to: &Node) {
+    pub(crate) fn add_graph_edge(&mut self, from: &Node, to: &Node) {
         if let Some(graph) = &mut self.graph {
             let edge = DotEdge::new(
                 format!("Node{}", from.id).as_str(),
@@ -21,6 +21,13 @@ impl Tableau {
                 ""
             );
             graph.add_edge(edge);
+        }
+    }
+
+    pub(crate) fn add_graph_children(&mut self, parent: &Node, children: &[Node]) {
+        for child in children {
+            self.add_graph_node(child);
+            self.add_graph_edge(parent, child);
         }
     }
 }
