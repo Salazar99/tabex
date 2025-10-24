@@ -23,6 +23,14 @@ impl Node {
             id: NODE_ID.fetch_add(1, Ordering::Relaxed),
         }
     }
+
+    pub fn to_formula(&self) -> Formula {
+        if self.operands.len() == 1 {
+            self.operands[0].clone()
+        } else {
+            Formula::And(self.operands.clone())
+        }
+    }
 }
 
 impl Clone for Node {

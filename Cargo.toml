@@ -2,6 +2,7 @@
 name = "stlcc"
 version = "0.1.0"
 edition = "2024"
+default-run = "stlcc"
 
 [lib]
 name = "stlcc"
@@ -10,6 +11,10 @@ path = "src/lib.rs"
 [[bin]]
 name = "stlcc"
 path = "src/main.rs"
+
+[[bin]]
+name = "scanner"
+path = "src/scanner.rs"
 
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }

@@ -198,12 +198,12 @@ impl Formula {
         self.boolean_constraints() + self.real_constraints()
     }
 
-    pub fn disjunction_max_width(&self) -> usize {
+    pub fn disjunction_max_width(&self) -> i32 {
         debug_assert!(self.is_flat());
         match self {
             Formula::Or(ops) => {
                 let inner = ops.iter().map(|f| f.disjunction_max_width()).max().unwrap_or(0);
-                ops.len().max(inner)
+                (ops.len() as i32).max(inner)
             }
             Formula::And(ops) => ops.iter().map(|f| f.disjunction_max_width()).max().unwrap_or(0),
             Formula::Not(f) => f.disjunction_max_width(),
@@ -217,12 +217,12 @@ impl Formula {
         }
     }
 
-    pub fn disjunction_total_width(&self) -> usize {
+    pub fn disjunction_total_width(&self) -> i32 {
         debug_assert!(self.is_flat());
         match self {
             Formula::Or(ops) => {
-                let inner_sum: usize = ops.iter().map(|f| f.disjunction_total_width()).sum();
-                ops.len() + inner_sum
+                let inner_sum: i32 = ops.iter().map(|f| f.disjunction_total_width()).sum();
+                (ops.len() as i32) + inner_sum
             }
             Formula::And(ops) => ops.iter().map(|f| f.disjunction_total_width()).sum(),
             Formula::Not(f) => f.disjunction_total_width(),
@@ -236,7 +236,7 @@ impl Formula {
         }
     }
 
-    pub fn combinatorial_branching_count(&self) -> i32 {
+    pub fn combinatorial_branching_count(&self) -> i64 {
         debug_assert!(self.is_flat());
         match self {
             Formula::Or(ops) => {
