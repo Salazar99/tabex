@@ -27,7 +27,7 @@ pub struct Tableau {
     pub unsat_core: Option<UnsatCore>
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy)]
 enum JobState {
     Sat,
     Unsat,
@@ -117,14 +117,25 @@ impl Tableau {
     }
 
     fn tableau_loop(&mut self, root: Node, children: Vec<Node>, solver: Solver) -> Option<bool> {
+        fn merge_results(previous: Option<JobState>, current: JobState, implies: bool) -> Option<JobState> {
+            match (previous, current) {
+                (prev, JobState::Sat) => if !implies { Some(JobState::Sat) } else { prev },
+
+                (Some(JobState::Sat), JobState::Undefined) => Some(JobState::Sat),
+                (_, JobState::Undefined) => Some(JobState::Undefined),
+
+                (Some(JobState::Sat), JobState::Unsat) => Some(JobState::Sat),
+                (Some(JobState::Undefined), JobState::Unsat) => Some(JobState::Undefined),
+                (_, JobState::Unsat) => Some(JobState::Unsat),
+            }
+        }
+
         let mut stack = VecDeque::new();
         stack.push_front(Frame { node: root, children: children.into(), depth: 0, solver: Rc::new(RefCell::new(solver)), result: None });
 
         while let Some(mut job) = stack.pop_front() {
-            
             // Case 1: no more children — finalize frame
             let Some(child) = job.children.pop_front() else {
-
                 // Case 1.1: no parent — done
                 let Some(parent) = stack.front_mut() else {
                     return match job.result {
@@ -134,10 +145,9 @@ impl Tableau {
                         None => panic!(),
                     };
                 };
-
+                
                 // Case 1.2: has parent — propagate result
                 parent.solver.borrow_mut().pop();
-
                 let res = job.result.expect("Job result should be set");
                 let implies = job.node.implies.is_some();
                 parent.result = merge_results(parent.result, res, implies);
@@ -181,6 +191,7 @@ impl Tableau {
                         }
                         _ => {}
                     }
+                    job.solver.borrow_mut().pop();
                     stack.push_front(job);
                 }
                 // Case 2.2: child needs decomposition — push both jobs in order
@@ -195,7 +206,6 @@ impl Tableau {
 
     fn process_job(&mut self, node: Node, parent_time: i32, solver: &mut Rc<RefCell<Solver>>, depth: usize) -> JobOutcome {
         if depth >= self.options.max_depth {
-            solver.borrow_mut().pop();
             return JobOutcome::Final(JobState::Undefined);
         }
 
@@ -205,20 +215,17 @@ impl Tableau {
                     core.add_to_unsat_core(new_core);
                 }
             }
-            solver.borrow_mut().pop();
             return JobOutcome::Final(JobState::Unsat);
         } 
 
         if let Some(store) = &mut self.store && parent_time < node.current_time {
             let rejected_node = RejectedNode::from_node(&node);
             if store.check_rejected(&rejected_node) {
-                solver.borrow_mut().pop();
                 return JobOutcome::Final(JobState::Unsat);
             }
         }
 
         let Some(children) = self.decompose(&node) else {
-            solver.borrow_mut().pop();
             return JobOutcome::Final(JobState::Sat);
         };
 
@@ -238,18 +245,5 @@ impl Tableau {
             result: None,
         };
         return JobOutcome::Decomposed(job);
-    }
-}
-
-fn merge_results(previous: Option<JobState>, current: JobState, implies: bool) -> Option<JobState> {
-    match (previous, current) {
-        (prev, JobState::Sat) => if !implies { Some(JobState::Sat) } else { prev },
-
-        (Some(JobState::Sat), JobState::Undefined) => Some(JobState::Sat),
-        (_, JobState::Undefined) => Some(JobState::Undefined),
-
-        (Some(JobState::Sat), JobState::Unsat) => Some(JobState::Sat),
-        (Some(JobState::Undefined), JobState::Unsat) => Some(JobState::Undefined),
-        (_, JobState::Unsat) => Some(JobState::Unsat),
     }
 }
