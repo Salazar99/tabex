@@ -129,6 +129,7 @@ impl Solver {
     }
 
 }
+
 struct BooleanSolver {
     pos_props: HashMap<Arc<str>, usize>,
     neg_props: HashMap<Arc<str>, usize>,
@@ -216,6 +217,7 @@ impl BooleanSolver {
         }
     }
 }
+
 struct RealSolver {    
     z3_solver: Z3Solver,
     z3_variables: BTreeMap<String, Real>,
