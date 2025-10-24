@@ -97,7 +97,7 @@ impl RecursiveFormulaTransformer for MLTLTransformer {
     }
 }
 
-struct FlatTransformer;
+pub struct FlatTransformer;
 impl RecursiveFormulaTransformer for FlatTransformer {
     fn visit_and(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
         formula.with_operands(

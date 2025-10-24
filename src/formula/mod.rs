@@ -9,6 +9,7 @@ use crate::formula::transform::{DupeFormula, NegationNormalFormTransformer, Recu
 
 pub mod parser;
 pub mod transform;
+pub mod statistics;
 
 pub type VariableName = Arc<str>;
 
