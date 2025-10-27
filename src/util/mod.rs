@@ -35,23 +35,51 @@ fn build_graph(formula: &Formula, graph: &mut Graph) -> usize {
                 graph.add_edge(edge);
             }
         }
-        Formula::Imply { left, right, not_left } => {
+        Formula::Imply {
+            left,
+            right,
+            not_left,
+        } => {
             let lid = build_graph(left, graph);
             let rid = build_graph(right, graph);
             let nlid = build_graph(not_left, graph);
-            graph.add_edge(dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", lid), ""));
-            graph.add_edge(dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", rid), ""));
-            graph.add_edge(dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", nlid), ""));
+            graph.add_edge(dot_graph::Edge::new(
+                &format!("n{}", id),
+                &format!("n{}", lid),
+                "",
+            ));
+            graph.add_edge(dot_graph::Edge::new(
+                &format!("n{}", id),
+                &format!("n{}", rid),
+                "",
+            ));
+            graph.add_edge(dot_graph::Edge::new(
+                &format!("n{}", id),
+                &format!("n{}", nlid),
+                "",
+            ));
         }
         Formula::G { phi, .. } | Formula::F { phi, .. } => {
             let cid = build_graph(phi, graph);
-            graph.add_edge(dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", cid), ""));
+            graph.add_edge(dot_graph::Edge::new(
+                &format!("n{}", id),
+                &format!("n{}", cid),
+                "",
+            ));
         }
         Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
             let lid = build_graph(left, graph);
             let rid = build_graph(right, graph);
-            graph.add_edge(dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", lid), ""));
-            graph.add_edge(dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", rid), ""));
+            graph.add_edge(dot_graph::Edge::new(
+                &format!("n{}", id),
+                &format!("n{}", lid),
+                "",
+            ));
+            graph.add_edge(dot_graph::Edge::new(
+                &format!("n{}", id),
+                &format!("n{}", rid),
+                "",
+            ));
         }
         _ => {}
     }

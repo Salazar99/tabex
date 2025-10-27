@@ -9,33 +9,44 @@ mod tests;
 #[derive(Clone, Hash, PartialEq, Eq)]
 pub struct RejectedNode {
     operands: Vec<Formula>,
-    time: i32
+    time: i32,
 }
 
 impl RejectedNode {
     pub fn from_node(node: &Node) -> Self {
-        RejectedNode { 
+        RejectedNode {
             operands: node.operands.clone(),
-            time: node.current_time 
+            time: node.current_time,
         }
     }
 
     fn implies(&self, other: &RejectedNode) -> bool {
-        if other.operands.iter().all(|rf| 
-            self.operands.iter().any(|lf| lf.quick_implies(rf, self.time, other.time))) {
-                return true
+        if other.operands.iter().all(|rf| {
+            self.operands
+                .iter()
+                .any(|lf| lf.quick_implies(rf, self.time, other.time))
+        }) {
+            return true;
         } else {
-            let mut times: Vec<i32> = self.operands.iter().filter_map(|f| f.lower_bound()).filter(|t| *t > self.time).collect();
+            let mut times: Vec<i32> = self
+                .operands
+                .iter()
+                .filter_map(|f| f.lower_bound())
+                .filter(|t| *t > self.time)
+                .collect();
             times.sort_unstable();
             times.dedup();
             for time in times {
-                if other.operands.iter().all(|rf| 
-                    self.operands.iter().any(|lf| lf.quick_implies(rf, time, other.time))) {
-                        return true
+                if other.operands.iter().all(|rf| {
+                    self.operands
+                        .iter()
+                        .any(|lf| lf.quick_implies(rf, time, other.time))
+                }) {
+                    return true;
                 }
             }
         }
-        return false
+        return false;
     }
 }
 
@@ -46,15 +57,13 @@ impl Display for RejectedNode {
 }
 
 pub struct Store {
-    pub store: HashSet<RejectedNode>
+    pub store: HashSet<RejectedNode>,
 }
 
 impl Store {
     pub fn new() -> Self {
         let store = HashSet::new();
-        Store {
-            store
-        }
+        Store { store }
     }
 
     pub fn add_rejected(&mut self, node: RejectedNode) {
@@ -64,7 +73,10 @@ impl Store {
     }
 
     pub fn check_rejected(&self, node: &RejectedNode) -> bool {
-        return self.store.iter().any(|rejected: &RejectedNode| node.implies(rejected))
+        return self
+            .store
+            .iter()
+            .any(|rejected: &RejectedNode| node.implies(rejected));
     }
 }
 
@@ -72,21 +84,47 @@ impl Formula {
     fn quick_implies(&self, other: &Formula, self_time: i32, other_time: i32) -> bool {
         match (&self, &other) {
             (f1, f2) if f1.get_interval().is_none() && f2.get_interval().is_none() => f1 == f2,
-            (Formula::G { interval: i1, phi: f1, .. }, Formula::G { interval: i2, phi: f2, .. }) => {
-                return if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time)) {
+            (
+                Formula::G {
+                    interval: i1,
+                    phi: f1,
+                    ..
+                },
+                Formula::G {
+                    interval: i2,
+                    phi: f2,
+                    ..
+                },
+            ) => {
+                return if let (Some(i1), Some(i2)) =
+                    (i1.shift_left(self_time), i2.shift_left(other_time))
+                {
                     i1.contains(&i2) && f1 == f2
                 } else {
                     false
-                }
+                };
             }
-            (Formula::F { interval: i1, phi: f1, .. }, Formula::F { interval: i2, phi: f2, .. }) => {
-                return if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time)) {
+            (
+                Formula::F {
+                    interval: i1,
+                    phi: f1,
+                    ..
+                },
+                Formula::F {
+                    interval: i2,
+                    phi: f2,
+                    ..
+                },
+            ) => {
+                return if let (Some(i1), Some(i2)) =
+                    (i1.shift_left(self_time), i2.shift_left(other_time))
+                {
                     i2.contains(&i1) && f1 == f2
                 } else {
                     false
-                }
+                };
             }
-            _ => false
+            _ => false,
         }
     }
 }

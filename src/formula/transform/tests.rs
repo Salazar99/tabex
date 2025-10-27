@@ -1,4 +1,7 @@
-use crate::{formula::{Expr, Interval, Formula}, node::Node};
+use crate::{
+    formula::{Expr, Formula, Interval},
+    node::Node,
+};
 use std::sync::Arc;
 
 fn prop(name: &str) -> Formula {
@@ -31,10 +34,8 @@ mod push_negation_tests {
     #[test]
     fn push_negation_prop() {
         let p = prop("a");
-        let (res, exp) = make_test_push_negation(
-            vec![Formula::not(p.clone())], 
-            vec![Formula::not(p)]
-        );
+        let (res, exp) =
+            make_test_push_negation(vec![Formula::not(p.clone())], vec![Formula::not(p)]);
         assert_eq!(res.operands, exp.operands);
     }
 
@@ -80,7 +81,8 @@ mod push_negation_tests {
     #[test]
     fn push_negation_not_globally() {
         let a = prop("a");
-        let input_formula = Formula::not(Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()));
+        let input_formula =
+            Formula::not(Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()));
         let result_formula = Formula::f(Interval { lower: 0, upper: 5 }, None, Formula::not(a));
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
@@ -89,7 +91,8 @@ mod push_negation_tests {
     #[test]
     fn push_negation_not_finally() {
         let a = prop("a");
-        let input_formula = Formula::not(Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()));
+        let input_formula =
+            Formula::not(Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()));
         let result_formula = Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::not(a));
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
@@ -99,8 +102,18 @@ mod push_negation_tests {
     fn push_negation_not_until() {
         let a = prop("a");
         let b = prop("b");
-        let input_formula = Formula::not(Formula::u(Interval { lower: 0, upper: 5 }, None, a.clone(), b.clone()));
-        let result_formula = Formula::r(Interval { lower: 0, upper: 5 }, None, Formula::not(a), Formula::not(b));
+        let input_formula = Formula::not(Formula::u(
+            Interval { lower: 0, upper: 5 },
+            None,
+            a.clone(),
+            b.clone(),
+        ));
+        let result_formula = Formula::r(
+            Interval { lower: 0, upper: 5 },
+            None,
+            Formula::not(a),
+            Formula::not(b),
+        );
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -109,8 +122,18 @@ mod push_negation_tests {
     fn push_negation_not_release() {
         let a = prop("a");
         let b = prop("b");
-        let input_formula = Formula::not(Formula::r(Interval { lower: 0, upper: 5 }, None, a.clone(), b.clone()));
-        let result_formula = Formula::u(Interval { lower: 0, upper: 0 }, None, Formula::not(a), Formula::not(b));
+        let input_formula = Formula::not(Formula::r(
+            Interval { lower: 0, upper: 5 },
+            None,
+            a.clone(),
+            b.clone(),
+        ));
+        let result_formula = Formula::u(
+            Interval { lower: 0, upper: 0 },
+            None,
+            Formula::not(a),
+            Formula::not(b),
+        );
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -128,8 +151,16 @@ mod push_negation_tests {
     fn push_negation_nested_globally_and() {
         let a = prop("a");
         let b = prop("b");
-        let input_formula = Formula::not(Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::and(vec![a.clone(), b.clone()])));
-        let result_formula = Formula::f(Interval { lower: 0, upper: 5 }, None, Formula::or(vec![Formula::not(a), Formula::not(b)]));
+        let input_formula = Formula::not(Formula::g(
+            Interval { lower: 0, upper: 5 },
+            None,
+            Formula::and(vec![a.clone(), b.clone()]),
+        ));
+        let result_formula = Formula::f(
+            Interval { lower: 0, upper: 5 },
+            None,
+            Formula::or(vec![Formula::not(a), Formula::not(b)]),
+        );
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -139,8 +170,18 @@ mod push_negation_tests {
         let a = prop("a");
         let b = prop("b");
         let c = prop("c");
-        let input_formula = Formula::not(Formula::u(Interval { lower: 0, upper: 5 }, None, a.clone(), Formula::or(vec![b.clone(), c.clone()])));
-        let result_formula = Formula::r(Interval { lower: 0, upper: 5 }, None, Formula::not(a), Formula::and(vec![Formula::not(b), Formula::not(c)]));
+        let input_formula = Formula::not(Formula::u(
+            Interval { lower: 0, upper: 5 },
+            None,
+            a.clone(),
+            Formula::or(vec![b.clone(), c.clone()]),
+        ));
+        let result_formula = Formula::r(
+            Interval { lower: 0, upper: 5 },
+            None,
+            Formula::not(a),
+            Formula::and(vec![Formula::not(b), Formula::not(c)]),
+        );
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -149,8 +190,16 @@ mod push_negation_tests {
     fn push_negation_inside() {
         let a = prop("a");
         let b = prop("b");
-        let input_formula = Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::not(Formula::and(vec![a.clone(), b.clone()])));
-        let result_formula = Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::or(vec![Formula::not(a), Formula::not(b)]));
+        let input_formula = Formula::g(
+            Interval { lower: 0, upper: 5 },
+            None,
+            Formula::not(Formula::and(vec![a.clone(), b.clone()])),
+        );
+        let result_formula = Formula::g(
+            Interval { lower: 0, upper: 5 },
+            None,
+            Formula::or(vec![Formula::not(a), Formula::not(b)]),
+        );
         let (res, exp) = make_test_push_negation(vec![input_formula], vec![result_formula]);
         assert_eq!(res.operands, exp.operands);
     }
@@ -164,19 +213,45 @@ mod shift_bounds_tests {
         let a = prop("a");
         let (res, exp) = make_test_shift_bounds(
             Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
-            Formula::g(Interval { lower: 0, upper: 5 }, None, a)
+            Formula::g(Interval { lower: 0, upper: 5 }, None, a),
         );
         assert_eq!(res.operands, exp.operands);
     }
-    
+
     #[test]
     fn nested_globally_finally() {
         let b_a = prop("B_a");
         let (res, exp) = make_test_shift_bounds(
-            Formula::g(Interval { lower: 3, upper: 50 }, None, 
-                Formula::f(Interval { lower: 5, upper: 20 }, None, b_a.clone())),
-            Formula::g(Interval { lower: 8, upper: 55 }, None, 
-                Formula::f(Interval { lower: 0, upper: 15 }, None, b_a))
+            Formula::g(
+                Interval {
+                    lower: 3,
+                    upper: 50,
+                },
+                None,
+                Formula::f(
+                    Interval {
+                        lower: 5,
+                        upper: 20,
+                    },
+                    None,
+                    b_a.clone(),
+                ),
+            ),
+            Formula::g(
+                Interval {
+                    lower: 8,
+                    upper: 55,
+                },
+                None,
+                Formula::f(
+                    Interval {
+                        lower: 0,
+                        upper: 15,
+                    },
+                    None,
+                    b_a,
+                ),
+            ),
         );
         assert_eq!(res.operands, exp.operands);
     }
@@ -184,9 +259,24 @@ mod shift_bounds_tests {
     #[test]
     fn no_shift_complex() {
         let b_a = prop("B_a");
-        let input = Formula::g(Interval { lower: 10, upper: 60 }, None, 
-            Formula::imply(b_a.clone(), 
-                Formula::g(Interval { lower: 20, upper: 40 }, None, Formula::not(b_a))));
+        let input = Formula::g(
+            Interval {
+                lower: 10,
+                upper: 60,
+            },
+            None,
+            Formula::imply(
+                b_a.clone(),
+                Formula::g(
+                    Interval {
+                        lower: 20,
+                        upper: 40,
+                    },
+                    None,
+                    Formula::not(b_a),
+                ),
+            ),
+        );
         let (res, exp) = make_test_shift_bounds(input.clone(), input);
         assert_eq!(res.operands, exp.operands);
     }
@@ -195,14 +285,64 @@ mod shift_bounds_tests {
     fn nested_finally_globally() {
         let b_a = prop("B_a");
         let (res, exp) = make_test_shift_bounds(
-            Formula::g(Interval { lower: 3, upper: 50 }, None, 
-                Formula::f(Interval { lower: 5, upper: 20 }, None, 
-                    Formula::f(Interval { lower: 20, upper: 30 }, None, 
-                        Formula::g(Interval { lower: 20, upper: 40 }, None, Formula::not(b_a.clone()))))),
-            Formula::g(Interval { lower: 48, upper: 95 }, None, 
-                Formula::f(Interval { lower: 0, upper: 15 }, None, 
-                    Formula::f(Interval { lower: 0, upper: 10 }, None, 
-                        Formula::g(Interval { lower: 0, upper: 20 }, None, Formula::not(b_a)))))
+            Formula::g(
+                Interval {
+                    lower: 3,
+                    upper: 50,
+                },
+                None,
+                Formula::f(
+                    Interval {
+                        lower: 5,
+                        upper: 20,
+                    },
+                    None,
+                    Formula::f(
+                        Interval {
+                            lower: 20,
+                            upper: 30,
+                        },
+                        None,
+                        Formula::g(
+                            Interval {
+                                lower: 20,
+                                upper: 40,
+                            },
+                            None,
+                            Formula::not(b_a.clone()),
+                        ),
+                    ),
+                ),
+            ),
+            Formula::g(
+                Interval {
+                    lower: 48,
+                    upper: 95,
+                },
+                None,
+                Formula::f(
+                    Interval {
+                        lower: 0,
+                        upper: 15,
+                    },
+                    None,
+                    Formula::f(
+                        Interval {
+                            lower: 0,
+                            upper: 10,
+                        },
+                        None,
+                        Formula::g(
+                            Interval {
+                                lower: 0,
+                                upper: 20,
+                            },
+                            None,
+                            Formula::not(b_a),
+                        ),
+                    ),
+                ),
+            ),
         );
         assert_eq!(res.operands, exp.operands);
     }
@@ -211,16 +351,53 @@ mod shift_bounds_tests {
     fn finally_and_globally() {
         let b_a = prop("B_a");
         let (res, exp) = make_test_shift_bounds(
-            Formula::f(Interval { lower: 0, upper: 5 }, None, 
+            Formula::f(
+                Interval { lower: 0, upper: 5 },
+                None,
                 Formula::and(vec![
-                    Formula::g(Interval { lower: 10, upper: 20 }, None, b_a.clone()),
-                    Formula::g(Interval { lower: 20, upper: 30 }, None, b_a.clone())
-                ])),
-            Formula::f(Interval { lower: 10, upper: 15 }, None, 
+                    Formula::g(
+                        Interval {
+                            lower: 10,
+                            upper: 20,
+                        },
+                        None,
+                        b_a.clone(),
+                    ),
+                    Formula::g(
+                        Interval {
+                            lower: 20,
+                            upper: 30,
+                        },
+                        None,
+                        b_a.clone(),
+                    ),
+                ]),
+            ),
+            Formula::f(
+                Interval {
+                    lower: 10,
+                    upper: 15,
+                },
+                None,
                 Formula::and(vec![
-                    Formula::g(Interval { lower: 0, upper: 10 }, None, b_a.clone()),
-                    Formula::g(Interval { lower: 10, upper: 20 }, None, b_a)
-                ]))
+                    Formula::g(
+                        Interval {
+                            lower: 0,
+                            upper: 10,
+                        },
+                        None,
+                        b_a.clone(),
+                    ),
+                    Formula::g(
+                        Interval {
+                            lower: 10,
+                            upper: 20,
+                        },
+                        None,
+                        b_a,
+                    ),
+                ]),
+            ),
         );
         assert_eq!(res.operands, exp.operands);
     }
@@ -229,12 +406,49 @@ mod shift_bounds_tests {
     fn until_globally() {
         let b_a = prop("B_a");
         let (res, exp) = make_test_shift_bounds(
-            Formula::u(Interval { lower: 0, upper: 5 }, None, 
-                Formula::g(Interval { lower: 10, upper: 20 }, None, b_a.clone()), 
-                Formula::g(Interval { lower: 20, upper: 30 }, None, b_a.clone())),
-            Formula::u(Interval { lower: 10, upper: 15 }, None, 
-                Formula::g(Interval { lower: 0, upper: 10 }, None, b_a.clone()), 
-                Formula::g(Interval { lower: 10, upper: 20 }, None, b_a))
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
+                None,
+                Formula::g(
+                    Interval {
+                        lower: 10,
+                        upper: 20,
+                    },
+                    None,
+                    b_a.clone(),
+                ),
+                Formula::g(
+                    Interval {
+                        lower: 20,
+                        upper: 30,
+                    },
+                    None,
+                    b_a.clone(),
+                ),
+            ),
+            Formula::u(
+                Interval {
+                    lower: 10,
+                    upper: 15,
+                },
+                None,
+                Formula::g(
+                    Interval {
+                        lower: 0,
+                        upper: 10,
+                    },
+                    None,
+                    b_a.clone(),
+                ),
+                Formula::g(
+                    Interval {
+                        lower: 10,
+                        upper: 20,
+                    },
+                    None,
+                    b_a,
+                ),
+            ),
         );
         assert_eq!(res.operands, exp.operands);
     }
@@ -243,18 +457,52 @@ mod shift_bounds_tests {
     fn until_globally_or() {
         let b_a = prop("B_a");
         let (res, exp) = make_test_shift_bounds(
-            Formula::u(Interval { lower: 0, upper: 5 }, None, 
-                Formula::g(Interval { lower: 10, upper: 20 }, None, b_a.clone()), 
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
+                None,
+                Formula::g(
+                    Interval {
+                        lower: 10,
+                        upper: 20,
+                    },
+                    None,
+                    b_a.clone(),
+                ),
                 Formula::or(vec![
-                    Formula::g(Interval { lower: 20, upper: 30 }, None, b_a.clone()),
-                    b_a.clone()
-                ])),
-            Formula::u(Interval { lower: 0, upper: 5 }, None, 
-                Formula::g(Interval { lower: 10, upper: 20 }, None, b_a.clone()), 
+                    Formula::g(
+                        Interval {
+                            lower: 20,
+                            upper: 30,
+                        },
+                        None,
+                        b_a.clone(),
+                    ),
+                    b_a.clone(),
+                ]),
+            ),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
+                None,
+                Formula::g(
+                    Interval {
+                        lower: 10,
+                        upper: 20,
+                    },
+                    None,
+                    b_a.clone(),
+                ),
                 Formula::or(vec![
-                    Formula::g(Interval { lower: 20, upper: 30 }, None, b_a.clone()),
-                    b_a
-                ]))
+                    Formula::g(
+                        Interval {
+                            lower: 20,
+                            upper: 30,
+                        },
+                        None,
+                        b_a.clone(),
+                    ),
+                    b_a,
+                ]),
+            ),
         );
         assert_eq!(res.operands, exp.operands);
     }
@@ -268,10 +516,11 @@ mod flatten_tests {
         let p1 = prop("a");
         let p2 = prop("b");
         let p3 = prop("c");
-        let res = make_test_flatten(Formula::and(vec![p1.clone(), Formula::and(vec![p2.clone(), p3.clone()])]));
-        let exp = Node::from_operands(vec![
-            p1, p2, p3
-        ]);
+        let res = make_test_flatten(Formula::and(vec![
+            p1.clone(),
+            Formula::and(vec![p2.clone(), p3.clone()]),
+        ]));
+        let exp = Node::from_operands(vec![p1, p2, p3]);
         assert_eq!(res.operands, exp.operands);
     }
 
@@ -280,12 +529,11 @@ mod flatten_tests {
         let p1 = prop("a");
         let p2 = prop("b");
         let p3 = prop("c");
-        let res = make_test_flatten(Formula::or(vec![p1.clone(), Formula::or(vec![p2.clone(), p3.clone()])]));
-        let exp = Node::from_operands(vec![
-            Formula::or(vec![
-                p1, p2, p3
-            ])
-        ]);
+        let res = make_test_flatten(Formula::or(vec![
+            p1.clone(),
+            Formula::or(vec![p2.clone(), p3.clone()]),
+        ]));
+        let exp = Node::from_operands(vec![Formula::or(vec![p1, p2, p3])]);
         assert_eq!(res.operands, exp.operands);
     }
 
@@ -299,22 +547,11 @@ mod flatten_tests {
 
         let res = make_test_flatten(Formula::and(vec![
             p1.clone(),
-            Formula::or(vec![
-                p2.clone(),
-                p3.clone(),
-            ]),
+            Formula::or(vec![p2.clone(), p3.clone()]),
             p4.clone(),
             p5.clone(),
         ]));
-        let exp = Node::from_operands(vec![
-            p1,
-            Formula::or(vec![
-                p2,
-                p3,
-            ]),
-            p4,
-            p5
-        ]);
+        let exp = Node::from_operands(vec![p1, Formula::or(vec![p2, p3]), p4, p5]);
         assert_eq!(res.operands, exp.operands);
     }
 
@@ -324,24 +561,22 @@ mod flatten_tests {
         let p2 = prop("b");
         let p3 = prop("c");
 
-        let res = make_test_flatten(Formula::g(Interval { lower: 0, upper: 10 }, None,
-            Formula::and(vec![
-                p1.clone(),
-                Formula::and(vec![
-                    p2.clone(),
-                    p3.clone(),
-                ])
-            ])
+        let res = make_test_flatten(Formula::g(
+            Interval {
+                lower: 0,
+                upper: 10,
+            },
+            None,
+            Formula::and(vec![p1.clone(), Formula::and(vec![p2.clone(), p3.clone()])]),
         ));
-        let exp = Node::from_operands(vec![
-            Formula::g(Interval { lower: 0, upper: 10 }, None,
-                Formula::and(vec![
-                    p1,
-                    p2,
-                    p3
-                ])
-            )
-        ]);
+        let exp = Node::from_operands(vec![Formula::g(
+            Interval {
+                lower: 0,
+                upper: 10,
+            },
+            None,
+            Formula::and(vec![p1, p2, p3]),
+        )]);
         assert_eq!(res.operands, exp.operands);
     }
 }

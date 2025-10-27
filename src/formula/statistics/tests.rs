@@ -1,7 +1,7 @@
-use std::sync::Arc;
 use num_rational::Ratio;
+use std::sync::Arc;
 
-use crate::formula::{statistics::Formula, Expr, Interval, AExpr, RelOp};
+use crate::formula::{AExpr, Expr, Interval, RelOp, statistics::Formula};
 
 fn prop(name: &str) -> Formula {
     Formula::prop(Expr::bool(Arc::from(name)))
@@ -13,19 +13,12 @@ mod temporal_operator_depth_tests {
     #[test]
     fn test_nested() {
         let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::Not(Box::new(prop("b"))),
-            ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("c"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
-                    None,
-                    prop("d")
-                )
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
             ),
         ]);
         assert_eq!(f.temporal_operator_depth(), 2);
@@ -44,19 +37,12 @@ mod depth_tests {
     #[test]
     fn test_nested() {
         let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::Not(Box::new(prop("b"))),
-            ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("c"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
-                    None,
-                    prop("d")
-                )
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
             ),
         ]);
         assert_eq!(f.depth(), 3);
@@ -75,24 +61,16 @@ mod length_tests {
     #[test]
     fn test_nested() {
         let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::Not(Box::new(prop("b"))),
-            ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("c"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
-                    None,
-                    prop("d")
-                )
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
             ),
         ]);
         assert_eq!(f.length(), 8);
     }
-
 }
 
 mod boolean_variables_tests {
@@ -101,19 +79,12 @@ mod boolean_variables_tests {
     #[test]
     fn test_nested_no_rep() {
         let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::Not(Box::new(prop("b"))),
-            ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("c"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
-                    None,
-                    prop("d")
-                )
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
             ),
         ]);
         assert_eq!(f.boolean_variables(), 4);
@@ -122,19 +93,12 @@ mod boolean_variables_tests {
     #[test]
     fn test_nested_with_rep() {
         let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::Not(Box::new(prop("b"))),
-            ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("c"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
-                    None,
-                    prop("a")
-                )
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("a")),
             ),
         ]);
         assert_eq!(f.boolean_variables(), 3);
@@ -152,23 +116,23 @@ mod real_variables_tests {
                 AExpr::Var(Arc::from("x")),
                 AExpr::Num(Ratio::from_integer(1)),
             )),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 Formula::Prop(Expr::real(
                     RelOp::Lt,
                     AExpr::Var(Arc::from("y")),
                     AExpr::Num(Ratio::from_integer(2)),
                 )),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
+                Formula::g(
+                    Interval { lower: 1, upper: 3 },
                     None,
                     Formula::Prop(Expr::real(
                         RelOp::Eq,
                         AExpr::Var(Arc::from("z")),
-                        AExpr::Num(Ratio::from_integer(3))
+                        AExpr::Num(Ratio::from_integer(3)),
                     )),
-                )
+                ),
             ),
         ]);
         assert_eq!(f.real_variables(), 3);
@@ -182,23 +146,23 @@ mod real_variables_tests {
                 AExpr::Var(Arc::from("x")),
                 AExpr::Num(Ratio::from_integer(1)),
             )),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 Formula::Prop(Expr::real(
                     RelOp::Lt,
                     AExpr::Var(Arc::from("y")),
                     AExpr::Num(Ratio::from_integer(2)),
                 )),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
+                Formula::g(
+                    Interval { lower: 1, upper: 3 },
                     None,
                     Formula::Prop(Expr::real(
                         RelOp::Eq,
                         AExpr::Var(Arc::from("x")),
-                        AExpr::Num(Ratio::from_integer(3))
+                        AExpr::Num(Ratio::from_integer(3)),
                     )),
-                )
+                ),
             ),
         ]);
         assert_eq!(f.real_variables(), 2);
@@ -211,19 +175,12 @@ mod boolean_constraints_tests {
     #[test]
     fn test_nested() {
         let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::Not(Box::new(prop("b"))),
-            ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("c"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
-                    None,
-                    prop("d")
-                )
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
             ),
         ]);
         assert_eq!(f.boolean_constraints(), 4);
@@ -241,23 +198,23 @@ mod real_constraints_tests {
                 AExpr::Var(Arc::from("x")),
                 AExpr::Num(Ratio::from_integer(1)),
             )),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 Formula::Prop(Expr::real(
                     RelOp::Lt,
                     AExpr::Var(Arc::from("y")),
                     AExpr::Num(Ratio::from_integer(2)),
                 )),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
+                Formula::g(
+                    Interval { lower: 1, upper: 3 },
                     None,
                     Formula::Prop(Expr::real(
                         RelOp::Eq,
                         AExpr::Var(Arc::from("z")),
-                        AExpr::Num(Ratio::from_integer(3))
+                        AExpr::Num(Ratio::from_integer(3)),
                     )),
-                )
+                ),
             ),
         ]);
         assert_eq!(f.real_constraints(), 3);
@@ -270,19 +227,13 @@ mod disjunction_max_width_tests {
     #[test]
     #[should_panic]
     fn test_not_flat() {
-        let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::or(vec![
-                    prop("b1"),
-                    prop("b2"),
-                ]),
-                prop("c"),
-            ]),
-        ]);
+        let f = Formula::And(vec![Formula::or(vec![
+            prop("a"),
+            Formula::or(vec![prop("b1"), prop("b2")]),
+            prop("c"),
+        ])]);
         f.disjunction_max_width();
     }
-
 
     #[test]
     fn test_nested() {
@@ -292,18 +243,15 @@ mod disjunction_max_width_tests {
                 Formula::Not(Box::new(prop("b"))),
                 prop("c"),
             ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("d"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
+                Formula::g(
+                    Interval { lower: 1, upper: 3 },
                     None,
-                    Formula::or(vec![
-                        prop("e"),
-                        prop("f"),
-                    ])
-                )
+                    Formula::or(vec![prop("e"), prop("f")]),
+                ),
             ),
         ]);
         assert_eq!(f.disjunction_max_width(), 3);
@@ -316,16 +264,11 @@ mod disjunction_total_width_tests {
     #[test]
     #[should_panic]
     fn test_not_flat() {
-        let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::or(vec![
-                    prop("b1"),
-                    prop("b2"),
-                ]),
-                prop("c"),
-            ]),
-        ]);
+        let f = Formula::And(vec![Formula::or(vec![
+            prop("a"),
+            Formula::or(vec![prop("b1"), prop("b2")]),
+            prop("c"),
+        ])]);
         f.disjunction_total_width();
     }
 
@@ -337,18 +280,15 @@ mod disjunction_total_width_tests {
                 Formula::Not(Box::new(prop("b"))),
                 prop("c"),
             ]),
-            Formula::u (
-                Interval { lower: 0, upper: 5},
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
                 None,
                 prop("d"),
-                Formula::g (
-                    Interval { lower: 1, upper: 3},
+                Formula::g(
+                    Interval { lower: 1, upper: 3 },
                     None,
-                    Formula::or(vec![
-                        prop("e"),
-                        prop("f"),
-                    ])
-                )
+                    Formula::or(vec![prop("e"), prop("f")]),
+                ),
             ),
         ]);
         assert_eq!(f.disjunction_total_width(), 5);
@@ -361,16 +301,11 @@ mod combinatorial_branching_count_tests {
     #[test]
     #[should_panic]
     fn test_not_flat() {
-        let f = Formula::And(vec![
-            Formula::or(vec![
-                prop("a"),
-                Formula::or(vec![
-                    prop("b1"),
-                    prop("b2"),
-                ]),
-                prop("c"),
-            ]),
-        ]);
+        let f = Formula::And(vec![Formula::or(vec![
+            prop("a"),
+            Formula::or(vec![prop("b1"), prop("b2")]),
+            prop("c"),
+        ])]);
         f.combinatorial_branching_count();
     }
 
@@ -382,10 +317,7 @@ mod combinatorial_branching_count_tests {
                 Formula::Not(Box::new(prop("b"))),
                 prop("c"),
             ]),
-            Formula::or(vec![
-                prop("d"),
-                prop("e"),
-            ]),
+            Formula::or(vec![prop("d"), prop("e")]),
         ]);
         assert_eq!(f.combinatorial_branching_count(), 6);
     }
@@ -398,10 +330,7 @@ mod combinatorial_branching_count_tests {
                 Formula::Not(Box::new(prop("b"))),
                 prop("c"),
             ]),
-            Formula::And(vec![
-                prop("d"),
-                prop("e"),
-            ]),
+            Formula::And(vec![prop("d"), prop("e")]),
         ]);
         assert_eq!(f.combinatorial_branching_count(), 2);
     }
@@ -409,18 +338,8 @@ mod combinatorial_branching_count_tests {
     #[test]
     fn test_or_u() {
         let f = Formula::or(vec![
-            Formula::u (
-                Interval { lower: 0, upper: 5},
-                None,
-                prop("a"),
-                prop("b"),
-            ),
-            Formula::u (
-                Interval { lower: 1, upper: 3},
-                None,
-                prop("c"),
-                prop("d"),
-            ),
+            Formula::u(Interval { lower: 0, upper: 5 }, None, prop("a"), prop("b")),
+            Formula::u(Interval { lower: 1, upper: 3 }, None, prop("c"), prop("d")),
         ]);
         assert_eq!(f.combinatorial_branching_count(), 2);
     }

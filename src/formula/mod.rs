@@ -1,22 +1,24 @@
 use std::fmt::{self, Display};
-use std::hash::{Hash};
-use std::sync::atomic::AtomicUsize;
+use std::hash::Hash;
 use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
 
 use num_rational::Ratio;
 
-use crate::formula::transform::{DupeFormula, NegationNormalFormTransformer, RecursiveFormulaTransformer};
+use crate::formula::transform::{
+    DupeFormula, NegationNormalFormTransformer, RecursiveFormulaTransformer,
+};
 
 pub mod parser;
-pub mod transform;
 pub mod statistics;
+pub mod transform;
 
 pub type VariableName = Arc<str>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ArithOp {
     Add,
-    Sub
+    Sub,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -50,20 +52,20 @@ pub enum ExprKind {
         right: AExpr,
     },
     True,
-    False
+    False,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Expr {
     pub id: usize,
-    pub kind: ExprKind
+    pub kind: ExprKind,
 }
 
 impl Expr {
     fn from_expr(kind: ExprKind) -> Self {
         Expr {
             id: FORMULA_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
-            kind
+            kind,
         }
     }
 
@@ -112,16 +114,22 @@ impl Interval {
     }
 
     pub fn union(&self, other: &Interval) -> Interval {
-        Interval { lower: self.lower.min(other.lower), upper: self.upper.max(other.upper) }
+        Interval {
+            lower: self.lower.min(other.lower),
+            upper: self.upper.max(other.upper),
+        }
     }
 
     pub fn intersection(&self, other: &Interval) -> Interval {
-        Interval { lower: self.lower.max(other.lower), upper: self.upper.min(other.upper) }
+        Interval {
+            lower: self.lower.max(other.lower),
+            upper: self.upper.min(other.upper),
+        }
     }
 
     pub fn shift_left(&self, time: i32) -> Option<Interval> {
         if time > self.upper {
-            return None
+            return None;
         }
 
         Some(Interval {
@@ -142,18 +150,40 @@ impl Interval {
 pub enum Formula {
     // Propositions
     Prop(Expr),
-    
+
     // Boolean/structural
     And(Vec<Formula>),
     Or(Vec<Formula>),
-    Imply {left: Box<Formula>, right: Box<Formula>, not_left: Box<Formula> },
+    Imply {
+        left: Box<Formula>,
+        right: Box<Formula>,
+        not_left: Box<Formula>,
+    },
     Not(Box<Formula>),
-    
+
     // Temporal
-    G { interval: Interval, parent_upper: Option<i32>, phi: Box<Formula> },
-    F { interval: Interval, parent_upper: Option<i32>, phi: Box<Formula> },
-    U { interval: Interval, parent_upper: Option<i32>, left: Box<Formula>, right: Box<Formula> },
-    R { interval: Interval, parent_upper: Option<i32>, left: Box<Formula>, right: Box<Formula> },
+    G {
+        interval: Interval,
+        parent_upper: Option<i32>,
+        phi: Box<Formula>,
+    },
+    F {
+        interval: Interval,
+        parent_upper: Option<i32>,
+        phi: Box<Formula>,
+    },
+    U {
+        interval: Interval,
+        parent_upper: Option<i32>,
+        left: Box<Formula>,
+        right: Box<Formula>,
+    },
+    R {
+        interval: Interval,
+        parent_upper: Option<i32>,
+        left: Box<Formula>,
+        right: Box<Formula>,
+    },
     O(Box<Formula>),
 }
 
@@ -176,7 +206,9 @@ impl Formula {
         Formula::Imply {
             left: Box::new(left.clone()),
             right: Box::new(right),
-            not_left: Box::new(NegationNormalFormTransformer.visit(&Formula::not(DupeFormula.visit(&left))))
+            not_left: Box::new(
+                NegationNormalFormTransformer.visit(&Formula::not(DupeFormula.visit(&left))),
+            ),
         }
     }
 
@@ -235,7 +267,12 @@ impl Formula {
     pub fn with_operand_couple(&self, left: Formula, right: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
-            Formula::U { left: l, right: r, .. } | Formula::R { left: l, right: r, .. } => {
+            Formula::U {
+                left: l, right: r, ..
+            }
+            | Formula::R {
+                left: l, right: r, ..
+            } => {
                 *l = Box::new(left);
                 *r = Box::new(right);
             }
@@ -243,11 +280,11 @@ impl Formula {
         }
         to_return
     }
-    
+
     pub fn with_interval(&self, interval: Interval) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
-            Formula::G { interval: int, .. } 
+            Formula::G { interval: int, .. }
             | Formula::F { interval: int, .. }
             | Formula::U { interval: int, .. }
             | Formula::R { interval: int, .. } => *int = interval,
@@ -259,10 +296,18 @@ impl Formula {
     pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
-            Formula::G { parent_upper: pu, .. } 
-            | Formula::F { parent_upper: pu, .. }
-            | Formula::U { parent_upper: pu, .. }
-            | Formula::R { parent_upper: pu, .. } => *pu = parent_upper,
+            Formula::G {
+                parent_upper: pu, ..
+            }
+            | Formula::F {
+                parent_upper: pu, ..
+            }
+            | Formula::U {
+                parent_upper: pu, ..
+            }
+            | Formula::R {
+                parent_upper: pu, ..
+            } => *pu = parent_upper,
             _ => panic!("Cannot set parent_upper on non-temporal formula"),
         }
         to_return
@@ -280,7 +325,11 @@ impl Formula {
     pub fn with_implication(&self, left: Formula, right: Formula, not_left: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
-            Formula::Imply { left: l, right: r, not_left: nl } => {
+            Formula::Imply {
+                left: l,
+                right: r,
+                not_left: nl,
+            } => {
                 *l = Box::new(left);
                 *r = Box::new(right);
                 *nl = Box::new(not_left);
@@ -292,8 +341,8 @@ impl Formula {
 
     pub fn get_interval(&self) -> Option<Interval> {
         match &self {
-            Formula::G { interval, .. } 
-            | Formula::F { interval, .. } 
+            Formula::G { interval, .. }
+            | Formula::F { interval, .. }
             | Formula::U { interval, .. }
             | Formula::R { interval, .. } => Some(interval.clone()),
             _ => None,
@@ -329,8 +378,8 @@ impl Formula {
 
     pub fn is_active_at(&self, current_time: i32) -> bool {
         match &self {
-            Formula::G { interval, .. } 
-            | Formula::F { interval, .. } 
+            Formula::G { interval, .. }
+            | Formula::F { interval, .. }
             | Formula::U { interval, .. }
             | Formula::R { interval, .. } => interval.active(current_time),
             _ => false,
@@ -339,10 +388,22 @@ impl Formula {
 
     pub fn is_parent_active_at(&self, current_time: i32) -> bool {
         match self {
-            Formula::G { parent_upper: Some(upper), .. }
-            | Formula::F { parent_upper: Some(upper), .. }
-            | Formula::U { parent_upper: Some(upper), .. }
-            | Formula::R { parent_upper: Some(upper), .. } => current_time < *upper,
+            Formula::G {
+                parent_upper: Some(upper),
+                ..
+            }
+            | Formula::F {
+                parent_upper: Some(upper),
+                ..
+            }
+            | Formula::U {
+                parent_upper: Some(upper),
+                ..
+            }
+            | Formula::R {
+                parent_upper: Some(upper),
+                ..
+            } => current_time < *upper,
             _ => false,
         }
     }
@@ -351,9 +412,19 @@ impl Formula {
         match &self {
             Formula::Not(inner) => matches!(**inner, Formula::Prop(_)),
             Formula::And(ops) | Formula::Or(ops) => ops.iter().all(|f| f.is_negation_normal_form()),
-            Formula::Imply { left, right, not_left } => left.is_negation_normal_form() && right.is_negation_normal_form() && not_left.is_negation_normal_form(),
+            Formula::Imply {
+                left,
+                right,
+                not_left,
+            } => {
+                left.is_negation_normal_form()
+                    && right.is_negation_normal_form()
+                    && not_left.is_negation_normal_form()
+            }
             Formula::G { phi, .. } | Formula::F { phi, .. } => phi.is_negation_normal_form(),
-            Formula::U { left, right, .. } | Formula::R { left, right, .. } => left.is_negation_normal_form() && right.is_negation_normal_form(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
+                left.is_negation_normal_form() && right.is_negation_normal_form()
+            }
             _ => true,
         }
     }
@@ -362,9 +433,15 @@ impl Formula {
         match &self {
             Formula::And(ops) => !ops.iter().any(|f| matches!(f, Formula::And(_))),
             Formula::Or(ops) => !ops.iter().any(|f| matches!(f, Formula::Or(_))),
-            Formula::Imply { left, right, not_left } => left.is_flat() && right.is_flat() && not_left.is_flat(),
+            Formula::Imply {
+                left,
+                right,
+                not_left,
+            } => left.is_flat() && right.is_flat() && not_left.is_flat(),
             Formula::G { phi, .. } | Formula::F { phi, .. } => phi.is_flat(),
-            Formula::U { left, right, .. } | Formula::R { left, right, .. } => left.is_flat() && right.is_flat(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
+                left.is_flat() && right.is_flat()
+            }
             _ => true,
         }
     }
@@ -372,24 +449,77 @@ impl Formula {
     pub fn eq_structural(&self, other: &Self) -> bool {
         match (self, other) {
             (Formula::Prop(a), Formula::Prop(b)) => a.eq_kind(b),
-            (Formula::And(a), Formula::And(b)) => a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.eq_structural(y)),
-            (Formula::Or(a), Formula::Or(b)) => a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.eq_structural(y)),
+            (Formula::And(a), Formula::And(b)) => {
+                a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.eq_structural(y))
+            }
+            (Formula::Or(a), Formula::Or(b)) => {
+                a.len() == b.len() && a.iter().zip(b.iter()).all(|(x, y)| x.eq_structural(y))
+            }
             (Formula::Not(a), Formula::Not(b)) => a.eq_structural(b),
-            (Formula::Imply { left: al, right: ar, not_left: anl }, Formula::Imply { left: bl, right: br, not_left: bnl }) => {
-                al.eq_structural(bl) && ar.eq_structural(br) && anl.eq_structural(bnl)
-            }
-            (Formula::G { interval: ai, phi: ap, .. }, Formula::G { interval: bi, phi: bp, .. }) => {
-                ai == bi && ap.eq_structural(bp)
-            }
-            (Formula::F { interval: ai, phi: ap, .. }, Formula::F { interval: bi, phi: bp, .. }) => {
-                ai == bi && ap.eq_structural(bp)
-            }
-            (Formula::U { interval: ai, left: al, right: ar, .. }, Formula::U { interval: bi, left: bl, right: br, .. }) => {
-                ai == bi && al.eq_structural(bl) && ar.eq_structural(br)
-            }
-            (Formula::R { interval: ai, left: al, right: ar, .. }, Formula::R { interval: bi, left: bl, right: br, .. }) => {
-                ai == bi && al.eq_structural(bl) && ar.eq_structural(br)
-            }
+            (
+                Formula::Imply {
+                    left: al,
+                    right: ar,
+                    not_left: anl,
+                },
+                Formula::Imply {
+                    left: bl,
+                    right: br,
+                    not_left: bnl,
+                },
+            ) => al.eq_structural(bl) && ar.eq_structural(br) && anl.eq_structural(bnl),
+            (
+                Formula::G {
+                    interval: ai,
+                    phi: ap,
+                    ..
+                },
+                Formula::G {
+                    interval: bi,
+                    phi: bp,
+                    ..
+                },
+            ) => ai == bi && ap.eq_structural(bp),
+            (
+                Formula::F {
+                    interval: ai,
+                    phi: ap,
+                    ..
+                },
+                Formula::F {
+                    interval: bi,
+                    phi: bp,
+                    ..
+                },
+            ) => ai == bi && ap.eq_structural(bp),
+            (
+                Formula::U {
+                    interval: ai,
+                    left: al,
+                    right: ar,
+                    ..
+                },
+                Formula::U {
+                    interval: bi,
+                    left: bl,
+                    right: br,
+                    ..
+                },
+            ) => ai == bi && al.eq_structural(bl) && ar.eq_structural(br),
+            (
+                Formula::R {
+                    interval: ai,
+                    left: al,
+                    right: ar,
+                    ..
+                },
+                Formula::R {
+                    interval: bi,
+                    left: bl,
+                    right: br,
+                    ..
+                },
+            ) => ai == bi && al.eq_structural(bl) && ar.eq_structural(br),
             (Formula::O(a), Formula::O(b)) => a.eq_structural(b),
             _ => false,
         }
@@ -397,7 +527,10 @@ impl Formula {
 }
 
 pub fn join_with(v: &[Formula], sep: &str) -> String {
-    v.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(sep)
+    v.iter()
+        .map(|n| n.to_string())
+        .collect::<Vec<_>>()
+        .join(sep)
 }
 
 impl Display for AExpr {
@@ -459,10 +592,20 @@ impl Display for Formula {
             Formula::Imply { left, right, .. } => write!(f, "({}) -> ({})", left, right),
             Formula::G { interval, phi, .. } => write!(f, "G{} ({})", interval, phi),
             Formula::F { interval, phi, .. } => write!(f, "F{} ({})", interval, phi),
-            Formula::U { interval, left, right, .. } => {
+            Formula::U {
+                interval,
+                left,
+                right,
+                ..
+            } => {
                 write!(f, "({}) U{} ({})", left, interval, right)
             }
-            Formula::R { interval, left, right, .. } => {
+            Formula::R {
+                interval,
+                left,
+                right,
+                ..
+            } => {
                 write!(f, "({}) R{} ({})", left, interval, right)
             }
             Formula::O(inner) => write!(f, "O ({})", inner),

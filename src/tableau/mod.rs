@@ -1,42 +1,42 @@
 use std::cell::RefCell;
-use std::collections::{VecDeque};
+use std::collections::VecDeque;
 use std::rc::Rc;
 
 use dot_graph::{Graph, Kind};
 
-use crate::node::Node;
 use crate::formula::parser::parse_formula;
+use crate::node::Node;
+use crate::tableau::config::TableauOptions;
 use crate::tableau::core::UnsatCore;
 use crate::tableau::solver::Solver;
 use crate::tableau::store::{RejectedNode, Store};
-use crate::tableau::config::TableauOptions;
 
 #[cfg(test)]
 mod tests;
 
 pub mod config;
-pub mod solver;
-pub mod store;
 pub mod core;
 pub mod graph;
+pub mod solver;
+pub mod store;
 
 pub struct Tableau {
     pub options: TableauOptions,
     pub graph: Option<Graph>,
     pub store: Option<Store>,
-    pub unsat_core: Option<UnsatCore>
+    pub unsat_core: Option<UnsatCore>,
 }
 
 #[derive(Clone, Copy)]
 enum JobState {
     Sat,
     Unsat,
-    Undefined
+    Undefined,
 }
 
 enum JobOutcome {
     Decomposed(Frame),
-    Final(JobState)
+    Final(JobState),
 }
 
 struct Frame {
@@ -49,14 +49,26 @@ struct Frame {
 
 impl Tableau {
     pub fn new(options: TableauOptions) -> Self {
-        let graph = if options.graph_output { Some(Graph::new("Tableau", Kind::Graph)) } else { None };
-        let store = if options.memoization { Some(Store::new()) } else { None };
-        let unsat_core = if options.unsat_core_extraction { Some(UnsatCore::new()) } else { None };
+        let graph = if options.graph_output {
+            Some(Graph::new("Tableau", Kind::Graph))
+        } else {
+            None
+        };
+        let store = if options.memoization {
+            Some(Store::new())
+        } else {
+            None
+        };
+        let unsat_core = if options.unsat_core_extraction {
+            Some(UnsatCore::new())
+        } else {
+            None
+        };
         Tableau {
             options,
             graph,
             store,
-            unsat_core
+            unsat_core,
         }
     }
 
@@ -110,16 +122,28 @@ impl Tableau {
             return Some(false);
         }
 
-        let Some(children) = self.decompose(&root) else { return Some(true) };
+        let Some(children) = self.decompose(&root) else {
+            return Some(true);
+        };
         self.add_graph_children(&root, &children);
 
         self.tableau_loop(root, children, solver)
     }
 
     fn tableau_loop(&mut self, root: Node, children: Vec<Node>, solver: Solver) -> Option<bool> {
-        fn merge_results(previous: Option<JobState>, current: JobState, implies: bool) -> Option<JobState> {
+        fn merge_results(
+            previous: Option<JobState>,
+            current: JobState,
+            implies: bool,
+        ) -> Option<JobState> {
             match (previous, current) {
-                (prev, JobState::Sat) => if !implies { Some(JobState::Sat) } else { prev },
+                (prev, JobState::Sat) => {
+                    if !implies {
+                        Some(JobState::Sat)
+                    } else {
+                        prev
+                    }
+                }
 
                 (Some(JobState::Sat), JobState::Undefined) => Some(JobState::Sat),
                 (_, JobState::Undefined) => Some(JobState::Undefined),
@@ -131,7 +155,13 @@ impl Tableau {
         }
 
         let mut stack = VecDeque::new();
-        stack.push_front(Frame { node: root, children: children.into(), depth: 0, solver: Rc::new(RefCell::new(solver)), result: None });
+        stack.push_front(Frame {
+            node: root,
+            children: children.into(),
+            depth: 0,
+            solver: Rc::new(RefCell::new(solver)),
+            result: None,
+        });
 
         while let Some(mut job) = stack.pop_front() {
             // Case 1: no more children — finalize frame
@@ -145,7 +175,7 @@ impl Tableau {
                         None => panic!(),
                     };
                 };
-                
+
                 // Case 1.2: has parent — propagate result
                 parent.solver.borrow_mut().pop();
                 let res = job.result.expect("Job result should be set");
@@ -172,7 +202,8 @@ impl Tableau {
             // Case 2: still has children — process next child
             job.solver.borrow_mut().push();
             let implies = child.implies.is_some();
-            let outcome = self.process_job(child, job.node.current_time, &mut job.solver, job.depth);
+            let outcome =
+                self.process_job(child, job.node.current_time, &mut job.solver, job.depth);
 
             match outcome {
                 // Case 2.1: child has result — handle and re-push job
@@ -204,7 +235,13 @@ impl Tableau {
         panic!("Tableau loop exited unexpectedly");
     }
 
-    fn process_job(&mut self, node: Node, parent_time: i32, solver: &mut Rc<RefCell<Solver>>, depth: usize) -> JobOutcome {
+    fn process_job(
+        &mut self,
+        node: Node,
+        parent_time: i32,
+        solver: &mut Rc<RefCell<Solver>>,
+        depth: usize,
+    ) -> JobOutcome {
         if depth >= self.options.max_depth {
             return JobOutcome::Final(JobState::Undefined);
         }
@@ -216,9 +253,11 @@ impl Tableau {
                 }
             }
             return JobOutcome::Final(JobState::Unsat);
-        } 
+        }
 
-        if let Some(store) = &mut self.store && parent_time < node.current_time {
+        if let Some(store) = &mut self.store
+            && parent_time < node.current_time
+        {
             let rejected_node = RejectedNode::from_node(&node);
             if store.check_rejected(&rejected_node) {
                 return JobOutcome::Final(JobState::Unsat);
@@ -232,7 +271,7 @@ impl Tableau {
         self.add_graph_children(&node, &children);
 
         let solver_ref = if parent_time < node.current_time {
-            Rc::new(RefCell::new(solver.borrow().empty_solver())) 
+            Rc::new(RefCell::new(solver.borrow().empty_solver()))
         } else {
             solver.clone()
         };

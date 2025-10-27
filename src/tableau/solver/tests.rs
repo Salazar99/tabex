@@ -2,8 +2,11 @@ use std::sync::Arc;
 
 use num_rational::Ratio;
 
-use crate::{formula::{parser::parse_formula, Expr, Formula}, node::Node, tableau::solver::Solver};
-
+use crate::{
+    formula::{Expr, Formula, parser::parse_formula},
+    node::Node,
+    tableau::solver::Solver,
+};
 
 fn parse_node(input: &str) -> Node {
     let (_, formula) = parse_formula(input).unwrap();
@@ -53,7 +56,7 @@ fn test_push_pop_bool() {
 
     solver.push();
 
-    let node = parse_node("a && b"); 
+    let node = parse_node("a && b");
     assert_eq!(solver.check(&node), true);
 
     solver.push();
@@ -78,7 +81,7 @@ fn test_push_pop_real() {
 
     solver.push();
 
-    let node = parse_node("R_x > 0 && R_x < 5"); 
+    let node = parse_node("R_x > 0 && R_x < 5");
     assert_eq!(solver.check(&node), true);
 
     solver.push();
@@ -134,8 +137,8 @@ fn test_unsat_core_not_enabled() {
 
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
-    
-    let node = Node::from_operands(vec![one, two]); 
+
+    let node = Node::from_operands(vec![one, two]);
 
     assert_eq!(solver.check(&node), false);
     assert_eq!(solver.extract_unsat_core(), None);
@@ -147,14 +150,24 @@ fn test_unsat_core_bool() {
 
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
-    
-    let node = Node::from_operands(vec![one.clone(), two.clone()]); 
+
+    let node = Node::from_operands(vec![one.clone(), two.clone()]);
 
     assert_eq!(solver.check(&node), false);
 
-    let id = if let Formula::Prop(prop) = one { prop.id } else { unreachable!() };
-    let id2 = if let Formula::Not(inner) = two && let Formula::Prop(expr) = *inner { expr.id } else { unreachable!() };
-    
+    let id = if let Formula::Prop(prop) = one {
+        prop.id
+    } else {
+        unreachable!()
+    };
+    let id2 = if let Formula::Not(inner) = two
+        && let Formula::Prop(expr) = *inner
+    {
+        expr.id
+    } else {
+        unreachable!()
+    };
+
     assert_eq!(solver.extract_unsat_core(), Some(vec![id, id2]));
 }
 
@@ -185,9 +198,19 @@ fn test_unsat_core_bool_one_excluded() {
     let core = solver.extract_unsat_core().unwrap();
     assert_eq!(core.len(), 2);
 
-    let id = if let Formula::Prop(expr) = one { expr.id } else { unreachable!() };
-    let id2 = if let Formula::Not(inner) = two && let Formula::Prop(expr) = *inner { expr.id } else { unreachable!() };
-    
+    let id = if let Formula::Prop(expr) = one {
+        expr.id
+    } else {
+        unreachable!()
+    };
+    let id2 = if let Formula::Not(inner) = two
+        && let Formula::Prop(expr) = *inner
+    {
+        expr.id
+    } else {
+        unreachable!()
+    };
+
     assert!(core.contains(&id));
     assert!(core.contains(&id2));
 }
@@ -196,17 +219,29 @@ fn test_unsat_core_bool_one_excluded() {
 fn test_unsat_core_real() {
     let mut solver = Solver::new(true, false);
 
-    let one = Formula::prop(Expr::real ( 
-        crate::formula::RelOp::Ge, crate::formula::AExpr::Var(Arc::from("x")), crate::formula::AExpr::Num(Ratio::from_integer(5))
+    let one = Formula::prop(Expr::real(
+        crate::formula::RelOp::Ge,
+        crate::formula::AExpr::Var(Arc::from("x")),
+        crate::formula::AExpr::Num(Ratio::from_integer(5)),
     ));
-    let two = Formula::prop(Expr::real ( 
-        crate::formula::RelOp::Le, crate::formula::AExpr::Var(Arc::from("x")), crate::formula::AExpr::Num(Ratio::from_integer(0))
+    let two = Formula::prop(Expr::real(
+        crate::formula::RelOp::Le,
+        crate::formula::AExpr::Var(Arc::from("x")),
+        crate::formula::AExpr::Num(Ratio::from_integer(0)),
     ));
 
     let node = Node::from_operands(vec![one.clone(), two.clone()]);
 
-    let id = if let Formula::Prop(expr) = one { expr.id } else { unreachable!() };
-    let id2 = if let Formula::Prop(expr) = two { expr.id } else { unreachable!() };
+    let id = if let Formula::Prop(expr) = one {
+        expr.id
+    } else {
+        unreachable!()
+    };
+    let id2 = if let Formula::Prop(expr) = two {
+        expr.id
+    } else {
+        unreachable!()
+    };
 
     assert_eq!(solver.check(&node), false);
     assert_eq!(solver.extract_unsat_core(), Some(vec![id, id2]));
@@ -255,8 +290,16 @@ fn test_unsat_core_real_one_excluded() {
 
     let node = Node::from_operands(vec![one.clone(), two.clone(), three]);
 
-    let id = if let Formula::Prop(expr) = one { expr.id } else { unreachable!() };
-    let id2 = if let Formula::Prop(expr) = two { expr.id } else { unreachable!() };
+    let id = if let Formula::Prop(expr) = one {
+        expr.id
+    } else {
+        unreachable!()
+    };
+    let id2 = if let Formula::Prop(expr) = two {
+        expr.id
+    } else {
+        unreachable!()
+    };
 
     assert_eq!(solver.check(&node), false);
     let core = solver.extract_unsat_core().unwrap();
@@ -280,9 +323,13 @@ fn test_unsat_core_false() {
     let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
 
     assert_eq!(solver.check(&node), false);
-    
-    let id2 = if let Formula::Prop(expr) = two { expr.id } else { unreachable!() };
-    
+
+    let id2 = if let Formula::Prop(expr) = two {
+        expr.id
+    } else {
+        unreachable!()
+    };
+
     let core = solver.extract_unsat_core().unwrap();
     assert!(core.contains(&id2));
 }
@@ -302,9 +349,15 @@ fn test_unsat_core_not_true() {
     let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
 
     assert_eq!(solver.check(&node), false);
-    
-    let id2 = if let Formula::Not(inner) = two && let Formula::Prop(expr) = *inner { expr.id } else { unreachable!() };
-    
+
+    let id2 = if let Formula::Not(inner) = two
+        && let Formula::Prop(expr) = *inner
+    {
+        expr.id
+    } else {
+        unreachable!()
+    };
+
     let core = solver.extract_unsat_core().unwrap();
     assert!(core.contains(&id2));
 }

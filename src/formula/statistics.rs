@@ -6,25 +6,26 @@ use crate::formula::{AExpr, ExprKind, Formula, VariableName};
 mod tests;
 
 impl Formula {
-
     pub fn temporal_operator_depth(&self) -> i32 {
         match self {
-            Formula::And(ops) | Formula::Or(ops) => {
-                ops.iter().map(|f| f.temporal_operator_depth()).max().unwrap_or(0)
-            }
-            Formula::Not(f) => {
-                f.temporal_operator_depth()
-            }
+            Formula::And(ops) | Formula::Or(ops) => ops
+                .iter()
+                .map(|f| f.temporal_operator_depth())
+                .max()
+                .unwrap_or(0),
+            Formula::Not(f) => f.temporal_operator_depth(),
             Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
                 1 + f.temporal_operator_depth()
             }
             Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
-                1 + left.temporal_operator_depth().max(right.temporal_operator_depth())
+                1 + left
+                    .temporal_operator_depth()
+                    .max(right.temporal_operator_depth())
             }
-            Formula::Imply { left, right, .. } => {
-                left.temporal_operator_depth().max(right.temporal_operator_depth())
-            }
-            _ => { 0 }
+            Formula::Imply { left, right, .. } => left
+                .temporal_operator_depth()
+                .max(right.temporal_operator_depth()),
+            _ => 0,
         }
     }
 
@@ -33,13 +34,14 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 1 + ops.iter().map(|f| f.depth()).max().unwrap_or(0)
             }
-            Formula::Not(f) | Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
-                1 + f.depth()
-            }
-            Formula::U { left, right, .. } | Formula::R { left, right, .. } | Formula::Imply { left, right, .. } => {
-                1 + left.depth().max(right.depth())
-            }
-            _ => { 0 }
+            Formula::Not(f)
+            | Formula::O(f)
+            | Formula::F { phi: f, .. }
+            | Formula::G { phi: f, .. } => 1 + f.depth(),
+            Formula::U { left, right, .. }
+            | Formula::R { left, right, .. }
+            | Formula::Imply { left, right, .. } => 1 + left.depth().max(right.depth()),
+            _ => 0,
         }
     }
 
@@ -48,22 +50,27 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 ops.iter().map(|f| f.length()).max().unwrap_or(0)
             }
-            Formula::Not(f) | Formula::O(f) => {
-                f.length()
-            }
-            Formula::Imply { left, right, .. } => {
-                left.length().max(right.length())
-            }
+            Formula::Not(f) | Formula::O(f) => f.length(),
+            Formula::Imply { left, right, .. } => left.length().max(right.length()),
             Formula::F { phi, interval, .. } | Formula::G { phi, interval, .. } => {
                 interval.upper + phi.length()
             }
-            Formula::U { left, right, interval, .. } | Formula::R { left, right, interval, .. }  => {
-                interval.upper + left.length().max(right.length())
+            Formula::U {
+                left,
+                right,
+                interval,
+                ..
             }
-            _ => { 0 }
+            | Formula::R {
+                left,
+                right,
+                interval,
+                ..
+            } => interval.upper + left.length().max(right.length()),
+            _ => 0,
         }
     }
-    
+
     pub fn boolean_variables(&self) -> i32 {
         fn inner_boolean_variables(formula: &Formula, boolean_vars: &mut HashSet<VariableName>) {
             match formula {
@@ -72,10 +79,15 @@ impl Formula {
                         inner_boolean_variables(f, boolean_vars);
                     }
                 }
-                Formula::Not(f) | Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+                Formula::Not(f)
+                | Formula::O(f)
+                | Formula::F { phi: f, .. }
+                | Formula::G { phi: f, .. } => {
                     inner_boolean_variables(f, boolean_vars);
                 }
-                Formula::U { left, right, .. } | Formula::R { left, right, .. } | Formula::Imply { left, right, .. } => {
+                Formula::U { left, right, .. }
+                | Formula::R { left, right, .. }
+                | Formula::Imply { left, right, .. } => {
                     inner_boolean_variables(left, boolean_vars);
                     inner_boolean_variables(right, boolean_vars);
                 }
@@ -99,15 +111,20 @@ impl Formula {
                         inner_real_variables(f, real_vars);
                     }
                 }
-                Formula::Not(f) | Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+                Formula::Not(f)
+                | Formula::O(f)
+                | Formula::F { phi: f, .. }
+                | Formula::G { phi: f, .. } => {
                     inner_real_variables(f, real_vars);
                 }
-                Formula::U { left, right, .. } | Formula::R { left, right, .. } | Formula::Imply { left, right, .. } => {
+                Formula::U { left, right, .. }
+                | Formula::R { left, right, .. }
+                | Formula::Imply { left, right, .. } => {
                     inner_real_variables(left, real_vars);
                     inner_real_variables(right, real_vars);
                 }
                 Formula::Prop(expr) => {
-                    if let ExprKind::Rel {left, right, .. } = &expr.kind {
+                    if let ExprKind::Rel { left, right, .. } = &expr.kind {
                         inner_real_variables_aexpr(left, real_vars);
                         inner_real_variables_aexpr(right, real_vars);
                     }
@@ -115,7 +132,10 @@ impl Formula {
             }
         }
 
-        fn inner_real_variables_aexpr(aexpr: &crate::formula::AExpr, real_vars: &mut HashSet<VariableName>) {
+        fn inner_real_variables_aexpr(
+            aexpr: &crate::formula::AExpr,
+            real_vars: &mut HashSet<VariableName>,
+        ) {
             match aexpr {
                 AExpr::Var(var_name) => {
                     real_vars.insert(var_name.clone());
@@ -145,16 +165,12 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 ops.iter().map(|f| f.boolean_constraints()).sum()
             }
-            Formula::Not(f) | Formula::O(f) => {
-                f.boolean_constraints()
-            }
+            Formula::Not(f) | Formula::O(f) => f.boolean_constraints(),
             Formula::Imply { left, right, .. } => {
                 left.boolean_constraints() + right.boolean_constraints()
             }
-            Formula::F { phi, .. } | Formula::G { phi, .. } => {
-                phi.boolean_constraints()
-            }
-            Formula::U { left, right, .. } | Formula::R { left, right, .. }  => {
+            Formula::F { phi, .. } | Formula::G { phi, .. } => phi.boolean_constraints(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
                 left.boolean_constraints() + right.boolean_constraints()
             }
             Formula::Prop(expr) => {
@@ -169,23 +185,17 @@ impl Formula {
 
     pub fn real_constraints(&self) -> i32 {
         match self {
-            Formula::And(ops) | Formula::Or(ops) => {
-                ops.iter().map(|f| f.real_constraints()).sum()
-            }
-            Formula::Not(f) | Formula::O(f) => {
-                f.real_constraints()
-            }
+            Formula::And(ops) | Formula::Or(ops) => ops.iter().map(|f| f.real_constraints()).sum(),
+            Formula::Not(f) | Formula::O(f) => f.real_constraints(),
             Formula::Imply { left, right, .. } => {
                 left.real_constraints() + right.real_constraints()
             }
-            Formula::F { phi, .. } | Formula::G { phi, .. } => {
-                phi.real_constraints()
-            }
-            Formula::U { left, right, .. } | Formula::R { left, right, .. }  => {
+            Formula::F { phi, .. } | Formula::G { phi, .. } => phi.real_constraints(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
                 left.real_constraints() + right.real_constraints()
             }
             Formula::Prop(expr) => {
-                if let ExprKind::Rel {..} = expr.kind {
+                if let ExprKind::Rel { .. } = expr.kind {
                     1
                 } else {
                     0
@@ -202,17 +212,27 @@ impl Formula {
         debug_assert!(self.is_flat());
         match self {
             Formula::Or(ops) => {
-                let inner = ops.iter().map(|f| f.disjunction_max_width()).max().unwrap_or(0);
+                let inner = ops
+                    .iter()
+                    .map(|f| f.disjunction_max_width())
+                    .max()
+                    .unwrap_or(0);
                 (ops.len() as i32).max(inner)
             }
-            Formula::And(ops) => ops.iter().map(|f| f.disjunction_max_width()).max().unwrap_or(0),
+            Formula::And(ops) => ops
+                .iter()
+                .map(|f| f.disjunction_max_width())
+                .max()
+                .unwrap_or(0),
             Formula::Not(f) => f.disjunction_max_width(),
-            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => f.disjunction_max_width(),
+            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+                f.disjunction_max_width()
+            }
             Formula::U { left, right, .. }
             | Formula::R { left, right, .. }
-            | Formula::Imply { left, right, .. } => {
-                left.disjunction_max_width().max(right.disjunction_max_width())
-            }
+            | Formula::Imply { left, right, .. } => left
+                .disjunction_max_width()
+                .max(right.disjunction_max_width()),
             _ => 0,
         }
     }
@@ -226,7 +246,9 @@ impl Formula {
             }
             Formula::And(ops) => ops.iter().map(|f| f.disjunction_total_width()).sum(),
             Formula::Not(f) => f.disjunction_total_width(),
-            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => f.disjunction_total_width(),
+            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+                f.disjunction_total_width()
+            }
             Formula::U { left, right, .. }
             | Formula::R { left, right, .. }
             | Formula::Imply { left, right, .. } => {
@@ -239,23 +261,21 @@ impl Formula {
     pub fn combinatorial_branching_count(&self) -> i64 {
         debug_assert!(self.is_flat());
         match self {
-            Formula::Or(ops) => {
-                ops.iter().map(|f| f.combinatorial_branching_count()).sum()
-            }
-            Formula::And(ops) => {
-                ops.iter().map(|f| f.combinatorial_branching_count()).product()
-            }
+            Formula::Or(ops) => ops.iter().map(|f| f.combinatorial_branching_count()).sum(),
+            Formula::And(ops) => ops
+                .iter()
+                .map(|f| f.combinatorial_branching_count())
+                .product(),
             Formula::Not(f)
             | Formula::O(f)
             | Formula::F { phi: f, .. }
             | Formula::G { phi: f, .. } => f.combinatorial_branching_count(),
-            Formula::U { left, right, .. }
-            | Formula::R { left, right, .. } => {
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
                 left.combinatorial_branching_count() * right.combinatorial_branching_count()
             }
-            Formula::Imply { not_left, right, .. } => {
-                not_left.combinatorial_branching_count() + right.combinatorial_branching_count()
-            }
+            Formula::Imply {
+                not_left, right, ..
+            } => not_left.combinatorial_branching_count() + right.combinatorial_branching_count(),
             _ => 1,
         }
     }

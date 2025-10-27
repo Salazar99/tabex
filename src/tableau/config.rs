@@ -76,7 +76,6 @@ pub struct CliArgs {
     /// Enable unsat core extraction
     #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
     pub unsat_core_extraction: bool,
-
 }
 
 pub enum ConfigSource {

@@ -44,10 +44,15 @@ fn main() {
 
     // Prepare CSV output
     let mut csv_output = Vec::new();
-    csv_output.push("filename,depth,temporal_depth,length,bool_vars,real_vars,disjunctions".to_string());
+    csv_output
+        .push("filename,depth,temporal_depth,length,bool_vars,real_vars,disjunctions".to_string());
 
     for file_path in stl_files {
-        let filename = file_path.strip_prefix(dir).unwrap_or(&file_path).to_str().unwrap();
+        let filename = file_path
+            .strip_prefix(dir)
+            .unwrap_or(&file_path)
+            .to_str()
+            .unwrap();
         match fs::read_to_string(&file_path) {
             Ok(content) => {
                 for (line_num, line) in content.lines().enumerate() {
@@ -59,9 +64,14 @@ fn main() {
                     match parse_formula(line) {
                         Ok((remaining, formula)) => {
                             if !remaining.is_empty() {
-                                eprintln!("Warning: remaining unparsed content in {} line {}: '{}'", filename, line_num + 1, remaining);
+                                eprintln!(
+                                    "Warning: remaining unparsed content in {} line {}: '{}'",
+                                    filename,
+                                    line_num + 1,
+                                    remaining
+                                );
                             }
-                            
+
                             let mut node = Node::from_operands(vec![formula]);
 
                             // Normalization Stage

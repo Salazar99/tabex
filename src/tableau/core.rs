@@ -1,4 +1,4 @@
-use crate::{formula::{Formula}, node::Node};
+use crate::{formula::Formula, node::Node};
 use std::collections::{HashMap, HashSet};
 
 #[cfg(test)]
@@ -30,14 +30,18 @@ impl UnsatCore {
                 Formula::O(child) | Formula::Not(child) => {
                     add_formula_inner(core, child, parent_id);
                 }
-                Formula::G {phi, ..} | Formula::F {phi, ..} => {
+                Formula::G { phi, .. } | Formula::F { phi, .. } => {
                     add_formula_inner(core, phi, parent_id);
                 }
                 Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
                     add_formula_inner(core, left, parent_id);
                     add_formula_inner(core, right, parent_id);
                 }
-                Formula::Imply { left, right, not_left } => {
+                Formula::Imply {
+                    left,
+                    right,
+                    not_left,
+                } => {
                     add_formula_inner(core, left, parent_id);
                     add_formula_inner(core, right, parent_id);
                     add_formula_inner(core, not_left, parent_id);
@@ -49,13 +53,17 @@ impl UnsatCore {
         }
         add_formula_inner(self, formula, index);
     }
-    
+
     fn add_formula(&mut self, formula: &Formula, index: usize) {
         self.add_formula_rec(formula, index);
     }
 
     fn get_tree_ends(&self) -> HashSet<usize> {
-        self.unsat_core.iter().filter_map(|id| self.map.get(id)).cloned().collect::<HashSet<usize>>()
+        self.unsat_core
+            .iter()
+            .filter_map(|id| self.map.get(id))
+            .cloned()
+            .collect::<HashSet<usize>>()
     }
 
     pub fn initialize_root_node(&mut self, node: &Node) {

@@ -1,8 +1,11 @@
-use std::{fmt::{self, Display}, sync::atomic::{AtomicUsize, Ordering}};
 use crate::formula::*;
+use std::{
+    fmt::{self, Display},
+    sync::atomic::{AtomicUsize, Ordering},
+};
 
-pub mod rewrite;
 pub mod decompose;
+pub mod rewrite;
 
 pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 
@@ -29,12 +32,12 @@ impl Node {
             match formula {
                 Formula::Prop(_) | Formula::Not(_) | Formula::O(_) => continue,
                 f if !f.is_active_at(self.current_time) => continue,
-                _ => return false
+                _ => return false,
             }
         }
         true
     }
-    
+
     pub fn to_formula(&self) -> Formula {
         if self.operands.len() == 1 {
             self.operands[0].clone()
@@ -57,6 +60,11 @@ impl Clone for Node {
 
 impl Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} | {}", join_with(&self.operands, ", "), self.current_time)
+        write!(
+            f,
+            "{} | {}",
+            join_with(&self.operands, ", "),
+            self.current_time
+        )
     }
 }

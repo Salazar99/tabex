@@ -1,10 +1,13 @@
-use crate::node::Node;
 use crate::formula::{AExpr, ArithOp, ExprKind, Formula, RelOp};
+use crate::node::Node;
 
+use std::collections::HashSet;
 use std::collections::{BTreeMap, HashMap};
 use z3::ast::Ast;
-use z3::{Solver as Z3Solver, ast::{Real, Bool}};
-use std::collections::HashSet;
+use z3::{
+    Solver as Z3Solver,
+    ast::{Bool, Real},
+};
 
 use std::sync::Arc;
 
@@ -44,7 +47,11 @@ impl Solver {
     pub fn new(unsat_core_extraction: bool, mltl: bool) -> Self {
         Solver {
             boolean_solver: BooleanSolver::new(unsat_core_extraction),
-            real_solver: if !mltl { Some(RealSolver::new(unsat_core_extraction)) } else { None },
+            real_solver: if !mltl {
+                Some(RealSolver::new(unsat_core_extraction))
+            } else {
+                None
+            },
             unsat_core_extraction: unsat_core_extraction,
         }
     }
@@ -60,38 +67,51 @@ impl Solver {
 
     pub fn push(&mut self) {
         self.boolean_solver.push();
-        self.real_solver.as_mut().map(|real_solver| real_solver.push());
+        self.real_solver
+            .as_mut()
+            .map(|real_solver| real_solver.push());
     }
 
     pub fn pop(&mut self) {
         self.boolean_solver.pop();
-        self.real_solver.as_mut().map(|real_solver| real_solver.pop());
+        self.real_solver
+            .as_mut()
+            .map(|real_solver| real_solver.pop());
     }
 
     fn add_constraints(&mut self, node: &Node) {
         fn get_assertion(formula: &Formula) -> Option<Assertion> {
             match &formula {
-                Formula::Prop(expr) => Some(Assertion { id: expr.id, expr: expr.kind.clone(), negated: false }),
-                Formula::Not(inner) => {
-                    get_assertion(inner).map(|mut ass| {
-                        ass.negated = !ass.negated;
-                        ass
-                    })
-                }
+                Formula::Prop(expr) => Some(Assertion {
+                    id: expr.id,
+                    expr: expr.kind.clone(),
+                    negated: false,
+                }),
+                Formula::Not(inner) => get_assertion(inner).map(|mut ass| {
+                    ass.negated = !ass.negated;
+                    ass
+                }),
                 _ => None,
             }
         }
-        node.operands.iter().filter_map(get_assertion).for_each(|ass| {
-            match &ass.expr {
+        node.operands
+            .iter()
+            .filter_map(get_assertion)
+            .for_each(|ass| match &ass.expr {
                 ExprKind::Atom(var) => {
                     self.boolean_solver.add_constraint(ass.negated, var, ass.id);
                 }
                 ExprKind::Rel { left, right, op } => {
-                    self.real_solver.as_mut().unwrap().add_constraint(ass.negated, op.clone(), left.clone(), right.clone(), ass.id);
-                },
+                    self.real_solver.as_mut().unwrap().add_constraint(
+                        ass.negated,
+                        op.clone(),
+                        left.clone(),
+                        right.clone(),
+                        ass.id,
+                    );
+                }
                 _ => {}
-            }
-        });
+            });
     }
 
     pub fn check(&mut self, node: &Node) -> bool {
@@ -104,11 +124,13 @@ impl Solver {
                     return false;
                 }
                 Formula::Not(inner) => {
-                    if let Formula::Prop(expr) = &**inner && matches!(expr.kind, ExprKind::True) {
-                    if self.unsat_core_extraction {
-                        self.boolean_solver.unsat_core = Some(vec![expr.id]);
-                    }
-                    return false;
+                    if let Formula::Prop(expr) = &**inner
+                        && matches!(expr.kind, ExprKind::True)
+                    {
+                        if self.unsat_core_extraction {
+                            self.boolean_solver.unsat_core = Some(vec![expr.id]);
+                        }
+                        return false;
                     }
                 }
                 _ => {}
@@ -116,7 +138,10 @@ impl Solver {
         }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
-        let real_ok = self.real_solver.as_mut().map_or(true, |real_solver| real_solver.check());
+        let real_ok = self
+            .real_solver
+            .as_mut()
+            .map_or(true, |real_solver| real_solver.check());
         let res = bool_ok && real_ok;
         res
     }
@@ -125,9 +150,11 @@ impl Solver {
         if let Some(vec) = self.boolean_solver.unsat_core.clone() {
             return Some(vec);
         }
-        return self.real_solver.as_ref().map_or(None, |real_solver| real_solver.unsat_core.clone());
+        return self
+            .real_solver
+            .as_ref()
+            .map_or(None, |real_solver| real_solver.unsat_core.clone());
     }
-
 }
 
 struct BooleanSolver {
@@ -203,7 +230,10 @@ impl BooleanSolver {
         if let Some(res) = self.result_cache {
             res
         } else {
-            let res = !self.pos_props.keys().any(|pos| self.neg_props.contains_key(pos));
+            let res = !self
+                .pos_props
+                .keys()
+                .any(|pos| self.neg_props.contains_key(pos));
             self.result_cache = Some(res);
             if self.unsat_core_extraction && !res {
                 for (prop, id) in self.pos_props.iter() {
@@ -218,7 +248,7 @@ impl BooleanSolver {
     }
 }
 
-struct RealSolver {    
+struct RealSolver {
     z3_solver: Z3Solver,
     z3_variables: BTreeMap<String, Real>,
     z3_ast_cache: HashMap<(bool, RelOp, AExpr, AExpr), Bool>,
