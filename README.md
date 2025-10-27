@@ -27,3 +27,10 @@ Or after building:
 ```
 
 For example: `cargo run resources/formulas.stl`
+
+## justfile
+
+The [justfile](./justfile) provides an overview of and easy access to common development tasks
+like running linters and tests via the [just](https://github.com/casey/just) command runner.
+After [installation](https://github.com/casey/just?tab=readme-ov-file#installation),
+for example via `cargo install just`, run `just` to see the available tasks.
