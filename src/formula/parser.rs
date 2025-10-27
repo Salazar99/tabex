@@ -39,7 +39,7 @@ fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
     fn aexpr_term(input: &str) -> IResult<&str, AExpr> {
         alt((
             // Number
-            map(parse_decimal, |v| AExpr::Num(v)),
+            map(parse_decimal, AExpr::Num),
             // Variable
             map(
                 recognize(pair(alpha1, many0(alt((alpha1, digit1, tag("_")))))),

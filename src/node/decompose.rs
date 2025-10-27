@@ -9,10 +9,10 @@ mod tests;
 
 impl Tableau {
     pub fn decompose(&self, node: &Node) -> Option<Vec<Node>> {
-        if self.options.formula_optimizations {
-            if let Some(res) = node.rewrite_chain() {
-                return Some(res);
-            }
+        if self.options.formula_optimizations
+            && let Some(res) = node.rewrite_chain()
+        {
+            return Some(res);
         }
 
         if let Some(res) = self.decompose_and(node) {
@@ -86,10 +86,10 @@ impl Tableau {
                     if f.is_active_at(node.current_time + 1) {
                         vec![
                             Formula::o(f.clone()),
-                            phi.temporal_expansion(node.current_time, Some(&interval)),
+                            phi.temporal_expansion(node.current_time, Some(interval)),
                         ]
                     } else {
-                        vec![phi.temporal_expansion(node.current_time, Some(&interval))]
+                        vec![phi.temporal_expansion(node.current_time, Some(interval))]
                     }
                 }
                 _ => vec![f.clone()],
@@ -203,12 +203,12 @@ impl Tableau {
         if node.current_time < interval.upper {
             // Node in which U is not satisfied (p, OU)
             let mut new_node2 = node.clone();
-            new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(&interval));
+            new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(interval));
             new_node2.operands.push(Formula::o(u_formula.clone()));
 
             return vec![new_node1, new_node2];
         }
-        return vec![new_node1];
+        vec![new_node1]
     }
 
     pub fn decompose_r_at(&self, node: &Node, i: usize) -> Vec<Node> {
@@ -280,21 +280,17 @@ impl Tableau {
             node.operands
                 .iter()
                 .filter_map(|f| top_level_interval(f, node.current_time))
-                .flat_map(|i| i)
+                .flatten()
                 .collect()
         }
 
         pub fn get_max_upper(formula: &Formula) -> Option<i32> {
             match &formula {
-                Formula::O(inner) | Formula::Not(inner) => get_max_upper(&inner),
-                Formula::And(operands) | Formula::Or(operands) => operands
-                    .iter()
-                    .map(|op| get_max_upper(op))
-                    .max()
-                    .unwrap_or(None),
-                Formula::Imply { left, right, .. } => {
-                    get_max_upper(&left).max(get_max_upper(&right))
+                Formula::O(inner) | Formula::Not(inner) => get_max_upper(inner),
+                Formula::And(operands) | Formula::Or(operands) => {
+                    operands.iter().map(get_max_upper).max().unwrap_or(None)
                 }
+                Formula::Imply { left, right, .. } => get_max_upper(left).max(get_max_upper(right)),
                 Formula::G { interval, .. }
                 | Formula::F { interval, .. }
                 | Formula::U { interval, .. }
@@ -329,7 +325,7 @@ impl Tableau {
                                 right: phi,
                                 interval,
                                 ..
-                            } => match get_max_upper(&phi) {
+                            } => match get_max_upper(phi) {
                                 None => false,
                                 Some(max_upper) => node.current_time < interval.lower + max_upper,
                             },
@@ -340,15 +336,13 @@ impl Tableau {
         // Select jump length
         let jump = if step {
             1
+        } else if let Some(target_time) = sorted_time_instants(node)
+            .into_iter()
+            .find(|&t| t > node.current_time)
+        {
+            target_time - node.current_time
         } else {
-            if let Some(target_time) = sorted_time_instants(node)
-                .into_iter()
-                .find(|&t| t > node.current_time)
-            {
-                target_time - node.current_time
-            } else {
-                return None;
-            }
+            return None;
         };
 
         // Retain only temporal operators, and retimed O formulas
@@ -387,7 +381,7 @@ impl Tableau {
                 return Some(vec![simple_node, new_node]);
             }
         }
-        return Some(vec![new_node]);
+        Some(vec![new_node])
     }
 }
 

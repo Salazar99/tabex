@@ -46,7 +46,7 @@ impl RejectedNode {
                 }
             }
         }
-        return false;
+        false
     }
 }
 
@@ -58,6 +58,12 @@ impl Display for RejectedNode {
 
 pub struct Store {
     pub store: HashSet<RejectedNode>,
+}
+
+impl Default for Store {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Store {
@@ -73,10 +79,9 @@ impl Store {
     }
 
     pub fn check_rejected(&self, node: &RejectedNode) -> bool {
-        return self
-            .store
+        self.store
             .iter()
-            .any(|rejected: &RejectedNode| node.implies(rejected));
+            .any(|rejected: &RejectedNode| node.implies(rejected))
     }
 }
 
@@ -96,13 +101,12 @@ impl Formula {
                     ..
                 },
             ) => {
-                return if let (Some(i1), Some(i2)) =
-                    (i1.shift_left(self_time), i2.shift_left(other_time))
+                if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time))
                 {
                     i1.contains(&i2) && f1 == f2
                 } else {
                     false
-                };
+                }
             }
             (
                 Formula::F {
@@ -116,13 +120,12 @@ impl Formula {
                     ..
                 },
             ) => {
-                return if let (Some(i1), Some(i2)) =
-                    (i1.shift_left(self_time), i2.shift_left(other_time))
+                if let (Some(i1), Some(i2)) = (i1.shift_left(self_time), i2.shift_left(other_time))
                 {
                     i2.contains(&i1) && f1 == f2
                 } else {
                     false
-                };
+                }
             }
             _ => false,
         }

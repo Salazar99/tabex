@@ -219,7 +219,7 @@ impl Formula {
     pub fn g(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
         Formula::G {
             interval,
-            parent_upper: parent_upper,
+            parent_upper,
             phi: Box::new(phi),
         }
     }
@@ -227,7 +227,7 @@ impl Formula {
     pub fn f(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
         Formula::F {
             interval,
-            parent_upper: parent_upper,
+            parent_upper,
             phi: Box::new(phi),
         }
     }
@@ -235,7 +235,7 @@ impl Formula {
     pub fn u(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
         Formula::U {
             interval,
-            parent_upper: parent_upper,
+            parent_upper,
             left: Box::new(left),
             right: Box::new(right),
         }
@@ -244,7 +244,7 @@ impl Formula {
     pub fn r(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
         Formula::R {
             interval,
-            parent_upper: parent_upper,
+            parent_upper,
             left: Box::new(left),
             right: Box::new(right),
         }

@@ -188,10 +188,10 @@ impl Tableau {
                         if implies {
                             parent.children.clear();
                         }
-                        if parent.node.current_time < job.node.current_time {
-                            if let Some(store) = &mut self.store {
-                                store.add_rejected(RejectedNode::from_node(&job.node));
-                            }
+                        if parent.node.current_time < job.node.current_time
+                            && let Some(store) = &mut self.store
+                        {
+                            store.add_rejected(RejectedNode::from_node(&job.node));
                         }
                     }
                     _ => {}
@@ -247,10 +247,10 @@ impl Tableau {
         }
 
         if !solver.borrow_mut().check(&node) {
-            if let Some(core) = &mut self.unsat_core {
-                if let Some(new_core) = solver.borrow_mut().extract_unsat_core() {
-                    core.add_to_unsat_core(new_core);
-                }
+            if let Some(core) = &mut self.unsat_core
+                && let Some(new_core) = solver.borrow_mut().extract_unsat_core()
+            {
+                core.add_to_unsat_core(new_core);
             }
             return JobOutcome::Final(JobState::Unsat);
         }
@@ -277,12 +277,12 @@ impl Tableau {
         };
 
         let job = Frame {
-            node: node,
+            node,
             children: children.into(),
             depth: depth + 1,
             solver: solver_ref,
             result: None,
         };
-        return JobOutcome::Decomposed(job);
+        JobOutcome::Decomposed(job)
     }
 }

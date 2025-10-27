@@ -499,11 +499,11 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
                         if rep_idx >= idx {
                             break;
                         }
-                        if let Formula::G { phi: rep_phi, .. } = rep_formula {
-                            if rep_phi.eq_structural(phi) {
-                                found = Some(rep_idx);
-                                break;
-                            }
+                        if let Formula::G { phi: rep_phi, .. } = rep_formula
+                            && rep_phi.eq_structural(phi)
+                        {
+                            found = Some(rep_idx);
+                            break;
                         }
                     }
 
@@ -517,11 +517,10 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
                             } else if let Formula::G {
                                 interval: rep_int, ..
                             } = &input[rep_idx]
+                                && (rep_int.intersects(interval) || rep_int.contiguous(interval))
                             {
-                                if rep_int.intersects(interval) || rep_int.contiguous(interval) {
-                                    map.insert(rep_idx, rep_int.union(interval));
-                                    to_remove.insert(idx);
-                                }
+                                map.insert(rep_idx, rep_int.union(interval));
+                                to_remove.insert(idx);
                             }
                         }
                         None => {
@@ -567,29 +566,29 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
 
         // false in any operand ⇒ false
         for u in &unique {
-            if let Formula::Prop(e) = u {
-                if let ExprKind::False = e.kind {
-                    return Formula::prop(Expr::false_expr());
-                }
+            if let Formula::Prop(e) = u
+                && let ExprKind::False = e.kind
+            {
+                return Formula::prop(Expr::false_expr());
             }
         }
 
         // remove all "true" operands (A && true = A)
         unique.retain(|u| {
-            if let Formula::Prop(e) = u {
-                if let ExprKind::True = e.kind {
-                    return false;
-                }
+            if let Formula::Prop(e) = u
+                && let ExprKind::True = e.kind
+            {
+                return false;
             }
             true
         });
 
         // 4. contradiction: A && !A = false
         for u in &unique {
-            if let Formula::Not(inner) = u {
-                if unique.iter().any(|x| x.eq_structural(&*inner)) {
-                    return Formula::prop(Expr::false_expr());
-                }
+            if let Formula::Not(inner) = u
+                && unique.iter().any(|x| x.eq_structural(inner))
+            {
+                return Formula::prop(Expr::false_expr());
             }
         }
 
@@ -608,7 +607,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
                 }
                 // (A && F[0,u](A)) → A
                 Formula::F { interval, phi, .. } if interval.lower == 0 => {
-                    if unique.iter().any(|a| a.eq_structural(&*phi)) {
+                    if unique.iter().any(|a| a.eq_structural(phi)) {
                         continue; // redundant F[0,u](A)
                     }
                 }
@@ -645,16 +644,15 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
                             interval: int_j,
                             ..
                         } = prev
+                            && phi.eq_structural(phi_j)
                         {
-                            if phi.eq_structural(phi_j) {
-                                if interval.contains(int_j) {
-                                    to_remove.insert(idx);
-                                } else if int_j.contains(interval) {
-                                    to_remove.insert(j);
-                                    map.insert(idx, interval.clone());
-                                }
-                                break;
+                            if interval.contains(int_j) {
+                                to_remove.insert(idx);
+                            } else if int_j.contains(interval) {
+                                to_remove.insert(j);
+                                map.insert(idx, interval.clone());
                             }
+                            break;
                         }
                     }
                     map.entry(idx).or_insert(interval.clone());
@@ -691,29 +689,29 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         // 3. annihilators and identities
         // true in any operand ⇒ true
         for u in &unique {
-            if let Formula::Prop(e) = u {
-                if let ExprKind::True = e.kind {
-                    return Formula::prop(Expr::true_expr());
-                }
+            if let Formula::Prop(e) = u
+                && let ExprKind::True = e.kind
+            {
+                return Formula::prop(Expr::true_expr());
             }
         }
 
         // remove all "false" operands (A || false = A)
         unique.retain(|u| {
-            if let Formula::Prop(e) = u {
-                if let ExprKind::False = e.kind {
-                    return false;
-                }
+            if let Formula::Prop(e) = u
+                && let ExprKind::False = e.kind
+            {
+                return false;
             }
             true
         });
 
         // 4. tautology: A || !A = true
         for u in &unique {
-            if let Formula::Not(inner) = u {
-                if unique.iter().any(|x| x.eq_structural(&*inner)) {
-                    return Formula::prop(Expr::true_expr());
-                }
+            if let Formula::Not(inner) = u
+                && unique.iter().any(|x| x.eq_structural(inner))
+            {
+                return Formula::prop(Expr::true_expr());
             }
         }
 
@@ -732,7 +730,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
                 }
                 // (A || G[0,u](A)) → A
                 Formula::G { interval, phi, .. } => {
-                    if interval.lower == 0 && unique.iter().any(|a| a.eq_structural(&*phi)) {
+                    if interval.lower == 0 && unique.iter().any(|a| a.eq_structural(phi)) {
                         continue; // redundant G[0,u](A)
                     }
                 }
@@ -893,25 +891,25 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // a U[a,b](!a) = F[a,b](!a)
-        if let Formula::Not(inner) = &new_right {
-            if inner.eq_structural(&new_left) {
-                return self.visit(&Formula::f(
-                    interval.clone(),
-                    *parent_upper,
-                    new_right.clone(),
-                ));
-            }
+        if let Formula::Not(inner) = &new_right
+            && inner.eq_structural(&new_left)
+        {
+            return self.visit(&Formula::f(
+                interval.clone(),
+                *parent_upper,
+                new_right.clone(),
+            ));
         }
 
         // !a U[a,b](a) = F[a,b](a)
-        if let Formula::Not(inner) = &new_left {
-            if inner.eq_structural(&new_right) {
-                return self.visit(&Formula::f(
-                    interval.clone(),
-                    *parent_upper,
-                    new_right.clone(),
-                ));
-            }
+        if let Formula::Not(inner) = &new_left
+            && inner.eq_structural(&new_right)
+        {
+            return self.visit(&Formula::f(
+                interval.clone(),
+                *parent_upper,
+                new_right.clone(),
+            ));
         }
 
         // 4. degenerate intervals
@@ -973,25 +971,25 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // !a R[a,b](a) = G[a,b](a)
-        if let Formula::Not(inner) = &new_left {
-            if inner.eq_structural(&new_right) {
-                return self.visit(&Formula::g(
-                    interval.clone(),
-                    *parent_upper,
-                    new_right.clone(),
-                ));
-            }
+        if let Formula::Not(inner) = &new_left
+            && inner.eq_structural(&new_right)
+        {
+            return self.visit(&Formula::g(
+                interval.clone(),
+                *parent_upper,
+                new_right.clone(),
+            ));
         }
 
         // a R[a,b](!a) = G[a,b](!a)
-        if let Formula::Not(inner) = &new_right {
-            if inner.eq_structural(&new_left) {
-                return self.visit(&Formula::g(
-                    interval.clone(),
-                    *parent_upper,
-                    new_right.clone(),
-                ));
-            }
+        if let Formula::Not(inner) = &new_right
+            && inner.eq_structural(&new_left)
+        {
+            return self.visit(&Formula::g(
+                interval.clone(),
+                *parent_upper,
+                new_right.clone(),
+            ));
         }
 
         formula.with_operand_couple(new_left, new_right)

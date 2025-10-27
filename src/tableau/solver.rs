@@ -52,7 +52,7 @@ impl Solver {
             } else {
                 None
             },
-            unsat_core_extraction: unsat_core_extraction,
+            unsat_core_extraction,
         }
     }
 
@@ -67,16 +67,16 @@ impl Solver {
 
     pub fn push(&mut self) {
         self.boolean_solver.push();
-        self.real_solver
-            .as_mut()
-            .map(|real_solver| real_solver.push());
+        if let Some(real_solver) = self.real_solver.as_mut() {
+            real_solver.push()
+        }
     }
 
     pub fn pop(&mut self) {
         self.boolean_solver.pop();
-        self.real_solver
-            .as_mut()
-            .map(|real_solver| real_solver.pop());
+        if let Some(real_solver) = self.real_solver.as_mut() {
+            real_solver.pop()
+        }
     }
 
     fn add_constraints(&mut self, node: &Node) {
@@ -141,19 +141,18 @@ impl Solver {
         let real_ok = self
             .real_solver
             .as_mut()
-            .map_or(true, |real_solver| real_solver.check());
-        let res = bool_ok && real_ok;
-        res
+            .is_none_or(|real_solver| real_solver.check());
+
+        bool_ok && real_ok
     }
 
     pub fn extract_unsat_core(&self) -> Option<Vec<usize>> {
         if let Some(vec) = self.boolean_solver.unsat_core.clone() {
             return Some(vec);
         }
-        return self
-            .real_solver
+        self.real_solver
             .as_ref()
-            .map_or(None, |real_solver| real_solver.unsat_core.clone());
+            .and_then(|real_solver| real_solver.unsat_core.clone())
     }
 }
 
@@ -175,7 +174,7 @@ impl BooleanSolver {
             neg_props: HashMap::with_capacity(64),
             constraint_stack: Vec::new(),
             result_cache: Some(true),
-            unsat_core_extraction: unsat_core_extraction,
+            unsat_core_extraction,
             unsat_core: None,
         }
     }
@@ -268,7 +267,7 @@ impl RealSolver {
             current_constraints: HashSet::new(),
             constraint_stack: Vec::new(),
             result_cache: Some(true),
-            unsat_core_extraction: unsat_core_extraction,
+            unsat_core_extraction,
             unsat_core: None,
         }
     }
@@ -325,10 +324,10 @@ impl RealSolver {
                 let mut core_ids = Vec::new();
                 for expr in unsat_core.iter() {
                     let name = expr.decl().name();
-                    if name.starts_with("p_") {
-                        if let Ok(id) = name[2..].parse::<usize>() {
-                            core_ids.push(id);
-                        }
+                    if name.starts_with("p_")
+                        && let Ok(id) = name[2..].parse::<usize>()
+                    {
+                        core_ids.push(id);
                     }
                 }
                 self.unsat_core = Some(core_ids);

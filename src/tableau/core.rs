@@ -10,6 +10,12 @@ pub struct UnsatCore {
     pub unsat_core: HashSet<usize>,
 }
 
+impl Default for UnsatCore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl UnsatCore {
     pub fn new() -> Self {
         UnsatCore {

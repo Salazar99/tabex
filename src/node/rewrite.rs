@@ -22,17 +22,16 @@ pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
             parent_upper,
         } = &op
         {
-            let key = (*phi.clone(), parent_upper.clone());
+            let key = (*phi.clone(), *parent_upper);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (_, int) = occ.get_mut();
                     if let (Some(interval_u), Some(int_u)) =
                         (interval.shift_left(time), int.shift_left(time))
+                        && (int_u.intersects(&interval_u) || int_u.contiguous(&interval_u))
                     {
-                        if int_u.intersects(&interval_u) || int_u.contiguous(&interval_u) {
-                            to_remove.insert(idx);
-                            *int = int.union(&interval);
-                        }
+                        to_remove.insert(idx);
+                        *int = int.union(interval);
                     }
                 }
                 Entry::Vacant(v) => {
@@ -72,7 +71,7 @@ pub fn merge_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
             interval,
         } = &op
         {
-            let key = (*phi.clone(), parent_upper.clone());
+            let key = (*phi.clone(), *parent_upper);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (i, int) = occ.get_mut();
