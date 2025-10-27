@@ -248,9 +248,7 @@ impl Tableau {
 
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
         fn retime_poised(formula: &Formula, current_time: i32, jump: i32) -> Option<Formula> {
-            let Some(interval) = formula.get_interval() else {
-                return None;
-            };
+            let interval = formula.get_interval()?;
             if current_time >= interval.upper {
                 return None;
             }

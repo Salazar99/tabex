@@ -212,6 +212,10 @@ impl Formula {
         }
     }
 
+    // Clippy wants us to implement the std::ops::Not trait, but I don't think that's appropriate here.
+    // To avoid the warning, we could rename the method and corresponding enum variant to something like "negate",
+    // but I think "not" is clearer and should not be changed just to satisfy the linting rule.
+    #[allow(clippy::should_implement_trait)]
     pub fn not(inner: Formula) -> Self {
         Formula::Not(Box::new(inner))
     }

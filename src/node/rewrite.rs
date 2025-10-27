@@ -11,7 +11,7 @@ use crate::{
 #[cfg(test)]
 mod tests;
 
-pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
+pub fn merge_globally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
@@ -44,7 +44,7 @@ pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     if to_remove.is_empty() {
         return None;
     }
-    let mut new_operands = input.clone();
+    let mut new_operands = input.to_owned();
     for el in map {
         let (idx, new_interval) = el.1;
         new_operands[idx] = new_operands[idx].with_interval(new_interval);
@@ -60,7 +60,7 @@ pub fn merge_globally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     Some(new_operands)
 }
 
-pub fn merge_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
+pub fn merge_finally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 

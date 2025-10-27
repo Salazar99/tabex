@@ -46,11 +46,11 @@ pub trait RecursiveFormulaTransformer {
         }
     }
 
-    fn visit_and(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
+    fn visit_and(&self, formula: &Formula, ops: &[Formula]) -> Formula {
         formula.with_operands(ops.iter().map(|op| self.visit(op)).collect())
     }
 
-    fn visit_or(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
+    fn visit_or(&self, formula: &Formula, ops: &[Formula]) -> Formula {
         formula.with_operands(ops.iter().map(|op| self.visit(op)).collect())
     }
 
@@ -254,7 +254,7 @@ impl RecursiveFormulaTransformer for MLTLTransformer {
 
 pub struct FlatTransformer;
 impl RecursiveFormulaTransformer for FlatTransformer {
-    fn visit_and(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
+    fn visit_and(&self, formula: &Formula, ops: &[Formula]) -> Formula {
         formula.with_operands(
             ops.iter()
                 .map(|op| self.visit(op))
@@ -269,7 +269,7 @@ impl RecursiveFormulaTransformer for FlatTransformer {
         )
     }
 
-    fn visit_or(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
+    fn visit_or(&self, formula: &Formula, ops: &[Formula]) -> Formula {
         formula.with_operands(
             ops.iter()
                 .map(|op| self.visit(op))
@@ -487,7 +487,7 @@ impl RecursiveFormulaTransformer for DupeFormula {
 
 pub struct FormulaSimplifier;
 impl RecursiveFormulaTransformer for FormulaSimplifier {
-    fn visit_and(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
+    fn visit_and(&self, formula: &Formula, ops: &[Formula]) -> Formula {
         fn merge_globally_in_and(input: Vec<Formula>) -> Vec<Formula> {
             let mut to_remove = BTreeSet::new();
             let mut map: BTreeMap<usize, Interval> = BTreeMap::new();
@@ -631,7 +631,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         formula.with_operands(reduced)
     }
 
-    fn visit_or(&self, formula: &Formula, ops: &Vec<Formula>) -> Formula {
+    fn visit_or(&self, formula: &Formula, ops: &[Formula]) -> Formula {
         fn merge_globally_in_or(input: Vec<Formula>) -> Vec<Formula> {
             let mut map: BTreeMap<usize, Interval> = BTreeMap::new();
             let mut to_remove = BTreeSet::new();
