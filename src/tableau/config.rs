@@ -7,10 +7,10 @@ pub struct TableauOptions {
     pub simple_first: bool,
     pub formula_optimizations: bool,
     pub jump_rule_enabled: bool,
+    pub formula_simplifications: bool,
     pub mltl: bool,
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
-    pub formula_simplifications: bool,
 }
 
 impl Default for TableauOptions {
@@ -22,10 +22,10 @@ impl Default for TableauOptions {
             simple_first: true,
             formula_optimizations: true,
             jump_rule_enabled: true,
+            formula_simplifications: true,
             mltl: false,
             smtlib_result: false,
             unsat_core_extraction: false,
-            formula_simplifications: false,
         }
     }
 }
@@ -61,6 +61,10 @@ pub struct CliArgs {
     #[arg(long = "no-jump-rule", action = clap::ArgAction::SetFalse)]
     pub jump_rule_enabled: bool,
 
+    /// Disable formula syntactic simplifications
+    #[arg(long = "no-formula-simplifications", action = clap::ArgAction::SetFalse)]
+    pub formula_simplifications: bool,
+
     /// Use MLTL semantics
     #[arg(long, default_value_t = TableauOptions::default().mltl)]
     pub mltl: bool,
@@ -73,9 +77,6 @@ pub struct CliArgs {
     #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
     pub unsat_core_extraction: bool,
 
-    /// Enable formula syntactic simplifications
-    #[arg(long, default_value_t = TableauOptions::default().formula_simplifications)]
-    pub formula_simplifications: bool,
 }
 
 pub enum ConfigSource {
