@@ -1,7 +1,10 @@
 use core::fmt;
 use std::{collections::HashSet, fmt::Display, hash::Hash};
 
-use crate::{formula::*, node::Node};
+use crate::{
+    formula::{Formula, join_with},
+    node::Node,
+};
 
 #[cfg(test)]
 mod tests;
@@ -13,6 +16,7 @@ pub struct RejectedNode {
 }
 
 impl RejectedNode {
+    #[must_use]
     pub fn from_node(node: &Node) -> Self {
         RejectedNode {
             operands: node.operands.clone(),
@@ -31,7 +35,7 @@ impl RejectedNode {
             let mut times: Vec<i32> = self
                 .operands
                 .iter()
-                .filter_map(|f| f.lower_bound())
+                .filter_map(super::super::formula::Formula::lower_bound)
                 .filter(|t| *t > self.time)
                 .collect();
             times.sort_unstable();
@@ -67,6 +71,7 @@ impl Default for Store {
 }
 
 impl Store {
+    #[must_use]
     pub fn new() -> Self {
         let store = HashSet::new();
         Store { store }
@@ -78,6 +83,7 @@ impl Store {
         }
     }
 
+    #[must_use]
     pub fn check_rejected(&self, node: &RejectedNode) -> bool {
         self.store
             .iter()

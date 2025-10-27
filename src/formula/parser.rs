@@ -10,7 +10,7 @@ use nom::{
 use num_rational::Ratio;
 use std::{fs, path::Path, str::FromStr};
 
-use crate::formula::*;
+use crate::formula::{AExpr, ArithOp, Expr, Formula, Interval, RelOp};
 
 #[cfg(test)]
 mod tests;
@@ -241,7 +241,7 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
 
 pub fn parse_stl_file(filename: &str) {
     let path = Path::new("resources").join(filename);
-    println!("\n=== Parsing {} ===", filename);
+    println!("\n=== Parsing {filename} ===");
 
     match fs::read_to_string(&path) {
         Ok(content) => {
@@ -254,19 +254,19 @@ pub fn parse_stl_file(filename: &str) {
                 println!("\nLine {}: {}", line_num + 1, line);
                 match parse_formula(line) {
                     Ok((remaining, formula)) => {
-                        println!("  ✓ Parsed: {:?}", formula);
+                        println!("  ✓ Parsed: {formula:?}");
                         if !remaining.is_empty() {
-                            println!("  ⚠ Remaining: '{}'", remaining);
+                            println!("  ⚠ Remaining: '{remaining}'");
                         }
                     }
                     Err(e) => {
-                        println!("  ✗ Parse error: {:?}", e);
+                        println!("  ✗ Parse error: {e:?}");
                     }
                 }
             }
         }
         Err(e) => {
-            println!("Error reading file {}: {}", filename, e);
+            println!("Error reading file {filename}: {e}");
         }
     }
 }

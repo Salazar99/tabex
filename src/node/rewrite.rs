@@ -11,6 +11,7 @@ use crate::{
 #[cfg(test)]
 mod tests;
 
+#[must_use]
 pub fn merge_globally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
@@ -60,6 +61,7 @@ pub fn merge_globally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     Some(new_operands)
 }
 
+#[must_use]
 pub fn merge_finally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
@@ -107,6 +109,7 @@ pub fn merge_finally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     )
 }
 
+#[must_use]
 pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
     let mut new_operands = Vec::new();
     let mut new_nodes = Vec::new();
@@ -163,6 +166,7 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
 }
 
 impl Node {
+    #[must_use]
     pub fn rewrite_chain(&self) -> Option<Vec<Node>> {
         let mut current = self.operands.clone();
         let mut changed = false;

@@ -1,13 +1,14 @@
 use std::collections::BTreeSet;
 use std::vec;
 
-use crate::node::*;
+use crate::node::{Formula, Interval, Node};
 use crate::tableau::Tableau;
 
 #[cfg(test)]
 mod tests;
 
 impl Tableau {
+    #[must_use]
     pub fn decompose(&self, node: &Node) -> Option<Vec<Node>> {
         if self.options.formula_optimizations
             && let Some(res) = node.rewrite_chain()
@@ -53,6 +54,7 @@ impl Tableau {
         self.decompose_jump(node)
     }
 
+    #[must_use]
     pub fn decompose_and(&self, node: &Node) -> Option<Vec<Node>> {
         let mut changed = false;
         let flattened_operands: Vec<Formula> = node
@@ -75,6 +77,7 @@ impl Tableau {
         })
     }
 
+    #[must_use]
     pub fn decompose_g(&self, node: &Node) -> Option<Vec<Node>> {
         let mut changed = false;
         let flattened_operands: Vec<Formula> = node
@@ -104,9 +107,10 @@ impl Tableau {
         })
     }
 
+    #[must_use]
     pub fn decompose_or_at(&self, node: &Node, i: usize) -> Vec<Node> {
         let Formula::Or(or_operands) = &node.operands[i] else {
-            panic!("decompose_or_at called on non-Or formula at index {}", i);
+            panic!("decompose_or_at called on non-Or formula at index {i}");
         };
 
         or_operands
@@ -122,6 +126,7 @@ impl Tableau {
             .collect()
     }
 
+    #[must_use]
     pub fn decompose_imply_at(&self, node: &Node, i: usize) -> Vec<Node> {
         let Formula::Imply {
             left,
@@ -129,10 +134,7 @@ impl Tableau {
             not_left,
         } = &node.operands[i]
         else {
-            panic!(
-                "decompose_imply_at called on non-Imply formula at index {}",
-                i
-            );
+            panic!("decompose_imply_at called on non-Imply formula at index {i}");
         };
 
         let mut new_node1 = node.clone();
@@ -147,19 +149,19 @@ impl Tableau {
         vec![new_node1, new_node2]
     }
 
+    #[must_use]
     pub fn decompose_f_at(&self, node: &Node, i: usize) -> Vec<Node> {
         let f_formula = &node.operands[i];
 
         let Formula::F { phi, interval, .. } = &f_formula else {
-            panic!("decompose_f_at called on non-F formula at index {}", i);
+            panic!("decompose_f_at called on non-F formula at index {i}");
         };
 
-        if !node.operands[i].is_active_at(node.current_time) {
-            panic!(
-                "decompose_f_at called on F formula that is not active at current time {}",
-                node.current_time
-            );
-        }
+        assert!(
+            node.operands[i].is_active_at(node.current_time),
+            "decompose_f_at called on F formula that is not active at current time {}",
+            node.current_time
+        );
 
         // Node where F is satisfied (p)
         let mut new_node1 = node.clone();
@@ -176,6 +178,7 @@ impl Tableau {
         }
     }
 
+    #[must_use]
     pub fn decompose_u_at(&self, node: &Node, i: usize) -> Vec<Node> {
         let u_formula = &node.operands[i];
 
@@ -186,15 +189,14 @@ impl Tableau {
             ..
         } = &u_formula
         else {
-            panic!("decompose_u_at called on non-U formula at index {}", i);
+            panic!("decompose_u_at called on non-U formula at index {i}");
         };
 
-        if !node.operands[i].is_active_at(node.current_time) {
-            panic!(
-                "decompose_u_at called on U formula that is not active at current time {}",
-                node.current_time
-            );
-        }
+        assert!(
+            node.operands[i].is_active_at(node.current_time),
+            "decompose_u_at called on U formula that is not active at current time {}",
+            node.current_time
+        );
 
         // Node where U is satisfied (q)
         let mut new_node1 = node.clone();
@@ -211,6 +213,7 @@ impl Tableau {
         vec![new_node1]
     }
 
+    #[must_use]
     pub fn decompose_r_at(&self, node: &Node, i: usize) -> Vec<Node> {
         let r_formula = &node.operands[i];
 
@@ -221,15 +224,14 @@ impl Tableau {
             ..
         } = &r_formula
         else {
-            panic!("decompose_r_at called on non-R formula at index {}", i);
+            panic!("decompose_r_at called on non-R formula at index {i}");
         };
 
-        if !node.operands[i].is_active_at(node.current_time) {
-            panic!(
-                "decompose_r_at called on R formula that is not active at current time {}",
-                node.current_time
-            );
-        }
+        assert!(
+            node.operands[i].is_active_at(node.current_time),
+            "decompose_r_at called on R formula that is not active at current time {}",
+            node.current_time
+        );
 
         // Node where R is satisfied (p and q)
         let mut new_node1: Node = node.clone();
@@ -246,6 +248,7 @@ impl Tableau {
         vec![new_node1, new_node2]
     }
 
+    #[must_use]
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
         fn retime_poised(formula: &Formula, current_time: i32, jump: i32) -> Option<Formula> {
             let interval = formula.get_interval()?;

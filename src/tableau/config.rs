@@ -82,6 +82,7 @@ pub enum ConfigSource {
     Cli,
 }
 
+#[must_use]
 pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
     match source {
         ConfigSource::Cli => {

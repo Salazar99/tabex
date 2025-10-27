@@ -17,6 +17,7 @@ impl Default for UnsatCore {
 }
 
 impl UnsatCore {
+    #[must_use]
     pub fn new() -> Self {
         UnsatCore {
             map: HashMap::new(),
@@ -68,7 +69,7 @@ impl UnsatCore {
         self.unsat_core
             .iter()
             .filter_map(|id| self.map.get(id))
-            .cloned()
+            .copied()
             .collect::<HashSet<usize>>()
     }
 
@@ -83,6 +84,7 @@ impl UnsatCore {
         self.unsat_core.extend(core);
     }
 
+    #[must_use]
     pub fn get_unsat_core(&self) -> Vec<Formula> {
         let mut result = Vec::new();
         let high_level_unsat_core = self.get_tree_ends();

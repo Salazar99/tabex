@@ -69,22 +69,27 @@ impl Expr {
         }
     }
 
+    #[must_use]
     pub fn bool(var: VariableName) -> Self {
         Expr::from_expr(ExprKind::Atom(var))
     }
 
+    #[must_use]
     pub fn real(op: RelOp, left: AExpr, right: AExpr) -> Self {
         Expr::from_expr(ExprKind::Rel { op, left, right })
     }
 
+    #[must_use]
     pub fn true_expr() -> Self {
         Expr::from_expr(ExprKind::True)
     }
 
+    #[must_use]
     pub fn false_expr() -> Self {
         Expr::from_expr(ExprKind::False)
     }
 
+    #[must_use]
     pub fn eq_kind(&self, other: &Self) -> bool {
         self.kind == other.kind
     }
@@ -97,22 +102,27 @@ pub struct Interval {
 }
 
 impl Interval {
+    #[must_use]
     pub fn contains(&self, other: &Interval) -> bool {
         self.lower <= other.lower && self.upper >= other.upper
     }
 
+    #[must_use]
     pub fn intersects(&self, other: &Interval) -> bool {
         self.upper >= other.lower && other.upper >= self.lower
     }
 
+    #[must_use]
     pub fn active(&self, current_time: i32) -> bool {
         current_time >= self.lower && current_time <= self.upper
     }
 
+    #[must_use]
     pub fn contiguous(&self, other: &Interval) -> bool {
         self.upper + 1 == other.lower || other.upper + 1 == self.lower
     }
 
+    #[must_use]
     pub fn union(&self, other: &Interval) -> Interval {
         Interval {
             lower: self.lower.min(other.lower),
@@ -120,6 +130,7 @@ impl Interval {
         }
     }
 
+    #[must_use]
     pub fn intersection(&self, other: &Interval) -> Interval {
         Interval {
             lower: self.lower.max(other.lower),
@@ -127,6 +138,7 @@ impl Interval {
         }
     }
 
+    #[must_use]
     pub fn shift_left(&self, time: i32) -> Option<Interval> {
         if time > self.upper {
             return None;
@@ -138,6 +150,7 @@ impl Interval {
         })
     }
 
+    #[must_use]
     pub fn shift_right(&self, time: i32) -> Interval {
         Interval {
             lower: self.lower + time,
@@ -190,18 +203,22 @@ pub enum Formula {
 pub static FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
 
 impl Formula {
+    #[must_use]
     pub fn prop(expr: Expr) -> Self {
         Formula::Prop(expr)
     }
 
+    #[must_use]
     pub fn and(operands: Vec<Formula>) -> Self {
         Formula::And(operands)
     }
 
+    #[must_use]
     pub fn or(operands: Vec<Formula>) -> Self {
         Formula::Or(operands)
     }
 
+    #[must_use]
     pub fn imply(left: Formula, right: Formula) -> Self {
         Formula::Imply {
             left: Box::new(left.clone()),
@@ -216,10 +233,12 @@ impl Formula {
     // To avoid the warning, we could rename the method and corresponding enum variant to something like "negate",
     // but I think "not" is clearer and should not be changed just to satisfy the linting rule.
     #[allow(clippy::should_implement_trait)]
+    #[must_use]
     pub fn not(inner: Formula) -> Self {
         Formula::Not(Box::new(inner))
     }
 
+    #[must_use]
     pub fn g(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
         Formula::G {
             interval,
@@ -228,6 +247,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn f(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
         Formula::F {
             interval,
@@ -236,6 +256,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn u(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
         Formula::U {
             interval,
@@ -245,6 +266,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn r(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
         Formula::R {
             interval,
@@ -254,10 +276,12 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn o(inner: Formula) -> Self {
         Formula::O(Box::new(inner))
     }
 
+    #[must_use]
     pub fn with_operand(&self, operand: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
@@ -268,6 +292,7 @@ impl Formula {
         to_return
     }
 
+    #[must_use]
     pub fn with_operand_couple(&self, left: Formula, right: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
@@ -285,6 +310,7 @@ impl Formula {
         to_return
     }
 
+    #[must_use]
     pub fn with_interval(&self, interval: Interval) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
@@ -297,6 +323,7 @@ impl Formula {
         to_return
     }
 
+    #[must_use]
     pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
@@ -317,6 +344,7 @@ impl Formula {
         to_return
     }
 
+    #[must_use]
     pub fn with_operands(&self, operands: Vec<Formula>) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
@@ -326,6 +354,7 @@ impl Formula {
         to_return
     }
 
+    #[must_use]
     pub fn with_implication(&self, left: Formula, right: Formula, not_left: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
@@ -343,6 +372,7 @@ impl Formula {
         to_return
     }
 
+    #[must_use]
     pub fn get_interval(&self) -> Option<Interval> {
         match &self {
             Formula::G { interval, .. }
@@ -353,24 +383,28 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn lower_bound(&self) -> Option<i32> {
         self.get_interval().map(|i| i.lower)
     }
 
+    #[must_use]
     pub fn upper_bound(&self) -> Option<i32> {
         self.get_interval().map(|i| i.upper)
     }
 
+    #[must_use]
     pub fn has_temporal(&self) -> bool {
         match &self {
             Formula::G { .. } | Formula::F { .. } | Formula::U { .. } | Formula::R { .. } => true,
-            Formula::And(v) | Formula::Or(v) => v.iter().any(|f| f.has_temporal()),
+            Formula::And(v) | Formula::Or(v) => v.iter().any(Formula::has_temporal),
             Formula::Not(inner) => inner.has_temporal(),
             Formula::Imply { left, right, .. } => left.has_temporal() || right.has_temporal(),
             _ => false,
         }
     }
 
+    #[must_use]
     pub fn is_complex_temporal_operator(&self) -> bool {
         match &self {
             Formula::G { phi, .. }
@@ -380,6 +414,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn is_active_at(&self, current_time: i32) -> bool {
         match &self {
             Formula::G { interval, .. }
@@ -390,6 +425,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn is_parent_active_at(&self, current_time: i32) -> bool {
         match self {
             Formula::G {
@@ -412,10 +448,13 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn is_negation_normal_form(&self) -> bool {
         match &self {
             Formula::Not(inner) => matches!(**inner, Formula::Prop(_)),
-            Formula::And(ops) | Formula::Or(ops) => ops.iter().all(|f| f.is_negation_normal_form()),
+            Formula::And(ops) | Formula::Or(ops) => {
+                ops.iter().all(Formula::is_negation_normal_form)
+            }
             Formula::Imply {
                 left,
                 right,
@@ -433,6 +472,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn is_flat(&self) -> bool {
         match &self {
             Formula::And(ops) => !ops.iter().any(|f| matches!(f, Formula::And(_))),
@@ -450,6 +490,7 @@ impl Formula {
         }
     }
 
+    #[must_use]
     pub fn eq_structural(&self, other: &Self) -> bool {
         match (self, other) {
             (Formula::Prop(a), Formula::Prop(b)) => a.eq_kind(b),
@@ -530,9 +571,10 @@ impl Formula {
     }
 }
 
+#[must_use]
 pub fn join_with(v: &[Formula], sep: &str) -> String {
     v.iter()
-        .map(|n| n.to_string())
+        .map(std::string::ToString::to_string)
         .collect::<Vec<_>>()
         .join(sep)
 }
@@ -540,15 +582,15 @@ pub fn join_with(v: &[Formula], sep: &str) -> String {
 impl Display for AExpr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            AExpr::Var(s) => write!(f, "{}", s),
-            AExpr::Num(n) => write!(f, "{}", n),
-            AExpr::Abs(inner) => write!(f, "|{}|", inner),
+            AExpr::Var(s) => write!(f, "{s}"),
+            AExpr::Num(n) => write!(f, "{n}"),
+            AExpr::Abs(inner) => write!(f, "|{inner}|"),
             AExpr::BinOp { op, left, right } => {
                 let sym = match op {
                     ArithOp::Add => "+",
                     ArithOp::Sub => "-",
                 };
-                write!(f, "({} {} {})", left, sym, right)
+                write!(f, "({left} {sym} {right})")
             }
         }
     }
@@ -557,7 +599,7 @@ impl Display for AExpr {
 impl Display for ExprKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ExprKind::Atom(s) => write!(f, "{}", s),
+            ExprKind::Atom(s) => write!(f, "{s}"),
             ExprKind::Rel { op, left, right } => {
                 let sym = match op {
                     RelOp::Lt => "<",
@@ -567,7 +609,7 @@ impl Display for ExprKind {
                     RelOp::Eq => "==",
                     RelOp::Ne => "!=",
                 };
-                write!(f, "{} {} {}", left, sym, right)
+                write!(f, "{left} {sym} {right}")
             }
             ExprKind::True => write!(f, "true"),
             ExprKind::False => write!(f, "false"),
@@ -592,17 +634,17 @@ impl Display for Formula {
         match self {
             Formula::And(v) => write!(f, "{}", join_with(v, " && ")),
             Formula::Or(v) => write!(f, "{}", join_with(v, " || ")),
-            Formula::Not(inner) => write!(f, "!{}", inner),
-            Formula::Imply { left, right, .. } => write!(f, "({}) -> ({})", left, right),
-            Formula::G { interval, phi, .. } => write!(f, "G{} ({})", interval, phi),
-            Formula::F { interval, phi, .. } => write!(f, "F{} ({})", interval, phi),
+            Formula::Not(inner) => write!(f, "!{inner}"),
+            Formula::Imply { left, right, .. } => write!(f, "({left}) -> ({right})"),
+            Formula::G { interval, phi, .. } => write!(f, "G{interval} ({phi})"),
+            Formula::F { interval, phi, .. } => write!(f, "F{interval} ({phi})"),
             Formula::U {
                 interval,
                 left,
                 right,
                 ..
             } => {
-                write!(f, "({}) U{} ({})", left, interval, right)
+                write!(f, "({left}) U{interval} ({right})")
             }
             Formula::R {
                 interval,
@@ -610,10 +652,10 @@ impl Display for Formula {
                 right,
                 ..
             } => {
-                write!(f, "({}) R{} ({})", left, interval, right)
+                write!(f, "({left}) R{interval} ({right})")
             }
-            Formula::O(inner) => write!(f, "O ({})", inner),
-            Formula::Prop(expr) => write!(f, "{}", expr),
+            Formula::O(inner) => write!(f, "O ({inner})"),
+            Formula::Prop(expr) => write!(f, "{expr}"),
         }
     }
 }

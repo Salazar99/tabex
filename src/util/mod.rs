@@ -13,25 +13,25 @@ fn esc_label(s: &str) -> String {
 fn build_graph(formula: &Formula, graph: &mut Graph) -> usize {
     let label = match formula {
         Formula::Prop(_) | Formula::O(_) | Formula::Not(_) => {
-            format!("{}", formula)
+            format!("{formula}")
         }
         Formula::And(_) => "&&".to_string(),
         Formula::Or(_) => "||".to_string(),
         Formula::Imply { .. } => "->".to_string(),
-        Formula::G { interval, .. } => format!("G{}", interval),
-        Formula::F { interval, .. } => format!("F{}", interval),
-        Formula::U { interval, .. } => format!("U{}", interval),
-        Formula::R { interval, .. } => format!("R{}", interval),
+        Formula::G { interval, .. } => format!("G{interval}"),
+        Formula::F { interval, .. } => format!("F{interval}"),
+        Formula::U { interval, .. } => format!("U{interval}"),
+        Formula::R { interval, .. } => format!("R{interval}"),
     };
     let id = ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-    let node = DotNode::new(&format!("n{}", id)).label(&esc_label(&label));
+    let node = DotNode::new(&format!("n{id}")).label(&esc_label(&label));
     graph.add_node(node);
 
     match formula {
         Formula::And(ops) | Formula::Or(ops) => {
             for op in ops {
                 let cid = build_graph(op, graph);
-                let edge = dot_graph::Edge::new(&format!("n{}", id), &format!("n{}", cid), "");
+                let edge = dot_graph::Edge::new(&format!("n{id}"), &format!("n{cid}"), "");
                 graph.add_edge(edge);
             }
         }
@@ -44,26 +44,26 @@ fn build_graph(formula: &Formula, graph: &mut Graph) -> usize {
             let rid = build_graph(right, graph);
             let nlid = build_graph(not_left, graph);
             graph.add_edge(dot_graph::Edge::new(
-                &format!("n{}", id),
-                &format!("n{}", lid),
+                &format!("n{id}"),
+                &format!("n{lid}"),
                 "",
             ));
             graph.add_edge(dot_graph::Edge::new(
-                &format!("n{}", id),
-                &format!("n{}", rid),
+                &format!("n{id}"),
+                &format!("n{rid}"),
                 "",
             ));
             graph.add_edge(dot_graph::Edge::new(
-                &format!("n{}", id),
-                &format!("n{}", nlid),
+                &format!("n{id}"),
+                &format!("n{nlid}"),
                 "",
             ));
         }
         Formula::G { phi, .. } | Formula::F { phi, .. } => {
             let cid = build_graph(phi, graph);
             graph.add_edge(dot_graph::Edge::new(
-                &format!("n{}", id),
-                &format!("n{}", cid),
+                &format!("n{id}"),
+                &format!("n{cid}"),
                 "",
             ));
         }
@@ -71,13 +71,13 @@ fn build_graph(formula: &Formula, graph: &mut Graph) -> usize {
             let lid = build_graph(left, graph);
             let rid = build_graph(right, graph);
             graph.add_edge(dot_graph::Edge::new(
-                &format!("n{}", id),
-                &format!("n{}", lid),
+                &format!("n{id}"),
+                &format!("n{lid}"),
                 "",
             ));
             graph.add_edge(dot_graph::Edge::new(
-                &format!("n{}", id),
-                &format!("n{}", rid),
+                &format!("n{id}"),
+                &format!("n{rid}"),
                 "",
             ));
         }

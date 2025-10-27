@@ -1,9 +1,9 @@
 use std::fs;
 
 use stlcc::formula::join_with;
-use stlcc::node::*;
+use stlcc::node::NODE_ID;
+use stlcc::tableau::Tableau;
 use stlcc::tableau::config::{ConfigSource, get_tableau_options};
-use stlcc::tableau::*;
 
 fn main() {
     let (options, filename) = get_tableau_options(ConfigSource::Cli);
@@ -22,14 +22,14 @@ fn main() {
             None => println!("unknown"),
         }
     } else {
-        println!("Tableau result: {:?}", res);
+        println!("Tableau result: {res:?}");
         println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
     }
 
     if tableau.options.graph_output
         && let Ok(graph) = tableau.graph.unwrap().to_dot_string()
     {
-        println!("Node count: {:?}", NODE_ID);
+        println!("Node count: {NODE_ID:?}");
         fs::write("resources/tmp/g.dot", &graph).expect("Unable to write file");
     }
 

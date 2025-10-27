@@ -1001,7 +1001,7 @@ impl Formula {
         match &self {
             Formula::And(operands) | Formula::Or(operands) => operands
                 .iter()
-                .map(|op| op.get_shift())
+                .map(super::Formula::get_shift)
                 .min()
                 .unwrap_or(None),
             Formula::Imply {

@@ -1,4 +1,4 @@
-use crate::formula::*;
+use crate::formula::{Formula, Interval, join_with};
 use std::{
     fmt::{self, Display},
     sync::atomic::{AtomicUsize, Ordering},
@@ -27,6 +27,7 @@ impl Node {
         }
     }
 
+    #[must_use]
     pub fn is_poised(&self) -> bool {
         for formula in &self.operands {
             match formula {
@@ -38,6 +39,7 @@ impl Node {
         true
     }
 
+    #[must_use]
     pub fn to_formula(&self) -> Formula {
         if self.operands.len() == 1 {
             self.operands[0].clone()

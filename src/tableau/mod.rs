@@ -48,6 +48,7 @@ struct Frame {
 }
 
 impl Tableau {
+    #[must_use]
     pub fn new(options: TableauOptions) -> Self {
         let graph = if options.graph_output {
             Some(Graph::new("Tableau", Kind::Graph))
@@ -75,7 +76,7 @@ impl Tableau {
     pub fn make_tableau_from_str(&mut self, formula: &str) -> Option<bool> {
         // Parsing Stage
         let Ok((_, formula_ast)) = parse_formula(formula) else {
-            eprintln!("Failed to parse formula '{}'", formula);
+            eprintln!("Failed to parse formula '{formula}'");
             panic!("{}", formula);
         };
         let root = Node::from_operands(vec![formula_ast]);
@@ -138,10 +139,10 @@ impl Tableau {
         ) -> Option<JobState> {
             match (previous, current) {
                 (prev, JobState::Sat) => {
-                    if !implies {
-                        Some(JobState::Sat)
-                    } else {
+                    if implies {
                         prev
+                    } else {
+                        Some(JobState::Sat)
                     }
                 }
 

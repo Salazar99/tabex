@@ -44,18 +44,20 @@ pub struct Solver {
 }
 
 impl Solver {
+    #[must_use]
     pub fn new(unsat_core_extraction: bool, mltl: bool) -> Self {
         Solver {
             boolean_solver: BooleanSolver::new(unsat_core_extraction),
-            real_solver: if !mltl {
-                Some(RealSolver::new(unsat_core_extraction))
-            } else {
+            real_solver: if mltl {
                 None
+            } else {
+                Some(RealSolver::new(unsat_core_extraction))
             },
             unsat_core_extraction,
         }
     }
 
+    #[must_use]
     pub fn empty_solver(&self) -> Self {
         let mut solver = Solver::new(self.unsat_core_extraction, self.real_solver.is_none());
         if let (Some(src), Some(dst)) = (self.real_solver.as_ref(), solver.real_solver.as_mut()) {
@@ -68,14 +70,14 @@ impl Solver {
     pub fn push(&mut self) {
         self.boolean_solver.push();
         if let Some(real_solver) = self.real_solver.as_mut() {
-            real_solver.push()
+            real_solver.push();
         }
     }
 
     pub fn pop(&mut self) {
         self.boolean_solver.pop();
         if let Some(real_solver) = self.real_solver.as_mut() {
-            real_solver.pop()
+            real_solver.pop();
         }
     }
 
@@ -115,7 +117,7 @@ impl Solver {
     }
 
     pub fn check(&mut self, node: &Node) -> bool {
-        for f in node.operands.iter() {
+        for f in &node.operands {
             match f {
                 Formula::Prop(expr) if matches!(expr.kind, ExprKind::False) => {
                     if self.unsat_core_extraction {
@@ -138,14 +140,12 @@ impl Solver {
         }
         self.add_constraints(node);
         let bool_ok = self.boolean_solver.check();
-        let real_ok = self
-            .real_solver
-            .as_mut()
-            .is_none_or(|real_solver| real_solver.check());
+        let real_ok = self.real_solver.as_mut().is_none_or(RealSolver::check);
 
         bool_ok && real_ok
     }
 
+    #[must_use]
     pub fn extract_unsat_core(&self) -> Option<Vec<usize>> {
         if let Some(vec) = self.boolean_solver.unsat_core.clone() {
             return Some(vec);
@@ -197,7 +197,7 @@ impl BooleanSolver {
             if let Some(id_stored) = self.pos_props.get(&**prop) {
                 self.result_cache = Some(false);
                 if self.unsat_core_extraction {
-                    self.unsat_core = Some(vec![*id_stored, id])
+                    self.unsat_core = Some(vec![*id_stored, id]);
                 }
             }
         } else {
@@ -205,7 +205,7 @@ impl BooleanSolver {
             if let Some(id_stored) = self.neg_props.get(&**prop) {
                 self.result_cache = Some(false);
                 if self.unsat_core_extraction {
-                    self.unsat_core = Some(vec![*id_stored, id])
+                    self.unsat_core = Some(vec![*id_stored, id]);
                 }
             }
         }
@@ -235,7 +235,7 @@ impl BooleanSolver {
                 .any(|pos| self.neg_props.contains_key(pos));
             self.result_cache = Some(res);
             if self.unsat_core_extraction && !res {
-                for (prop, id) in self.pos_props.iter() {
+                for (prop, id) in &self.pos_props {
                     if let Some(neg_id) = self.neg_props.get(prop) {
                         self.unsat_core = Some(vec![*id, *neg_id]);
                         break;
@@ -300,11 +300,11 @@ impl RealSolver {
                 value
             };
 
-            if !self.unsat_core_extraction {
-                self.z3_solver.assert(ast);
-            } else {
-                let p = z3::ast::Bool::new_const(format!("p_{}", id).as_str());
+            if self.unsat_core_extraction {
+                let p = z3::ast::Bool::new_const(format!("p_{id}").as_str());
                 self.z3_solver.assert_and_track(ast, &p);
+            } else {
+                self.z3_solver.assert(ast);
             }
             self.result_cache = None;
             if let Some(last) = self.constraint_stack.last_mut() {
@@ -322,7 +322,7 @@ impl RealSolver {
             if self.unsat_core_extraction && !sat {
                 let unsat_core = self.z3_solver.get_unsat_core();
                 let mut core_ids = Vec::new();
-                for expr in unsat_core.iter() {
+                for expr in &unsat_core {
                     let name = expr.decl().name();
                     if name.starts_with("p_")
                         && let Ok(id) = name[2..].parse::<usize>()

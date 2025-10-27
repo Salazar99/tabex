@@ -34,7 +34,7 @@ fn main() {
     let dir = Path::new(dir_path);
 
     if !dir.is_dir() {
-        eprintln!("Error: {} is not a directory", dir_path);
+        eprintln!("Error: {dir_path} is not a directory");
         std::process::exit(1);
     }
 
@@ -104,15 +104,7 @@ fn main() {
                             let disjunction = formula.combinatorial_branching_count();
 
                             csv_output.push(format!(
-                                "{},{},{},{},{},{},{},{}",
-                                filename,
-                                operands,
-                                depth,
-                                temporal_depth,
-                                length,
-                                bool_vars,
-                                real_vars,
-                                disjunction
+                                "{filename},{operands},{depth},{temporal_depth},{length},{bool_vars},{real_vars},{disjunction}"
                             ));
                         }
                         Err(e) => {
@@ -122,7 +114,7 @@ fn main() {
                 }
             }
             Err(e) => {
-                eprintln!("Error reading file {}: {}", filename, e);
+                eprintln!("Error reading file {filename}: {e}");
             }
         }
     }
@@ -131,7 +123,7 @@ fn main() {
     let output_file = &args[2];
     let csv_content = csv_output.join("\n");
     if let Err(e) = fs::write(output_file, csv_content) {
-        eprintln!("Error writing to file {}: {}", output_file, e);
+        eprintln!("Error writing to file {output_file}: {e}");
         std::process::exit(1);
     }
 }

@@ -232,7 +232,7 @@ mod disjunction_max_width_tests {
             Formula::or(vec![prop("b1"), prop("b2")]),
             prop("c"),
         ])]);
-        f.disjunction_max_width();
+        let _ = f.disjunction_max_width();
     }
 
     #[test]
@@ -269,7 +269,7 @@ mod disjunction_total_width_tests {
             Formula::or(vec![prop("b1"), prop("b2")]),
             prop("c"),
         ])]);
-        f.disjunction_total_width();
+        let _ = f.disjunction_total_width();
     }
 
     #[test]
@@ -306,7 +306,7 @@ mod combinatorial_branching_count_tests {
             Formula::or(vec![prop("b1"), prop("b2")]),
             prop("c"),
         ])]);
-        f.combinatorial_branching_count();
+        let _ = f.combinatorial_branching_count();
     }
 
     #[test]
