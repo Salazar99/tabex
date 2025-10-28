@@ -21,3 +21,5 @@ Cargo.lock
 /resources/tmp
 
 *~
+*/__pycache__
+*.pyc

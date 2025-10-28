@@ -1,12 +1,12 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use z3::ast::{exists_const, forall_const, Ast, Bool, Int, Real};
+use z3::ast::{Ast, Bool, Int, Real, exists_const, forall_const};
 use z3::{FuncDecl, Solver, Sort};
 
+use crate::formula::parser::parse_formula;
 use crate::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, RelOp};
 use crate::node::Node;
-use crate::formula::parser::parse_formula;
 use crate::tableau::config::TableauOptions;
 
 pub struct SmtSolver {
@@ -22,7 +22,7 @@ impl SmtSolver {
             options,
             h: Int::new_const("h"),
             bool_variables: BTreeMap::new(),
-            real_variables: BTreeMap::new()
+            real_variables: BTreeMap::new(),
         }
     }
 
@@ -62,11 +62,17 @@ impl SmtSolver {
     fn encode_formula(&mut self, formula: Formula, time: &Int) -> Bool {
         match formula {
             Formula::And(ops) => {
-                let bools: Vec<Bool> = ops.into_iter().map(|op| self.encode_formula(op, time)).collect();
+                let bools: Vec<Bool> = ops
+                    .into_iter()
+                    .map(|op| self.encode_formula(op, time))
+                    .collect();
                 Bool::and(&bools)
             }
             Formula::Or(ops) => {
-                let bools: Vec<Bool> = ops.into_iter().map(|op| self.encode_formula(op, time)).collect();
+                let bools: Vec<Bool> = ops
+                    .into_iter()
+                    .map(|op| self.encode_formula(op, time))
+                    .collect();
                 Bool::or(&bools)
             }
             Formula::Not(op) => {
@@ -94,7 +100,12 @@ impl SmtSolver {
                 let constraint = Bool::and(&[&lower.le(&i), &i.le(&upper), &sub_bool]);
                 exists_const(&[&i], &[], &constraint)
             }
-            Formula::U { interval, left, right, .. } => {
+            Formula::U {
+                interval,
+                left,
+                right,
+                ..
+            } => {
                 let (i, j) = (Int::fresh_const("U_i"), Int::fresh_const("U_j"));
                 let forall_range = if self.options.mltl {
                     Bool::and(&[(time + interval.lower).le(&j), j.lt(&i)])
@@ -103,25 +114,41 @@ impl SmtSolver {
                 };
                 let left_b = self.encode_formula(*left, &j);
                 let right_b = self.encode_formula(*right, &i);
-                exists_const(&[&i], &[], &Bool::and(
-                    &[(time + interval.lower).lt(&i), i.le(time + interval.upper), right_b, 
-                    forall_const(&[&j], &[], &forall_range.implies(&left_b))]
-                ))
+                exists_const(
+                    &[&i],
+                    &[],
+                    &Bool::and(&[
+                        (time + interval.lower).lt(&i),
+                        i.le(time + interval.upper),
+                        right_b,
+                        forall_const(&[&j], &[], &forall_range.implies(&left_b)),
+                    ]),
+                )
             }
-            Formula::R { interval, left, right, .. } => {
+            Formula::R {
+                interval,
+                left,
+                right,
+                ..
+            } => {
                 let (i, j) = (Int::fresh_const("R_i"), Int::fresh_const("R_j"));
                 let exists_range = if self.options.mltl {
                     Bool::and(&[(time + interval.lower).le(&i), i.lt(&j)])
                 } else {
                     Bool::and(&[time.le(&i), i.le(&j)])
                 };
-                let forall_range = Bool::and(&[(time + interval.lower).le(&j), j.le(time + interval.upper)]);
+                let forall_range =
+                    Bool::and(&[(time + interval.lower).le(&j), j.le(time + interval.upper)]);
                 let left_b = self.encode_formula(*left, &i);
                 let right_b = self.encode_formula(*right, &j);
-                forall_const(&[&j], &[], &forall_range.implies(Bool::or(&[
-                    right_b,
-                    exists_const(&[&i], &[], &Bool::and(&[exists_range, left_b]))
-                ])))
+                forall_const(
+                    &[&j],
+                    &[],
+                    &forall_range.implies(Bool::or(&[
+                        right_b,
+                        exists_const(&[&i], &[], &Bool::and(&[exists_range, left_b])),
+                    ])),
+                )
             }
             Formula::Prop(expr) => self.encode_expr(expr, time),
             _ => panic!("Invalid Formula"),
@@ -130,12 +157,8 @@ impl SmtSolver {
 
     fn encode_expr(&mut self, expr: Expr, time: &Int) -> Bool {
         match expr.kind {
-            ExprKind::False => {
-                Bool::from_bool(false)
-            }
-            ExprKind::True => {
-                Bool::from_bool(true)
-            }
+            ExprKind::False => Bool::from_bool(false),
+            ExprKind::True => Bool::from_bool(true),
             ExprKind::Atom(n) => {
                 let func = if let Some(v) = self.bool_variables.get(&n) {
                     v
@@ -144,11 +167,9 @@ impl SmtSolver {
                     self.bool_variables.insert(n.clone(), func);
                     self.bool_variables.get(&n).unwrap()
                 };
-                return func.apply(&[time]).try_into().unwrap()
+                return func.apply(&[time]).try_into().unwrap();
             }
-            ExprKind::Rel { op, left, right } => {
-                return self.encode_rel(op, left, right, time)
-            }
+            ExprKind::Rel { op, left, right } => return self.encode_rel(op, left, right, time),
         }
     }
 

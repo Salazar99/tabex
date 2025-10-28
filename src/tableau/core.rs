@@ -1,4 +1,4 @@
-use crate::{formula::{Formula}, node::Node};
+use crate::{formula::Formula, node::Node};
 use std::collections::{HashMap, HashSet};
 
 #[cfg(test)]
@@ -10,7 +10,14 @@ pub struct UnsatCore {
     pub unsat_core: HashSet<usize>,
 }
 
+impl Default for UnsatCore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl UnsatCore {
+    #[must_use]
     pub fn new() -> Self {
         UnsatCore {
             map: HashMap::new(),
@@ -30,14 +37,18 @@ impl UnsatCore {
                 Formula::O(child) | Formula::Not(child) => {
                     add_formula_inner(core, child, parent_id);
                 }
-                Formula::G {phi, ..} | Formula::F {phi, ..} => {
+                Formula::G { phi, .. } | Formula::F { phi, .. } => {
                     add_formula_inner(core, phi, parent_id);
                 }
                 Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
                     add_formula_inner(core, left, parent_id);
                     add_formula_inner(core, right, parent_id);
                 }
-                Formula::Imply { left, right, not_left } => {
+                Formula::Imply {
+                    left,
+                    right,
+                    not_left,
+                } => {
                     add_formula_inner(core, left, parent_id);
                     add_formula_inner(core, right, parent_id);
                     add_formula_inner(core, not_left, parent_id);
@@ -49,13 +60,17 @@ impl UnsatCore {
         }
         add_formula_inner(self, formula, index);
     }
-    
+
     fn add_formula(&mut self, formula: &Formula, index: usize) {
         self.add_formula_rec(formula, index);
     }
 
     fn get_tree_ends(&self) -> HashSet<usize> {
-        self.unsat_core.iter().filter_map(|id| self.map.get(id)).cloned().collect::<HashSet<usize>>()
+        self.unsat_core
+            .iter()
+            .filter_map(|id| self.map.get(id))
+            .copied()
+            .collect::<HashSet<usize>>()
     }
 
     pub fn initialize_root_node(&mut self, node: &Node) {
@@ -69,6 +84,7 @@ impl UnsatCore {
         self.unsat_core.extend(core);
     }
 
+    #[must_use]
     pub fn get_unsat_core(&self) -> Vec<Formula> {
         let mut result = Vec::new();
         let high_level_unsat_core = self.get_tree_ends();

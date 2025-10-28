@@ -23,6 +23,8 @@ else:
 
 def get_stlcc_args(args):
     stlcc_args = []
+    if args.mltl:
+        stlcc_args.append('--mltl')
     if args.no_memoization:
         stlcc_args.append('--no-memoization')
     if args.no_simple_first:
@@ -31,8 +33,8 @@ def get_stlcc_args(args):
         stlcc_args.append('--no-formula-optimizations')
     if args.no_jump_rule:
         stlcc_args.append('--no-jump-rule')
-    if args.formula_simplifications:
-        stlcc_args.append('--formula-simplifications')
+    if args.no_formula_simplifications:
+        stlcc_args.append('--no-formula-simplifications')
 
     return stlcc_args
 
@@ -206,7 +208,7 @@ def make_arg_parser():
     stlcc_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
     stlcc_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
     stlcc_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
-    stlcc_p.add_argument('--formula-simplifications', action='store_true', help='Enable syntactic formula simplifications in tableau.')
+    stlcc_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
 
     stltree_p = subparsers.add_parser('stltree', help='Use the Python implementation of the tree-shaped tableau (stltree)')
     stltree_p.add_argument('stltree_path', type=str)

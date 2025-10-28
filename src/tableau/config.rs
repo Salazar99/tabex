@@ -7,11 +7,11 @@ pub struct TableauOptions {
     pub simple_first: bool,
     pub formula_optimizations: bool,
     pub jump_rule_enabled: bool,
+    pub formula_simplifications: bool,
     pub mltl: bool,
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
-    pub formula_simplifications: bool,
-    pub smt: bool
+    pub smt: bool,
 }
 
 impl Default for TableauOptions {
@@ -23,11 +23,11 @@ impl Default for TableauOptions {
             simple_first: true,
             formula_optimizations: true,
             jump_rule_enabled: true,
+            formula_simplifications: true,
             mltl: false,
             smtlib_result: false,
             unsat_core_extraction: false,
-            formula_simplifications: false,
-            smt: false
+            smt: false,
         }
     }
 }
@@ -63,6 +63,10 @@ pub struct CliArgs {
     #[arg(long = "no-jump-rule", action = clap::ArgAction::SetFalse)]
     pub jump_rule_enabled: bool,
 
+    /// Disable formula syntactic simplifications
+    #[arg(long = "no-formula-simplifications", action = clap::ArgAction::SetFalse)]
+    pub formula_simplifications: bool,
+
     /// Use MLTL semantics
     #[arg(long, default_value_t = TableauOptions::default().mltl)]
     pub mltl: bool,
@@ -75,10 +79,6 @@ pub struct CliArgs {
     #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
     pub unsat_core_extraction: bool,
 
-    /// Enable formula syntactic simplifications
-    #[arg(long, default_value_t = TableauOptions::default().formula_simplifications)]
-    pub formula_simplifications: bool,
-
     /// Enable SMT solving
     #[arg(long, default_value_t = TableauOptions::default().smt)]
     pub smt: bool,
@@ -88,6 +88,7 @@ pub enum ConfigSource {
     Cli,
 }
 
+#[must_use]
 pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
     match source {
         ConfigSource::Cli => {
@@ -99,11 +100,11 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 simple_first: args.simple_first,
                 formula_optimizations: args.formula_optimizations,
                 jump_rule_enabled: args.jump_rule_enabled,
+                formula_simplifications: args.formula_simplifications,
                 mltl: args.mltl,
                 smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
-                formula_simplifications: args.formula_simplifications,
-                smt: args.smt
+                smt: args.smt,
             };
             (options, args.formula_file)
         }

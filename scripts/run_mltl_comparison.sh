@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 mltlsatdir [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--z3bin PATH] [--bench-sets \"SET1 SET2 ...\"]"
+    echo "Usage: $0 mltlsatdir [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--z3bin PATH] [--bench-sets \"SET1 SET2 ...\"] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH]"
     exit 1
 fi
 
@@ -14,6 +14,7 @@ max_mem=30720
 iters=5
 z3bin=z3
 bench_sets=("nasa-boeing" "random" "random0")
+tools=("stlcc" "mltlsat" "stltree")
 outdir=./output_mltl
 
 while [[ $# -gt 0 ]]; do
@@ -42,6 +43,14 @@ while [[ $# -gt 0 ]]; do
             bench_sets=("$2")
             shift 2
             ;;
+        --tools)
+            tools=("$2")
+            shift 2
+            ;;
+        --stltree-path)
+            stltree_path="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown argument: $1"
             exit 1
@@ -57,17 +66,24 @@ ulimit -s unlimited
 
 set -x
 
-if [[ " ${bench_sets[@]} " =~ " nasa-boeing " ]]; then
-    ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/tableau_nasa-boeing.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/nasa-boeing.list" tableau &> "${outdir}/tableau_nasa-boeing.log"
-    #./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/smt-quant_z3_nasa-boeing.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/nasa-boeing.list" smt-quant "${mltlsatdir}/translator/src/MLTLConvertor" "${z3bin}" &> "${outdir}/smt-quant_z3_nasa-boeing.log"
+if [[ " ${tools[@]} " =~ " stlcc " ]]; then
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlcc --mltl &> "${outdir}/stlcc_${bench_set}.log"
+    done
 fi
 
-if [[ " ${bench_sets[@]} " =~ " random " ]]; then
-    ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/tableau_random.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/random.list" tableau &> "${outdir}/tableau_random.log"
-    #./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/smt-quant_z3_random.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/random.list" smt-quant "${mltlsatdir}/translator/src/MLTLConvertor" "${z3bin}" &> "${outdir}/smt-quant_z3_random.log"
+if [[ " ${tools[@]} " =~ " mltlsat " ]]; then
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/mltlsat_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" smt-quant "${mltlsatdir}/translator/src/MLTLConvertor" "${z3bin}" &> "${outdir}/mltlsat_${bench_set}.log"
+    done
 fi
 
-if [[ " ${bench_sets[@]} " =~ " random0 " ]]; then
-    ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/tableau_random0.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/random0.list" tableau &> "${outdir}/tableau_random0.log"
-    #./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/smt-quant_z3_random0.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/random0.list" smt-quant "${mltlsatdir}/translator/src/MLTLConvertor" "${z3bin}" &> "${outdir}/smt-quant_z3_random0.log"
+if [[ " ${tools[@]} " =~ " stltree " ]]; then
+    if [ -z "${stltree_path}" ]; then
+        echo "Error: --stltree-path must be provided when using stltree tool."
+        exit 1
+    fi
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stltree_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stltree "${stltree_path}" &> "${outdir}/stltree_${bench_set}.log"
+    done
 fi
