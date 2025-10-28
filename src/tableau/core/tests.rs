@@ -14,8 +14,14 @@ fn test_unsat_core_new() {
 #[test]
 fn test_initialize_root_node() {
     let mut core = UnsatCore::new();
-    let expr1 = Expr { id: 1, kind: ExprKind::Atom(Arc::from("p")) };
-    let expr2 = Expr { id: 2, kind: ExprKind::Atom(Arc::from("q")) };
+    let expr1 = Expr {
+        id: 1,
+        kind: ExprKind::Atom(Arc::from("p")),
+    };
+    let expr2 = Expr {
+        id: 2,
+        kind: ExprKind::Atom(Arc::from("q")),
+    };
     let operands = vec![Formula::Prop(expr1), Formula::Prop(expr2)];
     let node = Node::from_operands(operands);
     core.initialize_root_node(&node);
@@ -27,9 +33,18 @@ fn test_initialize_root_node() {
 #[test]
 fn test_get_unsat_core() {
     let mut core = UnsatCore::new();
-    let expr1 = Expr { id: 1, kind: ExprKind::Atom(Arc::from("p")) };
-    let expr2 = Expr { id: 2, kind: ExprKind::Atom(Arc::from("q")) };
-    let expr3 = Expr { id: 3, kind: ExprKind::Atom(Arc::from("r")) };
+    let expr1 = Expr {
+        id: 1,
+        kind: ExprKind::Atom(Arc::from("p")),
+    };
+    let expr2 = Expr {
+        id: 2,
+        kind: ExprKind::Atom(Arc::from("q")),
+    };
+    let expr3 = Expr {
+        id: 3,
+        kind: ExprKind::Atom(Arc::from("r")),
+    };
     let operands = vec![
         Formula::Prop(expr1.clone()),
         Formula::Prop(expr2.clone()),
