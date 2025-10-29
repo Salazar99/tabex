@@ -17,6 +17,12 @@ pub struct Trace {
     nodes: Vec<(Vec<Formula>, i32)>,
 }
 
+impl Default for TraceBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TraceBuilder {
     pub fn new() -> Self {
         Self {
@@ -30,8 +36,8 @@ impl TraceBuilder {
             .operands
             .iter()
             .filter(|f| matches!(f, Formula::Prop(_) | Formula::Not(_)))
+            .filter(|&f| seen.insert(f.clone()))
             .cloned()
-            .filter(|f| seen.insert(f.clone()))
             .collect();
         self.nodes.push_front((formulas, node.current_time));
     }
