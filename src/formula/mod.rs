@@ -421,7 +421,7 @@ impl Formula {
             | Formula::F { interval, .. }
             | Formula::U { interval, .. }
             | Formula::R { interval, .. } => interval.active(current_time),
-            _ => false,
+            _ => true,
         }
     }
 
@@ -619,7 +619,7 @@ impl Display for ExprKind {
 
 impl Display for Expr {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} ~ {}", self.kind, self.id)
+        write!(f, "{}", self.kind)
     }
 }
 

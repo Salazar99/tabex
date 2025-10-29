@@ -41,4 +41,23 @@ fn main() {
             join_with(core.get_unsat_core().as_slice(), " && ")
         );
     }
+
+    if let Some(trace) = tableau.trace {
+        println!("Trace length: {}", trace.length());
+        println!("[");
+        for (i, seq) in trace.full_trace().iter().enumerate() {
+            let inner = seq
+                .iter()
+                .map(|f| f.to_string())
+                .collect::<Vec<_>>()
+                .join(", ");
+            let comma = if i + 1 < trace.full_trace().len() {
+                ","
+            } else {
+                ""
+            };
+            println!("  [{inner}]{comma}");
+        }
+        println!("]");
+    }
 }
