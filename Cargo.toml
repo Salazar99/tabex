@@ -18,7 +18,7 @@ path = "src/scanner.rs"
 
 [[bin]]
 name = "rb"
-path = "stc/rb.rs"
+path = "src/rb.rs"
 
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }
