@@ -11,7 +11,7 @@ fn main() {
     let file_content = fs::read_to_string(&filename).unwrap();
     let example = file_content.lines().next().unwrap();
 
-    if options.smt {
+    if options.fol {
         let start = std::time::Instant::now();
         let mut smt_solver = SmtSolver::new(options);
         let res = smt_solver.make_smt_from_str(example);
@@ -24,7 +24,7 @@ fn main() {
                 None => println!("unknown"),
             }
         } else {
-            println!("SMT result: {:?}", res);
+            println!("FOL result: {:?}", res);
             println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
         }
     } else {

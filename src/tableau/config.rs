@@ -11,7 +11,7 @@ pub struct TableauOptions {
     pub mltl: bool,
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
-    pub smt: bool,
+    pub fol: bool,
 }
 
 impl Default for TableauOptions {
@@ -27,7 +27,7 @@ impl Default for TableauOptions {
             mltl: false,
             smtlib_result: false,
             unsat_core_extraction: false,
-            smt: false,
+            fol: false,
         }
     }
 }
@@ -79,9 +79,9 @@ pub struct CliArgs {
     #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
     pub unsat_core_extraction: bool,
 
-    /// Enable SMT solving
-    #[arg(long, default_value_t = TableauOptions::default().smt)]
-    pub smt: bool,
+    /// Enable FOL encoding
+    #[arg(long, default_value_t = TableauOptions::default().fol)]
+    pub fol: bool,
 }
 
 pub enum ConfigSource {
@@ -104,7 +104,7 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 mltl: args.mltl,
                 smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
-                smt: args.smt,
+                fol: args.fol,
             };
             (options, args.formula_file)
         }
