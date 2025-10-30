@@ -16,6 +16,10 @@ path = "src/main.rs"
 name = "scanner"
 path = "src/scanner.rs"
 
+[[bin]]
+name = "rb"
+path = "stc/rb.rs"
+
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }
 dot_graph = "0.2.3"
