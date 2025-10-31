@@ -52,7 +52,7 @@ fn main() {
     // Prepare CSV output
     let mut csv_output = Vec::new();
     csv_output.push(
-        "filename,operands,depth,temporal_depth,length,bool_vars,real_vars,disjunctions"
+        "filename,operands,depth,temporal_depth,length,bool_vars,real_vars"
             .to_string(),
     );
 
@@ -110,10 +110,9 @@ fn main() {
                             let length = formula.length();
                             let bool_vars = formula.boolean_variables();
                             let real_vars = formula.real_variables();
-                            let disjunction = formula.combinatorial_branching_count();
 
                             csv_output.push(format!(
-                                "{filename},{operands},{depth},{temporal_depth},{length},{bool_vars},{real_vars},{disjunction}"
+                                "{filename},{operands},{depth},{temporal_depth},{length},{bool_vars},{real_vars}"
                             ));
                         }
                         Err(e) => {

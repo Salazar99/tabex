@@ -118,26 +118,21 @@ impl RandomGenerator {
         let mut rng = rand::rng();
         let mode = rng.random_range(1..=3);
 
-        let max_upper = self.max_horizon.min(horizon + self.max_interval);
-
         match mode {
             1 => {
-                let upper = rng.random_range(0..=self.max_interval.min(max_upper - horizon));
+                let upper = rng.random_range(0..=self.max_interval.min(self.max_horizon - horizon));
                 Interval { lower: 0, upper }
             }
             2 => {
-                let lower = rng.random_range(0..=self.max_interval.min(max_upper - horizon));
-                let upper = lower + rng.random_range(0..=(self.max_interval - lower));
+                let lower = rng.random_range(0..=self.max_interval.min(self.max_horizon - horizon));
+                let upper = rng.random_range(lower..=self.max_interval.min(self.max_horizon - horizon));
                 Interval { lower, upper }
             }
             3 => {
-                let mut lower = max_upper - rng.random_range(0..self.max_interval);
-                if lower < 0 {
-                    lower = 0;
-                }
+                let lower = rng.random_range(0..=self.max_interval.min(self.max_horizon - horizon));
                 Interval {
                     lower,
-                    upper: max_upper,
+                    upper: self.max_horizon - horizon,
                 }
             }
             _ => unreachable!(),
