@@ -11,9 +11,17 @@ pub struct GeneratorArgs {
     #[arg(short = 'o', long)]
     pub output_folder: String,
 
+    /// File prefix for generated files
+    #[arg(short = 'p', long, default_value = "formula")]
+    pub file_prefix: String,
+
     /// Number of formulas to generate
     #[arg(short = 'n', long, default_value_t = 5)]
     pub num_formulas: usize,
+
+    /// Number of conjunctions per formula
+    #[arg(short = 'j', long, default_value_t = 5)]
+    pub num_conjunctions: i32,
 
     /// Number of boolean variables (atoms a0, a1, …)
     #[arg(short = 'b', long, default_value_t = 0)]
@@ -31,31 +39,26 @@ pub struct GeneratorArgs {
     #[arg(short = 'l', long, default_value_t = 100)]
     pub max_horizon: i32,
 
+    /// Maximum interval length (upper bound of interval upper - lower)
+    #[arg(long, default_value_t = 50)]
+    pub max_interval: i32,
+
     /// Base probability of stopping recursion (approx inverse of expected depth)
     #[arg(long, default_value_t = 0.1)]
     pub p_stop_base: f64,
 
     /// Probability that a chosen operator is temporal (G,F,U,R)
-    #[arg(long, default_value_t = 0.3)]
+    #[arg(long, default_value_t = 0.5)]
     pub p_temporal: f64,
-
-    /// Probability that a chosen operator is unary (¬, F, G)
-    #[arg(long, default_value_t = 0.2)]
-    pub p_unary: f64,
-
-    /// Maximum recursion depth hard cap
-    #[arg(long, default_value_t = 20)]
-    pub max_depth: usize,
 }
 
 pub struct RandomGenerator {
-    bool_vars: Vec<VariableName>,
-    real_constraints: Vec<ExprKind>,
+    constraints: Vec<ExprKind>,
+    conjuncts: i32,
     max_horizon: i32,
+    max_interval: i32,
     p_stop_base: f64,
     p_temporal: f64,
-    p_unary: f64,
-    max_depth: usize,
 }
 
 impl RandomGenerator {
@@ -93,93 +96,126 @@ impl RandomGenerator {
             panic!("At least one boolean or real variable must be defined.");
         }
 
-        let real_constraints = (0..args.max_real_constraints)
+        let real_constraints: Vec<ExprKind> = (0..args.max_real_constraints)
             .map(|_| random_rel(&real_vars))
             .collect();
-        Self {
-            bool_vars,
-            real_constraints: real_constraints,
-            max_horizon: args.max_horizon,
+        let bool_constraints = bool_vars
+            .iter()
+            .map(|v| ExprKind::Atom(v.clone()))
+            .collect();
 
+        Self {
+            constraints: [real_constraints, bool_constraints].concat(),
+            conjuncts: args.num_conjunctions,
+            max_horizon: args.max_horizon,
+            max_interval: args.max_interval,
             p_stop_base: args.p_stop_base,
             p_temporal: args.p_temporal,
-            p_unary: args.p_unary,
-            max_depth: args.max_depth,
         }
     }
 
     fn random_interval(&self, horizon: i32) -> Interval {
         let mut rng = rand::rng();
-        let a = rng.random_range(0..=self.max_horizon - horizon);
-        let b = rng.random_range(a..=self.max_horizon - horizon);
-        Interval { lower: a, upper: b }
+        let mode = rng.random_range(1..=3);
+
+        let max_upper = self.max_horizon.min(horizon + self.max_interval);
+
+        match mode {
+            1 => {
+                let upper = rng.random_range(0..=self.max_interval.min(max_upper - horizon));
+                Interval { lower: 0, upper }
+            }
+            2 => {
+                let lower = rng.random_range(0..=self.max_interval.min(max_upper - horizon));
+                let upper = lower + rng.random_range(0..=(self.max_interval - lower));
+                Interval { lower, upper }
+            }
+            3 => {
+                let mut lower = max_upper - rng.random_range(0..self.max_interval);
+                if lower < 0 {
+                    lower = 0;
+                }
+                Interval {
+                    lower,
+                    upper: max_upper,
+                }
+            }
+            _ => unreachable!(),
+        }
     }
 
     fn random_proposition(&self) -> Formula {
         let mut rng = rand::rng();
 
-        // if both available → 50/50 split, otherwise whichever exists
-        if !self.bool_vars.is_empty() && (self.real_constraints.is_empty() || rng.random_bool(0.5))
-        {
-            let v = self.bool_vars.choose(&mut rng).unwrap().clone();
-            Formula::Prop(Expr::bool(v))
-        } else {
-            let ExprKind::Rel { op, left, right } =
-                self.real_constraints.choose(&mut rng).unwrap().clone()
-            else {
-                unreachable!()
-            };
-            Formula::Prop(Expr::real(op, left, right))
+        let kind = self.constraints.choose(&mut rng).unwrap().clone();
+        let negated: bool = rng.random_bool(0.5);
+        if negated {
+            return Formula::not(Formula::Prop(Expr::from_expr(kind)));
         }
+        Formula::Prop(Expr::from_expr(kind))
     }
 
-    pub fn generate_formula(&self, depth: usize, horizon: i32) -> Formula {
+    pub fn generate_single_formula(&self, depth: usize, horizon: i32) -> Formula {
         let mut rng = rand::rng();
 
         // stop condition
-        if depth >= self.max_depth || horizon >= self.max_horizon || rng.random::<f64>() < self.p_stop_base * (depth as f64)
-        {
+        if rng.random::<f64>() < self.p_stop_base * (depth as f64) {
             return self.random_proposition();
         }
 
-        let p = rng.random::<f64>();
-
-        if p < self.p_unary {
-            // unary operator
-            if rng.random::<f64>() < self.p_temporal {
-                let interval = self.random_interval(horizon);
-                let phi = self.generate_formula(depth + 1, horizon + interval.upper);
-                if rng.random_bool(0.5) {
+        if rng.random::<f64>() < self.p_temporal && horizon < self.max_horizon {
+            // Temporal operator
+            let interval = self.random_interval(horizon);
+            let top = rng.random_range(1..=4);
+            match top {
+                1 => {
+                    let phi = self.generate_single_formula(depth + 1, horizon + interval.upper);
                     Formula::g(interval, None, phi)
-                } else {
+                }
+                2 => {
+                    let phi = self.generate_single_formula(depth + 1, horizon + interval.upper);
                     Formula::f(interval, None, phi)
                 }
-            } else {
-                let phi = self.generate_formula(depth + 1, horizon);
-                Formula::Not(Box::new(phi))
-            }
-        } else {
-            // binary operator
-            
-            if rng.random::<f64>() < self.p_temporal {
-                let interval = self.random_interval(horizon);
-                let left = self.generate_formula(depth + 1, horizon + interval.upper);
-                let right = self.generate_formula(depth + 1, horizon + interval.upper);
-                if rng.random_bool(0.5) {
-                    Formula::u(interval, None, left, right)
-                } else {
-                    Formula::r(interval, None, left, right)
+                3 => {
+                    let left = self.generate_single_formula(depth + 1, horizon + interval.upper);
+                    let right = self.generate_single_formula(depth + 1, horizon + interval.upper);
+                                        Formula::u(interval, None, left, right)
                 }
-            } else if rng.random_bool(0.5) {
-                let left = self.generate_formula(depth + 1, horizon);
-                let right = self.generate_formula(depth + 1, horizon);
-                Formula::And(vec![left, right])
-            } else {
-                let left = self.generate_formula(depth + 1, horizon);
-                let right = self.generate_formula(depth + 1, horizon);
-                Formula::Or(vec![left, right])
+                4 => {
+                    let left = self.generate_single_formula(depth + 1, horizon + interval.upper);
+                    let right = self.generate_single_formula(depth + 1, horizon + interval.upper);
+                                        Formula::r(interval, None, left, right)
+
+                }
+                _ => unreachable!()
+            }
+
+        } else {
+            // Non temporal operator
+            let op = rng.random_range(1..=3);
+            match op {
+                1 => {
+                    let left = self.generate_single_formula(depth + 1, horizon);
+                    let right = self.generate_single_formula(depth + 1, horizon);
+                    Formula::and(vec![left, right])
+                }
+                2 => {
+                    let left = self.generate_single_formula(depth + 1, horizon);
+                    let right = self.generate_single_formula(depth + 1, horizon);
+                    Formula::or(vec![left, right])
+                }
+                3 => {
+                    let left = self.generate_single_formula(depth + 1, horizon);
+                    let right = self.generate_single_formula(depth + 1, horizon);
+                    Formula::imply(left, right)
+                }
+                _ => unreachable!(),
             }
         }
+    }
+
+    pub fn generate_formula(&self) -> Formula {
+        return Formula::and((0..self.conjuncts).map(|_| self.generate_single_formula(0, 0)).collect())
     }
 }
 
@@ -191,11 +227,14 @@ fn main() {
     std::fs::create_dir_all(&args.output_folder).expect("Failed to create output folder");
 
     println!("Args: {args:#?}");
-    println!("Generating {} formulas to folder: {}", args.num_formulas, args.output_folder);
+    println!(
+        "Generating {} formulas to folder: {}",
+        args.num_formulas, args.output_folder
+    );
 
     for i in 0..args.num_formulas {
-        let formula = rng.generate_formula(0, 0);
-        let filename = format!("{}/formula_{:03}.stl", args.output_folder, i + 1);
+        let formula = rng.generate_formula();
+        let filename = format!("{}/{}_{}.stl", args.output_folder, args.file_prefix, i + 1);
         std::fs::write(&filename, format!("{}", formula)).expect("Failed to write formula to file");
         println!("Generated: {}", filename);
     }

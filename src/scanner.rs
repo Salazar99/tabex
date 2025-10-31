@@ -1,11 +1,11 @@
-use std::env;
 use std::fs;
 use std::path::Path;
 
+use clap::Parser;
 use stlcc::formula::parser::parse_formula;
 use stlcc::node::Node;
 
-const MLTL: bool = true;
+const MLTL: bool = false;
 const SIMPLIFICATIONS: bool = true;
 const OPTIMIZATIONS: bool = true;
 
@@ -16,25 +16,32 @@ fn collect_stl_files(dir: &Path, files: &mut Vec<std::path::PathBuf>) {
             let path = entry.path();
             if path.is_dir() {
                 collect_stl_files(&path, files);
-            } else if path.extension().and_then(|s| s.to_str()) == Some("mltl") {
+            } else if path.extension().and_then(|s| s.to_str()) == Some("stl") {
                 files.push(path);
             }
         }
     }
 }
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 3 {
-        eprintln!("Usage: {} <directory>", args[0]);
-        std::process::exit(1);
-    }
+#[derive(Parser)]
+#[command(name = "scanner")]
+#[command(about = "Scan STL files and output statistics")]
+struct Args {
+    /// Input directory containing STL files
+    directory: String,
 
-    let dir_path = &args[1];
-    let dir = Path::new(dir_path);
+    /// Output CSV file (optional, defaults to stdout)
+    #[arg(short, long)]
+    output: Option<String>,
+}
+
+fn main() {
+    let args = Args::parse();
+
+    let dir = Path::new(&args.directory);
 
     if !dir.is_dir() {
-        eprintln!("Error: {dir_path} is not a directory");
+        eprintln!("Error: {} is not a directory", args.directory);
         std::process::exit(1);
     }
 
@@ -44,8 +51,10 @@ fn main() {
 
     // Prepare CSV output
     let mut csv_output = Vec::new();
-    csv_output
-        .push("filename,depth,temporal_depth,length,bool_vars,real_vars,disjunctions".to_string());
+    csv_output.push(
+        "filename,operands,depth,temporal_depth,length,bool_vars,real_vars,disjunctions"
+            .to_string(),
+    );
 
     for file_path in stl_files {
         let filename = file_path
@@ -98,7 +107,7 @@ fn main() {
 
                             let depth = formula.depth();
                             let temporal_depth = formula.temporal_operator_depth();
-                            let length = formula.length();
+                            let length = formula.horizon();
                             let bool_vars = formula.boolean_variables();
                             let real_vars = formula.real_variables();
                             let disjunction = formula.combinatorial_branching_count();
@@ -120,9 +129,9 @@ fn main() {
     }
 
     // Output CSV to file
-    let output_file = &args[2];
+    let output_file = args.output.unwrap_or_else(|| "output.csv".to_string());
     let csv_content = csv_output.join("\n");
-    if let Err(e) = fs::write(output_file, csv_content) {
+    if let Err(e) = fs::write(&output_file, csv_content) {
         eprintln!("Error writing to file {output_file}: {e}");
         std::process::exit(1);
     }
