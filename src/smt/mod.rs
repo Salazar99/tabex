@@ -33,7 +33,7 @@ impl SmtSolver {
             let formula_ast = match parsed {
                 Ok((_, f)) => f,
                 Err(err) => {
-                    eprintln!("Failed to parse formula '{}': {:?}", formula, err);
+                    eprintln!("Failed to parse formula '{formula}': {err:?}");
                     panic!("{}", formula);
                 }
             };
@@ -50,13 +50,13 @@ impl SmtSolver {
             solver.assert(smt_formula);
         }
 
-        let res = match solver.check() {
+        
+
+        match solver.check() {
             z3::SatResult::Sat => Some(true),
             z3::SatResult::Unsat => Some(false),
             z3::SatResult::Unknown => None,
-        };
-
-        res
+        }
     }
 
     fn encode_formula(&mut self, formula: Formula, time: &Int) -> Bool {
@@ -167,9 +167,9 @@ impl SmtSolver {
                     self.bool_variables.insert(n.clone(), func);
                     self.bool_variables.get(&n).unwrap()
                 };
-                return func.apply(&[time]).try_into().unwrap();
+                func.apply(&[time]).try_into().unwrap()
             }
-            ExprKind::Rel { op, left, right } => return self.encode_rel(op, left, right, time),
+            ExprKind::Rel { op, left, right } => self.encode_rel(op, left, right, time),
         }
     }
 
@@ -207,14 +207,14 @@ impl SmtSolver {
     fn encode_rel(&mut self, op: RelOp, left: AExpr, right: AExpr, time: &Int) -> Bool {
         let l = self.encode_aexpr(left, time);
         let r = self.encode_aexpr(right, time);
-        let b = match op {
+        
+        match op {
             RelOp::Lt => l.lt(&r),
             RelOp::Le => l.le(&r),
             RelOp::Gt => l.gt(&r),
             RelOp::Ge => l.ge(&r),
             RelOp::Eq => l.eq(&r),
             RelOp::Ne => l.ne(&r),
-        };
-        b
+        }
     }
 }

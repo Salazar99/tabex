@@ -584,7 +584,7 @@ pub fn join_with(v: &[Formula], sep: &str) -> String {
         }
     }
 
-    format!("({})", out)
+    format!("({out})")
 }
 
 impl Display for AExpr {
