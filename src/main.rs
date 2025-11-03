@@ -31,7 +31,7 @@ fn run_fol(example: &str, options: TableauOptions) {
             None => println!("unknown"),
         }
     } else {
-        println!("FOL result: {:?}", res);
+        println!("FOL result: {res:?}");
         println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
     }
 }
@@ -49,14 +49,14 @@ fn run_tableau(example: &str, options: TableauOptions) {
             None => println!("unknown"),
         }
     } else {
-        println!("Tableau result: {:?}", res);
+        println!("Tableau result: {res:?}");
         println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
     }
 
     if tableau.options.graph_output {
         if let Some(graph) = &tableau.graph {
             if let Ok(dot) = graph.to_dot_string() {
-                println!("Node count: {:?}", NODE_ID);
+                println!("Node count: {NODE_ID:?}");
                 fs::write("resources/tmp/g.dot", &dot).expect("Unable to write file");
             }
         }
