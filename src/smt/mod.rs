@@ -50,8 +50,6 @@ impl SmtSolver {
             solver.assert(smt_formula);
         }
 
-        
-
         match solver.check() {
             z3::SatResult::Sat => Some(true),
             z3::SatResult::Unsat => Some(false),
@@ -207,7 +205,7 @@ impl SmtSolver {
     fn encode_rel(&mut self, op: RelOp, left: AExpr, right: AExpr, time: &Int) -> Bool {
         let l = self.encode_aexpr(left, time);
         let r = self.encode_aexpr(right, time);
-        
+
         match op {
             RelOp::Lt => l.lt(&r),
             RelOp::Le => l.le(&r),
