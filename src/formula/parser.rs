@@ -39,7 +39,13 @@ fn parse_aexpr(input: &str) -> IResult<&str, AExpr> {
     fn aexpr_term(input: &str) -> IResult<&str, AExpr> {
         alt((
             // Number
-            map(parse_decimal, AExpr::Num),
+            map(
+                alt((
+                    parse_ratio,   // Try a/b first
+                    parse_decimal, // Fallback to integer or float
+                )),
+                AExpr::Num,
+            ),
             // Variable
             map(
                 recognize(pair(alpha1, many0(alt((alpha1, digit1, tag("_")))))),
@@ -113,6 +119,14 @@ fn parse_number(input: &str) -> IResult<&str, i64> {
     map_res(recognize(pair(opt(char('-')), digit1)), |s: &str| {
         i64::from_str(s)
     })
+    .parse(input)
+}
+
+fn parse_ratio(input: &str) -> IResult<&str, Ratio<i64>> {
+    map(
+        pair(parse_number, preceded(char('/'), parse_number)),
+        |(num, den)| Ratio::new(num, den),
+    )
     .parse(input)
 }
 

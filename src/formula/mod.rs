@@ -573,10 +573,18 @@ impl Formula {
 
 #[must_use]
 pub fn join_with(v: &[Formula], sep: &str) -> String {
-    v.iter()
-        .map(std::string::ToString::to_string)
-        .collect::<Vec<_>>()
-        .join(sep)
+    let mut out = String::new();
+    let mut iter = v.iter();
+
+    if let Some(first) = iter.next() {
+        out.push_str(&first.to_string());
+        for f in iter {
+            out.push_str(sep);
+            out.push_str(&f.to_string());
+        }
+    }
+
+    format!("({out})")
 }
 
 impl Display for AExpr {
@@ -634,27 +642,23 @@ impl Display for Formula {
         match self {
             Formula::And(v) => write!(f, "{}", join_with(v, " && ")),
             Formula::Or(v) => write!(f, "{}", join_with(v, " || ")),
-            Formula::Not(inner) => write!(f, "!{inner}"),
-            Formula::Imply { left, right, .. } => write!(f, "({left}) -> ({right})"),
-            Formula::G { interval, phi, .. } => write!(f, "G{interval} ({phi})"),
-            Formula::F { interval, phi, .. } => write!(f, "F{interval} ({phi})"),
+            Formula::Not(inner) => write!(f, "(!{inner})"),
+            Formula::Imply { left, right, .. } => write!(f, "({left} -> {right})"),
+            Formula::G { interval, phi, .. } => write!(f, "G{interval} {phi}"),
+            Formula::F { interval, phi, .. } => write!(f, "F{interval} {phi}"),
             Formula::U {
                 interval,
                 left,
                 right,
                 ..
-            } => {
-                write!(f, "({left}) U{interval} ({right})")
-            }
+            } => write!(f, "({left} U{interval} {right})"),
             Formula::R {
                 interval,
                 left,
                 right,
                 ..
-            } => {
-                write!(f, "({left}) R{interval} ({right})")
-            }
-            Formula::O(inner) => write!(f, "O ({inner})"),
+            } => write!(f, "({left} R{interval} {right})"),
+            Formula::O(inner) => write!(f, "O {inner}"),
             Formula::Prop(expr) => write!(f, "{expr}"),
         }
     }

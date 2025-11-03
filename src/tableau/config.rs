@@ -12,6 +12,7 @@ pub struct TableauOptions {
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
     pub trace_extraction: bool,
+    pub fol: bool,
 }
 
 impl Default for TableauOptions {
@@ -28,6 +29,7 @@ impl Default for TableauOptions {
             smtlib_result: false,
             unsat_core_extraction: false,
             trace_extraction: false,
+            fol: false,
         }
     }
 }
@@ -82,6 +84,10 @@ pub struct CliArgs {
     /// Enable trace extraction
     #[arg(long, default_value_t = TableauOptions::default().trace_extraction)]
     pub trace_extraction: bool,
+
+    /// Enable FOL encoding
+    #[arg(long, default_value_t = TableauOptions::default().fol)]
+    pub fol: bool,
 }
 
 pub enum ConfigSource {
@@ -105,6 +111,7 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
                 trace_extraction: args.trace_extraction,
+                fol: args.fol,
             };
             (options, args.formula_file)
         }

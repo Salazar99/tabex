@@ -2,6 +2,7 @@ use std::fs;
 
 use stlcc::formula::join_with;
 use stlcc::node::NODE_ID;
+use stlcc::smt::SmtSolver;
 use stlcc::tableau::Tableau;
 use stlcc::tableau::config::{ConfigSource, get_tableau_options};
 
@@ -10,54 +11,72 @@ fn main() {
     let file_content = fs::read_to_string(&filename).unwrap();
     let example = file_content.lines().next().unwrap();
 
-    let start = std::time::Instant::now();
-    let mut tableau = Tableau::new(options);
-    let res = tableau.make_tableau_from_str(example);
-    let duration = start.elapsed();
+    if options.fol {
+        let start = std::time::Instant::now();
+        let mut smt_solver = SmtSolver::new(options);
+        let res = smt_solver.make_smt_from_str(example);
+        let duration = start.elapsed();
 
-    if tableau.options.smtlib_result {
-        match res {
-            Some(true) => println!("sat"),
-            Some(false) => println!("unsat"),
-            None => println!("unknown"),
+        if smt_solver.options.smtlib_result {
+            match res {
+                Some(true) => println!("sat"),
+                Some(false) => println!("unsat"),
+                None => println!("unknown"),
+            }
+        } else {
+            println!("FOL result: {:?}", res);
+            println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
         }
     } else {
-        println!("Tableau result: {res:?}");
-        println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
-    }
+        let start = std::time::Instant::now();
+        let mut tableau = Tableau::new(options);
+        let res = tableau.make_tableau_from_str(example);
+        let duration = start.elapsed();
 
-    if tableau.options.graph_output
-        && let Ok(graph) = tableau.graph.unwrap().to_dot_string()
-    {
-        println!("Node count: {NODE_ID:?}");
-        fs::write("resources/tmp/g.dot", &graph).expect("Unable to write file");
-    }
-
-    if let Some(core) = tableau.unsat_core
-        && matches!(res, Some(false))
-    {
-        println!(
-            "Unsat core: {}",
-            join_with(core.get_unsat_core().as_slice(), " && ")
-        );
-    }
-
-    if let Some(trace) = tableau.trace {
-        println!("Trace length: {}", trace.length());
-        println!("[");
-        for (i, seq) in trace.full_trace().iter().enumerate() {
-            let inner = seq
-                .iter()
-                .map(|f| f.to_string())
-                .collect::<Vec<_>>()
-                .join(", ");
-            let comma = if i + 1 < trace.full_trace().len() {
-                ","
-            } else {
-                ""
-            };
-            println!("  [{inner}]{comma}");
+        if tableau.options.smtlib_result {
+            match res {
+                Some(true) => println!("sat"),
+                Some(false) => println!("unsat"),
+                None => println!("unknown"),
+            }
+        } else {
+            println!("Tableau result: {:?}", res);
+            println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
         }
-        println!("]");
+
+        if tableau.options.graph_output
+            && let Ok(graph) = tableau.graph.unwrap().to_dot_string()
+        {
+            println!("Node count: {:?}", NODE_ID);
+            fs::write("resources/tmp/g.dot", &graph).expect("Unable to write file");
+        }
+
+        if let Some(core) = tableau.unsat_core
+            && matches!(res, Some(false))
+        {
+            println!(
+                "Unsat core: {}",
+                join_with(core.get_unsat_core().as_slice(), " && ")
+            );
+        }
+
+        if let Some(trace) = tableau.trace {
+            println!("Trace length: {}", trace.length());
+            println!("[");
+            for (i, seq) in trace.full_trace().iter().enumerate() {
+                let inner = seq
+                    .iter()
+                    .map(|f| f.to_string())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let comma = if i + 1 < trace.full_trace().len() {
+                    ","
+                } else {
+                    ""
+                };
+                println!("  [{inner}]{comma}");
+            }
+            println!("]");
+        }
     }
 }

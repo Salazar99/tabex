@@ -97,3 +97,17 @@ fn test_parse_parentheses_space() {
     let result = parse_formula(input);
     assert!(result.is_ok());
 }
+
+#[test]
+fn test_parse_decimal() {
+    let input = "x > 0.75";
+    let result = parse_formula(input);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn test_parse_fraction() {
+    let input = "x > 3/4";
+    let result = parse_formula(input);
+    assert!(result.is_ok());
+}
