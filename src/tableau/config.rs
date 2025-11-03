@@ -1,5 +1,12 @@
 use clap::Parser;
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum ExecutionMode {
+    Tableau,
+    Fol,
+}
+
+#[derive(Clone, Debug)]
 pub struct TableauOptions {
     pub max_depth: usize,
     pub graph_output: bool,
@@ -12,7 +19,7 @@ pub struct TableauOptions {
     pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
     pub trace_extraction: bool,
-    pub fol: bool,
+    pub mode: ExecutionMode,
 }
 
 impl Default for TableauOptions {
@@ -29,7 +36,7 @@ impl Default for TableauOptions {
             smtlib_result: false,
             unsat_core_extraction: false,
             trace_extraction: false,
-            fol: false,
+            mode: ExecutionMode::Tableau,
         }
     }
 }
@@ -86,7 +93,7 @@ pub struct CliArgs {
     pub trace_extraction: bool,
 
     /// Enable FOL encoding
-    #[arg(long, default_value_t = TableauOptions::default().fol)]
+    #[arg(long, default_value_t = false)]
     pub fol: bool,
 }
 
@@ -99,6 +106,7 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
     match source {
         ConfigSource::Cli => {
             let args = CliArgs::parse();
+
             let options = TableauOptions {
                 max_depth: args.max_depth,
                 graph_output: args.graph_output,
@@ -111,7 +119,11 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
                 trace_extraction: args.trace_extraction,
-                fol: args.fol,
+                mode: if args.fol {
+                    ExecutionMode::Fol
+                } else {
+                    ExecutionMode::Tableau
+                },
             };
             (options, args.formula_file)
         }
