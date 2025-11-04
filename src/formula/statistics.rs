@@ -48,15 +48,15 @@ impl Formula {
     }
 
     #[must_use]
-    pub fn length(&self) -> i32 {
+    pub fn horizon(&self) -> i32 {
         match self {
             Formula::And(ops) | Formula::Or(ops) => {
-                ops.iter().map(super::Formula::length).max().unwrap_or(0)
+                ops.iter().map(super::Formula::horizon).max().unwrap_or(0)
             }
-            Formula::Not(f) | Formula::O(f) => f.length(),
-            Formula::Imply { left, right, .. } => left.length().max(right.length()),
+            Formula::Not(f) | Formula::O(f) => f.horizon(),
+            Formula::Imply { left, right, .. } => left.horizon().max(right.horizon()),
             Formula::F { phi, interval, .. } | Formula::G { phi, interval, .. } => {
-                interval.upper + phi.length()
+                interval.upper + phi.horizon()
             }
             Formula::U {
                 left,
@@ -69,8 +69,24 @@ impl Formula {
                 right,
                 interval,
                 ..
-            } => interval.upper + left.length().max(right.length()),
+            } => interval.upper + left.horizon().max(right.horizon()),
             _ => 0,
+        }
+    }
+
+    #[must_use]
+    pub fn nodes(&self) -> i32 {
+        match self {
+            Formula::And(ops) | Formula::Or(ops) => {
+                1 + ops.iter().map(super::Formula::nodes).sum::<i32>()
+            }
+            Formula::Not(f) | Formula::O(f) =>  1 +f.nodes(),
+            Formula::Imply { left, right, .. } => 1 + left.nodes() + right.nodes(),
+            Formula::F { phi, .. } | Formula::G { phi, .. } => 1 + phi.nodes(),
+            Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
+                1 + left.nodes() + right.nodes()
+            }
+            Formula::Prop(_) => 1,
         }
     }
 

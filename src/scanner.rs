@@ -98,7 +98,7 @@ fn main() {
 
                             let depth = formula.depth();
                             let temporal_depth = formula.temporal_operator_depth();
-                            let length = formula.length();
+                            let length = formula.horizon();
                             let bool_vars = formula.boolean_variables();
                             let real_vars = formula.real_variables();
                             let disjunction = formula.combinatorial_branching_count();
