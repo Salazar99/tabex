@@ -14,7 +14,7 @@ max_mem=30720
 iters=5
 z3bin=z3
 bench_sets=("nasa-boeing" "random" "random0")
-tools=("stlcc" "stlcc_fol" "mltlsat" "stltree")
+tools=("stlcc" "stlcc_fol" "stlcc_parallel" "mltlsat" "stltree")
 outdir=./output_mltl
 
 while [[ $# -gt 0 ]]; do
@@ -75,6 +75,12 @@ fi
 if [[ " ${tools[@]} " =~ " stlcc_fol " ]]; then
     for bench_set in "${bench_sets[@]}"; do
         ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_fol_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlcc --mltl --fol &> "${outdir}/stlcc_fol_${bench_set}.log"
+    done
+fi
+
+if [[ " ${tools[@]} " =~ " stlcc_parallel " ]]; then
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_parallel_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlcc-parallel --mltl &> "${outdir}/stlcc_parallel_${bench_set}.log"
     done
 fi
 

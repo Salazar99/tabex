@@ -5,6 +5,8 @@ INPUT="$1"
 shift
 EXTRA_ARGS=("$@")
 
+STLCC="../target/release/stlcc"
+
 parallel --halt now,success=1 ::: \
-  "target/release/stlcc ${EXTRA_ARGS[*]} $INPUT" \
-  "target/release/stlcc --fol ${EXTRA_ARGS[*]} $INPUT"
+  "$STLCC ${EXTRA_ARGS[*]} $INPUT" \
+  "$STLCC --fol ${EXTRA_ARGS[*]} $INPUT"

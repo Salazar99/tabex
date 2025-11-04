@@ -35,7 +35,7 @@ def get_stlcc_args(args):
         stlcc_args.append('--no-jump-rule')
     if args.no_formula_simplifications:
         stlcc_args.append('--no-formula-simplifications')
-    if args.fol:
+    if hasattr(args, 'fol') and args.fol:
         stlcc_args.append('--fol')
 
     return stlcc_args
@@ -91,6 +91,9 @@ def bench_command(fname, args):
         case 'stlcc':
             prog_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(), 'target/release/stlcc')
             return [prog_path, '--smtlib-result'] + get_stlcc_args(args) + [fname]
+        case 'stlcc-parallel':
+            script_path = os.path.join(Path(os.path.dirname(__file__)).absolute(), 'parallel_sat.sh')
+            return ['bash', script_path, fname, '--smtlib-result'] + get_stlcc_args(args)
         case 'stltree':
             return ['python3', args.stltree_path, '--smtlib-result'] + get_stltree_args(args) + [fname]
         case 'smt-quant':
@@ -212,6 +215,14 @@ def make_arg_parser():
     stlcc_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
     stlcc_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
     stlcc_p.add_argument('--fol', action='store_true', help='Use FOL satisfiability checker instead of tree-based tableau.')
+
+    stlcc_par_p = subparsers.add_parser('stlcc-parallel', help='Run stlcc with tableau and FOL encoding in parallel.')
+    stlcc_par_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
+    stlcc_par_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
+    stlcc_par_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
+    stlcc_par_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
+    stlcc_par_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
+    stlcc_par_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
 
     stltree_p = subparsers.add_parser('stltree', help='Use the Python implementation of the tree-shaped tableau (stltree)')
     stltree_p.add_argument('stltree_path', type=str)
