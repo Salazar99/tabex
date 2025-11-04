@@ -62,7 +62,7 @@ pub struct Expr {
 }
 
 impl Expr {
-    fn from_expr(kind: ExprKind) -> Self {
+    pub fn from_expr(kind: ExprKind) -> Self {
         Expr {
             id: FORMULA_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
             kind,
