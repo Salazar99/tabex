@@ -80,7 +80,7 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 1 + ops.iter().map(super::Formula::nodes).sum::<i32>()
             }
-            Formula::Not(f) | Formula::O(f) =>  1 +f.nodes(),
+            Formula::Not(f) | Formula::O(f) => 1 + f.nodes(),
             Formula::Imply { left, right, .. } => 1 + left.nodes() + right.nodes(),
             Formula::F { phi, .. } | Formula::G { phi, .. } => 1 + phi.nodes(),
             Formula::U { left, right, .. } | Formula::R { left, right, .. } => {

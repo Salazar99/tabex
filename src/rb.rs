@@ -68,7 +68,6 @@ pub struct RandomGenerator {
 
 impl RandomGenerator {
     pub fn new(args: &GeneratorArgs) -> Self {
-
         let bool_vars: Vec<VariableName> = (0..args.num_bool_vars)
             .map(|i| Arc::from(format!("a{}", i)))
             .collect();
