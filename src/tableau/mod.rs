@@ -10,6 +10,7 @@ use crate::tableau::config::TableauOptions;
 use crate::tableau::core::UnsatCore;
 use crate::tableau::solver::Solver;
 use crate::tableau::store::{RejectedNode, Store};
+use crate::tableau::trace::{Trace, TraceBuilder};
 
 #[cfg(test)]
 mod tests;
@@ -19,12 +20,15 @@ pub mod core;
 pub mod graph;
 pub mod solver;
 pub mod store;
+pub mod trace;
 
 pub struct Tableau {
     pub options: TableauOptions,
     pub graph: Option<Graph>,
     pub store: Option<Store>,
     pub unsat_core: Option<UnsatCore>,
+    trace_builder: Option<TraceBuilder>,
+    pub trace: Option<Trace>,
 }
 
 #[derive(Clone, Copy)]
@@ -65,11 +69,18 @@ impl Tableau {
         } else {
             None
         };
+        let trace = if options.trace_extraction {
+            Some(TraceBuilder::new())
+        } else {
+            None
+        };
         Tableau {
             options,
             graph,
             store,
             unsat_core,
+            trace_builder: trace,
+            trace: None,
         }
     }
 
@@ -171,7 +182,17 @@ impl Tableau {
                 // Case 1.1: no parent — done
                 let Some(parent) = stack.front_mut() else {
                     return match job.result {
-                        Some(JobState::Sat) => Some(true),
+                        Some(JobState::Sat) => {
+                            if let Some(trace) = &mut self.trace_builder
+                                && job.node.is_poised()
+                            {
+                                trace.add_node(&job.node);
+                            }
+                            if let Some(trace) = self.trace_builder.take() {
+                                self.trace = Some(trace.freeze());
+                            }
+                            Some(true)
+                        }
                         Some(JobState::Unsat) => Some(false),
                         Some(JobState::Undefined) => None,
                         None => panic!(),
@@ -185,7 +206,20 @@ impl Tableau {
                 parent.result = merge_results(parent.result, res, implies);
 
                 match res {
-                    JobState::Sat if !implies => parent.children.clear(),
+                    JobState::Sat => {
+                        if implies {
+                            if let Some(trace) = &mut self.trace_builder {
+                                trace.reset();
+                            }
+                        } else {
+                            parent.children.clear();
+                            if let Some(trace) = &mut self.trace_builder
+                                && job.node.is_poised()
+                            {
+                                trace.add_node(&job.node);
+                            }
+                        }
+                    }
                     JobState::Unsat => {
                         if implies {
                             parent.children.clear();

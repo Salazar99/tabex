@@ -55,7 +55,7 @@ mod length_tests {
     #[test]
     fn test_prop() {
         let f = prop("a");
-        assert_eq!(f.length(), 0);
+        assert_eq!(f.horizon(), 0);
     }
 
     #[test]
@@ -69,7 +69,7 @@ mod length_tests {
                 Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
             ),
         ]);
-        assert_eq!(f.length(), 8);
+        assert_eq!(f.horizon(), 8);
     }
 }
 

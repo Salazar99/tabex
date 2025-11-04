@@ -35,6 +35,8 @@ def get_stlcc_args(args):
         stlcc_args.append('--no-jump-rule')
     if args.no_formula_simplifications:
         stlcc_args.append('--no-formula-simplifications')
+    if args.fol:
+        stlcc_args.append('--fol')
 
     return stlcc_args
 
@@ -209,6 +211,7 @@ def make_arg_parser():
     stlcc_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
     stlcc_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
     stlcc_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
+    stlcc_p.add_argument('--fol', action='store_true', help='Use FOL satisfiability checker instead of tree-based tableau.')
 
     stltree_p = subparsers.add_parser('stltree', help='Use the Python implementation of the tree-shaped tableau (stltree)')
     stltree_p.add_argument('stltree_path', type=str)

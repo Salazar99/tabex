@@ -421,7 +421,7 @@ impl Formula {
             | Formula::F { interval, .. }
             | Formula::U { interval, .. }
             | Formula::R { interval, .. } => interval.active(current_time),
-            _ => false,
+            _ => true,
         }
     }
 
@@ -584,7 +584,7 @@ pub fn join_with(v: &[Formula], sep: &str) -> String {
         }
     }
 
-    format!("({})", out)
+    format!("({out})")
 }
 
 impl Display for AExpr {
