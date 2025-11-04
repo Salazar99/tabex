@@ -52,10 +52,16 @@ if __name__ == "__main__":
     joined = pd.merge(d1, d2, on='Name', suffixes=('_' + t1, '_' + t2), validate='one_to_one')
 
     diff = (joined[f'Result_{t1}'] != 'TO') & (joined[f'Result_{t2}'] != 'TO') & (joined[f'Result_{t1}'] != joined[f'Result_{t2}'])
+    print("Benchmarks with differing results:")
     print(joined[diff])
 
     diff_sat_unsat = ((joined[f'Result_{t1}'] == 'sat') & (joined[f'Result_{t2}'] == 'unsat')) | ((joined[f'Result_{t1}'] == 'unsat') & (joined[f'Result_{t2}'] == 'sat'))
+    print("Benchmarks with differing sat/unsat results:")
     print(joined[diff_sat_unsat])
 
     if args.csv_output:
         joined[diff_sat_unsat].to_csv(args.csv_output, index=False)
+
+    print(f"Benchmarks in which {t2} is faster than {t1}:")
+    faster = joined[((joined[f'Time (s)_{t2}'] >= 0) & (joined[f'Time (s)_{t1}'] > 0.4) & (joined[f'Time (s)_{t2}'] < joined[f'Time (s)_{t1}'])) | ((joined[f'Result_{t1}'] == 'TO') & (joined[f'Result_{t2}'] != 'TO'))]
+    print(faster[['Name', f'Time (s)_{t1}', f'Result_{t1}', f'Time (s)_{t2}', f'Result_{t2}']])

@@ -132,6 +132,8 @@ if __name__ == "__main__":
                         help='Use a log scale for the time axis in survival plots.')
     parser.add_argument('--markers-survival', action='store_true',
                         help='Use markers in the survival plot.')
+    parser.add_argument('--no-y-label', action='store_true',
+                        help='Do not show the y axis label.')
     args = parser.parse_args()
     
     if args.tools == '_error_':
@@ -160,7 +162,7 @@ if __name__ == "__main__":
         font_family="Linux Libertine Display O,serif",
         #font_size=12,
         xaxis_title="Time (s)",
-        yaxis_title="Number of benchmarks solved",
+        yaxis_title=None if args.no_y_label else "Number of benchmarks solved",
         margin=dict(l=0, r=0, t=0, b=0),
         plot_bgcolor='white',      # No background color
         paper_bgcolor='white',     # No outer background
