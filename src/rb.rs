@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use clap::Parser;
 use num_rational::Ratio;
-use rand::{Rng, seq::IndexedRandom};
-use stlcc::formula::{AExpr, Expr, ExprKind, Formula, Interval, RelOp, VariableName};
+use rand::{Rng, seq::IndexedRandom, seq::SliceRandom};
+use stlcc::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, Interval, RelOp, VariableName};
 
 #[derive(Parser, Debug)]
 pub struct GeneratorArgs {
@@ -50,6 +50,10 @@ pub struct GeneratorArgs {
     /// Probability that a chosen operator is temporal (G,F,U,R)
     #[arg(long, default_value_t = 0.5)]
     pub p_temporal: f64,
+
+    /// Whether to enforce intervals starting at zero
+    #[arg(long, default_value_t = false)]
+    pub zero_interval_start: bool,
 }
 
 pub struct RandomGenerator {
@@ -59,31 +63,11 @@ pub struct RandomGenerator {
     max_interval: i32,
     p_stop_base: f64,
     p_temporal: f64,
+    zero_interval_start: bool,
 }
 
 impl RandomGenerator {
     pub fn new(args: &GeneratorArgs) -> Self {
-        pub fn random_rel(real_vars: &Vec<VariableName>) -> ExprKind {
-            let mut rng = rand::rng();
-
-            let op = [
-                RelOp::Lt,
-                RelOp::Le,
-                RelOp::Gt,
-                RelOp::Ge,
-                RelOp::Eq,
-                RelOp::Ne,
-            ]
-            .choose(&mut rng)
-            .unwrap()
-            .clone();
-            let left = AExpr::Var(real_vars.choose(&mut rng).unwrap().clone());
-            let right = AExpr::Num(Ratio::new(
-                rng.random_range(-10..10),
-                rng.random_range(1..10),
-            ));
-            ExprKind::Rel { op, left, right }
-        }
 
         let bool_vars: Vec<VariableName> = (0..args.num_bool_vars)
             .map(|i| Arc::from(format!("a{}", i)))
@@ -111,12 +95,17 @@ impl RandomGenerator {
             max_interval: args.max_interval,
             p_stop_base: args.p_stop_base,
             p_temporal: args.p_temporal,
+            zero_interval_start: args.zero_interval_start,
         }
     }
 
     fn random_interval(&self, horizon: i32) -> Interval {
         let mut rng = rand::rng();
-        let mode = rng.random_range(1..=3);
+        let mode = if self.zero_interval_start {
+            1
+        } else {
+            rng.random_range(1..=3)
+        };
 
         match mode {
             1 => {
@@ -125,7 +114,8 @@ impl RandomGenerator {
             }
             2 => {
                 let lower = rng.random_range(0..=self.max_interval.min(self.max_horizon - horizon));
-                let upper = rng.random_range(lower..=self.max_interval.min(self.max_horizon - horizon));
+                let upper =
+                    rng.random_range(lower..=self.max_interval.min(self.max_horizon - horizon));
                 Interval { lower, upper }
             }
             3 => {
@@ -174,17 +164,15 @@ impl RandomGenerator {
                 3 => {
                     let left = self.generate_single_formula(depth + 1, horizon + interval.upper);
                     let right = self.generate_single_formula(depth + 1, horizon + interval.upper);
-                                        Formula::u(interval, None, left, right)
+                    Formula::u(interval, None, left, right)
                 }
                 4 => {
                     let left = self.generate_single_formula(depth + 1, horizon + interval.upper);
                     let right = self.generate_single_formula(depth + 1, horizon + interval.upper);
-                                        Formula::r(interval, None, left, right)
-
+                    Formula::r(interval, None, left, right)
                 }
-                _ => unreachable!()
+                _ => unreachable!(),
             }
-
         } else {
             // Non temporal operator
             let op = rng.random_range(1..=3);
@@ -210,7 +198,11 @@ impl RandomGenerator {
     }
 
     pub fn generate_formula(&self) -> Formula {
-        return Formula::and((0..self.conjuncts).map(|_| self.generate_single_formula(0, 0)).collect())
+        return Formula::and(
+            (0..self.conjuncts)
+                .map(|_| self.generate_single_formula(0, 0))
+                .collect(),
+        );
     }
 }
 
@@ -235,4 +227,93 @@ fn main() {
     }
 
     println!("Done!");
+}
+
+pub fn random_rel(real_vars: &Vec<VariableName>) -> ExprKind {
+    let mut rng = rand::rng();
+    match rng.random_range(0..3) {
+        0 => random_simple(real_vars),
+        1 => random_diff_logic(real_vars),
+        _ => random_linear(real_vars),
+    }
+}
+
+pub fn random_rel_op() -> RelOp {
+    let mut rng = rand::rng();
+    [
+        RelOp::Lt,
+        RelOp::Le,
+        RelOp::Gt,
+        RelOp::Ge,
+        RelOp::Eq,
+        RelOp::Ne,
+    ]
+    .choose(&mut rng)
+    .unwrap()
+    .clone()
+}
+
+fn random_simple(real_vars: &Vec<VariableName>) -> ExprKind {
+    let mut rng = rand::rng();
+    let op = random_rel_op();
+    let left = AExpr::Var(real_vars.choose(&mut rng).unwrap().clone());
+    let right = AExpr::Num(Ratio::new(
+        rng.random_range(-10..10),
+        rng.random_range(1..10),
+    ));
+    ExprKind::Rel { op, left, right }
+}
+
+fn random_diff_logic(real_vars: &Vec<VariableName>) -> ExprKind {
+    let mut rng = rand::rng();
+    let op = random_rel_op();
+    if real_vars.len() < 2 {
+        panic!("Need at least two variables for a difference logic constraint");
+    }
+
+    let mut vars = real_vars.clone();
+    vars.shuffle(&mut rng);
+    let v1 = AExpr::Var(vars[0].clone());
+    let v2 = AExpr::Var(vars[1].clone());
+
+    let diff = AExpr::BinOp {
+        op: ArithOp::Sub,
+        left: Box::new(v1),
+        right: Box::new(v2),
+    };
+
+    let c = AExpr::Num(Ratio::new(rng.random_range(0..10), rng.random_range(1..10)));
+    ExprKind::Rel {
+        op,
+        left: diff,
+        right: c,
+    }
+}
+
+fn random_linear(real_vars: &Vec<VariableName>) -> ExprKind {
+    let mut rng = rand::rng();
+    let op = random_rel_op();
+
+    let n_terms = rng.random_range(1..=real_vars.len().max(1));
+    let mut vars = real_vars.clone();
+    vars.shuffle(&mut rng);
+
+    let mut sum = AExpr::Var(vars[0].clone());
+    for v in vars.into_iter().skip(1).take(n_terms - 1) {
+        sum = AExpr::BinOp {
+            op: ArithOp::Add,
+            left: Box::new(sum),
+            right: Box::new(AExpr::Var(v)),
+        };
+    }
+
+    let right = AExpr::Num(Ratio::new(
+        rng.random_range(-10..10),
+        rng.random_range(1..10),
+    ));
+    ExprKind::Rel {
+        op,
+        left: sum,
+        right,
+    }
 }
