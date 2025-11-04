@@ -8,6 +8,22 @@ import math
 def valid_result(r):
     return r in {'sat', 'unsat'}
 
+def merge_results(row):
+    r1 = row['Result_1']
+    r2 = row['Result_2']
+    result = None
+    if valid_result(r1):
+        result = r1
+    if valid_result(r2):
+        if result is None:
+            result = r2
+        elif result != r2:
+            raise ValueError(f"Inconsistent results: {str(row)}")
+    
+    if result is None:
+        return 'unknown'
+    return result
+
 def read_csv_files(tools, csv_files, timeout):
     """
     Reads the CSV files and returns a dictionary with the tools as keys
@@ -52,7 +68,7 @@ def plot_identity_line(fig, end):
         )
     ))
 
-def make_scatter_plot(data, output, timeout):
+def make_scatter_plot(data, output, timeout, no_y_label):
     """
     Creates a scatter plot for the given data.
     """
@@ -60,14 +76,37 @@ def make_scatter_plot(data, output, timeout):
     joint_data = data1.merge(data2, on="Name", suffixes=("_1", "_2"), validate="one_to_one")
     # print(joint_data)
 
+    result_summary = joint_data.apply(merge_results, axis=1, result_type='expand')
+    joint_data["Result"] = result_summary
+
+    sat_points = joint_data[joint_data["Result"] == "sat"]
+    unsat_points = joint_data[joint_data["Result"] == "unsat"]
+    unknown_points = joint_data[joint_data["Result"] == "unknown"]
+
     fig = go.Figure()
     plot_identity_line(fig, timeout)
 
     fig.add_trace(go.Scatter(
-        x=joint_data["Time (s)_1"],
-        y=joint_data["Time (s)_2"],
+        x=sat_points["Time (s)_1"],
+        y=sat_points["Time (s)_2"],
         mode='markers',
-        marker=dict(size=5, symbol='x'),
+        marker=dict(size=5, symbol='x', color='green'),
+        cliponaxis=False,
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=unsat_points["Time (s)_1"],
+        y=unsat_points["Time (s)_2"],
+        mode='markers',
+        marker=dict(size=5, symbol='x', color='red'),
+        cliponaxis=False,
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=unknown_points["Time (s)_1"],
+        y=unknown_points["Time (s)_2"],
+        mode='markers',
+        marker=dict(size=5, symbol='x', color='gray'),
         cliponaxis=False,
     ))
 
@@ -77,7 +116,7 @@ def make_scatter_plot(data, output, timeout):
         font_family="Linux Libertine Display O,serif",
         showlegend=False,
         xaxis_title=tool1 + " time (s)",
-        yaxis_title=tool2 + " time (s)",
+        yaxis_title=None if no_y_label else tool2 + " time (s)",
         margin=dict(l=0, r=5, t=5, b=0),
         plot_bgcolor='white',
         paper_bgcolor='white',
@@ -200,6 +239,6 @@ if __name__ == "__main__":
 
     if args.scatter:
         if len(tools) == 2:
-            make_scatter_plot(data, args.output, args.timeout)
+            make_scatter_plot(data, args.output, args.timeout, args.no_y_label)
         else:
             print("Scatter plot is only available for two tools.")
