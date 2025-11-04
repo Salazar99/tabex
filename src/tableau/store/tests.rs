@@ -28,14 +28,14 @@ fn make_check_rejected_test(
     test_node.flatten();
     test_node.current_time = test_time;
     let rejected_test_node = RejectedNode::from_node(&test_node);
-    return store.check_rejected(&rejected_test_node);
+    store.check_rejected(&rejected_test_node)
 }
 
 #[test]
 fn test_empty_store() {
     let a = prop("a");
-    assert_eq!(
-        make_check_rejected_test(
+    assert!(
+        !make_check_rejected_test(
             vec![],
             vec![Formula::g(
                 Interval {
@@ -47,16 +47,15 @@ fn test_empty_store() {
             )],
             0,
             0
-        ),
-        false
+        )
     );
 }
 
 #[test]
 fn test_globally() {
     let a = prop("a");
-    assert_eq!(
-        make_check_rejected_test(
+    assert!(
+        !make_check_rejected_test(
             vec![vec![Formula::g(
                 Interval {
                     lower: 0,
@@ -68,10 +67,9 @@ fn test_globally() {
             vec![Formula::g(Interval { lower: 2, upper: 5 }, None, a.clone())],
             0,
             0
-        ),
-        false
+        )
     );
-    assert_eq!(
+    assert!(
         make_check_rejected_test(
             vec![vec![Formula::g(
                 Interval {
@@ -91,10 +89,9 @@ fn test_globally() {
             )],
             0,
             0
-        ),
-        true
+        )
     );
-    assert_eq!(
+    assert!(
         make_check_rejected_test(
             vec![vec![Formula::g(
                 Interval {
@@ -114,15 +111,14 @@ fn test_globally() {
             )],
             0,
             0
-        ),
-        true
+        )
     );
 }
 
 #[test]
 fn test_finally() {
     let a = prop("a");
-    assert_eq!(
+    assert!(
         make_check_rejected_test(
             vec![vec![Formula::f(
                 Interval {
@@ -135,10 +131,9 @@ fn test_finally() {
             vec![Formula::f(Interval { lower: 2, upper: 5 }, None, a.clone())],
             0,
             0
-        ),
-        true
+        )
     );
-    assert_eq!(
+    assert!(
         make_check_rejected_test(
             vec![vec![Formula::f(
                 Interval {
@@ -158,11 +153,10 @@ fn test_finally() {
             )],
             0,
             0
-        ),
-        true
+        )
     );
-    assert_eq!(
-        make_check_rejected_test(
+    assert!(
+        !make_check_rejected_test(
             vec![vec![Formula::f(
                 Interval {
                     lower: 0,
@@ -181,16 +175,15 @@ fn test_finally() {
             )],
             0,
             0
-        ),
-        false
+        )
     );
 }
 
 #[test]
 fn test_shift() {
     let a = prop("a");
-    assert_eq!(
-        make_check_rejected_test(
+    assert!(
+        !make_check_rejected_test(
             vec![vec![
                 Formula::g(
                     Interval {
@@ -229,7 +222,6 @@ fn test_shift() {
             ],
             17,
             16
-        ),
-        false
+        )
     );
 }

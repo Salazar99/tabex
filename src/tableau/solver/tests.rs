@@ -22,32 +22,32 @@ fn make_solver_test(input: &str) -> bool {
 
 #[test]
 fn test_false_expr() {
-    assert_eq!(make_solver_test("false"), false);
+    assert!(!make_solver_test("false"));
 }
 
 #[test]
 fn test_not_true_expr() {
-    assert_eq!(make_solver_test("!true"), false);
+    assert!(!make_solver_test("!true"));
 }
 
 #[test]
 fn test_bool_true() {
-    assert_eq!(make_solver_test("a && b"), true);
+    assert!(make_solver_test("a && b"));
 }
 
 #[test]
 fn test_bool_false() {
-    assert_eq!(make_solver_test("a && !a"), false);
+    assert!(!make_solver_test("a && !a"));
 }
 
 #[test]
 fn test_real_true() {
-    assert_eq!(make_solver_test("R_x > 0 && R_x < 5"), true);
+    assert!(make_solver_test("R_x > 0 && R_x < 5"));
 }
 
 #[test]
 fn test_real_false() {
-    assert_eq!(make_solver_test("R_x > 5 && R_x < 0"), false);
+    assert!(!make_solver_test("R_x > 5 && R_x < 0"));
 }
 
 #[test]
@@ -57,22 +57,22 @@ fn test_push_pop_bool() {
     solver.push();
 
     let node = parse_node("a && b");
-    assert_eq!(solver.check(&node), true);
+    assert!(solver.check(&node));
 
     solver.push();
 
     let node_false = parse_node("!a, a");
-    assert_eq!(solver.check(&node_false), false);
+    assert!(!solver.check(&node_false));
 
     solver.pop();
 
     solver.push();
     let node_true = parse_node("c");
-    assert_eq!(solver.check(&node_true), true);
+    assert!(solver.check(&node_true));
 
     solver.push();
     let node_false_2 = parse_node("!a");
-    assert_eq!(solver.check(&node_false_2), false);
+    assert!(!solver.check(&node_false_2));
 }
 
 #[test]
@@ -82,22 +82,22 @@ fn test_push_pop_real() {
     solver.push();
 
     let node = parse_node("R_x > 0 && R_x < 5");
-    assert_eq!(solver.check(&node), true);
+    assert!(solver.check(&node));
 
     solver.push();
 
     let node_false = parse_node("R_x < 0");
-    assert_eq!(solver.check(&node_false), false);
+    assert!(!solver.check(&node_false));
 
     solver.pop();
 
     solver.push();
     let node_true = parse_node("R_y > 1");
-    assert_eq!(solver.check(&node_true), true);
+    assert!(solver.check(&node_true));
 
     solver.push();
     let node_false_2 = parse_node("R_x < 0");
-    assert_eq!(solver.check(&node_false_2), false);
+    assert!(!solver.check(&node_false_2));
 }
 
 #[test]
@@ -112,23 +112,23 @@ fn mltl_real_constraint() {
 fn mltl_boolean() {
     let mut solver = Solver::new(false, true);
     let node = parse_node("a && b");
-    assert_eq!(solver.check(&node), true);
+    assert!(solver.check(&node));
 }
 
 #[test]
 fn empty_solver_not_mltl() {
     let solver = Solver::new(false, false);
-    assert_eq!(solver.real_solver.is_some(), true);
+    assert!(solver.real_solver.is_some());
     let empty_solver = solver.empty_solver();
-    assert_eq!(empty_solver.real_solver.is_some(), true);
+    assert!(empty_solver.real_solver.is_some());
 }
 
 #[test]
 fn empty_solver_mltl() {
     let solver = Solver::new(false, true);
-    assert_eq!(solver.real_solver.is_none(), true);
+    assert!(solver.real_solver.is_none());
     let empty_solver = solver.empty_solver();
-    assert_eq!(empty_solver.real_solver.is_none(), true);
+    assert!(empty_solver.real_solver.is_none());
 }
 
 #[test]
@@ -140,7 +140,7 @@ fn test_unsat_core_not_enabled() {
 
     let node = Node::from_operands(vec![one, two]);
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), None);
 }
 
@@ -153,7 +153,7 @@ fn test_unsat_core_bool() {
 
     let node = Node::from_operands(vec![one.clone(), two.clone()]);
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
 
     let id = if let Formula::Prop(prop) = one {
         prop.id
@@ -180,7 +180,7 @@ fn test_unsat_core_bool_sat() {
 
     let node = Node::from_operands(vec![one, two]);
 
-    assert_eq!(solver.check(&node), true);
+    assert!(solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), None);
 }
 
@@ -194,7 +194,7 @@ fn test_unsat_core_bool_one_excluded() {
 
     let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
     let core = solver.extract_unsat_core().unwrap();
     assert_eq!(core.len(), 2);
 
@@ -243,7 +243,7 @@ fn test_unsat_core_real() {
         unreachable!()
     };
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), Some(vec![id, id2]));
 }
 
@@ -264,7 +264,7 @@ fn test_unsat_core_real_sat() {
 
     let node = Node::from_operands(vec![one, two]);
 
-    assert_eq!(solver.check(&node), true);
+    assert!(solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), None);
 }
 
@@ -301,7 +301,7 @@ fn test_unsat_core_real_one_excluded() {
         unreachable!()
     };
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
     let core = solver.extract_unsat_core().unwrap();
     assert_eq!(core.len(), 2);
     assert!(core.contains(&id));
@@ -322,7 +322,7 @@ fn test_unsat_core_false() {
 
     let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
 
     let id2 = if let Formula::Prop(expr) = two {
         expr.id
@@ -348,7 +348,7 @@ fn test_unsat_core_not_true() {
 
     let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
 
-    assert_eq!(solver.check(&node), false);
+    assert!(!solver.check(&node));
 
     let id2 = if let Formula::Not(inner) = two
         && let Formula::Prop(expr) = *inner

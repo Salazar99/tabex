@@ -69,10 +69,10 @@ pub struct RandomGenerator {
 impl RandomGenerator {
     pub fn new(args: &GeneratorArgs) -> Self {
         let bool_vars: Vec<VariableName> = (0..args.num_bool_vars)
-            .map(|i| Arc::from(format!("a{}", i)))
+            .map(|i| Arc::from(format!("a{i}")))
             .collect();
         let real_vars: Vec<VariableName> = (0..args.num_real_vars)
-            .map(|i| Arc::from(format!("x{}", i)))
+            .map(|i| Arc::from(format!("x{i}")))
             .collect();
 
         if bool_vars.is_empty() && real_vars.is_empty() {
@@ -197,11 +197,11 @@ impl RandomGenerator {
     }
 
     pub fn generate_formula(&self) -> Formula {
-        return Formula::and(
+        Formula::and(
             (0..self.conjuncts)
                 .map(|_| self.generate_single_formula(0, 0))
                 .collect(),
-        );
+        )
     }
 }
 
@@ -221,14 +221,14 @@ fn main() {
     for i in 0..args.num_formulas {
         let formula = rng.generate_formula();
         let filename = format!("{}/{}_{}.stl", args.output_folder, args.file_prefix, i + 1);
-        std::fs::write(&filename, format!("{}", formula)).expect("Failed to write formula to file");
-        println!("Generated: {}", filename);
+        std::fs::write(&filename, format!("{formula}")).expect("Failed to write formula to file");
+        println!("Generated: {filename}");
     }
 
     println!("Done!");
 }
 
-pub fn random_rel(real_vars: &Vec<VariableName>) -> ExprKind {
+pub fn random_rel(real_vars: &[VariableName]) -> ExprKind {
     let mut rng = rand::rng();
     match rng.random_range(0..3) {
         0 => random_simple(real_vars),
@@ -252,7 +252,7 @@ pub fn random_rel_op() -> RelOp {
     .clone()
 }
 
-fn random_simple(real_vars: &Vec<VariableName>) -> ExprKind {
+fn random_simple(real_vars: &[VariableName]) -> ExprKind {
     let mut rng = rand::rng();
     let op = random_rel_op();
     let left = AExpr::Var(real_vars.choose(&mut rng).unwrap().clone());
@@ -263,14 +263,14 @@ fn random_simple(real_vars: &Vec<VariableName>) -> ExprKind {
     ExprKind::Rel { op, left, right }
 }
 
-fn random_diff_logic(real_vars: &Vec<VariableName>) -> ExprKind {
+fn random_diff_logic(real_vars: &[VariableName]) -> ExprKind {
     let mut rng = rand::rng();
     let op = random_rel_op();
     if real_vars.len() < 2 {
         panic!("Need at least two variables for a difference logic constraint");
     }
 
-    let mut vars = real_vars.clone();
+    let mut vars = real_vars.to_owned();
     vars.shuffle(&mut rng);
     let v1 = AExpr::Var(vars[0].clone());
     let v2 = AExpr::Var(vars[1].clone());
@@ -289,12 +289,12 @@ fn random_diff_logic(real_vars: &Vec<VariableName>) -> ExprKind {
     }
 }
 
-fn random_linear(real_vars: &Vec<VariableName>) -> ExprKind {
+fn random_linear(real_vars: &[VariableName]) -> ExprKind {
     let mut rng = rand::rng();
     let op = random_rel_op();
 
     let n_terms = rng.random_range(1..=real_vars.len().max(1));
-    let mut vars = real_vars.clone();
+    let mut vars = real_vars.to_owned();
     vars.shuffle(&mut rng);
 
     let mut sum = AExpr::Var(vars[0].clone());

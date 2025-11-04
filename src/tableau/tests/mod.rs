@@ -2,7 +2,7 @@ use crate::tableau::{Tableau, TableauOptions};
 
 fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
     let options = TableauOptions {
-        mltl: mltl,
+        mltl,
         ..Default::default()
     };
     let mut tableau = Tableau::new(options);
