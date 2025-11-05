@@ -116,7 +116,7 @@ impl SmtSolver {
                     &[&i],
                     &[],
                     &Bool::and(&[
-                        (time + interval.lower).lt(&i),
+                        (time + interval.lower).le(&i),
                         i.le(time + interval.upper),
                         right_b,
                         forall_const(&[&j], &[], &forall_range.implies(&left_b)),
