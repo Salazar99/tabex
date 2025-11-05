@@ -50,6 +50,8 @@ if __name__ == "__main__":
     (t1, d1), (t2, d2) = data.items()
 
     joined = pd.merge(d1, d2, on='Name', suffixes=('_' + t1, '_' + t2), validate='one_to_one')
+    if joined.size != d1.size or joined.size != d2.size:
+        print("Warning: some benchmarks are missing in one of the CSV files.")
 
     diff = (joined[f'Result_{t1}'] != 'TO') & (joined[f'Result_{t2}'] != 'TO') & (joined[f'Result_{t1}'] != joined[f'Result_{t2}'])
     print("Benchmarks with differing results:")
