@@ -1,23 +1,25 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 benchdir [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH]"
+    echo "Usage: $0 [--benchdir DIR] [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH] [--bench-sets \"SET1 SET2 ...\"]"
     exit 1
 fi
 
-benchdir="$1"
-shift
-
+benchdir="../resources/benchmarks"
 timeout=120
 jobs=4
 max_mem=30720
 iters=5
 tools=("stlcc" "stlcc_fol" "stltree")
-bench_set=random_stl
+bench_sets=("random" "random0")
 outdir=./output_stl
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --benchdir)
+            benchdir="$2"
+            shift 2
+            ;;
         --timeout)
             timeout="$2"
             shift 2
@@ -42,6 +44,10 @@ while [[ $# -gt 0 ]]; do
             stltree_path="$2"
             shift 2
             ;;
+        --bench-sets)
+            bench_sets=("$2")
+            shift 2
+            ;;
         *)
             echo "Unknown argument: $1"
             exit 1
@@ -58,11 +64,15 @@ ulimit -s unlimited
 set -x
 
 if [[ " ${tools[@]} " =~ " stlcc " ]]; then
-    ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_${bench_set}.csv" -b "${benchdir}/" "${benchdir}/${bench_set}.list" stlcc &> "${outdir}/stlcc_${bench_set}.log"
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_${bench_set}.csv" -b "${benchdir}/${bench_set}/" "${benchdir}/${bench_set}/${bench_set}.list" stlcc &> "${outdir}/stlcc_${bench_set}.log"
+    done
 fi
 
 if [[ " ${tools[@]} " =~ " stlcc_fol " ]]; then
-    ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_fol_${bench_set}.csv" -b "${benchdir}/" "${benchdir}/${bench_set}.list" stlcc --fol &> "${outdir}/stlcc_fol_${bench_set}.log"
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_fol_${bench_set}.csv" -b "${benchdir}/${bench_set}/" "${benchdir}/${bench_set}/${bench_set}.list" stlcc --fol &> "${outdir}/stlcc_fol_${bench_set}.log"
+    done
 fi
 
 if [[ " ${tools[@]} " =~ " stltree " ]]; then
@@ -70,5 +80,7 @@ if [[ " ${tools[@]} " =~ " stltree " ]]; then
         echo "Error: --stltree-path must be provided when using stltree tool."
         exit 1
     fi
-    ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stltree_${bench_set}.csv" -b "${benchdir}/" "${benchdir}/${bench_set}.list" stltree "${stltree_path}" &> "${outdir}/stltree_${bench_set}.log"
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stltree_${bench_set}.csv" -b "${benchdir}/${bench_set}/" "${benchdir}/${bench_set}/${bench_set}.list" stltree "${stltree_path}" &> "${outdir}/stltree_${bench_set}.log"
+    done
 fi
