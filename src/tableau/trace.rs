@@ -24,6 +24,7 @@ impl Default for TraceBuilder {
 }
 
 impl TraceBuilder {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             nodes: VecDeque::new(),
@@ -46,6 +47,7 @@ impl TraceBuilder {
         self.nodes.clear();
     }
 
+    #[must_use]
     pub fn freeze(self) -> Trace {
         Trace::new(self)
     }
@@ -58,10 +60,12 @@ impl Trace {
         }
     }
 
+    #[must_use]
     pub fn length(&self) -> i32 {
         self.nodes[self.nodes.len() - 1].1
     }
 
+    #[must_use]
     pub fn eval(&self, time: i32) -> Vec<Formula> {
         assert!(time >= 0);
         for (formulas, t) in self.nodes.iter().rev() {
@@ -72,6 +76,7 @@ impl Trace {
         Vec::new()
     }
 
+    #[must_use]
     pub fn full_trace(&self) -> Vec<Vec<Formula>> {
         if self.nodes.is_empty() {
             return Vec::new();

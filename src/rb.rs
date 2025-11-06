@@ -67,6 +67,7 @@ pub struct RandomGenerator {
 }
 
 impl RandomGenerator {
+    #[must_use]
     pub fn new(args: &GeneratorArgs) -> Self {
         let bool_vars: Vec<VariableName> = (0..args.num_bool_vars)
             .map(|i| Arc::from(format!("a{i}")))
@@ -75,9 +76,10 @@ impl RandomGenerator {
             .map(|i| Arc::from(format!("x{i}")))
             .collect();
 
-        if bool_vars.is_empty() && real_vars.is_empty() {
-            panic!("At least one boolean or real variable must be defined.");
-        }
+        assert!(
+            !(bool_vars.is_empty() && real_vars.is_empty()),
+            "At least one boolean or real variable must be defined."
+        );
 
         let real_constraints: Vec<ExprKind> = (0..args.max_real_constraints)
             .map(|_| random_rel(&real_vars))
@@ -139,6 +141,7 @@ impl RandomGenerator {
         Formula::Prop(Expr::from_expr(kind))
     }
 
+    #[must_use]
     pub fn generate_single_formula(&self, depth: usize, horizon: i32) -> Formula {
         let mut rng = rand::rng();
 
@@ -196,6 +199,7 @@ impl RandomGenerator {
         }
     }
 
+    #[must_use]
     pub fn generate_formula(&self) -> Formula {
         Formula::and(
             (0..self.conjuncts)
@@ -228,6 +232,7 @@ fn main() {
     println!("Done!");
 }
 
+#[must_use]
 pub fn random_rel(real_vars: &[VariableName]) -> ExprKind {
     let mut rng = rand::rng();
     match rng.random_range(0..3) {
@@ -237,6 +242,7 @@ pub fn random_rel(real_vars: &[VariableName]) -> ExprKind {
     }
 }
 
+#[must_use]
 pub fn random_rel_op() -> RelOp {
     let mut rng = rand::rng();
     [
@@ -266,9 +272,10 @@ fn random_simple(real_vars: &[VariableName]) -> ExprKind {
 fn random_diff_logic(real_vars: &[VariableName]) -> ExprKind {
     let mut rng = rand::rng();
     let op = random_rel_op();
-    if real_vars.len() < 2 {
-        panic!("Need at least two variables for a difference logic constraint");
-    }
+    assert!(
+        (real_vars.len() >= 2),
+        "Need at least two variables for a difference logic constraint"
+    );
 
     let mut vars = real_vars.to_owned();
     vars.shuffle(&mut rng);

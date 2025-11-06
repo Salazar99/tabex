@@ -53,22 +53,22 @@ fn run_tableau(example: &str, options: TableauOptions) {
         println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
     }
 
-    if tableau.options.graph_output {
-        if let Some(graph) = &tableau.graph {
-            if let Ok(dot) = graph.to_dot_string() {
-                println!("Node count: {NODE_ID:?}");
-                fs::write("resources/tmp/g.dot", &dot).expect("Unable to write file");
-            }
+    if tableau.options.graph_output
+        && let Some(graph) = &tableau.graph
+    {
+        if let Ok(dot) = graph.to_dot_string() {
+            println!("Node count: {NODE_ID:?}");
+            fs::write("resources/tmp/g.dot", &dot).expect("Unable to write file");
         }
     }
 
-    if let Some(core) = &tableau.unsat_core {
-        if matches!(res, Some(false)) {
-            println!(
-                "Unsat core: {}",
-                join_with(core.get_unsat_core().as_slice(), " && ")
-            );
-        }
+    if let Some(core) = &tableau.unsat_core
+        && matches!(res, Some(false))
+    {
+        println!(
+            "Unsat core: {}",
+            join_with(core.get_unsat_core().as_slice(), " && ")
+        );
     }
 
     if let Some(trace) = &tableau.trace {
@@ -77,7 +77,7 @@ fn run_tableau(example: &str, options: TableauOptions) {
         for (i, seq) in trace.full_trace().iter().enumerate() {
             let inner = seq
                 .iter()
-                .map(|f| f.to_string())
+                .map(std::string::ToString::to_string)
                 .collect::<Vec<_>>()
                 .join(", ");
             let comma = if i + 1 < trace.full_trace().len() {

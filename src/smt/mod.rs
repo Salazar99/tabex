@@ -17,6 +17,7 @@ pub struct SmtSolver {
 }
 
 impl SmtSolver {
+    #[must_use]
     pub fn new(options: TableauOptions) -> Self {
         SmtSolver {
             options,

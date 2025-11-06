@@ -145,7 +145,7 @@ fn test_implication_negation() {
     assert_eq!(
         make_test("G[0, 6] !a && (G[0, 3] !a -> F[0, 3] a)", false),
         Some(false)
-    )
+    );
 }
 
 #[test]
@@ -156,7 +156,7 @@ fn test_globally_imply_merge() {
             false
         ),
         Some(false)
-    )
+    );
 }
 
 #[test]
