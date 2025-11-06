@@ -240,6 +240,9 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             map((char('!'), space0, parse_formula_term), |(_, _, phi)| {
                 Formula::not(phi)
             }),
+            map((char('X'), space0, parse_formula_term), |(_, _, phi)| {
+                Formula::f(Interval { lower: 1, upper: 1 }, None, phi)
+            }),
             delimited(
                 preceded(space0, char('(')),
                 delimited(space0, parse_formula, space0),

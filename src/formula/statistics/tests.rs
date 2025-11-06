@@ -112,7 +112,7 @@ mod branching_factor_tests {
             Formula::or(vec![prop("a"), prop("b"), prop("c")]),
             Formula::or(vec![prop("d"), prop("e")]),
         ]);
-        assert_eq!(f.branching_factor_avg(), 7.0/3.0);
+        assert_eq!(f.branching_factor_avg(), 7.0 / 3.0);
     }
 
     #[test]
@@ -121,7 +121,7 @@ mod branching_factor_tests {
             Formula::And(vec![prop("a"), prop("b"), prop("c")]),
             Formula::And(vec![prop("d"), prop("e")]),
         ]);
-        assert_eq!(f.branching_factor_avg(), 7.0/3.0);
+        assert_eq!(f.branching_factor_avg(), 7.0 / 3.0);
     }
 
     #[test]

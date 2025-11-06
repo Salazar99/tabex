@@ -86,10 +86,21 @@ impl Tableau {
 
     pub fn make_tableau_from_str(&mut self, formula: &str) -> Option<bool> {
         // Parsing Stage
-        let Ok((_, formula_ast)) = parse_formula(formula) else {
-            eprintln!("Failed to parse formula '{formula}'");
-            panic!("{}", formula);
+        let formula_ast = match parse_formula(formula) {
+            Ok((remaining, formula_ast)) => {
+                if !remaining.trim().is_empty() {
+                    panic!(
+                        "Unparsed input remaining after parsing formula: {}",
+                        remaining
+                    );
+                }
+                formula_ast
+            }
+            Err(e) => {
+                panic!("Failed to parse formula, parse error: {}", e);
+            }
         };
+
         let root = Node::from_operands(vec![formula_ast]);
 
         self.make_tableau_from_root(root)
