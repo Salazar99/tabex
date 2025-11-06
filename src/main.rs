@@ -55,11 +55,10 @@ fn run_tableau(example: &str, options: TableauOptions) {
 
     if tableau.options.graph_output
         && let Some(graph) = &tableau.graph
+        && let Ok(dot) = graph.to_dot_string()
     {
-        if let Ok(dot) = graph.to_dot_string() {
-            println!("Node count: {NODE_ID:?}");
-            fs::write("resources/tmp/g.dot", &dot).expect("Unable to write file");
-        }
+        println!("Node count: {NODE_ID:?}");
+        fs::write("resources/tmp/g.dot", &dot).expect("Unable to write file");
     }
 
     if let Some(core) = &tableau.unsat_core
