@@ -49,7 +49,7 @@ mod depth_tests {
     }
 }
 
-mod length_tests {
+mod horizon_tests {
     use super::*;
 
     #[test]
@@ -70,6 +70,36 @@ mod length_tests {
             ),
         ]);
         assert_eq!(f.horizon(), 8);
+    }
+}
+
+mod nodes_tests {
+    use super::*;
+
+    #[test]
+    fn test_prop() {
+        let f = prop("a");
+        assert_eq!(f.nodes(), 1);
+    }
+
+    #[test]
+    fn test_nested() {
+        let f = Formula::And(vec![
+            Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
+            Formula::u(
+                Interval { lower: 0, upper: 5 },
+                None,
+                prop("c"),
+                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+            ),
+        ]);
+        assert_eq!(f.nodes(), 9);
+    }
+
+    #[test]
+    fn test_filter_g() {
+        let f = Formula::g(Interval { lower: 0, upper: 5 }, None, prop("a"));
+        assert_eq!(f.count_nodes(|f| matches!(f, Formula::G { .. })), 1);
     }
 }
 

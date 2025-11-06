@@ -75,19 +75,49 @@ impl Formula {
     }
 
     #[must_use]
-    pub fn nodes(&self) -> i32 {
+    pub fn count_nodes<F>(&self, filter: F) -> i32
+    where
+        F: Fn(&Formula) -> bool,
+    {
+        let mut count = 0;
+        self.inner_count_nodes(&filter, &mut count);
+        count
+    }
+
+    fn inner_count_nodes<F>(&self, filter: &F, count: &mut i32)
+    where
+        F: Fn(&Formula) -> bool,
+    {
+        if filter(self) {
+            *count += 1;
+        }
         match self {
             Formula::And(ops) | Formula::Or(ops) => {
-                1 + ops.iter().map(super::Formula::nodes).sum::<i32>()
+                for op in ops {
+                    op.inner_count_nodes(filter, count);
+                }
             }
-            Formula::Not(f) | Formula::O(f) => 1 + f.nodes(),
-            Formula::Imply { left, right, .. } => 1 + left.nodes() + right.nodes(),
-            Formula::F { phi, .. } | Formula::G { phi, .. } => 1 + phi.nodes(),
+            Formula::Not(f) | Formula::O(f) => {
+                f.inner_count_nodes(filter, count);
+            }
+            Formula::F { phi, .. } | Formula::G { phi, .. } => {
+                phi.inner_count_nodes(filter, count);
+            }
             Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
-                1 + left.nodes() + right.nodes()
+                left.inner_count_nodes(filter, count);
+                right.inner_count_nodes(filter, count);
             }
-            Formula::Prop(_) => 1,
+            Formula::Imply { left, right, .. } => {
+                left.inner_count_nodes(filter, count);
+                right.inner_count_nodes(filter, count);
+            }
+            Formula::Prop(_) => {}
         }
+    }
+
+    #[must_use]
+    pub fn nodes(&self) -> i32 {
+        self.count_nodes(|_| true)
     }
 
     #[must_use]
