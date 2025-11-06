@@ -266,8 +266,21 @@ impl Formula {
     }
 
     #[must_use]
+    pub fn branching_factor_avg(&self) -> f32 {
+        // edges / parents
+        assert!(self.is_flat());
+        let edges = (self.nodes() - 1) as f32;
+        let parents_count = self.count_nodes(|form| !matches!(form, Formula::Prop(_)));
+        if parents_count == 0 {
+            0.0
+        } else {
+            edges / (parents_count as f32)
+        }
+    }
+
+    #[must_use]
     pub fn disjunction_max_width(&self) -> i32 {
-        debug_assert!(self.is_flat());
+        assert!(self.is_flat());
         match self {
             Formula::Or(ops) => {
                 let inner = ops
@@ -297,7 +310,7 @@ impl Formula {
 
     #[must_use]
     pub fn disjunction_total_width(&self) -> i32 {
-        debug_assert!(self.is_flat());
+        assert!(self.is_flat());
         match self {
             Formula::Or(ops) => {
                 let inner_sum: i32 = ops
@@ -325,7 +338,7 @@ impl Formula {
 
     #[must_use]
     pub fn combinatorial_branching_count(&self) -> i64 {
-        debug_assert!(self.is_flat());
+        assert!(self.is_flat());
         match self {
             Formula::Or(ops) => ops
                 .iter()

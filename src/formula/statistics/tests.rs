@@ -103,6 +103,34 @@ mod nodes_tests {
     }
 }
 
+mod branching_factor_tests {
+    use super::*;
+
+    #[test]
+    fn test_flat_and_or() {
+        let f = Formula::And(vec![
+            Formula::or(vec![prop("a"), prop("b"), prop("c")]),
+            Formula::or(vec![prop("d"), prop("e")]),
+        ]);
+        assert_eq!(f.branching_factor_avg(), 7.0/3.0);
+    }
+
+    #[test]
+    fn test_flat_or_and() {
+        let f = Formula::or(vec![
+            Formula::And(vec![prop("a"), prop("b"), prop("c")]),
+            Formula::And(vec![prop("d"), prop("e")]),
+        ]);
+        assert_eq!(f.branching_factor_avg(), 7.0/3.0);
+    }
+
+    #[test]
+    fn test_single_prop() {
+        let f = prop("a");
+        assert_eq!(f.branching_factor_avg(), 0.0);
+    }
+}
+
 mod boolean_variables_tests {
     use super::*;
 

@@ -2,12 +2,13 @@ use std::fs;
 use std::path::Path;
 
 use clap::Parser;
+use stlcc::formula::Formula;
 use stlcc::formula::parser::parse_formula;
 use stlcc::node::Node;
 
 const MLTL: bool = false;
-const SIMPLIFICATIONS: bool = true;
-const OPTIMIZATIONS: bool = true;
+//const SIMPLIFICATIONS: bool = true;
+//const OPTIMIZATIONS: bool = true;
 
 fn collect_stl_files(dir: &Path, files: &mut Vec<std::path::PathBuf>) {
     if dir.is_dir() {
@@ -35,6 +36,42 @@ struct Args {
     output: Option<String>,
 }
 
+/// Returns the CSV header for formula statistics (depth, temporal_depth, horizon, nodes, temporal_nodes, propositional_nodes, f_nodes, g_nodes, u_nodes, r_nodes, bool_vars, real_vars).
+#[must_use]
+pub fn stats_header() -> &'static str {
+    "depth,temporal_depth,horizon,nodes,temporal_nodes,propositional_nodes,f_nodes,g_nodes,u_nodes,r_nodes,bool_vars,real_vars,branching_factor"
+}
+
+/// Returns a closure that extracts formula statistics as a vector of strings.
+#[must_use]
+pub fn stats_extractor() -> impl Fn(&Formula) -> Vec<String> {
+    |f: &Formula| {
+        let nodes = f.nodes();
+        let temporal_nodes = f.count_nodes(|form| matches!(form, Formula::F { .. } | Formula::G { .. } | Formula::U { .. } | Formula::R { .. }));
+        let propositional_nodes = f.count_nodes(|form| matches!(form, Formula::Prop(_)));
+        let f_nodes = f.count_nodes(|form| matches!(form, Formula::F { .. }));
+        let g_nodes = f.count_nodes(|form| matches!(form, Formula::G { .. }));
+        let u_nodes = f.count_nodes(|form| matches!(form, Formula::U { .. }));
+        let r_nodes = f.count_nodes(|form| matches!(form, Formula::R { .. }));
+        let branching_factor: f32 = f.branching_factor_avg();
+        vec![
+            f.depth().to_string(),
+            f.temporal_operator_depth().to_string(),
+            f.horizon().to_string(),
+            nodes.to_string(),
+            temporal_nodes.to_string(),
+            propositional_nodes.to_string(),
+            f_nodes.to_string(),
+            g_nodes.to_string(),
+            u_nodes.to_string(),
+            r_nodes.to_string(),
+            f.boolean_variables().to_string(),
+            f.real_variables().to_string(),
+            branching_factor.to_string(),
+        ]
+    }
+}
+
 fn main() {
     let args = Args::parse();
 
@@ -51,8 +88,11 @@ fn main() {
 
     // Prepare CSV output
     let mut csv_output = Vec::new();
-    csv_output
-        .push("filename,operands,depth,temporal_depth,length,bool_vars,real_vars".to_string());
+    let full_header = format!(
+        "filename,operands,{}",
+        stats_header()
+    );
+    csv_output.push(full_header);
 
     for file_path in stl_files {
         let filename = file_path
@@ -83,35 +123,18 @@ fn main() {
 
                             // Normalization Stage
                             node.negative_normal_form_rewrite();
+                            node.flatten();
 
                             if !MLTL {
                                 node.mltl_rewrite();
                             }
 
-                            // Formula Optimization Stage
-                            if SIMPLIFICATIONS {
-                                node.simplify();
-                            }
-
-                            node.flatten();
-
-                            if OPTIMIZATIONS {
-                                node.shift_bounds();
-                            }
-
                             let operands = node.operands.len();
 
                             let formula = node.to_formula();
+                            let stats = stats_extractor()(&formula);
 
-                            let depth = formula.depth();
-                            let temporal_depth = formula.temporal_operator_depth();
-                            let length = formula.horizon();
-                            let bool_vars = formula.boolean_variables();
-                            let real_vars = formula.real_variables();
-
-                            csv_output.push(format!(
-                                "{filename},{operands},{depth},{temporal_depth},{length},{bool_vars},{real_vars}"
-                            ));
+                            csv_output.push(format!("{filename},{operands},{}", stats.join(",")));
                         }
                         Err(e) => {
                             eprintln!("Parse error in {} line {}: {:?}", filename, line_num + 1, e);
