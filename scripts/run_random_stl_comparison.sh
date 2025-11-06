@@ -10,7 +10,7 @@ timeout=120
 jobs=4
 max_mem=30720
 iters=5
-tools=("stlcc" "stlcc_fol" "stltree")
+tools=("stlcc" "stlcc_fol" "stlcc_parallel" "stltree")
 bench_sets=("random" "random0")
 outdir=./output_stl
 
@@ -72,6 +72,12 @@ fi
 if [[ " ${tools[@]} " =~ " stlcc_fol " ]]; then
     for bench_set in "${bench_sets[@]}"; do
         ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_fol_${bench_set}.csv" -b "${benchdir}/${bench_set}/" "${benchdir}/${bench_set}/${bench_set}.list" stlcc --fol &> "${outdir}/stlcc_fol_${bench_set}.log"
+    done
+fi
+
+if [[ " ${tools[@]} " =~ " stlcc_parallel " ]]; then
+    for bench_set in "${bench_sets[@]}"; do
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_parallel_${bench_set}.csv" -b "${benchdir}/${bench_set}/" "${benchdir}/${bench_set}/${bench_set}.list" stlcc-parallel &> "${outdir}/stlcc_parallel_${bench_set}.log"
     done
 fi
 
