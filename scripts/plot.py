@@ -185,7 +185,7 @@ if __name__ == "__main__":
     tools = args.tools.strip().split(",")
     tool_csvs = args.tool_csvs.strip().split(",")
     if len(tools) != len(tool_csvs):
-        sys.exit("Error: different numbers of tools and CSV file were entered.")
+        sys.exit("Error: different numbers of tools and CSV files were entered.")
 
     data = read_csv_files(tools, tool_csvs, args.timeout)
 
