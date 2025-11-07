@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     formula::{Expr, Formula, Interval},
     sat::{
-        config::TableauOptions,
+        config::{GeneralOptions, TableauOptions},
         tableau::{Tableau, node::Node},
     },
 };
@@ -13,14 +13,16 @@ fn prop(name: &str) -> Formula {
 }
 
 fn tableau_data_gen(options: Option<TableauOptions>) -> Tableau {
-    Tableau::new(if let Some(tops) = options {
+    let general = GeneralOptions::default();
+    let tableau = if let Some(tops) = options {
         tops
     } else {
         TableauOptions {
             graph_output: false,
             ..Default::default()
         }
-    })
+    };
+    Tableau::new(general, tableau)
 }
 
 fn decompose_jump_opt() -> TableauOptions {

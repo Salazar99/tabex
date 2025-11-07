@@ -2,23 +2,23 @@ use std::fs;
 use std::time::Instant;
 
 use stlcc::formula::join_with;
-use stlcc::sat::config::{ConfigSource, ExecutionMode, TableauOptions, get_tableau_options};
+use stlcc::sat::config::{ConfigSource, ExecutionMode, GeneralOptions, TableauOptions, get_config};
 use stlcc::sat::smt::SmtSolver;
 use stlcc::sat::tableau::Tableau;
 use stlcc::sat::tableau::node::NODE_ID;
 
 fn main() {
-    let (options, filename) = get_tableau_options(ConfigSource::Cli);
+    let (mode, options, tableau_options, filename) = get_config(ConfigSource::Cli);
     let file_content = fs::read_to_string(&filename).unwrap();
     let formula = file_content.lines().next().unwrap();
 
-    match options.mode {
+    match mode {
         ExecutionMode::Fol => run_fol(formula, options),
-        ExecutionMode::Tableau => run_tableau(formula, options),
+        ExecutionMode::Tableau => run_tableau(formula, options, tableau_options),
     }
 }
 
-fn run_fol(example: &str, options: TableauOptions) {
+fn run_fol(example: &str, options: GeneralOptions) {
     let start = Instant::now();
     let mut smt_solver = SmtSolver::new(options);
     let res = smt_solver.make_smt_from_str(example);
@@ -36,9 +36,9 @@ fn run_fol(example: &str, options: TableauOptions) {
     }
 }
 
-fn run_tableau(example: &str, options: TableauOptions) {
+fn run_tableau(example: &str, options: GeneralOptions, tableau_options: TableauOptions) {
     let start = Instant::now();
-    let mut tableau = Tableau::new(options);
+    let mut tableau = Tableau::new(options, tableau_options);
     let res = tableau.make_tableau_from_str(example);
     let duration = start.elapsed();
 
@@ -53,7 +53,7 @@ fn run_tableau(example: &str, options: TableauOptions) {
         println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
     }
 
-    if tableau.options.graph_output
+    if tableau.tableau_options.graph_output
         && let Some(graph) = &tableau.graph
         && let Ok(dot) = graph.to_dot_string()
     {

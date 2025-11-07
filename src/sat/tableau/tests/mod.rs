@@ -1,12 +1,14 @@
+use crate::sat::config::GeneralOptions;
 use crate::sat::tableau::{Tableau, TableauOptions};
 
 fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
-    let options = TableauOptions {
+    let general = GeneralOptions {
         mltl,
         ..Default::default()
     };
-    let mut tableau = Tableau::new(options);
-    tableau.make_tableau_from_str(formula_str)
+    let tableau = TableauOptions::default();
+    let mut tableau_solver = Tableau::new(general, tableau);
+    tableau_solver.make_tableau_from_str(formula_str)
 }
 
 #[test]
@@ -177,11 +179,12 @@ fn test_gfg() {
 
 #[test]
 fn test_depth_reached() {
+    let general = GeneralOptions::default();
     let options = TableauOptions {
         max_depth: 10,
         ..Default::default()
     };
-    let mut tableau = Tableau::new(options);
+    let mut tableau = Tableau::new(general, options);
     assert_eq!(
         tableau.make_tableau_from_str("(G[0,1000] F[0, 100] a) || (a && !a)"),
         None

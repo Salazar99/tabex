@@ -5,7 +5,7 @@ use std::rc::Rc;
 use dot_graph::{Graph, Kind};
 
 use crate::formula::parser::parse_formula;
-use crate::sat::config::TableauOptions;
+use crate::sat::config::{GeneralOptions, TableauOptions};
 use crate::sat::tableau::core::UnsatCore;
 use crate::sat::tableau::node::Node;
 use crate::sat::tableau::solver::Solver;
@@ -23,7 +23,8 @@ pub mod store;
 pub mod trace;
 
 pub struct Tableau {
-    pub options: TableauOptions,
+    pub options: GeneralOptions,
+    pub tableau_options: TableauOptions,
     pub graph: Option<Graph>,
     pub store: Option<Store>,
     pub unsat_core: Option<UnsatCore>,
@@ -53,29 +54,30 @@ struct Frame {
 
 impl Tableau {
     #[must_use]
-    pub fn new(options: TableauOptions) -> Self {
-        let graph = if options.graph_output {
+    pub fn new(options: GeneralOptions, tableau_options: TableauOptions) -> Self {
+        let graph = if tableau_options.graph_output {
             Some(Graph::new("Tableau", Kind::Graph))
         } else {
             None
         };
-        let store = if options.memoization {
+        let store = if tableau_options.memoization {
             Some(Store::new())
         } else {
             None
         };
-        let unsat_core = if options.unsat_core_extraction {
+        let unsat_core = if tableau_options.unsat_core_extraction {
             Some(UnsatCore::new())
         } else {
             None
         };
-        let trace = if options.trace_extraction {
+        let trace = if tableau_options.trace_extraction {
             Some(TraceBuilder::new())
         } else {
             None
         };
         Tableau {
             options,
+            tableau_options,
             graph,
             store,
             unsat_core,
@@ -119,13 +121,13 @@ impl Tableau {
             root.mltl_rewrite();
         }
 
-        if self.options.formula_simplifications {
+        if self.tableau_options.formula_simplifications {
             root.simplify();
         }
 
         root.flatten();
 
-        if self.options.formula_optimizations {
+        if self.tableau_options.formula_optimizations {
             root.shift_bounds();
         }
     }
@@ -138,7 +140,10 @@ impl Tableau {
     }
 
     fn solve_root(&mut self, root: Node) -> Option<bool> {
-        let mut solver = Solver::new(self.options.unsat_core_extraction, self.options.mltl);
+        let mut solver = Solver::new(
+            self.tableau_options.unsat_core_extraction,
+            self.options.mltl,
+        );
         solver.push();
 
         if !solver.check(&root) {
@@ -288,7 +293,7 @@ impl Tableau {
         solver: &mut Rc<RefCell<Solver>>,
         depth: usize,
     ) -> JobOutcome {
-        if depth >= self.options.max_depth {
+        if depth >= self.tableau_options.max_depth {
             return JobOutcome::Final(JobState::Undefined);
         }
 

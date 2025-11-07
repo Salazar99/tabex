@@ -6,21 +6,19 @@ use z3::{FuncDecl, Solver, Sort};
 
 use crate::formula::parser::parse_formula;
 use crate::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, RelOp};
-use crate::sat::config::TableauOptions;
+use crate::sat::config::GeneralOptions;
 
 pub struct SmtSolver {
-    pub options: TableauOptions,
-    pub h: Int,
+    pub options: GeneralOptions,
     pub bool_variables: BTreeMap<Arc<str>, FuncDecl>,
     pub real_variables: BTreeMap<Arc<str>, FuncDecl>,
 }
 
 impl SmtSolver {
     #[must_use]
-    pub fn new(options: TableauOptions) -> Self {
+    pub fn new(general: GeneralOptions) -> Self {
         SmtSolver {
-            options,
-            h: Int::new_const("h"),
+            options: general,
             bool_variables: BTreeMap::new(),
             real_variables: BTreeMap::new(),
         }

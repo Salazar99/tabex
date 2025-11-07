@@ -11,7 +11,7 @@ mod tests;
 impl Tableau {
     #[must_use]
     pub fn decompose(&self, node: &Node) -> Option<Vec<Node>> {
-        if self.options.formula_optimizations
+        if self.tableau_options.formula_optimizations
             && let Some(res) = node.rewrite_chain()
         {
             return Some(res);
@@ -143,7 +143,7 @@ impl Tableau {
 
         let mut new_node2 = node.clone();
         new_node2.operands[i] = (**right).clone();
-        if self.options.formula_optimizations {
+        if self.tableau_options.formula_optimizations {
             new_node2.operands.insert(i, (**left).clone());
         }
 
@@ -302,7 +302,7 @@ impl Tableau {
         }
 
         // Verify jump rule condition
-        let step = !self.options.jump_rule_enabled
+        let step = !self.tableau_options.jump_rule_enabled
             || node
                 .operands
                 .iter()
@@ -369,7 +369,7 @@ impl Tableau {
         new_node.operands = new_operands;
         new_node.current_time += jump;
 
-        if self.options.simple_first {
+        if self.tableau_options.simple_first {
             let simple_operands: Vec<Formula> = new_node
                 .operands
                 .iter()

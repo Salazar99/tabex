@@ -6,6 +6,12 @@ pub enum ExecutionMode {
     Fol,
 }
 
+#[derive(Clone, Debug, Default)]
+pub struct GeneralOptions {
+    pub mltl: bool,
+    pub smtlib_result: bool,
+}
+
 #[derive(Clone, Debug)]
 pub struct TableauOptions {
     pub max_depth: usize,
@@ -15,11 +21,8 @@ pub struct TableauOptions {
     pub formula_optimizations: bool,
     pub jump_rule_enabled: bool,
     pub formula_simplifications: bool,
-    pub mltl: bool,
-    pub smtlib_result: bool,
     pub unsat_core_extraction: bool,
     pub trace_extraction: bool,
-    pub mode: ExecutionMode,
 }
 
 impl Default for TableauOptions {
@@ -32,11 +35,8 @@ impl Default for TableauOptions {
             formula_optimizations: true,
             jump_rule_enabled: true,
             formula_simplifications: true,
-            mltl: false,
-            smtlib_result: false,
             unsat_core_extraction: false,
             trace_extraction: false,
-            mode: ExecutionMode::Tableau,
         }
     }
 }
@@ -77,11 +77,11 @@ pub struct CliArgs {
     pub formula_simplifications: bool,
 
     /// Use MLTL semantics
-    #[arg(long, default_value_t = TableauOptions::default().mltl)]
+    #[arg(long, default_value_t = GeneralOptions::default().mltl)]
     pub mltl: bool,
 
     /// Print result in smtlib format
-    #[arg(long, default_value_t = TableauOptions::default().smtlib_result)]
+    #[arg(long, default_value_t = GeneralOptions::default().smtlib_result)]
     pub smtlib_result: bool,
 
     /// Enable unsat core extraction
@@ -102,12 +102,23 @@ pub enum ConfigSource {
 }
 
 #[must_use]
-pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
+pub fn get_config(source: ConfigSource) -> (ExecutionMode, GeneralOptions, TableauOptions, String) {
     match source {
         ConfigSource::Cli => {
             let args = CliArgs::parse();
 
-            let options = TableauOptions {
+            let mode = if args.fol {
+                ExecutionMode::Fol
+            } else {
+                ExecutionMode::Tableau
+            };
+
+            let general = GeneralOptions {
+                mltl: args.mltl,
+                smtlib_result: args.smtlib_result,
+            };
+
+            let tableau = TableauOptions {
                 max_depth: args.max_depth,
                 graph_output: args.graph_output,
                 memoization: args.memoization,
@@ -115,17 +126,10 @@ pub fn get_tableau_options(source: ConfigSource) -> (TableauOptions, String) {
                 formula_optimizations: args.formula_optimizations,
                 jump_rule_enabled: args.jump_rule_enabled,
                 formula_simplifications: args.formula_simplifications,
-                mltl: args.mltl,
-                smtlib_result: args.smtlib_result,
                 unsat_core_extraction: args.unsat_core_extraction,
                 trace_extraction: args.trace_extraction,
-                mode: if args.fol {
-                    ExecutionMode::Fol
-                } else {
-                    ExecutionMode::Tableau
-                },
             };
-            (options, args.formula_file)
+            (mode, general, tableau, args.formula_file)
         }
     }
 }
