@@ -28,10 +28,17 @@ impl SmtSolver {
         // Parsing Stage
         let parsed = parse_formula(formula);
         let formula = match parsed {
-            Ok((_, f)) => f,
-            Err(err) => {
-                eprintln!("Failed to parse formula '{formula}': {err:?}");
-                panic!("{}", formula);
+            Ok((remaining, formula_ast)) => {
+                if !remaining.trim().is_empty() {
+                    panic!(
+                        "Unparsed input remaining after parsing formula: {}",
+                        remaining
+                    );
+                }
+                formula_ast
+            }
+            Err(e) => {
+                panic!("Failed to parse formula, parse error: {}", e);
             }
         };
         self.make_smt_from_formula(formula)

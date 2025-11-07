@@ -190,3 +190,11 @@ fn test_depth_reached() {
         None
     );
 }
+
+#[test]
+fn test_fgf() {
+    assert_eq!(
+        make_test("F[0,25] G[0,30] a0 && (F[0,28] ! a0) && a0", false),
+        Some(true)
+    );
+}
