@@ -7,7 +7,6 @@ use z3::{FuncDecl, Solver, Sort};
 use crate::formula::parser::parse_formula;
 use crate::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, RelOp};
 use crate::sat::config::TableauOptions;
-use crate::sat::tableau::node::Node;
 
 pub struct SmtSolver {
     pub options: TableauOptions,
@@ -29,27 +28,21 @@ impl SmtSolver {
 
     pub fn make_smt_from_str(&mut self, formula: &str) -> Option<bool> {
         // Parsing Stage
-        let root = {
-            let parsed = parse_formula(formula);
-            let formula_ast = match parsed {
-                Ok((_, f)) => f,
-                Err(err) => {
-                    eprintln!("Failed to parse formula '{formula}': {err:?}");
-                    panic!("{}", formula);
-                }
-            };
-            Node::from_operands(vec![formula_ast])
+        let parsed = parse_formula(formula);
+        let formula = match parsed {
+            Ok((_, f)) => f,
+            Err(err) => {
+                eprintln!("Failed to parse formula '{formula}': {err:?}");
+                panic!("{}", formula);
+            }
         };
-
-        self.make_smt_from_root(root)
+        self.make_smt_from_formula(formula)
     }
 
-    pub fn make_smt_from_root(&mut self, root: Node) -> Option<bool> {
+    pub fn make_smt_from_formula(&mut self, formula: Formula) -> Option<bool> {
         let solver = Solver::new();
-        for formula in root.operands {
-            let smt_formula = self.encode_formula(formula, &Int::from_i64(0)).simplify();
-            solver.assert(smt_formula);
-        }
+        let smt_formula = self.encode_formula(formula, &Int::from_i64(0)).simplify();
+        solver.assert(smt_formula);
 
         match solver.check() {
             z3::SatResult::Sat => Some(true),
