@@ -1,8 +1,9 @@
 use std::collections::BTreeSet;
 use std::vec;
 
-use crate::node::{Formula, Interval, Node};
-use crate::tableau::Tableau;
+use crate::formula::{Formula, Interval};
+use crate::sat::tableau::Tableau;
+use crate::sat::tableau::node::Node;
 
 #[cfg(test)]
 mod tests;

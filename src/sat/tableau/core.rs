@@ -1,4 +1,4 @@
-use crate::{formula::Formula, node::Node};
+use crate::{formula::Formula, sat::tableau::node::Node};
 use std::collections::{HashMap, HashSet};
 
 #[cfg(test)]

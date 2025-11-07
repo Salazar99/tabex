@@ -1,4 +1,10 @@
-use crate::formula::{Formula, Interval, join_with};
+use crate::formula::{
+    Formula, join_with,
+    transform::{
+        FlatTransformer, FormulaSimplifier, MLTLTransformer, NegationNormalFormTransformer,
+        RecursiveFormulaTransformer, ShiftBoundsTransformer,
+    },
+};
 use std::{
     fmt::{self, Display},
     sync::atomic::{AtomicUsize, Ordering},
@@ -46,6 +52,43 @@ impl Node {
         } else {
             Formula::And(self.operands.clone())
         }
+    }
+
+    pub fn mltl_rewrite(&mut self) {
+        self.operands.iter_mut().for_each(|f| {
+            *f = MLTLTransformer.visit(f);
+        });
+    }
+
+    pub fn negative_normal_form_rewrite(&mut self) {
+        self.operands.iter_mut().for_each(|f| {
+            *f = NegationNormalFormTransformer.visit(f);
+        });
+    }
+
+    pub fn flatten(&mut self) {
+        let mut flattened: Vec<Formula> = Vec::new();
+        for f in &self.operands {
+            let flat = FlatTransformer.visit(f);
+            if let Formula::And(ops) = &flat {
+                flattened.extend(ops.iter().cloned());
+            } else {
+                flattened.push(flat);
+            }
+        }
+        self.operands = flattened;
+    }
+
+    pub fn shift_bounds(&mut self) {
+        self.operands.iter_mut().for_each(|f| {
+            *f = ShiftBoundsTransformer.visit(f);
+        });
+    }
+
+    pub fn simplify(&mut self) {
+        self.operands.iter_mut().for_each(|f| {
+            *f = FormulaSimplifier.visit(f);
+        });
     }
 }
 

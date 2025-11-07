@@ -6,7 +6,7 @@ use std::{
 
 use crate::{
     formula::{Formula, join_with},
-    node::Node,
+    sat::tableau::node::Node,
 };
 
 pub struct TraceBuilder {

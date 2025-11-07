@@ -1,6 +1,6 @@
-use super::*;
 use crate::formula::{Expr, ExprKind, Formula};
-use crate::node::Node;
+use crate::sat::tableau::core::UnsatCore;
+use crate::sat::tableau::node::Node;
 use std::sync::Arc;
 
 #[test]

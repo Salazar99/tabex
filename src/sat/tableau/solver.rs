@@ -1,5 +1,5 @@
 use crate::formula::{AExpr, ArithOp, ExprKind, Formula, RelOp};
-use crate::node::Node;
+use crate::sat::tableau::node::Node;
 
 use std::collections::HashSet;
 use std::collections::{BTreeMap, HashMap};

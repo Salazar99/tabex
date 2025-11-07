@@ -5,19 +5,19 @@ use std::rc::Rc;
 use dot_graph::{Graph, Kind};
 
 use crate::formula::parser::parse_formula;
-use crate::node::Node;
-use crate::tableau::config::TableauOptions;
-use crate::tableau::core::UnsatCore;
-use crate::tableau::solver::Solver;
-use crate::tableau::store::{RejectedNode, Store};
-use crate::tableau::trace::{Trace, TraceBuilder};
+use crate::sat::config::TableauOptions;
+use crate::sat::tableau::core::UnsatCore;
+use crate::sat::tableau::node::Node;
+use crate::sat::tableau::solver::Solver;
+use crate::sat::tableau::store::{RejectedNode, Store};
+use crate::sat::tableau::trace::{Trace, TraceBuilder};
 
 #[cfg(test)]
 mod tests;
 
-pub mod config;
 pub mod core;
 pub mod graph;
+pub mod node;
 pub mod solver;
 pub mod store;
 pub mod trace;

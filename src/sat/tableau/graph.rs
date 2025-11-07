@@ -1,6 +1,6 @@
 use dot_graph::{Edge as DotEdge, Node as DotNode};
 
-use crate::{node::Node, tableau::Tableau};
+use crate::sat::tableau::{Tableau, node::Node};
 
 impl Tableau {
     pub(crate) fn add_graph_node(&mut self, node: &Node) {

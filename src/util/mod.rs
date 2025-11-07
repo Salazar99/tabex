@@ -2,7 +2,7 @@ use std::sync::atomic::AtomicUsize;
 
 use dot_graph::{Graph, Kind, Node as DotNode};
 
-use crate::{formula::Formula, node::Node};
+use crate::{formula::Formula, sat::tableau::node::Node};
 
 pub static ID: AtomicUsize = AtomicUsize::new(0);
 

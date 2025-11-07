@@ -4,8 +4,7 @@ use num_rational::Ratio;
 
 use crate::{
     formula::{Expr, Formula, parser::parse_formula},
-    node::Node,
-    tableau::solver::Solver,
+    sat::tableau::{node::Node, solver::Solver},
 };
 
 fn parse_node(input: &str) -> Node {

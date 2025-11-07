@@ -1,6 +1,6 @@
 use crate::{
     formula::{Expr, Formula, Interval},
-    node::Node,
+    sat::tableau::node::Node,
 };
 use std::sync::Arc;
 

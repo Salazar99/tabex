@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     formula::{Formula, Interval},
-    node::Node,
+    sat::tableau::node::Node,
 };
 
 #[cfg(test)]

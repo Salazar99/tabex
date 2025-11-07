@@ -2,8 +2,10 @@ use std::sync::Arc;
 
 use crate::{
     formula::{Expr, Formula, Interval},
-    node::Node,
-    tableau::store::{RejectedNode, Store},
+    sat::tableau::{
+        node::Node,
+        store::{RejectedNode, Store},
+    },
 };
 
 fn prop(name: &str) -> Formula {

@@ -4,7 +4,7 @@ use std::path::Path;
 use clap::Parser;
 use stlcc::formula::Formula;
 use stlcc::formula::parser::parse_formula;
-use stlcc::node::Node;
+use stlcc::sat::tableau::node::Node;
 
 const MLTL: bool = false;
 //const SIMPLIFICATIONS: bool = true;

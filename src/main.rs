@@ -2,10 +2,10 @@ use std::fs;
 use std::time::Instant;
 
 use stlcc::formula::join_with;
-use stlcc::node::NODE_ID;
-use stlcc::smt::SmtSolver;
-use stlcc::tableau::Tableau;
-use stlcc::tableau::config::{ConfigSource, ExecutionMode, TableauOptions, get_tableau_options};
+use stlcc::sat::config::{ConfigSource, ExecutionMode, TableauOptions, get_tableau_options};
+use stlcc::sat::smt::SmtSolver;
+use stlcc::sat::tableau::Tableau;
+use stlcc::sat::tableau::node::NODE_ID;
 
 fn main() {
     let (options, filename) = get_tableau_options(ConfigSource::Cli);

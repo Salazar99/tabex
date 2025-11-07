@@ -6,8 +6,8 @@ use z3::{FuncDecl, Solver, Sort};
 
 use crate::formula::parser::parse_formula;
 use crate::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, RelOp};
-use crate::node::Node;
-use crate::tableau::config::TableauOptions;
+use crate::sat::config::TableauOptions;
+use crate::sat::tableau::node::Node;
 
 pub struct SmtSolver {
     pub options: TableauOptions,

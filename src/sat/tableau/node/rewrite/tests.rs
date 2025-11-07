@@ -1,9 +1,7 @@
 use std::sync::Arc;
 
-use crate::{
-    formula::{Expr, Formula, Interval},
-    node::Node,
-};
+use crate::formula::{Expr, Formula, Interval};
+use crate::sat::tableau::node::Node;
 
 fn prop(name: &str) -> Formula {
     Formula::prop(Expr::bool(Arc::from(name)))

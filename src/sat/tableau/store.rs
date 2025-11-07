@@ -3,7 +3,7 @@ use std::{collections::HashSet, fmt::Display, hash::Hash};
 
 use crate::{
     formula::{Formula, join_with},
-    node::Node,
+    sat::tableau::node::Node,
 };
 
 #[cfg(test)]
@@ -35,7 +35,7 @@ impl RejectedNode {
             let mut times: Vec<i32> = self
                 .operands
                 .iter()
-                .filter_map(super::super::formula::Formula::lower_bound)
+                .filter_map(Formula::lower_bound)
                 .filter(|t| *t > self.time)
                 .collect();
             times.sort_unstable();

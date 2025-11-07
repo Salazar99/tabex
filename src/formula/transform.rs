@@ -1,9 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::{
-    formula::{Expr, ExprKind, Formula, Interval},
-    node::Node,
-};
+use crate::formula::{Expr, ExprKind, Formula, Interval};
 
 #[cfg(test)]
 mod tests;
@@ -199,7 +196,7 @@ impl RecursiveFormulaTransformer for NegationNormalFormTransformer {
     }
 }
 
-struct MLTLTransformer;
+pub struct MLTLTransformer;
 impl RecursiveFormulaTransformer for MLTLTransformer {
     fn visit_until(
         &self,
@@ -285,7 +282,7 @@ impl RecursiveFormulaTransformer for FlatTransformer {
     }
 }
 
-struct ShiftBoundsTransformer;
+pub struct ShiftBoundsTransformer;
 impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
     fn visit_globally(
         &self,
@@ -366,7 +363,7 @@ impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
     }
 }
 
-struct ShiftBackwardTransformer(i32);
+pub struct ShiftBackwardTransformer(i32);
 impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
     fn visit_globally(
         &self,
@@ -411,7 +408,7 @@ impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
     }
 }
 
-struct ShiftForwardTransformer(i32);
+pub struct ShiftForwardTransformer(i32);
 impl RecursiveFormulaTransformer for ShiftForwardTransformer {
     fn visit_globally(
         &self,
@@ -1014,44 +1011,5 @@ impl Formula {
                 .min(not_left.get_shift()),
             _ => self.lower_bound(),
         }
-    }
-}
-
-impl Node {
-    pub fn mltl_rewrite(&mut self) {
-        self.operands.iter_mut().for_each(|f| {
-            *f = MLTLTransformer.visit(f);
-        });
-    }
-
-    pub fn negative_normal_form_rewrite(&mut self) {
-        self.operands.iter_mut().for_each(|f| {
-            *f = NegationNormalFormTransformer.visit(f);
-        });
-    }
-
-    pub fn flatten(&mut self) {
-        let mut flattened: Vec<Formula> = Vec::new();
-        for f in &self.operands {
-            let flat = FlatTransformer.visit(f);
-            if let Formula::And(ops) = &flat {
-                flattened.extend(ops.iter().cloned());
-            } else {
-                flattened.push(flat);
-            }
-        }
-        self.operands = flattened;
-    }
-
-    pub fn shift_bounds(&mut self) {
-        self.operands.iter_mut().for_each(|f| {
-            *f = ShiftBoundsTransformer.visit(f);
-        });
-    }
-
-    pub fn simplify(&mut self) {
-        self.operands.iter_mut().for_each(|f| {
-            *f = FormulaSimplifier.visit(f);
-        });
     }
 }

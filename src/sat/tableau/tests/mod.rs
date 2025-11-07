@@ -1,4 +1,4 @@
-use crate::tableau::{Tableau, TableauOptions};
+use crate::sat::tableau::{Tableau, TableauOptions};
 
 fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
     let options = TableauOptions {
