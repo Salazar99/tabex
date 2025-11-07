@@ -2,10 +2,84 @@
 
 import argparse
 import os
+import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pathlib import Path
+
+def summarize_benchmarks(df: pd.DataFrame) -> pd.DataFrame:
+    df["temporal_sum"] = df[["f_nodes","g_nodes","u_nodes","r_nodes"]].sum(axis=1)
+    grouped = df.groupby("benchmark")
+
+    summary = grouped.agg(
+        depth_median=("depth", "median"),
+        depth_p95=("depth", lambda x: np.percentile(x, 95)),
+        temp_depth_median=("temporal_depth", "median"),
+        temp_depth_p95=("temporal_depth", lambda x: np.percentile(x, 95)),
+        branch_mean=("branching_factor", "median"),
+        horizon_median=("horizon", "median"),
+        horizon_p95=("horizon", lambda x: np.percentile(x, 95)),
+        f_sum=("f_nodes", "sum"),
+        g_sum=("g_nodes", "sum"),
+        u_sum=("u_nodes", "sum"),
+        r_sum=("r_nodes", "sum"),
+        temporal_total=("temporal_sum", "sum"),
+    )
+
+    # Normalize temporal operator mix
+    for op in ["f_sum", "g_sum", "u_sum", "r_sum"]:
+        summary[op] = (summary[op] / summary["temporal_total"] * 100).fillna(0)
+    summary = summary.drop(columns=["temporal_total"])
+
+    # Conditional formatting for horizons
+    def format_val(v):
+        if v >= 1e4:
+            return f"{v:.1e}".replace("e+0", "e").replace("e+", "e")
+        return f"{v:.0f}"
+
+    def compact(a, b):
+        return summary.apply(lambda x: f"{x[a]:.1f} ({x[b]:.1f})", axis=1)
+
+    summary["Depth"] = compact("depth_median", "depth_p95")
+    summary["TempDepth"] = compact("temp_depth_median", "temp_depth_p95")
+    summary["Horizon"] = compact("horizon_median", "horizon_p95")
+    summary["Branch"] = summary["branch_mean"].round(3)
+    summary["Operators"] = summary.apply(
+        lambda x: f"F {x['f_sum']:.1f}\\% / G {x['g_sum']:.1f}\\% / U {x['u_sum']:.1f}\\% / R {x['r_sum']:.1f}\\%",
+        axis=1
+    )
+
+    return summary.reset_index()[["benchmark","Depth","TempDepth","Horizon","Branch","Operators"]]
+
+
+def save_summary_table_latex_custom(summary: pd.DataFrame, output_dir: str):
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    latex_path = out / "benchmark_summary_custom.tex"
+
+    lines = []
+    lines.append("\\begin{tabular}{lccccc}")
+    lines.append("    \\toprule")
+    lines.append("    \\emph{Benchmark} & Depth & Temporal Depth & Horizon & Branching Factor & Temporal Operator Dist. \\\\")
+    lines.append("    \\midrule")
+
+    for _, row in summary.iterrows():
+        line = (
+            f"    \\textbf{{{row['benchmark']}}} & "
+            f"{row['Depth']} & {row['TempDepth']} & "
+            f"{row['Horizon']} & {row['Branch']:.2f} & {row['Operators']} \\\\"
+        )
+        lines.append(line)
+
+    lines.append("    \\bottomrule")
+    lines.append("\\end{tabular}")
+
+    tex = "\n".join(lines)
+    with open(latex_path, "w") as f:
+        f.write(tex)
+    print(tex)
+    print(f"\nSaved LaTeX table to {latex_path}")
 
 # -----------------------------------------------------------------------------
 # Plot functions
@@ -95,6 +169,7 @@ def main():
         print(f"Saving plots to: {args.output_dir}")
 
         generate_all_plots(combined, args.output_dir)
+        save_summary_table_latex_custom(summarize_benchmarks(combined), args.output_dir)
         print("Plots generated successfully.")
 
     except FileNotFoundError as e:
