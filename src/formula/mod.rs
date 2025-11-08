@@ -177,27 +177,22 @@ pub enum Formula {
     // Temporal
     G {
         interval: Interval,
-        parent_upper: Option<i32>,
         phi: Box<Formula>,
     },
     F {
         interval: Interval,
-        parent_upper: Option<i32>,
         phi: Box<Formula>,
     },
     U {
         interval: Interval,
-        parent_upper: Option<i32>,
         left: Box<Formula>,
         right: Box<Formula>,
     },
     R {
         interval: Interval,
-        parent_upper: Option<i32>,
         left: Box<Formula>,
         right: Box<Formula>,
     },
-    O(Box<Formula>),
 }
 
 pub static FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
@@ -239,53 +234,44 @@ impl Formula {
     }
 
     #[must_use]
-    pub fn g(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
+    pub fn g(interval: Interval, phi: Formula) -> Self {
         Formula::G {
             interval,
-            parent_upper,
             phi: Box::new(phi),
         }
     }
 
     #[must_use]
-    pub fn f(interval: Interval, parent_upper: Option<i32>, phi: Formula) -> Self {
+    pub fn f(interval: Interval, phi: Formula) -> Self {
         Formula::F {
             interval,
-            parent_upper,
             phi: Box::new(phi),
         }
     }
 
     #[must_use]
-    pub fn u(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
+    pub fn u(interval: Interval, left: Formula, right: Formula) -> Self {
         Formula::U {
             interval,
-            parent_upper,
             left: Box::new(left),
             right: Box::new(right),
         }
     }
 
     #[must_use]
-    pub fn r(interval: Interval, parent_upper: Option<i32>, left: Formula, right: Formula) -> Self {
+    pub fn r(interval: Interval, left: Formula, right: Formula) -> Self {
         Formula::R {
             interval,
-            parent_upper,
             left: Box::new(left),
             right: Box::new(right),
         }
-    }
-
-    #[must_use]
-    pub fn o(inner: Formula) -> Self {
-        Formula::O(Box::new(inner))
     }
 
     #[must_use]
     pub fn with_operand(&self, operand: Formula) -> Self {
         let mut to_return = self.clone();
         match &mut to_return {
-            Formula::Not(inner) | Formula::O(inner) => *inner = Box::new(operand),
+            Formula::Not(inner) => *inner = Box::new(operand),
             Formula::G { phi, .. } | Formula::F { phi, .. } => *phi = Box::new(operand),
             _ => panic!("Cannot set operand on formula without a single inner operand"),
         }
@@ -319,27 +305,6 @@ impl Formula {
             | Formula::U { interval: int, .. }
             | Formula::R { interval: int, .. } => *int = interval,
             _ => panic!("Cannot set interval on non-temporal formula"),
-        }
-        to_return
-    }
-
-    #[must_use]
-    pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return {
-            Formula::G {
-                parent_upper: pu, ..
-            }
-            | Formula::F {
-                parent_upper: pu, ..
-            }
-            | Formula::U {
-                parent_upper: pu, ..
-            }
-            | Formula::R {
-                parent_upper: pu, ..
-            } => *pu = parent_upper,
-            _ => panic!("Cannot set parent_upper on non-temporal formula"),
         }
         to_return
     }
@@ -410,40 +375,6 @@ impl Formula {
             Formula::G { phi, .. }
             | Formula::U { left: phi, .. }
             | Formula::R { right: phi, .. } => phi.has_temporal(),
-            _ => false,
-        }
-    }
-
-    #[must_use]
-    pub fn is_active_at(&self, current_time: i32) -> bool {
-        match &self {
-            Formula::G { interval, .. }
-            | Formula::F { interval, .. }
-            | Formula::U { interval, .. }
-            | Formula::R { interval, .. } => interval.active(current_time),
-            _ => true,
-        }
-    }
-
-    #[must_use]
-    pub fn is_parent_active_at(&self, current_time: i32) -> bool {
-        match self {
-            Formula::G {
-                parent_upper: Some(upper),
-                ..
-            }
-            | Formula::F {
-                parent_upper: Some(upper),
-                ..
-            }
-            | Formula::U {
-                parent_upper: Some(upper),
-                ..
-            }
-            | Formula::R {
-                parent_upper: Some(upper),
-                ..
-            } => current_time < *upper,
             _ => false,
         }
     }
@@ -565,7 +496,6 @@ impl Formula {
                     ..
                 },
             ) => ai == bi && al.eq_structural(bl) && ar.eq_structural(br),
-            (Formula::O(a), Formula::O(b)) => a.eq_structural(b),
             _ => false,
         }
     }
@@ -658,7 +588,6 @@ impl Display for Formula {
                 right,
                 ..
             } => write!(f, "({left} R{interval} {right})"),
-            Formula::O(inner) => write!(f, "O {inner}"),
             Formula::Prop(expr) => write!(f, "{expr}"),
         }
     }

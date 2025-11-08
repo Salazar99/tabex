@@ -22,7 +22,7 @@ fn test_initialize_root_node() {
         id: 2,
         kind: ExprKind::Atom(Arc::from("q")),
     };
-    let operands = vec![Formula::Prop(expr1), Formula::Prop(expr2)];
+    let operands = vec![Formula::Prop(expr1).into(), Formula::Prop(expr2).into()];
     let node = Node::from_operands(operands);
     core.initialize_root_node(&node);
     assert!(core.node.is_some());
@@ -46,9 +46,9 @@ fn test_get_unsat_core() {
         kind: ExprKind::Atom(Arc::from("r")),
     };
     let operands = vec![
-        Formula::Prop(expr1.clone()),
-        Formula::Prop(expr2.clone()),
-        Formula::Prop(expr3.clone()),
+        Formula::Prop(expr1.clone()).into(),
+        Formula::Prop(expr2.clone()).into(),
+        Formula::Prop(expr3.clone()).into(),
     ];
     let node = Node::from_operands(operands);
     core.initialize_root_node(&node);

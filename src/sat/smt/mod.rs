@@ -148,7 +148,6 @@ impl SmtSolver {
                 )
             }
             Formula::Prop(expr) => self.encode_expr(expr, time),
-            _ => panic!("Invalid Formula"),
         }
     }
 

@@ -36,6 +36,7 @@ impl TraceBuilder {
         let formulas: Vec<_> = node
             .operands
             .iter()
+            .map(|f| &f.kind)
             .filter(|f| matches!(f, Formula::Prop(_) | Formula::Not(_)))
             .filter(|&f| seen.insert(f.clone()))
             .cloned()

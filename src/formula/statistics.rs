@@ -15,7 +15,7 @@ impl Formula {
                 .max()
                 .unwrap_or(0),
             Formula::Not(f) => f.temporal_operator_depth(),
-            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+            Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
                 1 + f.temporal_operator_depth()
             }
             Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
@@ -36,10 +36,9 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 1 + ops.iter().map(super::Formula::depth).max().unwrap_or(0)
             }
-            Formula::Not(f)
-            | Formula::O(f)
-            | Formula::F { phi: f, .. }
-            | Formula::G { phi: f, .. } => 1 + f.depth(),
+            Formula::Not(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+                1 + f.depth()
+            }
             Formula::U { left, right, .. }
             | Formula::R { left, right, .. }
             | Formula::Imply { left, right, .. } => 1 + left.depth().max(right.depth()),
@@ -53,7 +52,7 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 ops.iter().map(super::Formula::horizon).max().unwrap_or(0)
             }
-            Formula::Not(f) | Formula::O(f) => f.horizon(),
+            Formula::Not(f) => f.horizon(),
             Formula::Imply { left, right, .. } => left.horizon().max(right.horizon()),
             Formula::F { phi, interval, .. } | Formula::G { phi, interval, .. } => {
                 interval.upper + phi.horizon()
@@ -97,7 +96,7 @@ impl Formula {
                     op.inner_count_nodes(filter, count);
                 }
             }
-            Formula::Not(f) | Formula::O(f) => {
+            Formula::Not(f) => {
                 f.inner_count_nodes(filter, count);
             }
             Formula::F { phi, .. } | Formula::G { phi, .. } => {
@@ -129,10 +128,7 @@ impl Formula {
                         inner_boolean_variables(f, boolean_vars);
                     }
                 }
-                Formula::Not(f)
-                | Formula::O(f)
-                | Formula::F { phi: f, .. }
-                | Formula::G { phi: f, .. } => {
+                Formula::Not(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
                     inner_boolean_variables(f, boolean_vars);
                 }
                 Formula::U { left, right, .. }
@@ -162,10 +158,7 @@ impl Formula {
                         inner_real_variables(f, real_vars);
                     }
                 }
-                Formula::Not(f)
-                | Formula::O(f)
-                | Formula::F { phi: f, .. }
-                | Formula::G { phi: f, .. } => {
+                Formula::Not(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
                     inner_real_variables(f, real_vars);
                 }
                 Formula::U { left, right, .. }
@@ -218,7 +211,7 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 ops.iter().map(super::Formula::boolean_constraints).sum()
             }
-            Formula::Not(f) | Formula::O(f) => f.boolean_constraints(),
+            Formula::Not(f) => f.boolean_constraints(),
             Formula::Imply { left, right, .. } => {
                 left.boolean_constraints() + right.boolean_constraints()
             }
@@ -242,7 +235,7 @@ impl Formula {
             Formula::And(ops) | Formula::Or(ops) => {
                 ops.iter().map(super::Formula::real_constraints).sum()
             }
-            Formula::Not(f) | Formula::O(f) => f.real_constraints(),
+            Formula::Not(f) => f.real_constraints(),
             Formula::Imply { left, right, .. } => {
                 left.real_constraints() + right.real_constraints()
             }
@@ -296,9 +289,7 @@ impl Formula {
                 .max()
                 .unwrap_or(0),
             Formula::Not(f) => f.disjunction_max_width(),
-            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
-                f.disjunction_max_width()
-            }
+            Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => f.disjunction_max_width(),
             Formula::U { left, right, .. }
             | Formula::R { left, right, .. }
             | Formula::Imply { left, right, .. } => left
@@ -324,9 +315,7 @@ impl Formula {
                 .map(super::Formula::disjunction_total_width)
                 .sum(),
             Formula::Not(f) => f.disjunction_total_width(),
-            Formula::O(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
-                f.disjunction_total_width()
-            }
+            Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => f.disjunction_total_width(),
             Formula::U { left, right, .. }
             | Formula::R { left, right, .. }
             | Formula::Imply { left, right, .. } => {
@@ -348,10 +337,9 @@ impl Formula {
                 .iter()
                 .map(super::Formula::combinatorial_branching_count)
                 .product(),
-            Formula::Not(f)
-            | Formula::O(f)
-            | Formula::F { phi: f, .. }
-            | Formula::G { phi: f, .. } => f.combinatorial_branching_count(),
+            Formula::Not(f) | Formula::F { phi: f, .. } | Formula::G { phi: f, .. } => {
+                f.combinatorial_branching_count()
+            }
             Formula::U { left, right, .. } | Formula::R { left, right, .. } => {
                 left.combinatorial_branching_count() * right.combinatorial_branching_count()
             }

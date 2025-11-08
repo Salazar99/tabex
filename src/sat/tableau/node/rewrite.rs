@@ -5,25 +5,20 @@ use std::{
 
 use crate::{
     formula::{Formula, Interval},
-    sat::tableau::node::Node,
+    sat::tableau::node::{Node, NodeFormula},
 };
 
 #[cfg(test)]
 mod tests;
 
 #[must_use]
-pub fn merge_globally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
+pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormula>> {
     let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
-        if let Formula::G {
-            interval,
-            phi,
-            parent_upper,
-        } = &op
-        {
-            let key = (*phi.clone(), *parent_upper);
+        if let Formula::G { interval, phi } = &op.kind {
+            let key = (*phi.clone(), op.parent_upper);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (_, int) = occ.get_mut();
@@ -48,7 +43,8 @@ pub fn merge_globally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
     let mut new_operands = input.to_owned();
     for el in map {
         let (idx, new_interval) = el.1;
-        new_operands[idx] = new_operands[idx].with_interval(new_interval);
+        new_operands[idx] =
+            new_operands[idx].with_kind(new_operands[idx].kind.with_interval(new_interval));
     }
 
     new_operands = new_operands
@@ -62,18 +58,13 @@ pub fn merge_globally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
 }
 
 #[must_use]
-pub fn merge_finally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
+pub fn merge_finally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormula>> {
     let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
-        if let Formula::F {
-            phi,
-            parent_upper,
-            interval,
-        } = &op
-        {
-            let key = (*phi.clone(), *parent_upper);
+        if let Formula::F { phi, interval } = &op.kind {
+            let key = (*phi.clone(), op.parent_upper);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (i, int) = occ.get_mut();
@@ -110,7 +101,7 @@ pub fn merge_finally(input: &[Formula], time: i32) -> Option<Vec<Formula>> {
 }
 
 #[must_use]
-pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<Formula>> {
+pub fn rewrite_globally_finally(input: &Vec<NodeFormula>, time: i32) -> Option<Vec<NodeFormula>> {
     let mut new_operands = Vec::new();
     let mut new_nodes = Vec::new();
 
@@ -118,15 +109,14 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
         if let Formula::G {
             interval: g_int,
             phi,
-            ..
-        } = &op
+        } = &op.kind
             && time + 2 <= g_int.upper
             && let Formula::F {
                 interval: f_int, ..
             } = &**phi
             && op.is_active_at(time)
         {
-            let first = op.with_interval(Interval {
+            let first = op.kind.with_interval(Interval {
                 lower: time + 2,
                 upper: g_int.upper,
             });
@@ -147,7 +137,7 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
                     }),
                 ]),
             ]);
-            new_operands.push(first);
+            new_operands.push(NodeFormula::from(first));
             new_nodes.push(second);
         } else {
             new_operands.push(op.clone());
@@ -159,7 +149,7 @@ pub fn rewrite_globally_finally(input: &Vec<Formula>, time: i32) -> Option<Vec<F
     }
 
     for node in new_nodes {
-        new_operands.push(node);
+        new_operands.push(NodeFormula::from(node));
     }
 
     Some(new_operands)

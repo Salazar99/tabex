@@ -157,21 +157,21 @@ impl RandomGenerator {
             match top {
                 1 => {
                     let phi = self.generate_single_formula(depth + 1, horizon + interval.upper);
-                    Formula::g(interval, None, phi)
+                    Formula::g(interval, phi)
                 }
                 2 => {
                     let phi = self.generate_single_formula(depth + 1, horizon + interval.upper);
-                    Formula::f(interval, None, phi)
+                    Formula::f(interval, phi)
                 }
                 3 => {
                     let left = self.generate_single_formula(depth + 1, horizon + interval.upper);
                     let right = self.generate_single_formula(depth + 1, horizon + interval.upper);
-                    Formula::u(interval, None, left, right)
+                    Formula::u(interval, left, right)
                 }
                 4 => {
                     let left = self.generate_single_formula(depth + 1, horizon + interval.upper);
                     let right = self.generate_single_formula(depth + 1, horizon + interval.upper);
-                    Formula::r(interval, None, left, right)
+                    Formula::r(interval, left, right)
                 }
                 _ => unreachable!(),
             }

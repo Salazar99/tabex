@@ -75,9 +75,8 @@ mod push_negation_tests {
     #[test]
     fn push_negation_not_globally() {
         let a = prop("a");
-        let input_formula =
-            Formula::not(Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()));
-        let result_formula = Formula::f(Interval { lower: 0, upper: 5 }, None, Formula::not(a));
+        let input_formula = Formula::not(Formula::g(Interval { lower: 0, upper: 5 }, a.clone()));
+        let result_formula = Formula::f(Interval { lower: 0, upper: 5 }, Formula::not(a));
         let res = make_test_push_negation(input_formula);
         assert_eq!(res, result_formula);
     }
@@ -85,9 +84,8 @@ mod push_negation_tests {
     #[test]
     fn push_negation_not_finally() {
         let a = prop("a");
-        let input_formula =
-            Formula::not(Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()));
-        let result_formula = Formula::g(Interval { lower: 0, upper: 5 }, None, Formula::not(a));
+        let input_formula = Formula::not(Formula::f(Interval { lower: 0, upper: 5 }, a.clone()));
+        let result_formula = Formula::g(Interval { lower: 0, upper: 5 }, Formula::not(a));
         let res = make_test_push_negation(input_formula);
         assert_eq!(res, result_formula);
     }
@@ -98,13 +96,11 @@ mod push_negation_tests {
         let b = prop("b");
         let input_formula = Formula::not(Formula::u(
             Interval { lower: 0, upper: 5 },
-            None,
             a.clone(),
             b.clone(),
         ));
         let result_formula = Formula::r(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::not(a),
             Formula::not(b),
         );
@@ -118,25 +114,14 @@ mod push_negation_tests {
         let b = prop("b");
         let input_formula = Formula::not(Formula::r(
             Interval { lower: 0, upper: 5 },
-            None,
             a.clone(),
             b.clone(),
         ));
         let result_formula = Formula::u(
             Interval { lower: 0, upper: 0 },
-            None,
             Formula::not(a),
             Formula::not(b),
         );
-        let res = make_test_push_negation(input_formula);
-        assert_eq!(res, result_formula);
-    }
-
-    #[test]
-    fn push_negation_not_next() {
-        let a = prop("a");
-        let input_formula = Formula::not(Formula::o(a.clone()));
-        let result_formula = Formula::o(Formula::not(a));
         let res = make_test_push_negation(input_formula);
         assert_eq!(res, result_formula);
     }
@@ -147,12 +132,10 @@ mod push_negation_tests {
         let b = prop("b");
         let input_formula = Formula::not(Formula::g(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::and(vec![a.clone(), b.clone()]),
         ));
         let result_formula = Formula::f(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::or(vec![Formula::not(a), Formula::not(b)]),
         );
         let res = make_test_push_negation(input_formula);
@@ -166,13 +149,11 @@ mod push_negation_tests {
         let c = prop("c");
         let input_formula = Formula::not(Formula::u(
             Interval { lower: 0, upper: 5 },
-            None,
             a.clone(),
             Formula::or(vec![b.clone(), c.clone()]),
         ));
         let result_formula = Formula::r(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::not(a),
             Formula::and(vec![Formula::not(b), Formula::not(c)]),
         );
@@ -186,12 +167,10 @@ mod push_negation_tests {
         let b = prop("b");
         let input_formula = Formula::g(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::not(Formula::and(vec![a.clone(), b.clone()])),
         );
         let result_formula = Formula::g(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::or(vec![Formula::not(a), Formula::not(b)]),
         );
         let res = make_test_push_negation(input_formula);
@@ -205,9 +184,8 @@ mod shift_bounds_tests {
     #[test]
     fn no_shift() {
         let a = prop("a");
-        let res =
-            make_test_shift_bounds(Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()));
-        let exp = Formula::g(Interval { lower: 0, upper: 5 }, None, a);
+        let res = make_test_shift_bounds(Formula::g(Interval { lower: 0, upper: 5 }, a.clone()));
+        let exp = Formula::g(Interval { lower: 0, upper: 5 }, a);
         assert_eq!(res, exp);
     }
 
@@ -219,13 +197,11 @@ mod shift_bounds_tests {
                 lower: 3,
                 upper: 50,
             },
-            None,
             Formula::f(
                 Interval {
                     lower: 5,
                     upper: 20,
                 },
-                None,
                 b_a.clone(),
             ),
         ));
@@ -234,13 +210,11 @@ mod shift_bounds_tests {
                 lower: 8,
                 upper: 55,
             },
-            None,
             Formula::f(
                 Interval {
                     lower: 0,
                     upper: 15,
                 },
-                None,
                 b_a,
             ),
         );
@@ -255,7 +229,6 @@ mod shift_bounds_tests {
                 lower: 10,
                 upper: 60,
             },
-            None,
             Formula::imply(
                 b_a.clone(),
                 Formula::g(
@@ -263,7 +236,6 @@ mod shift_bounds_tests {
                         lower: 20,
                         upper: 40,
                     },
-                    None,
                     Formula::not(b_a),
                 ),
             ),
@@ -280,25 +252,21 @@ mod shift_bounds_tests {
                 lower: 3,
                 upper: 50,
             },
-            None,
             Formula::f(
                 Interval {
                     lower: 5,
                     upper: 20,
                 },
-                None,
                 Formula::f(
                     Interval {
                         lower: 20,
                         upper: 30,
                     },
-                    None,
                     Formula::g(
                         Interval {
                             lower: 20,
                             upper: 40,
                         },
-                        None,
                         Formula::not(b_a.clone()),
                     ),
                 ),
@@ -310,25 +278,21 @@ mod shift_bounds_tests {
                 lower: 48,
                 upper: 95,
             },
-            None,
             Formula::f(
                 Interval {
                     lower: 0,
                     upper: 15,
                 },
-                None,
                 Formula::f(
                     Interval {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     Formula::g(
                         Interval {
                             lower: 0,
                             upper: 20,
                         },
-                        None,
                         Formula::not(b_a),
                     ),
                 ),
@@ -342,14 +306,12 @@ mod shift_bounds_tests {
         let b_a = prop("B_a");
         let input = Formula::f(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::and(vec![
                 Formula::g(
                     Interval {
                         lower: 10,
                         upper: 20,
                     },
-                    None,
                     b_a.clone(),
                 ),
                 Formula::g(
@@ -357,7 +319,6 @@ mod shift_bounds_tests {
                         lower: 20,
                         upper: 30,
                     },
-                    None,
                     b_a.clone(),
                 ),
             ]),
@@ -368,14 +329,12 @@ mod shift_bounds_tests {
                 lower: 10,
                 upper: 15,
             },
-            None,
             Formula::and(vec![
                 Formula::g(
                     Interval {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     b_a.clone(),
                 ),
                 Formula::g(
@@ -383,7 +342,6 @@ mod shift_bounds_tests {
                         lower: 10,
                         upper: 20,
                     },
-                    None,
                     b_a,
                 ),
             ]),
@@ -396,13 +354,11 @@ mod shift_bounds_tests {
         let b_a = prop("B_a");
         let input = Formula::u(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::g(
                 Interval {
                     lower: 10,
                     upper: 20,
                 },
-                None,
                 b_a.clone(),
             ),
             Formula::g(
@@ -410,7 +366,6 @@ mod shift_bounds_tests {
                     lower: 20,
                     upper: 30,
                 },
-                None,
                 b_a.clone(),
             ),
         );
@@ -420,13 +375,11 @@ mod shift_bounds_tests {
                 lower: 10,
                 upper: 15,
             },
-            None,
             Formula::g(
                 Interval {
                     lower: 0,
                     upper: 10,
                 },
-                None,
                 b_a.clone(),
             ),
             Formula::g(
@@ -434,7 +387,6 @@ mod shift_bounds_tests {
                     lower: 10,
                     upper: 20,
                 },
-                None,
                 b_a,
             ),
         );
@@ -446,13 +398,11 @@ mod shift_bounds_tests {
         let b_a = prop("B_a");
         let input = Formula::u(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::g(
                 Interval {
                     lower: 10,
                     upper: 20,
                 },
-                None,
                 b_a.clone(),
             ),
             Formula::or(vec![
@@ -461,7 +411,6 @@ mod shift_bounds_tests {
                         lower: 20,
                         upper: 30,
                     },
-                    None,
                     b_a.clone(),
                 ),
                 b_a.clone(),
@@ -470,13 +419,11 @@ mod shift_bounds_tests {
         let res = make_test_shift_bounds(input);
         let exp = Formula::u(
             Interval { lower: 0, upper: 5 },
-            None,
             Formula::g(
                 Interval {
                     lower: 10,
                     upper: 20,
                 },
-                None,
                 b_a.clone(),
             ),
             Formula::or(vec![
@@ -485,7 +432,6 @@ mod shift_bounds_tests {
                         lower: 20,
                         upper: 30,
                     },
-                    None,
                     b_a.clone(),
                 ),
                 b_a,
@@ -553,7 +499,6 @@ mod flatten_tests {
                 lower: 0,
                 upper: 10,
             },
-            None,
             Formula::and(vec![p1.clone(), Formula::and(vec![p2.clone(), p3.clone()])]),
         ));
         let exp = Formula::g(
@@ -561,7 +506,6 @@ mod flatten_tests {
                 lower: 0,
                 upper: 10,
             },
-            None,
             Formula::and(vec![p1, p2, p3]),
         );
         assert_eq!(res, exp);

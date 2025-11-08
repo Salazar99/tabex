@@ -120,7 +120,7 @@ fn main() {
                                 );
                             }
 
-                            let mut node = Node::from_operands(vec![formula]);
+                            let mut node = Node::from_operands(vec![formula.into()]);
 
                             // Normalization Stage
                             node.negative_normal_form_rewrite();

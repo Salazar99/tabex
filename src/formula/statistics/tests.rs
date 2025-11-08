@@ -16,9 +16,8 @@ mod temporal_operator_depth_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("d")),
             ),
         ]);
         assert_eq!(f.temporal_operator_depth(), 2);
@@ -40,9 +39,8 @@ mod depth_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("d")),
             ),
         ]);
         assert_eq!(f.depth(), 3);
@@ -64,9 +62,8 @@ mod horizon_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("d")),
             ),
         ]);
         assert_eq!(f.horizon(), 8);
@@ -88,9 +85,8 @@ mod nodes_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("d")),
             ),
         ]);
         assert_eq!(f.nodes(), 9);
@@ -98,7 +94,7 @@ mod nodes_tests {
 
     #[test]
     fn test_filter_g() {
-        let f = Formula::g(Interval { lower: 0, upper: 5 }, None, prop("a"));
+        let f = Formula::g(Interval { lower: 0, upper: 5 }, prop("a"));
         assert_eq!(f.count_nodes(|f| matches!(f, Formula::G { .. })), 1);
     }
 }
@@ -140,9 +136,8 @@ mod boolean_variables_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("d")),
             ),
         ]);
         assert_eq!(f.boolean_variables(), 4);
@@ -154,9 +149,8 @@ mod boolean_variables_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("a")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("a")),
             ),
         ]);
         assert_eq!(f.boolean_variables(), 3);
@@ -176,7 +170,6 @@ mod real_variables_tests {
             )),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 Formula::Prop(Expr::real(
                     RelOp::Lt,
                     AExpr::Var(Arc::from("y")),
@@ -184,7 +177,6 @@ mod real_variables_tests {
                 )),
                 Formula::g(
                     Interval { lower: 1, upper: 3 },
-                    None,
                     Formula::Prop(Expr::real(
                         RelOp::Eq,
                         AExpr::Var(Arc::from("z")),
@@ -206,7 +198,6 @@ mod real_variables_tests {
             )),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 Formula::Prop(Expr::real(
                     RelOp::Lt,
                     AExpr::Var(Arc::from("y")),
@@ -214,7 +205,6 @@ mod real_variables_tests {
                 )),
                 Formula::g(
                     Interval { lower: 1, upper: 3 },
-                    None,
                     Formula::Prop(Expr::real(
                         RelOp::Eq,
                         AExpr::Var(Arc::from("x")),
@@ -236,9 +226,8 @@ mod boolean_constraints_tests {
             Formula::or(vec![prop("a"), Formula::Not(Box::new(prop("b")))]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("c"),
-                Formula::g(Interval { lower: 1, upper: 3 }, None, prop("d")),
+                Formula::g(Interval { lower: 1, upper: 3 }, prop("d")),
             ),
         ]);
         assert_eq!(f.boolean_constraints(), 4);
@@ -258,7 +247,6 @@ mod real_constraints_tests {
             )),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 Formula::Prop(Expr::real(
                     RelOp::Lt,
                     AExpr::Var(Arc::from("y")),
@@ -266,7 +254,6 @@ mod real_constraints_tests {
                 )),
                 Formula::g(
                     Interval { lower: 1, upper: 3 },
-                    None,
                     Formula::Prop(Expr::real(
                         RelOp::Eq,
                         AExpr::Var(Arc::from("z")),
@@ -303,11 +290,9 @@ mod disjunction_max_width_tests {
             ]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("d"),
                 Formula::g(
                     Interval { lower: 1, upper: 3 },
-                    None,
                     Formula::or(vec![prop("e"), prop("f")]),
                 ),
             ),
@@ -340,11 +325,9 @@ mod disjunction_total_width_tests {
             ]),
             Formula::u(
                 Interval { lower: 0, upper: 5 },
-                None,
                 prop("d"),
                 Formula::g(
                     Interval { lower: 1, upper: 3 },
-                    None,
                     Formula::or(vec![prop("e"), prop("f")]),
                 ),
             ),
@@ -396,8 +379,8 @@ mod combinatorial_branching_count_tests {
     #[test]
     fn test_or_u() {
         let f = Formula::or(vec![
-            Formula::u(Interval { lower: 0, upper: 5 }, None, prop("a"), prop("b")),
-            Formula::u(Interval { lower: 1, upper: 3 }, None, prop("c"), prop("d")),
+            Formula::u(Interval { lower: 0, upper: 5 }, prop("a"), prop("b")),
+            Formula::u(Interval { lower: 1, upper: 3 }, prop("c"), prop("d")),
         ]);
         assert_eq!(f.combinatorial_branching_count(), 2);
     }

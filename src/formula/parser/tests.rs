@@ -78,7 +78,6 @@ fn test_parse_globally() {
             lower: 0,
             upper: 10,
         },
-        parent_upper: None,
     };
     assert!(result.is_ok_and(|f| f.1.eq_structural(&expected)));
 }
@@ -90,7 +89,6 @@ fn test_parse_finally() {
     let expected = Formula::F {
         phi: Box::new(Formula::Prop(Expr::bool(Arc::from("b")))),
         interval: Interval { lower: 1, upper: 5 },
-        parent_upper: None,
     };
     assert!(result.is_ok_and(|f| f.1.eq_structural(&expected)));
 }
@@ -103,7 +101,6 @@ fn test_parse_until() {
         left: Box::new(Formula::Prop(Expr::bool(Arc::from("a")))),
         right: Box::new(Formula::Prop(Expr::bool(Arc::from("b")))),
         interval: Interval { lower: 2, upper: 8 },
-        parent_upper: None,
     };
     assert!(result.is_ok_and(|f| f.1.eq_structural(&expected)));
 }
@@ -116,7 +113,6 @@ fn test_parse_release() {
         left: Box::new(Formula::Prop(Expr::bool(Arc::from("a")))),
         right: Box::new(Formula::Prop(Expr::bool(Arc::from("b")))),
         interval: Interval { lower: 3, upper: 7 },
-        parent_upper: None,
     };
     assert!(result.is_ok_and(|f| f.1.eq_structural(&expected)));
 }
@@ -238,7 +234,6 @@ fn test_next() {
     let expected = Formula::F {
         phi: Box::new(Formula::Prop(Expr::bool(Arc::from("a")))),
         interval: Interval { lower: 1, upper: 1 },
-        parent_upper: None,
     };
     assert!(result.is_ok_and(|f| f.1.eq_structural(&expected)));
 }

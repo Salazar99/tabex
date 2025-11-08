@@ -9,7 +9,7 @@ use crate::{
 
 fn parse_node(input: &str) -> Node {
     let (_, formula) = parse_formula(input).unwrap();
-    let mut node = Node::from_operands(vec![formula]);
+    let mut node = Node::from_operands(vec![formula.into()]);
     node.flatten();
     node
 }
@@ -137,7 +137,7 @@ fn test_unsat_core_not_enabled() {
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
 
-    let node = Node::from_operands(vec![one, two]);
+    let node = Node::from_operands(vec![one.into(), two.into()]);
 
     assert!(!solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), None);
@@ -150,7 +150,7 @@ fn test_unsat_core_bool() {
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
 
-    let node = Node::from_operands(vec![one.clone(), two.clone()]);
+    let node = Node::from_operands(vec![one.clone().into(), two.clone().into()]);
 
     assert!(!solver.check(&node));
 
@@ -177,7 +177,7 @@ fn test_unsat_core_bool_sat() {
     let one = Formula::prop(Expr::bool(Arc::from("a")));
     let two = Formula::prop(Expr::bool(Arc::from("b")));
 
-    let node = Node::from_operands(vec![one, two]);
+    let node = Node::from_operands(vec![one.into(), two.into()]);
 
     assert!(solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), None);
@@ -191,7 +191,11 @@ fn test_unsat_core_bool_one_excluded() {
     let two = Formula::not(Formula::prop(Expr::bool(Arc::from("a"))));
     let three = Formula::prop(Expr::bool(Arc::from("b")));
 
-    let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
+    let node = Node::from_operands(vec![
+        one.clone().into(),
+        two.clone().into(),
+        three.clone().into(),
+    ]);
 
     assert!(!solver.check(&node));
     let core = solver.extract_unsat_core().unwrap();
@@ -229,7 +233,7 @@ fn test_unsat_core_real() {
         crate::formula::AExpr::Num(Ratio::from_integer(0)),
     ));
 
-    let node = Node::from_operands(vec![one.clone(), two.clone()]);
+    let node = Node::from_operands(vec![one.clone().into(), two.clone().into()]);
 
     let id = if let Formula::Prop(expr) = one {
         expr.id
@@ -261,7 +265,7 @@ fn test_unsat_core_real_sat() {
         crate::formula::AExpr::Num(Ratio::from_integer(5)),
     ));
 
-    let node = Node::from_operands(vec![one, two]);
+    let node = Node::from_operands(vec![one.into(), two.into()]);
 
     assert!(solver.check(&node));
     assert_eq!(solver.extract_unsat_core(), None);
@@ -287,7 +291,7 @@ fn test_unsat_core_real_one_excluded() {
         crate::formula::AExpr::Num(Ratio::from_integer(1)),
     ));
 
-    let node = Node::from_operands(vec![one.clone(), two.clone(), three]);
+    let node = Node::from_operands(vec![one.clone().into(), two.clone().into(), three.into()]);
 
     let id = if let Formula::Prop(expr) = one {
         expr.id
@@ -319,7 +323,11 @@ fn test_unsat_core_false() {
         crate::formula::AExpr::Num(Ratio::from_integer(5)),
     ));
 
-    let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
+    let node = Node::from_operands(vec![
+        one.clone().into(),
+        two.clone().into(),
+        three.clone().into(),
+    ]);
 
     assert!(!solver.check(&node));
 
@@ -345,7 +353,11 @@ fn test_unsat_core_not_true() {
         crate::formula::AExpr::Num(Ratio::from_integer(5)),
     ));
 
-    let node = Node::from_operands(vec![one.clone(), two.clone(), three.clone()]);
+    let node = Node::from_operands(vec![
+        one.clone().into(),
+        two.clone().into(),
+        three.clone().into(),
+    ]);
 
     assert!(!solver.check(&node));
 

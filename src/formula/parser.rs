@@ -216,8 +216,8 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
             ),
             move || init.clone(),
             |acc, ((op, interval), right)| match op {
-                "U" => Formula::u(interval.unwrap(), None, acc, right),
-                "R" => Formula::r(interval.unwrap(), None, acc, right),
+                "U" => Formula::u(interval.unwrap(), acc, right),
+                "R" => Formula::r(interval.unwrap(), acc, right),
                 _ => panic!(), // Should not happen
             },
         )
@@ -228,20 +228,17 @@ pub fn parse_formula(input: &str) -> IResult<&str, Formula> {
         alt((
             map(
                 (tag("G"), parse_interval, space0, parse_formula_term),
-                |(_, interval, _, phi)| Formula::g(interval, None, phi),
+                |(_, interval, _, phi)| Formula::g(interval, phi),
             ),
             map(
                 (tag("F"), parse_interval, space0, parse_formula_term),
-                |(_, interval, _, phi)| Formula::f(interval, None, phi),
+                |(_, interval, _, phi)| Formula::f(interval, phi),
             ),
-            map((char('O'), space0, parse_formula_term), |(_, _, phi)| {
-                Formula::o(phi)
-            }),
             map((char('!'), space0, parse_formula_term), |(_, _, phi)| {
                 Formula::not(phi)
             }),
             map((char('X'), space0, parse_formula_term), |(_, _, phi)| {
-                Formula::f(Interval { lower: 1, upper: 1 }, None, phi)
+                Formula::f(Interval { lower: 1, upper: 1 }, phi)
             }),
             delimited(
                 preceded(space0, char('(')),

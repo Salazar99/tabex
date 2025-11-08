@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
 use crate::formula::{Expr, Formula, Interval};
-use crate::sat::tableau::node::Node;
+use crate::sat::tableau::node::{Node, NodeFormula};
 
 fn prop(name: &str) -> Formula {
     Formula::prop(Expr::bool(Arc::from(name)))
 }
 
 fn make_test_rewrite_chain(
-    input: Vec<Formula>,
-    expected: Vec<Formula>,
+    input: Vec<NodeFormula>,
+    expected: Vec<NodeFormula>,
     time_input: i32,
 ) -> (Node, Node) {
     let mut input_node: Node = Node::from_operands(input);
@@ -30,42 +30,47 @@ mod rewrite_globally_tests {
     #[test]
     fn no_rewrite() {
         let a = prop("a");
-        let f = Formula::g(Interval { lower: 0, upper: 5 }, None, a);
-        let (res, exp) = make_test_rewrite_chain(vec![f.clone()], vec![f], 0);
+        let f = Formula::g(Interval { lower: 0, upper: 5 }, a);
+        let (res, exp) = make_test_rewrite_chain(vec![f.clone().into()], vec![f.into()], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_containment() {
         let a = prop("a");
-        let f1 = Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone());
-        let f2 = Formula::g(Interval { lower: 1, upper: 4 }, None, a);
-        let (res, exp) = make_test_rewrite_chain(vec![f1.clone(), f2.clone()], vec![f1], 0);
+        let f1 = Formula::g(Interval { lower: 0, upper: 5 }, a.clone());
+        let f2 = Formula::g(Interval { lower: 1, upper: 4 }, a);
+        let (res, exp) = make_test_rewrite_chain(
+            vec![f1.clone().into(), f2.clone().into()],
+            vec![f1.into()],
+            0,
+        );
         assert_eq!(res.operands, exp.operands);
     }
 
     #[test]
     fn rewrite_union_intersection() {
         let a = prop("a");
-        let f1 = Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone());
+        let f1 = Formula::g(Interval { lower: 0, upper: 5 }, a.clone());
         let f2 = Formula::g(
             Interval {
                 lower: 4,
                 upper: 10,
             },
-            None,
             a.clone(),
         );
         let (res, exp) = make_test_rewrite_chain(
-            vec![f1.clone(), f2.clone()],
-            vec![Formula::g(
-                Interval {
-                    lower: 0,
-                    upper: 10,
-                },
-                None,
-                a,
-            )],
+            vec![f1.clone().into(), f2.clone().into()],
+            vec![
+                Formula::g(
+                    Interval {
+                        lower: 0,
+                        upper: 10,
+                    },
+                    a,
+                )
+                .into(),
+            ],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -76,24 +81,26 @@ mod rewrite_globally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::g(Interval { lower: 0, upper: 5 }, a.clone()).into(),
                 Formula::g(
                     Interval {
                         lower: 6,
                         upper: 10,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
             ],
-            vec![Formula::g(
-                Interval {
-                    lower: 0,
-                    upper: 10,
-                },
-                None,
-                a,
-            )],
+            vec![
+                Formula::g(
+                    Interval {
+                        lower: 0,
+                        upper: 10,
+                    },
+                    a,
+                )
+                .into(),
+            ],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -103,17 +110,16 @@ mod rewrite_globally_tests {
     fn rewrite_no_match() {
         let a = prop("a");
         let f = Formula::and(vec![
-            Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+            Formula::g(Interval { lower: 0, upper: 5 }, a.clone()),
             Formula::g(
                 Interval {
                     lower: 7,
                     upper: 10,
                 },
-                None,
                 a,
             ),
         ]);
-        let (res, exp) = make_test_rewrite_chain(vec![f.clone()], vec![f], 0);
+        let (res, exp) = make_test_rewrite_chain(vec![f.clone().into()], vec![f.into()], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
@@ -122,25 +128,27 @@ mod rewrite_globally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::g(Interval { lower: 0, upper: 5 }, a.clone()).into(),
                 Formula::g(
                     Interval {
                         lower: 8,
                         upper: 12,
                     },
-                    None,
                     a.clone(),
-                ),
-                Formula::g(Interval { lower: 4, upper: 8 }, None, a.clone()),
+                )
+                .into(),
+                Formula::g(Interval { lower: 4, upper: 8 }, a.clone()).into(),
             ],
-            vec![Formula::g(
-                Interval {
-                    lower: 0,
-                    upper: 12,
-                },
-                None,
-                a,
-            )],
+            vec![
+                Formula::g(
+                    Interval {
+                        lower: 0,
+                        upper: 12,
+                    },
+                    a,
+                )
+                .into(),
+            ],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -151,27 +159,27 @@ mod rewrite_globally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::g(Interval { lower: 0, upper: 5 }, a.clone()).into(),
                 Formula::g(
                     Interval {
                         lower: 10,
                         upper: 12,
                     },
-                    None,
                     a.clone(),
-                ),
-                Formula::g(Interval { lower: 4, upper: 7 }, None, a.clone()),
+                )
+                .into(),
+                Formula::g(Interval { lower: 4, upper: 7 }, a.clone()).into(),
             ],
             vec![
-                Formula::g(Interval { lower: 0, upper: 7 }, None, a.clone()),
+                Formula::g(Interval { lower: 0, upper: 7 }, a.clone()).into(),
                 Formula::g(
                     Interval {
                         lower: 10,
                         upper: 12,
                     },
-                    None,
                     a,
-                ),
+                )
+                .into(),
             ],
             0,
         );
@@ -189,25 +197,25 @@ mod rewrite_globally_tests {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
                 Formula::g(
                     Interval {
                         lower: 11,
                         upper: 20,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
                 Formula::g(
                     Interval {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     b.clone(),
-                ),
+                )
+                .into(),
             ],
             vec![
                 Formula::g(
@@ -215,17 +223,17 @@ mod rewrite_globally_tests {
                         lower: 0,
                         upper: 20,
                     },
-                    None,
                     a,
-                ),
+                )
+                .into(),
                 Formula::g(
                     Interval {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     b,
-                ),
+                )
+                .into(),
             ],
             0,
         );
@@ -239,8 +247,8 @@ mod rewrite_finally_tests {
     #[test]
     fn no_rewrite() {
         let a = prop("a");
-        let f = Formula::f(Interval { lower: 0, upper: 5 }, None, a);
-        let (res, exp) = make_test_rewrite_chain(vec![f.clone()], vec![f], 0);
+        let f = Formula::f(Interval { lower: 0, upper: 5 }, a);
+        let (res, exp) = make_test_rewrite_chain(vec![f.clone().into()], vec![f.into()], 0);
         assert_eq!(res.operands, exp.operands);
     }
 
@@ -249,10 +257,10 @@ mod rewrite_finally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
-                Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone()),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
+                Formula::f(Interval { lower: 1, upper: 4 }, a.clone()).into(),
             ],
-            vec![Formula::f(Interval { lower: 1, upper: 4 }, None, a)],
+            vec![Formula::f(Interval { lower: 1, upper: 4 }, a).into()],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -263,10 +271,10 @@ mod rewrite_finally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone()),
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::f(Interval { lower: 1, upper: 4 }, a.clone()).into(),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
             ],
-            vec![Formula::f(Interval { lower: 1, upper: 4 }, None, a)],
+            vec![Formula::f(Interval { lower: 1, upper: 4 }, a).into()],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -277,26 +285,26 @@ mod rewrite_finally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
                 Formula::f(
                     Interval {
                         lower: 4,
                         upper: 10,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
             ],
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
                 Formula::f(
                     Interval {
                         lower: 4,
                         upper: 10,
                     },
-                    None,
                     a,
-                ),
+                )
+                .into(),
             ],
             0,
         );
@@ -313,13 +321,13 @@ mod rewrite_finally_tests {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     a.clone(),
-                ),
-                Formula::f(Interval { lower: 1, upper: 5 }, None, a.clone()),
-                Formula::f(Interval { lower: 2, upper: 4 }, None, a.clone()),
+                )
+                .into(),
+                Formula::f(Interval { lower: 1, upper: 5 }, a.clone()).into(),
+                Formula::f(Interval { lower: 2, upper: 4 }, a.clone()).into(),
             ],
-            vec![Formula::f(Interval { lower: 2, upper: 4 }, None, a)],
+            vec![Formula::f(Interval { lower: 2, upper: 4 }, a).into()],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -330,16 +338,16 @@ mod rewrite_finally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
                 Formula::f(
                     Interval {
                         lower: 10,
                         upper: 12,
                     },
-                    None,
                     a.clone(),
-                ),
-                Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone()),
+                )
+                .into(),
+                Formula::f(Interval { lower: 1, upper: 4 }, a.clone()).into(),
             ],
             vec![
                 Formula::f(
@@ -347,10 +355,10 @@ mod rewrite_finally_tests {
                         lower: 10,
                         upper: 12,
                     },
-                    None,
                     a.clone(),
-                ),
-                Formula::f(Interval { lower: 1, upper: 4 }, None, a.clone()),
+                )
+                .into(),
+                Formula::f(Interval { lower: 1, upper: 4 }, a.clone()).into(),
             ],
             0,
         );
@@ -368,25 +376,25 @@ mod rewrite_finally_tests {
                         lower: 0,
                         upper: 20,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
                 Formula::f(
                     Interval {
                         lower: 5,
                         upper: 15,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
                 Formula::f(
                     Interval {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     b.clone(),
-                ),
+                )
+                .into(),
             ],
             vec![
                 Formula::f(
@@ -394,17 +402,17 @@ mod rewrite_finally_tests {
                         lower: 5,
                         upper: 15,
                     },
-                    None,
                     a,
-                ),
+                )
+                .into(),
                 Formula::f(
                     Interval {
                         lower: 0,
                         upper: 10,
                     },
-                    None,
                     b,
-                ),
+                )
+                .into(),
             ],
             0,
         );
@@ -416,10 +424,10 @@ mod rewrite_finally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
             ],
-            vec![Formula::f(Interval { lower: 0, upper: 5 }, None, a)],
+            vec![Formula::f(Interval { lower: 0, upper: 5 }, a).into()],
             0,
         );
         assert_eq!(res.operands, exp.operands);
@@ -431,13 +439,13 @@ mod rewrite_finally_tests {
         let b = prop("b");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
-                b.clone(),
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
+                b.clone().into(),
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
             ],
             vec![
-                Formula::f(Interval { lower: 0, upper: 5 }, None, a.clone()),
-                b,
+                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()).into(),
+                b.into(),
             ],
             0,
         );
@@ -454,34 +462,36 @@ mod rewrite_finally_tests {
                         lower: 18,
                         upper: 20,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
                 Formula::f(
                     Interval {
                         lower: 17,
                         upper: 19,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
                 Formula::f(
                     Interval {
                         lower: 18,
                         upper: 18,
                     },
-                    None,
                     a.clone(),
-                ),
+                )
+                .into(),
             ],
-            vec![Formula::f(
-                Interval {
-                    lower: 18,
-                    upper: 18,
-                },
-                None,
-                a,
-            )],
+            vec![
+                Formula::f(
+                    Interval {
+                        lower: 18,
+                        upper: 18,
+                    },
+                    a,
+                )
+                .into(),
+            ],
             18,
         );
         assert_eq!(res.operands, exp.operands);
@@ -498,14 +508,14 @@ mod rewrite_globally_finally_tests {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
             vec![
-                Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
-                Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
-                Formula::f(Interval { lower: 2, upper: 4 }, None, a.clone()),
+                Formula::g(Interval { lower: 0, upper: 5 }, a.clone()).into(),
+                Formula::f(Interval { lower: 1, upper: 3 }, a.clone()).into(),
+                Formula::f(Interval { lower: 2, upper: 4 }, a.clone()).into(),
             ],
             vec![
-                Formula::g(Interval { lower: 0, upper: 5 }, None, a.clone()),
-                Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
-                Formula::f(Interval { lower: 2, upper: 4 }, None, a),
+                Formula::g(Interval { lower: 0, upper: 5 }, a.clone()).into(),
+                Formula::f(Interval { lower: 1, upper: 3 }, a.clone()).into(),
+                Formula::f(Interval { lower: 2, upper: 4 }, a).into(),
             ],
             0,
         );
@@ -516,24 +526,28 @@ mod rewrite_globally_finally_tests {
     fn rewrite_match_simple() {
         let a = prop("a");
         let (res, exp) = make_test_rewrite_chain(
-            vec![Formula::g(
-                Interval { lower: 0, upper: 5 },
-                None,
-                Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone()),
-            )],
+            vec![
+                Formula::g(
+                    Interval { lower: 0, upper: 5 },
+                    Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
+                )
+                .into(),
+            ],
             vec![
                 Formula::g(
                     Interval { lower: 2, upper: 5 },
-                    None,
-                    Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone()),
-                ),
+                    Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
+                )
+                .into(),
                 Formula::or(vec![
-                    Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
+                    Formula::f(Interval { lower: 1, upper: 3 }, a.clone()).into(),
                     Formula::and(vec![
-                        Formula::f(Interval { lower: 0, upper: 0 }, None, a.clone()),
-                        Formula::f(Interval { lower: 4, upper: 4 }, None, a.clone()),
-                    ]),
-                ]),
+                        Formula::f(Interval { lower: 0, upper: 0 }, a.clone()).into(),
+                        Formula::f(Interval { lower: 4, upper: 4 }, a.clone()).into(),
+                    ])
+                    .into(),
+                ])
+                .into(),
             ],
             0,
         );
@@ -548,25 +562,27 @@ mod rewrite_globally_finally_tests {
             vec![
                 Formula::g(
                     Interval { lower: 0, upper: 5 },
-                    None,
-                    Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone()),
-                ),
-                Formula::f(Interval { lower: 0, upper: 3 }, None, b.clone()),
+                    Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
+                )
+                .into(),
+                Formula::f(Interval { lower: 0, upper: 3 }, b.clone()).into(),
             ],
             vec![
                 Formula::g(
                     Interval { lower: 2, upper: 5 },
-                    None,
-                    Formula::f(Interval { lower: 0, upper: 3 }, None, a.clone()),
-                ),
-                Formula::f(Interval { lower: 0, upper: 3 }, None, b.clone()),
+                    Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
+                )
+                .into(),
+                Formula::f(Interval { lower: 0, upper: 3 }, b.clone()).into(),
                 Formula::or(vec![
-                    Formula::f(Interval { lower: 1, upper: 3 }, None, a.clone()),
+                    Formula::f(Interval { lower: 1, upper: 3 }, a.clone()).into(),
                     Formula::and(vec![
-                        Formula::f(Interval { lower: 0, upper: 0 }, None, a.clone()),
-                        Formula::f(Interval { lower: 4, upper: 4 }, None, a.clone()),
-                    ]),
-                ]),
+                        Formula::f(Interval { lower: 0, upper: 0 }, a.clone()).into(),
+                        Formula::f(Interval { lower: 4, upper: 4 }, a.clone()).into(),
+                    ])
+                    .into(),
+                ])
+                .into(),
             ],
             0,
         );

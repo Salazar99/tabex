@@ -12,7 +12,7 @@ fn esc_label(s: &str) -> String {
 
 fn build_graph(formula: &Formula, graph: &mut Graph) -> usize {
     let label = match formula {
-        Formula::Prop(_) | Formula::O(_) | Formula::Not(_) => {
+        Formula::Prop(_) | Formula::Not(_) => {
             format!("{formula}")
         }
         Formula::And(_) => "&&".to_string(),
@@ -90,7 +90,7 @@ impl Node {
     pub fn id_tree(&self) {
         let mut graph = Graph::new("node_formulas", Kind::Digraph);
         for formula in &self.operands {
-            build_graph(formula, &mut graph);
+            build_graph(&formula.kind, &mut graph);
         }
         println!("{}", graph.to_dot_string().unwrap());
     }

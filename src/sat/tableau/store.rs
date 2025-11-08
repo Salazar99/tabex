@@ -19,7 +19,7 @@ impl RejectedNode {
     #[must_use]
     pub fn from_node(node: &Node) -> Self {
         RejectedNode {
-            operands: node.operands.clone(),
+            operands: node.operands.iter().map(|f| f.kind.clone()).collect(),
             time: node.current_time,
         }
     }

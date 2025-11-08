@@ -34,7 +34,7 @@ impl UnsatCore {
                         add_formula_inner(core, child, parent_id);
                     }
                 }
-                Formula::O(child) | Formula::Not(child) => {
+                Formula::Not(child) => {
                     add_formula_inner(core, child, parent_id);
                 }
                 Formula::G { phi, .. } | Formula::F { phi, .. } => {
@@ -75,7 +75,7 @@ impl UnsatCore {
 
     pub fn initialize_root_node(&mut self, node: &Node) {
         for (idx, formula) in node.operands.iter().enumerate() {
-            self.add_formula(formula, idx);
+            self.add_formula(&formula.kind, idx);
         }
         self.node = Some(node.clone());
     }
@@ -97,6 +97,6 @@ impl UnsatCore {
         } else {
             panic!("UnsatCore not initialized with root node");
         }
-        result
+        result.iter().map(|f| f.kind.clone()).collect()
     }
 }

@@ -98,6 +98,7 @@ impl Solver {
         }
         node.operands
             .iter()
+            .map(|f| &f.kind)
             .filter_map(get_assertion)
             .for_each(|ass| match &ass.expr {
                 ExprKind::Atom(var) => {
@@ -118,7 +119,7 @@ impl Solver {
 
     pub fn check(&mut self, node: &Node) -> bool {
         for f in &node.operands {
-            match f {
+            match &f.kind {
                 Formula::Prop(expr) if matches!(expr.kind, ExprKind::False) => {
                     if self.unsat_core_extraction {
                         self.boolean_solver.unsat_core = Some(vec![expr.id]);

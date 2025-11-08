@@ -15,16 +15,74 @@ pub mod rewrite;
 
 pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct NodeFormula {
+    pub kind: Formula,
+    pub marked: bool,
+    pub parent_upper: Option<i32>,
+}
+
+impl NodeFormula {
+    pub fn from(kind: Formula) -> Self {
+        Self {
+            kind,
+            marked: false,
+            parent_upper: None,
+        }
+    }
+
+    pub fn with_kind(&self, kind: Formula) -> Self {
+        let mut new_formula = self.clone();
+        new_formula.kind = kind;
+        new_formula
+    }
+
+    pub fn with_marked(&self, marked: bool) -> Self {
+        let mut new_formula = self.clone();
+        new_formula.marked = marked;
+        new_formula
+    }
+
+    pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
+        let mut new_formula = self.clone();
+        new_formula.parent_upper = parent_upper;
+        new_formula
+    }
+
+    #[must_use]
+    pub fn is_active_at(&self, current_time: i32) -> bool {
+        match &self.kind.get_interval() {
+            Some(interval) => interval.active(current_time),
+            _ => true,
+        }
+    }
+
+    #[must_use]
+    pub fn is_parent_active_at(&self, current_time: i32) -> bool {
+        match self.parent_upper {
+            None => false,
+            Some(upper) if current_time >= upper => false,
+            _ => true,
+        }
+    }
+}
+
+impl From<Formula> for NodeFormula {
+    fn from(kind: Formula) -> Self {
+        Self::from(kind)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Node {
-    pub operands: Vec<Formula>,
+    pub operands: Vec<NodeFormula>,
     pub current_time: i32,
     pub implies: Option<Vec<usize>>,
     pub id: usize,
 }
 
 impl Node {
-    pub fn from_operands(operands: Vec<Formula>) -> Self {
+    pub fn from_operands(operands: Vec<NodeFormula>) -> Self {
         Self {
             operands,
             current_time: 0,
@@ -36,9 +94,9 @@ impl Node {
     #[must_use]
     pub fn is_poised(&self) -> bool {
         for formula in &self.operands {
-            match formula {
-                Formula::Prop(_) | Formula::Not(_) | Formula::O(_) => continue,
-                f if !f.is_active_at(self.current_time) => continue,
+            match &formula.kind {
+                Formula::Prop(_) | Formula::Not(_) => continue,
+                _ if !formula.is_active_at(self.current_time) => continue,
                 _ => return false,
             }
         }
@@ -48,32 +106,32 @@ impl Node {
     #[must_use]
     pub fn to_formula(&self) -> Formula {
         if self.operands.len() == 1 {
-            self.operands[0].clone()
+            self.operands[0].clone().kind
         } else {
-            Formula::And(self.operands.clone())
+            Formula::And(self.operands.iter().map(|f| f.kind.clone()).collect())
         }
     }
 
     pub fn mltl_rewrite(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            *f = MLTLTransformer.visit(f);
+            f.kind = MLTLTransformer.visit(&f.kind);
         });
     }
 
     pub fn negative_normal_form_rewrite(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            *f = NegationNormalFormTransformer.visit(f);
+            f.kind = NegationNormalFormTransformer.visit(&f.kind);
         });
     }
 
     pub fn flatten(&mut self) {
-        let mut flattened: Vec<Formula> = Vec::new();
+        let mut flattened: Vec<NodeFormula> = Vec::new();
         for f in &self.operands {
-            let flat = FlatTransformer.visit(f);
+            let flat = FlatTransformer.visit(&f.kind);
             if let Formula::And(ops) = &flat {
-                flattened.extend(ops.iter().cloned());
+                flattened.extend(ops.iter().cloned().map(NodeFormula::from));
             } else {
-                flattened.push(flat);
+                flattened.push(NodeFormula::from(flat));
             }
         }
         self.operands = flattened;
@@ -81,13 +139,13 @@ impl Node {
 
     pub fn shift_bounds(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            *f = ShiftBoundsTransformer.visit(f);
+            f.kind = ShiftBoundsTransformer.visit(&f.kind);
         });
     }
 
     pub fn simplify(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            *f = FormulaSimplifier.visit(f);
+            f.kind = FormulaSimplifier.visit(&f.kind);
         });
     }
 }
@@ -105,11 +163,7 @@ impl Clone for Node {
 
 impl Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{} | {}",
-            join_with(&self.operands, ", "),
-            self.current_time
-        )
+        let formulas: Vec<Formula> = self.operands.iter().map(|nf| nf.kind.clone()).collect();
+        write!(f, "{} | {}", join_with(&formulas, ", "), self.current_time)
     }
 }

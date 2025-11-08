@@ -7,7 +7,7 @@ use dot_graph::{Graph, Kind};
 use crate::formula::parser::parse_formula;
 use crate::sat::config::{GeneralOptions, TableauOptions};
 use crate::sat::tableau::core::UnsatCore;
-use crate::sat::tableau::node::Node;
+use crate::sat::tableau::node::{Node, NodeFormula};
 use crate::sat::tableau::solver::Solver;
 use crate::sat::tableau::store::{RejectedNode, Store};
 use crate::sat::tableau::trace::{Trace, TraceBuilder};
@@ -103,7 +103,7 @@ impl Tableau {
             }
         };
 
-        let root = Node::from_operands(vec![formula_ast]);
+        let root = Node::from_operands(vec![NodeFormula::from(formula_ast)]);
 
         self.make_tableau_from_root(root)
     }
