@@ -11,12 +11,12 @@ def read_csv_files(tools, csv_files):
     Reads the CSV files and returns a dictionary with the tools as keys
     and their corresponding data as values.
     """
-    data = {}
+    data = []
     for tool, csv_file in zip(tools, csv_files):
         if not os.path.exists(csv_file):
             print(f"Warning: {csv_file} does not exist. Skipping {tool}.")
             continue
-        data[tool] = pd.read_csv(csv_file)
+        data.append((tool, pd.read_csv(csv_file)))
     return data
 
 
@@ -40,30 +40,38 @@ if __name__ == "__main__":
 
     tools = args.tools.strip().split(",")
     tool_csvs = args.tool_csvs.strip().split(",")
-    if len(tools) != 2:
-        sys.exit("Error: exactly two tools must be compared.")
     if len(tools) != len(tool_csvs):
         sys.exit("Error: different numbers of tools and CSV file were entered.")
 
     data = read_csv_files(tools, tool_csvs)
 
-    (t1, d1), (t2, d2) = data.items()
+    t1, joined = data[0]
+    col_renamer = lambda t: lambda c: c + '_' + t if c != 'Name' else c
+    joined = joined.rename(columns=col_renamer(t1))
+    joined['Collective result'] = joined[f'Result_{t1}']
+    joined['Different results'] = False
+    for t, df in data[1:]:
+        df = df.rename(columns=col_renamer(t))
+        joined = pd.merge(joined, df, on='Name', suffixes=('', '_' + t), validate='one_to_one')
 
-    joined = pd.merge(d1, d2, on='Name', suffixes=('_' + t1, '_' + t2), validate='one_to_one')
-    if joined.shape[0] != d1.shape[0] or joined.shape[0] != d2.shape[0]:
-        print(f"Warning: some benchmarks are missing in one of the CSV files.\n{t1} has {d1.shape[0]} benchmarks, {t2} has {d2.shape[0]} benchmarks, but only {joined.shape[0]} benchmarks are common.")
+        if joined.shape[0] != df.shape[0]:
+            print(f"Warning: some benchmarks are missing in one of the CSV files.\n{t} has {df.shape[0]} benchmarks, but only {joined.shape[0]} benchmarks are common.")
 
-    diff = (joined[f'Result_{t1}'] != 'TO') & (joined[f'Result_{t2}'] != 'TO') & (joined[f'Result_{t1}'] != joined[f'Result_{t2}'])
-    print("Benchmarks with differing results:")
-    print(joined[diff])
+        def update_collective_result(row):
+            cr = row['Collective result']
+            tr = row[f'Result_{t}']
+            if valid_result(tr):
+                if valid_result(cr):
+                    if cr != tr:
+                        row['Different results'] = True
+                else:
+                    row['Collective result'] = tr
+            return row
+        joined = joined.apply(update_collective_result, axis=1)
 
-    diff_sat_unsat = ((joined[f'Result_{t1}'] == 'sat') & (joined[f'Result_{t2}'] == 'unsat')) | ((joined[f'Result_{t1}'] == 'unsat') & (joined[f'Result_{t2}'] == 'sat'))
+    diff_sat_unsat = joined['Different results'] == True
     print("Benchmarks with differing sat/unsat results:")
     print(joined[diff_sat_unsat])
 
     if args.csv_output:
         joined[diff_sat_unsat].to_csv(args.csv_output, index=False)
-
-    print(f"Benchmarks in which {t2} is faster than {t1}:")
-    faster = joined[((joined[f'Time (s)_{t2}'] >= 0) & (joined[f'Time (s)_{t1}'] > 0.4) & (joined[f'Time (s)_{t2}'] < joined[f'Time (s)_{t1}'])) | ((joined[f'Result_{t1}'] == 'TO') & (joined[f'Result_{t2}'] != 'TO'))]
-    print(faster[['Name', f'Time (s)_{t1}', f'Result_{t1}', f'Time (s)_{t2}', f'Result_{t2}']])
