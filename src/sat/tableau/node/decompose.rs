@@ -64,7 +64,10 @@ impl Tableau {
             .flat_map(|nf| match &nf.kind {
                 Formula::And(inner) => {
                     changed = true;
-                    inner.iter().map(|f| nf.with_kind(f.clone())).collect()
+                    inner
+                        .iter()
+                        .map(|f| nf.clone().with_kind(f.clone()))
+                        .collect()
                 }
                 _ => vec![nf.clone()],
             })
@@ -91,7 +94,7 @@ impl Tableau {
                     changed = true;
                     if f.is_active_at(node.current_time + 1) {
                         vec![
-                            f.with_marked(true),
+                            f.clone().with_marked(true),
                             phi.temporal_expansion(node.current_time, Some(interval)),
                         ]
                     } else {
@@ -120,7 +123,7 @@ impl Tableau {
             .iter()
             .map(|or_operand| {
                 let mut new_operands = node.operands.clone();
-                new_operands[i] = new_operands[i].with_kind(or_operand.clone());
+                new_operands[i] = node.operands[i].clone().with_kind(or_operand.clone());
                 Node {
                     operands: new_operands,
                     ..node.clone()
@@ -141,14 +144,14 @@ impl Tableau {
         };
 
         let mut new_node1 = node.clone();
-        new_node1.operands[i] = node.operands[i].with_kind((**not_left).clone());
+        new_node1.operands[i] = node.operands[i].clone().with_kind((**not_left).clone());
 
         let mut new_node2 = node.clone();
-        new_node2.operands[i] = node.operands[i].with_kind((**right).clone());
+        new_node2.operands[i] = node.operands[i].clone().with_kind((**right).clone());
         if self.tableau_options.formula_optimizations {
             new_node2
                 .operands
-                .insert(i, node.operands[i].with_kind((**left).clone()));
+                .insert(i, node.operands[i].clone().with_kind((**left).clone()));
         }
 
         vec![new_node1, new_node2]
@@ -181,7 +184,7 @@ impl Tableau {
         // Node in which F is not satisfied (OF)
         if node.current_time < interval.upper {
             let mut new_node2 = node.clone();
-            new_node2.operands[i] = f_formula.with_marked(true);
+            new_node2.operands[i] = f_formula.clone().with_marked(true);
 
             vec![new_node1, new_node2]
         } else {
@@ -223,7 +226,7 @@ impl Tableau {
             // Node in which U is not satisfied (p, OU)
             let mut new_node2 = node.clone();
             new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(interval));
-            new_node2.operands.push(u_formula.with_marked(true));
+            new_node2.operands.push(u_formula.clone().with_marked(true));
 
             return vec![new_node1, new_node2];
         }
@@ -266,7 +269,7 @@ impl Tableau {
         // Node in which R is not satisfied (q, OR)
         let mut new_node2 = node.clone();
         new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
-        new_node2.operands.push(r_formula.with_marked(true));
+        new_node2.operands.push(r_formula.clone().with_marked(true));
 
         vec![new_node1, new_node2]
     }
@@ -283,15 +286,12 @@ impl Tableau {
                 return None;
             }
 
-            if jump != 1 && formula.is_parent_active_at(current_time) {
-                Some(
-                    formula
-                        .with_kind(formula.kind.with_interval(interval.shift_right(jump)))
-                        .with_marked(false),
-                )
+            let kind = if jump != 1 && formula.is_parent_active_at(current_time) {
+                formula.kind.with_interval(interval.shift_right(jump))
             } else {
-                Some(formula.with_kind(formula.kind.clone()).with_marked(false))
-            }
+                formula.kind.clone()
+            };
+            Some(formula.clone().with_kind(kind).with_marked(false))
         }
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {

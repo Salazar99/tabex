@@ -43,8 +43,9 @@ pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormul
     let mut new_operands = input.to_owned();
     for el in map {
         let (idx, new_interval) = el.1;
-        new_operands[idx] =
-            new_operands[idx].with_kind(new_operands[idx].kind.with_interval(new_interval));
+        new_operands[idx] = new_operands[idx]
+            .clone()
+            .with_kind(new_operands[idx].kind.with_interval(new_interval));
     }
 
     new_operands = new_operands

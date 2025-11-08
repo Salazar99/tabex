@@ -4,7 +4,7 @@ use crate::{
     formula::{Expr, Formula, Interval},
     sat::tableau::{
         node::{Node, NodeFormula},
-        store::{RejectedNode, Store},
+        store::Store,
     },
 };
 
@@ -23,14 +23,12 @@ fn make_check_rejected_test(
         let mut node = Node::from_operands(content);
         node.flatten();
         node.current_time = store_time;
-        let rejected = RejectedNode::from_node(&node);
-        store.add_rejected(rejected);
+        store.add_rejected(node.into());
     }
     let mut test_node = Node::from_operands(test_node);
     test_node.flatten();
     test_node.current_time = test_time;
-    let rejected_test_node = RejectedNode::from_node(&test_node);
-    store.check_rejected(&rejected_test_node)
+    store.check_rejected(&test_node.into())
 }
 
 #[test]
@@ -38,13 +36,16 @@ fn test_empty_store() {
     let a = prop("a");
     assert!(!make_check_rejected_test(
         vec![],
-        vec![NodeFormula::from(Formula::g(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))],
+        vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ],
         0,
         0
     ));
@@ -54,53 +55,65 @@ fn test_empty_store() {
 fn test_globally() {
     let a = prop("a");
     assert!(!make_check_rejected_test(
-        vec![vec![NodeFormula::from(Formula::g(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))]],
-        vec![NodeFormula::from(Formula::g(
-            Interval { lower: 2, upper: 5 },
-            a.clone()
-        ))],
+        vec![vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ]],
+        vec![Formula::g(Interval { lower: 2, upper: 5 }, a.clone()).into()],
         0,
         0
     ));
     assert!(make_check_rejected_test(
-        vec![vec![NodeFormula::from(Formula::g(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))]],
-        vec![NodeFormula::from(Formula::g(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))],
+        vec![vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ]],
+        vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ],
         0,
         0
     ));
     assert!(make_check_rejected_test(
-        vec![vec![NodeFormula::from(Formula::g(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))]],
-        vec![NodeFormula::from(Formula::g(
-            Interval {
-                lower: 0,
-                upper: 15
-            },
-            a.clone()
-        ))],
+        vec![vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ]],
+        vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 15
+                },
+                a.clone()
+            )
+            .into()
+        ],
         0,
         0
     ));
@@ -110,53 +123,65 @@ fn test_globally() {
 fn test_finally() {
     let a = prop("a");
     assert!(make_check_rejected_test(
-        vec![vec![NodeFormula::from(Formula::f(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))]],
-        vec![NodeFormula::from(Formula::f(
-            Interval { lower: 2, upper: 5 },
-            a.clone()
-        ))],
+        vec![vec![
+            Formula::f(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ]],
+        vec![Formula::f(Interval { lower: 2, upper: 5 }, a.clone()).into()],
         0,
         0
     ));
     assert!(make_check_rejected_test(
-        vec![vec![NodeFormula::from(Formula::f(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))]],
-        vec![NodeFormula::from(Formula::f(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))],
+        vec![vec![
+            Formula::f(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ]],
+        vec![
+            Formula::f(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ],
         0,
         0
     ));
     assert!(!make_check_rejected_test(
-        vec![vec![NodeFormula::from(Formula::f(
-            Interval {
-                lower: 0,
-                upper: 10
-            },
-            a.clone()
-        ))]],
-        vec![NodeFormula::from(Formula::f(
-            Interval {
-                lower: 0,
-                upper: 15
-            },
-            a.clone()
-        ))],
+        vec![vec![
+            Formula::f(
+                Interval {
+                    lower: 0,
+                    upper: 10
+                },
+                a.clone()
+            )
+            .into()
+        ]],
+        vec![
+            Formula::f(
+                Interval {
+                    lower: 0,
+                    upper: 15
+                },
+                a.clone()
+            )
+            .into()
+        ],
         0,
         0
     ));
@@ -167,36 +192,40 @@ fn test_shift() {
     let a = prop("a");
     assert!(!make_check_rejected_test(
         vec![vec![
-            NodeFormula::from(Formula::g(
+            Formula::g(
                 Interval {
                     lower: 16,
                     upper: 17
                 },
                 Formula::not(a.clone())
-            )),
-            NodeFormula::from(Formula::f(
+            )
+            .into(),
+            Formula::f(
                 Interval {
                     lower: 16,
                     upper: 17
                 },
                 a.clone()
-            ))
+            )
+            .into()
         ]],
         vec![
-            NodeFormula::from(Formula::g(
+            Formula::g(
                 Interval {
                     lower: 16,
                     upper: 17
                 },
                 Formula::not(a.clone())
-            )),
-            NodeFormula::from(Formula::f(
+            )
+            .into(),
+            Formula::f(
                 Interval {
                     lower: 18,
                     upper: 18
                 },
                 a.clone()
-            ))
+            )
+            .into()
         ],
         17,
         16

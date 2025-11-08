@@ -9,7 +9,7 @@ use crate::sat::config::{GeneralOptions, TableauOptions};
 use crate::sat::tableau::core::UnsatCore;
 use crate::sat::tableau::node::{Node, NodeFormula};
 use crate::sat::tableau::solver::Solver;
-use crate::sat::tableau::store::{RejectedNode, Store};
+use crate::sat::tableau::store::Store;
 use crate::sat::tableau::trace::{Trace, TraceBuilder};
 
 #[cfg(test)]
@@ -242,7 +242,7 @@ impl Tableau {
                         if parent.node.current_time < job.node.current_time
                             && let Some(store) = &mut self.store
                         {
-                            store.add_rejected(RejectedNode::from_node(&job.node));
+                            store.add_rejected(job.node.into());
                         }
                     }
                     _ => {}
@@ -309,7 +309,7 @@ impl Tableau {
         if let Some(store) = &mut self.store
             && parent_time < node.current_time
         {
-            let rejected_node = RejectedNode::from_node(&node);
+            let rejected_node = node.clone().into();
             if store.check_rejected(&rejected_node) {
                 return JobOutcome::Final(JobState::Unsat);
             }

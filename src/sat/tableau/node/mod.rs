@@ -31,22 +31,19 @@ impl NodeFormula {
         }
     }
 
-    pub fn with_kind(&self, kind: Formula) -> Self {
-        let mut new_formula = self.clone();
-        new_formula.kind = kind;
-        new_formula
+    pub fn with_kind(mut self, kind: Formula) -> Self {
+        self.kind = kind;
+        self
     }
 
-    pub fn with_marked(&self, marked: bool) -> Self {
-        let mut new_formula = self.clone();
-        new_formula.marked = marked;
-        new_formula
+    pub fn with_marked(mut self, marked: bool) -> Self {
+        self.marked = marked;
+        self
     }
 
-    pub fn with_parent_upper(&self, parent_upper: Option<i32>) -> Self {
-        let mut new_formula = self.clone();
-        new_formula.parent_upper = parent_upper;
-        new_formula
+    pub fn with_parent_upper(mut self, parent_upper: Option<i32>) -> Self {
+        self.parent_upper = parent_upper;
+        self
     }
 
     #[must_use]
