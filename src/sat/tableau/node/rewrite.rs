@@ -138,7 +138,7 @@ pub fn rewrite_globally_finally(input: &Vec<NodeFormula>, time: i32) -> Option<V
                     }),
                 ]),
             ]);
-            new_operands.push(NodeFormula::from(first));
+            new_operands.push(first.into());
             new_nodes.push(second);
         } else {
             new_operands.push(op.clone());
@@ -150,7 +150,7 @@ pub fn rewrite_globally_finally(input: &Vec<NodeFormula>, time: i32) -> Option<V
     }
 
     for node in new_nodes {
-        new_operands.push(NodeFormula::from(node));
+        new_operands.push(node.into());
     }
 
     Some(new_operands)

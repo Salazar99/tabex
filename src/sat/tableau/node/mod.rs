@@ -23,14 +23,6 @@ pub struct NodeFormula {
 }
 
 impl NodeFormula {
-    pub fn from(kind: Formula) -> Self {
-        Self {
-            kind,
-            marked: false,
-            parent_upper: None,
-        }
-    }
-
     pub fn with_kind(mut self, kind: Formula) -> Self {
         self.kind = kind;
         self
@@ -66,7 +58,11 @@ impl NodeFormula {
 
 impl From<Formula> for NodeFormula {
     fn from(kind: Formula) -> Self {
-        Self::from(kind)
+        Self {
+            kind,
+            marked: false,
+            parent_upper: None,
+        }
     }
 }
 
@@ -160,7 +156,16 @@ impl Clone for Node {
 
 impl Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let formulas: Vec<Formula> = self.operands.iter().map(|nf| nf.kind.clone()).collect();
-        write!(f, "{} | {}", join_with(&formulas, ", "), self.current_time)
+        write!(f, "{} | {}", join_with(&self.operands, ", "), self.current_time)
+    }
+}
+
+impl Display for NodeFormula {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.marked {
+            write!(f, "O{}", self.kind)
+        } else {
+            write!(f, "{}", self.kind)
+        }
     }
 }

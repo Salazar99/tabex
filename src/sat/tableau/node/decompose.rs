@@ -303,7 +303,7 @@ impl Tableau {
                     | Formula::R { interval, .. }
                         if !formula.is_parent_active_at(current_time) =>
                     {
-                        Some(vec![interval.lower - 1, interval.lower, interval.upper])
+                        Some(vec![interval.lower, interval.upper])
                     }
                     _ => None,
                 }
@@ -317,16 +317,11 @@ impl Tableau {
 
         pub fn get_max_upper(formula: &Formula) -> Option<i32> {
             match &formula {
-                Formula::Not(inner) => get_max_upper(inner),
                 Formula::And(operands) | Formula::Or(operands) => {
                     operands.iter().map(get_max_upper).max().unwrap_or(None)
                 }
                 Formula::Imply { left, right, .. } => get_max_upper(left).max(get_max_upper(right)),
-                Formula::G { interval, .. }
-                | Formula::F { interval, .. }
-                | Formula::U { interval, .. }
-                | Formula::R { interval, .. } => Some(interval.upper),
-                _ => None,
+                _ => formula.upper_bound(),
             }
         }
 
@@ -355,7 +350,11 @@ impl Tableau {
                             },
                             _ => false,
                         }
-                });
+                })
+            || node.operands.iter().any(|f| {
+                matches!(f.kind, Formula::Prop(_) | Formula::Not(_))
+                    && (f.parent_upper == None || f.parent_upper == Some(node.current_time))
+            });
 
         // Select jump length
         let jump = if step {
@@ -373,10 +372,8 @@ impl Tableau {
         let new_operands: Vec<NodeFormula> = node
             .operands
             .iter()
-            .filter_map(|op| match &op.kind {
-                Formula::G { .. } | Formula::F { .. } | Formula::U { .. } | Formula::R { .. } => {
-                    retime_poised(op, node.current_time, jump)
-                }
+            .filter_map(|op| match &op.kind.get_interval() {
+                Some(_) => retime_poised(op, node.current_time, jump),
                 _ => None,
             })
             .collect();
@@ -436,7 +433,7 @@ impl Formula {
                 ),
             }
         }
-        let mut new_node = NodeFormula::from(inner(self, current_time));
+        let mut new_node: NodeFormula = inner(self, current_time).into();
         new_node.parent_upper = parent_interval.map(|int| int.upper);
         new_node
     }

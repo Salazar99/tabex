@@ -502,7 +502,7 @@ impl Formula {
 }
 
 #[must_use]
-pub fn join_with(v: &[Formula], sep: &str) -> String {
+pub fn join_with<T: Display>(v: &[T], sep: &str) -> String {
     let mut out = String::new();
     let mut iter = v.iter();
 

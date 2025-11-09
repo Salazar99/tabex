@@ -1,4 +1,4 @@
-use std::sync::atomic::AtomicUsize;
+use std::{fmt::Display, sync::atomic::AtomicUsize};
 
 use dot_graph::{Graph, Kind, Node as DotNode};
 
@@ -94,4 +94,20 @@ impl Node {
         }
         println!("{}", graph.to_dot_string().unwrap());
     }
+}
+
+#[must_use]
+pub fn join_with<T: Display>(v: &[T], sep: &str) -> String {
+    let mut out = String::new();
+    let mut iter = v.iter();
+
+    if let Some(first) = iter.next() {
+        out.push_str(&first.to_string());
+        for f in iter {
+            out.push_str(sep);
+            out.push_str(&f.to_string());
+        }
+    }
+
+    format!("({out})")
 }
