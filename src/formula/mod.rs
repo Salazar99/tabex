@@ -8,6 +8,7 @@ use num_rational::Ratio;
 use crate::formula::transform::{
     DupeFormula, NegationNormalFormTransformer, RecursiveFormulaTransformer,
 };
+use crate::util::join_with;
 
 pub mod parser;
 pub mod statistics;
@@ -499,22 +500,6 @@ impl Formula {
             _ => false,
         }
     }
-}
-
-#[must_use]
-pub fn join_with<T: Display>(v: &[T], sep: &str) -> String {
-    let mut out = String::new();
-    let mut iter = v.iter();
-
-    if let Some(first) = iter.next() {
-        out.push_str(&first.to_string());
-        for f in iter {
-            out.push_str(sep);
-            out.push_str(&f.to_string());
-        }
-    }
-
-    format!("({out})")
 }
 
 impl Display for AExpr {

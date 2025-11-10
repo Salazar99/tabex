@@ -691,7 +691,16 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
             return ShiftForwardTransformer(interval.lower).visit(&new_phi);
         }
 
-        // 5. rebuild
+        // 5. distributivity
+        if let Formula::And(ops) = &new_phi {
+            let mut new_operands: Vec<Formula> = Vec::new();
+            for op in ops {
+                new_operands.push(Formula::g(interval.clone(), op.clone()));
+            }
+            return Formula::and(new_operands);
+        }
+
+        // 6. rebuild
         formula.with_operand(new_phi)
     }
 

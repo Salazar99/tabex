@@ -1,9 +1,12 @@
-use crate::formula::{
-    Formula, join_with,
-    transform::{
-        FlatTransformer, FormulaSimplifier, MLTLTransformer, NegationNormalFormTransformer,
-        RecursiveFormulaTransformer, ShiftBoundsTransformer,
+use crate::{
+    formula::{
+        Formula,
+        transform::{
+            FlatTransformer, FormulaSimplifier, MLTLTransformer, NegationNormalFormTransformer,
+            RecursiveFormulaTransformer, ShiftBoundsTransformer,
+        },
     },
+    util::join_with,
 };
 use std::{
     fmt::{self, Display},
@@ -156,7 +159,12 @@ impl Clone for Node {
 
 impl Display for Node {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} | {}", join_with(&self.operands, ", "), self.current_time)
+        write!(
+            f,
+            "{} | {}",
+            join_with(&self.operands, ", "),
+            self.current_time
+        )
     }
 }
 

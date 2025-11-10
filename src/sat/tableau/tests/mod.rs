@@ -198,3 +198,19 @@ fn test_fgf() {
         Some(true)
     );
 }
+
+#[test]
+fn test_fgfg() {
+    assert_eq!(
+        make_test("F[0,25] G[0,30] a0 && (F[0,28] ! a0) && G[0, 1] a0", false),
+        Some(true)
+    );
+}
+
+#[test]
+fn test_step_r() {
+    assert_eq!(
+        make_test("(a R[0,10] b) && G[6,10] (!a && !b) && !a", false),
+        Some(true)
+    );
+}

@@ -118,6 +118,19 @@ fn test_globally() {
 }
 
 #[test]
+fn test_globally_end() {
+    let a = prop("a");
+    let expected: Node = Node::from_operands(vec![
+        NodeFormula::from(a.clone()).with_parent_upper(Some(0)),
+    ]);
+    make_test_decompose(
+        vec![Formula::g(Interval { lower: 0, upper: 0 }, a).into()],
+        vec![expected],
+        None,
+    );
+}
+
+#[test]
 fn test_finally() {
     let a = prop("a");
     let expected1: Node = Node::from_operands(vec![a.clone().into()]);

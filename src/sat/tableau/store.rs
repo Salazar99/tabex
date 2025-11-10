@@ -1,10 +1,7 @@
 use core::fmt;
 use std::{collections::HashSet, fmt::Display, hash::Hash};
 
-use crate::{
-    formula::{Formula, join_with},
-    sat::tableau::node::Node,
-};
+use crate::{formula::Formula, sat::tableau::node::Node, util::join_with};
 
 #[cfg(test)]
 mod tests;

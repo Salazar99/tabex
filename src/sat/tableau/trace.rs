@@ -4,10 +4,7 @@ use std::{
     fmt::Display,
 };
 
-use crate::{
-    formula::{Formula, join_with},
-    sat::tableau::node::Node,
-};
+use crate::{formula::Formula, sat::tableau::node::Node, util::join_with};
 
 pub struct TraceBuilder {
     nodes: VecDeque<(Vec<Formula>, i32)>,

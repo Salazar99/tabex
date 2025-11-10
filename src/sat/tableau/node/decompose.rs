@@ -92,7 +92,7 @@ impl Tableau {
                     if f.is_active_at(node.current_time) && !f.marked =>
                 {
                     changed = true;
-                    if f.is_active_at(node.current_time + 1) {
+                    if node.current_time < interval.upper {
                         vec![
                             f.clone().with_marked(true),
                             phi.temporal_expansion(node.current_time, Some(interval)),
@@ -296,14 +296,9 @@ impl Tableau {
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
             fn top_level_interval(formula: &NodeFormula, current_time: i32) -> Option<Vec<i32>> {
-                match &formula.kind {
-                    Formula::G { interval, .. }
-                    | Formula::F { interval, .. }
-                    | Formula::U { interval, .. }
-                    | Formula::R { interval, .. }
-                        if !formula.is_parent_active_at(current_time) =>
-                    {
-                        Some(vec![interval.lower, interval.upper])
+                match &formula.kind.get_interval() {
+                    Some(interval) if !formula.is_parent_active_at(current_time) => {
+                        Some(vec![interval.lower - 1, interval.lower, interval.upper])
                     }
                     _ => None,
                 }
@@ -353,7 +348,13 @@ impl Tableau {
                 })
             || node.operands.iter().any(|f| {
                 matches!(f.kind, Formula::Prop(_) | Formula::Not(_))
-                    && (f.parent_upper == None || f.parent_upper == Some(node.current_time))
+                    && !f.is_parent_active_at(node.current_time)
+                    && node.operands.iter().any(|f| {
+                        matches!(
+                            f.kind,
+                            Formula::F { .. } | Formula::U { .. } | Formula::R { .. }
+                        ) && f.is_active_at(node.current_time)
+                    })
             });
 
         // Select jump length
