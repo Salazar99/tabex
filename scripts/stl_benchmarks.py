@@ -32,7 +32,7 @@ def check_benchmark(bench_name, bench_file, stltree_path, timeout, iters):
     _, results['time_smt'], _, results['result_smt'] = iter_bench(bench_file, args_smt)
 
     # FOL encoding
-    args_fol = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stltree', stltree_path, '--fol'])
+    args_fol = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stlcc', '--fol'])
     _, results['time_fol'], _, results['result_fol'] = iter_bench(bench_file, args_fol)
 
     # Python tableau-based checking
