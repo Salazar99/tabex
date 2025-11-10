@@ -40,7 +40,7 @@ def check_benchmark(bench_name, bench_file, stltree_path, timeout, iters):
     _, results['time_python_tableau'], _, results['result_python_tableau'] = iter_bench(bench_file, args_python_tableau)
 
     # Rust tableau-based checking
-    args_rust_tableau = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stlcc', '--formula-simplifications'])
+    args_rust_tableau = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stlcc'])
     _, results['time_rust_tableau'], _, results['result_rust_tableau'] = iter_bench(bench_file, args_rust_tableau)
 
     return results
