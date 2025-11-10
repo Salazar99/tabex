@@ -346,16 +346,15 @@ impl Tableau {
                             _ => false,
                         }
                 })
-            || node.operands.iter().any(|f| {
+            || (node.operands.iter().any(|f| {
                 matches!(f.kind, Formula::Prop(_) | Formula::Not(_))
                     && !f.is_parent_active_at(node.current_time)
-                    && node.operands.iter().any(|f| {
-                        matches!(
-                            f.kind,
-                            Formula::F { .. } | Formula::U { .. } | Formula::R { .. }
-                        ) && f.is_active_at(node.current_time)
-                    })
-            });
+            }) && node.operands.iter().any(|f| {
+                matches!(
+                    f.kind,
+                    Formula::F { .. } | Formula::U { .. } | Formula::R { .. }
+                ) && f.marked
+            }));
 
         // Select jump length
         let jump = if step {
