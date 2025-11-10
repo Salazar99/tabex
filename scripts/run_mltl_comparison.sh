@@ -96,6 +96,6 @@ if [[ " ${tools[@]} " =~ " stltree " ]]; then
         exit 1
     fi
     for bench_set in "${bench_sets[@]}"; do
-        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stltree_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stltree "${stltree_path}" &> "${outdir}/stltree_${bench_set}.log"
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stltree_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stltree "${stltree_path}" --mltl &> "${outdir}/stltree_${bench_set}.log"
     done
 fi
