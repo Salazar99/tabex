@@ -89,14 +89,11 @@ impl Node {
 
     #[must_use]
     pub fn is_poised(&self) -> bool {
-        for formula in &self.operands {
-            match &formula.kind {
-                Formula::Prop(_) | Formula::Not(_) => continue,
-                _ if !formula.is_active_at(self.current_time) => continue,
-                _ => return false,
-            }
-        }
-        true
+        self.operands.iter().all(|f| {
+            matches!(f.kind, Formula::Prop(_) | Formula::Not(_))
+                || f.marked
+                || !f.is_active_at(self.current_time)
+        })
     }
 
     #[must_use]

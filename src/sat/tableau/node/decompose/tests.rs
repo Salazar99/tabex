@@ -241,6 +241,19 @@ fn test_release() {
 }
 
 #[test]
+fn test_release_end() {
+    let a = prop("a");
+    let b = prop("b");
+
+    let expected1: Node = Node::from_operands(vec![b.clone().into()]);
+    make_test_decompose(
+        vec![Formula::r(Interval { lower: 0, upper: 0 }, a.clone(), b.clone()).into()],
+        vec![expected1],
+        None,
+    );
+}
+
+#[test]
 fn test_jump_only_prop() {
     let a = prop("a");
     let b = prop("b");

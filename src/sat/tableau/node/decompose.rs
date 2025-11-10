@@ -259,19 +259,26 @@ impl Tableau {
             node.current_time
         );
 
-        // Node where R is satisfied (p and q)
-        let mut new_node1: Node = node.clone();
-        new_node1.operands[i] = left.temporal_expansion(node.current_time, None);
-        new_node1
-            .operands
-            .push(right.temporal_expansion(node.current_time, None));
+        if node.current_time < interval.upper {
+            // Node where R is satisfied (p and q)
+            let mut new_node1: Node = node.clone();
+            new_node1.operands[i] = left.temporal_expansion(node.current_time, None);
+            new_node1
+                .operands
+                .push(right.temporal_expansion(node.current_time, None));
 
-        // Node in which R is not satisfied (q, OR)
-        let mut new_node2 = node.clone();
-        new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
-        new_node2.operands.push(r_formula.clone().with_marked(true));
+            // Node in which R is not satisfied (q, OR)
+            let mut new_node2 = node.clone();
+            new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
+            new_node2.operands.push(r_formula.clone().with_marked(true));
 
-        vec![new_node1, new_node2]
+            vec![new_node1, new_node2]
+        } else {
+            // Node where R is satisfied, special case (q)
+            let mut new_node = node.clone();
+            new_node.operands[i] = right.temporal_expansion(node.current_time, None);
+            vec![new_node]
+        }
     }
 
     #[must_use]
