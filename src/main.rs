@@ -53,12 +53,12 @@ fn run_tableau(example: &str, options: GeneralOptions, tableau_options: TableauO
         println!("DURATION_SEC: {:.6}", duration.as_secs_f64());
     }
 
-    if tableau.tableau_options.graph_output
+    if let Some(filename) = &tableau.tableau_options.graph_output
         && let Some(graph) = &tableau.graph
         && let Ok(dot) = graph.to_dot_string()
     {
         println!("Node count: {NODE_ID:?}");
-        fs::write("resources/tmp/g.dot", &dot).expect("Unable to write file");
+        fs::write(filename, &dot).expect("Unable to write file");
     }
 
     if let Some(core) = &tableau.unsat_core

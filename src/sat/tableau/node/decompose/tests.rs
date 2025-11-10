@@ -21,7 +21,7 @@ fn tableau_data_gen(options: Option<TableauOptions>) -> Tableau {
         tops
     } else {
         TableauOptions {
-            graph_output: false,
+            graph_output: None,
             ..Default::default()
         }
     };
@@ -31,7 +31,7 @@ fn tableau_data_gen(options: Option<TableauOptions>) -> Tableau {
 fn decompose_jump_opt() -> TableauOptions {
     TableauOptions {
         jump_rule_enabled: true,
-        graph_output: false,
+        graph_output: None,
         simple_first: false,
         ..Default::default()
     }

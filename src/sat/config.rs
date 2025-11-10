@@ -15,7 +15,7 @@ pub struct GeneralOptions {
 #[derive(Clone, Debug)]
 pub struct TableauOptions {
     pub max_depth: usize,
-    pub graph_output: bool,
+    pub graph_output: Option<String>,
     pub memoization: bool,
     pub simple_first: bool,
     pub formula_optimizations: bool,
@@ -29,7 +29,7 @@ impl Default for TableauOptions {
     fn default() -> Self {
         TableauOptions {
             max_depth: 1000000,
-            graph_output: false,
+            graph_output: None,
             memoization: true,
             simple_first: true,
             formula_optimizations: true,
@@ -52,9 +52,9 @@ pub struct CliArgs {
     #[arg(long, default_value_t = TableauOptions::default().max_depth)]
     pub max_depth: usize,
 
-    /// Enable graph output
-    #[arg(long, default_value_t = TableauOptions::default().graph_output)]
-    pub graph_output: bool,
+    /// Output graph to file
+    #[arg(long)]
+    pub graph_output: Option<String>,
 
     /// Disable memoization
     #[arg(long = "no-memoization", action = clap::ArgAction::SetFalse)]

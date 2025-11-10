@@ -55,7 +55,7 @@ struct Frame {
 impl Tableau {
     #[must_use]
     pub fn new(options: GeneralOptions, tableau_options: TableauOptions) -> Self {
-        let graph = if tableau_options.graph_output {
+        let graph = if tableau_options.graph_output.is_some() {
             Some(Graph::new("Tableau", Kind::Graph))
         } else {
             None
