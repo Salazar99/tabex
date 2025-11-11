@@ -1,7 +1,9 @@
 use std::fs;
 use std::time::Instant;
 
-use stlsat::sat::config::{ConfigSource, ExecutionMode, GeneralOptions, TableauOptions, get_config};
+use stlsat::sat::config::{
+    ConfigSource, ExecutionMode, GeneralOptions, TableauOptions, get_config,
+};
 use stlsat::sat::smt::SmtSolver;
 use stlsat::sat::tableau::Tableau;
 use stlsat::sat::tableau::node::NODE_ID;

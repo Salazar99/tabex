@@ -48,53 +48,53 @@ pub struct CliArgs {
     /// Input formula file
     pub formula_file: String,
 
-    /// Maximum depth for tableau construction
-    #[arg(long, default_value_t = TableauOptions::default().max_depth)]
-    pub max_depth: usize,
-
-    /// Output graph to file
-    #[arg(long)]
-    pub graph_output: Option<String>,
-
-    /// Disable memoization
-    #[arg(long = "no-memoization", action = clap::ArgAction::SetFalse)]
-    pub memoization: bool,
-
-    /// Disable process simple formulas first
-    #[arg(long = "no-simple-first", action = clap::ArgAction::SetFalse)]
-    pub simple_first: bool,
-
-    /// Disable formula syntactic optimizations
-    #[arg(long = "no-formula-optimizations", action = clap::ArgAction::SetFalse)]
-    pub formula_optimizations: bool,
-
-    /// Disable jump rule
-    #[arg(long = "no-jump-rule", action = clap::ArgAction::SetFalse)]
-    pub jump_rule_enabled: bool,
-
-    /// Disable formula syntactic simplifications
-    #[arg(long = "no-formula-simplifications", action = clap::ArgAction::SetFalse)]
-    pub formula_simplifications: bool,
+    /// Enable FOL encoding
+    #[arg(long, default_value_t = false, help_heading = "General Options")]
+    pub fol: bool,
 
     /// Use MLTL semantics
-    #[arg(long, default_value_t = GeneralOptions::default().mltl)]
+    #[arg(long, default_value_t = GeneralOptions::default().mltl, help_heading = "General Options")]
     pub mltl: bool,
 
     /// Print result in smtlib format
-    #[arg(long, default_value_t = GeneralOptions::default().smtlib_result)]
+    #[arg(long, default_value_t = GeneralOptions::default().smtlib_result, help_heading = "General Options")]
     pub smtlib_result: bool,
 
     /// Enable unsat core extraction
-    #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction)]
+    #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction, help_heading = "Tableau Options")]
     pub unsat_core_extraction: bool,
 
     /// Enable trace extraction
-    #[arg(long, default_value_t = TableauOptions::default().trace_extraction)]
+    #[arg(long, default_value_t = TableauOptions::default().trace_extraction, help_heading = "Tableau Options")]
     pub trace_extraction: bool,
 
-    /// Enable FOL encoding
-    #[arg(long, default_value_t = false)]
-    pub fol: bool,
+    /// Output graph to file
+    #[arg(long, help_heading = "Tableau Options")]
+    pub graph_output: Option<String>,
+
+    /// Maximum depth for tableau construction
+    #[arg(long, default_value_t = TableauOptions::default().max_depth, help_heading = "Tableau Options")]
+    pub max_depth: usize,
+
+    /// Disable memoization
+    #[arg(long = "no-memoization", action = clap::ArgAction::SetFalse, help_heading = "Tableau Options")]
+    pub memoization: bool,
+
+    /// Disable process simple formulas first
+    #[arg(long = "no-simple-first", action = clap::ArgAction::SetFalse, help_heading = "Tableau Options")]
+    pub simple_first: bool,
+
+    /// Disable formula syntactic optimizations
+    #[arg(long = "no-formula-optimizations", action = clap::ArgAction::SetFalse, help_heading = "Tableau Options")]
+    pub formula_optimizations: bool,
+
+    /// Disable jump rule
+    #[arg(long = "no-jump-rule", action = clap::ArgAction::SetFalse, help_heading = "Tableau Options")]
+    pub jump_rule_enabled: bool,
+
+    /// Disable formula syntactic simplifications
+    #[arg(long = "no-formula-simplifications", action = clap::ArgAction::SetFalse, help_heading = "Tableau Options")]
+    pub formula_simplifications: bool,
 }
 
 pub enum ConfigSource {
