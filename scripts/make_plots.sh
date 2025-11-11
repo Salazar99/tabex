@@ -71,7 +71,7 @@ if [ "$logic" = "MLTL" ]; then
         datasets=("nasa-boeing" "random" "random0")
     fi
     tools="STLSat (par),STLSat (tableau),STLSat (FOL),STLTree (tableau),MLTLSAT (Z3 4.15.3)"
-    tool_names=("stlcc_parallel" "stlcc" "stlcc_fol" "stltree" "mltlsat")
+    tool_names=("stlsat_parallel" "stlsat" "stlsat_fol" "stltree" "mltlsat")
     prefix="mltl"
 elif [ "$logic" = "STL" ]; then
     if [ -z "$basedir" ]; then
@@ -81,7 +81,7 @@ elif [ "$logic" = "STL" ]; then
         datasets=("random" "random0")
     fi
     tools="STLSat (par),STLSat (tableau),STLSat (FOL),STLTree (tableau)"
-    tool_names=("stlcc_parallel" "stlcc" "stlcc_fol" "stltree")
+    tool_names=("stlsat_parallel" "stlsat" "stlsat_fol" "stltree")
     prefix="stl"
 fi
 
@@ -105,7 +105,7 @@ done
 
 # Generate scatter plots
 tools_scatter="STLSat (tableau),STLSat (FOL)"
-tool_names_scatter=("stlcc" "stlcc_fol")
+tool_names_scatter=("stlsat" "stlsat_fol")
 
 
 y_label=

@@ -14,7 +14,7 @@ max_mem=30720
 iters=5
 z3bin=z3
 bench_sets=("nasa-boeing" "random" "random0")
-tools=("stlcc" "stlcc_fol" "stlcc_parallel" "mltlsat" "stltree")
+tools=("stlsat" "stlsat_fol" "stlsat_parallel" "mltlsat" "stltree")
 outdir=./output_mltl
 
 while [[ $# -gt 0 ]]; do
@@ -66,21 +66,21 @@ ulimit -s unlimited
 
 set -x
 
-if [[ " ${tools[@]} " =~ " stlcc " ]]; then
+if [[ " ${tools[@]} " =~ " stlsat " ]]; then
     for bench_set in "${bench_sets[@]}"; do
-        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlcc --mltl &> "${outdir}/stlcc_${bench_set}.log"
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlsat_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlsat --mltl &> "${outdir}/stlsat_${bench_set}.log"
     done
 fi
 
-if [[ " ${tools[@]} " =~ " stlcc_fol " ]]; then
+if [[ " ${tools[@]} " =~ " stlsat_fol " ]]; then
     for bench_set in "${bench_sets[@]}"; do
-        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_fol_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlcc --mltl --fol &> "${outdir}/stlcc_fol_${bench_set}.log"
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlsat_fol_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlsat --mltl --fol &> "${outdir}/stlsat_fol_${bench_set}.log"
     done
 fi
 
-if [[ " ${tools[@]} " =~ " stlcc_parallel " ]]; then
+if [[ " ${tools[@]} " =~ " stlsat_parallel " ]]; then
     for bench_set in "${bench_sets[@]}"; do
-        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlcc_parallel_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlcc-parallel --mltl &> "${outdir}/stlcc_parallel_${bench_set}.log"
+        ./run_bench.py --timeout ${timeout} --max-mem ${max_mem} --jobs ${jobs} --iters ${iters} -vv --csv "${outdir}/stlsat_parallel_${bench_set}.csv" -b "${mltlsatdir}/" "${mltlsatdir}/benchmark_list/${bench_set}.list" stlsat-parallel --mltl &> "${outdir}/stlsat_parallel_${bench_set}.log"
     done
 fi
 

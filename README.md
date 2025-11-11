@@ -1,6 +1,6 @@
-# stlcc
+# stlsat
 
-A consistency checker for Signal Temporal Logic (STL) formulas.
+A satisfiability checker for Signal Temporal Logic (STL) formulas.
 
 ## Installation
 
@@ -9,24 +9,24 @@ A consistency checker for Signal Temporal Logic (STL) formulas.
 3. Install the executables:
 
 ```bash
-cargo install --git https://github.com/ZamponiMarco/stlcc.git
+cargo install --git https://github.com/ZamponiMarco/stlsat.git
 ```
 
-This installs three binaries: `stlcc` (main checker), `scanner` (scanner tool), and `rb` (random benchmark tool) to your Cargo bin directory (usually `~/.cargo/bin/`).
+This installs three binaries: `stlsat` (main checker), `scanner` (scanner tool), and `rb` (random benchmark tool) to your Cargo bin directory (usually `~/.cargo/bin/`).
 
 ## Running
 
-### stlcc
+### stlsat
 
 The main STL satisfiability checker. Takes a filename as an argument containing the STL formula to check for satisfiability.
 
 ```bash
-stlcc <filename>
+stlsat <filename>
 ```
 
-For example: `stlcc resources/formulas.stl`
+For example: `stlsat resources/formulas.stl`
 
-Run `stlcc --help` for available options.
+Run `stlsat --help` for available options.
 
 ### scanner
 
@@ -53,8 +53,8 @@ Run `rb --help` for available options.
 For development, clone the repository and use the [justfile](./justfile) for common tasks:
 
 ```bash
-git clone https://github.com/ZamponiMarco/stlcc.git
-cd stlcc
+git clone https://github.com/ZamponiMarco/stlsat.git
+cd stlsat
 just  # See available tasks
 ```
 
@@ -65,21 +65,21 @@ for example via `cargo install just`, run `just` to see the available tasks.
 
 ## Using as a Library
 
-You can use `stlcc` as a Rust library in your projects for STL formula processing and satisfiability checking.
+You can use `stlsat` as a Rust library in your projects for STL formula processing and satisfiability checking.
 
 Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-stlcc = { git = "https://github.com/ZamponiMarco/stlcc" }
+stlsat = { git = "https://github.com/ZamponiMarco/stlsat" }
 ```
 
 Then in your Rust code:
 
 ```rust
-use stlcc::formula;
-use stlcc::sat;
-use stlcc::util;
+use stlsat::formula;
+use stlsat::sat;
+use stlsat::util;
 ```
 
 For API details, refer to the source code.

@@ -21,24 +21,24 @@ if platform.system() == 'Darwin':
 else:
     time_bin = '/usr/bin/time'
 
-def get_stlcc_args(args):
-    stlcc_args = []
+def get_stlsat_args(args):
+    stlsat_args = []
     if args.mltl:
-        stlcc_args.append('--mltl')
+        stlsat_args.append('--mltl')
     if args.no_memoization:
-        stlcc_args.append('--no-memoization')
+        stlsat_args.append('--no-memoization')
     if args.no_simple_first:
-        stlcc_args.append('--no-simple-first')
+        stlsat_args.append('--no-simple-first')
     if args.no_formula_optimizations:
-        stlcc_args.append('--no-formula-optimizations')
+        stlsat_args.append('--no-formula-optimizations')
     if args.no_jump_rule:
-        stlcc_args.append('--no-jump-rule')
+        stlsat_args.append('--no-jump-rule')
     if args.no_formula_simplifications:
-        stlcc_args.append('--no-formula-simplifications')
-    if hasattr(args, 'fol') and args.fol:
-        stlcc_args.append('--fol')
+        stlsat_args.append('--no-formula-simplifications')
+    if args.fol:
+        stlsat_args.append('--fol')
 
-    return stlcc_args
+    return stlsat_args
 
 
 def get_stltree_args(args):
@@ -88,12 +88,12 @@ def caps_command(timeout, max_mem):
 
 def bench_command(fname, args):
     match args.engine:
-        case 'stlcc':
-            prog_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(), 'target/release/stlcc')
-            return [prog_path, '--smtlib-result'] + get_stlcc_args(args) + [fname]
-        case 'stlcc-parallel':
+        case 'stlsat':
+            prog_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(), 'target/release/stlsat')
+            return [prog_path, '--smtlib-result'] + get_stlsat_args(args) + [fname]
+        case 'stlsat-parallel':
             script_path = os.path.join(Path(os.path.dirname(__file__)).absolute(), 'parallel_sat.sh')
-            return ['bash', script_path, fname, '--smtlib-result'] + get_stlcc_args(args)
+            return ['bash', script_path, fname, '--smtlib-result'] + get_stlsat_args(args)
         case 'stltree':
             return ['python3', args.stltree_path, '--smtlib-result'] + get_stltree_args(args) + [fname]
         case 'smt-quant':
@@ -207,22 +207,22 @@ def make_arg_parser():
     argp.add_argument('benchmarks', type=str, help='File containing a list of banchmark files, one per line')
     subparsers = argp.add_subparsers(required=True, dest='engine')
 
-    stlcc_p = subparsers.add_parser('stlcc', help='Use the Rust implementation of the tree-shaped tableau (stlcc)')
-    stlcc_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
-    stlcc_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
-    stlcc_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
-    stlcc_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
-    stlcc_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
-    stlcc_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
-    stlcc_p.add_argument('--fol', action='store_true', help='Use FOL satisfiability checker instead of tree-based tableau.')
+    stlsat_p = subparsers.add_parser('stlsat', help='Use the Rust implementation of the tree-shaped tableau (stlsat)')
+    stlsat_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
+    stlsat_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
+    stlsat_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
+    stlsat_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
+    stlsat_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
+    stlsat_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
+    stlsat_p.add_argument('--fol', action='store_true', help='Use FOL satisfiability checker instead of tree-based tableau.')
 
-    stlcc_par_p = subparsers.add_parser('stlcc-parallel', help='Run stlcc with tableau and FOL encoding in parallel.')
-    stlcc_par_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
-    stlcc_par_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
-    stlcc_par_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
-    stlcc_par_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
-    stlcc_par_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
-    stlcc_par_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
+    stlsat_par_p = subparsers.add_parser('stlsat-parallel', help='Run stlsat with tableau and FOL encoding in parallel.')
+    stlsat_par_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
+    stlsat_par_p.add_argument('--no-memoization', action='store_true', help='Disable memoization of tableau nodes.')
+    stlsat_par_p.add_argument('--no-simple-first', action='store_true', help='Disable simple nodes optimization in tableau.')
+    stlsat_par_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
+    stlsat_par_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
+    stlsat_par_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
 
     stltree_p = subparsers.add_parser('stltree', help='Use the Python implementation of the tree-shaped tableau (stltree)')
     stltree_p.add_argument('stltree_path', type=str)

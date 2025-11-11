@@ -1,15 +1,15 @@
 [package]
-name = "stlcc"
+name = "stlsat"
 version = "0.1.0"
 edition = "2024"
-default-run = "stlcc"
+default-run = "stlsat"
 
 [lib]
-name = "stlcc"
+name = "stlsat"
 path = "src/lib.rs"
 
 [[bin]]
-name = "stlcc"
+name = "stlsat"
 path = "src/main.rs"
 
 [[bin]]

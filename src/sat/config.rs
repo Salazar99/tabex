@@ -42,8 +42,8 @@ impl Default for TableauOptions {
 }
 
 #[derive(Parser)]
-#[command(name = "stlcc")]
-#[command(about = "STLCC - Signal Temporal Logic Consistency Checker")]
+#[command(name = "stlsat")]
+#[command(about = "STLSAT - Signal Temporal Logic Satisfiability Checker")]
 pub struct CliArgs {
     /// Input formula file
     pub formula_file: String,

@@ -2,9 +2,9 @@ use std::fs;
 use std::path::Path;
 
 use clap::Parser;
-use stlcc::formula::Formula;
-use stlcc::formula::parser::parse_formula;
-use stlcc::sat::tableau::node::Node;
+use stlsat::formula::Formula;
+use stlsat::formula::parser::parse_formula;
+use stlsat::sat::tableau::node::Node;
 
 const MLTL: bool = false;
 //const SIMPLIFICATIONS: bool = true;

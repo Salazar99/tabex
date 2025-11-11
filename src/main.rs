@@ -1,11 +1,11 @@
 use std::fs;
 use std::time::Instant;
 
-use stlcc::sat::config::{ConfigSource, ExecutionMode, GeneralOptions, TableauOptions, get_config};
-use stlcc::sat::smt::SmtSolver;
-use stlcc::sat::tableau::Tableau;
-use stlcc::sat::tableau::node::NODE_ID;
-use stlcc::util::join_with;
+use stlsat::sat::config::{ConfigSource, ExecutionMode, GeneralOptions, TableauOptions, get_config};
+use stlsat::sat::smt::SmtSolver;
+use stlsat::sat::tableau::Tableau;
+use stlsat::sat::tableau::node::NODE_ID;
+use stlsat::util::join_with;
 
 fn main() {
     let (mode, options, tableau_options, filename) = get_config(ConfigSource::Cli);

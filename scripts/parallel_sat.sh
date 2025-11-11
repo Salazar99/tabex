@@ -1,12 +1,12 @@
 #!/bin/bash
-set -euo pipefail
+set -eu
 
-INPUT="$1"
+INPUT=$1
 shift
+
 EXTRA_ARGS=("$@")
+STLSAT="../target/release/stlsat"
 
-STLCC="../target/release/stlcc"
-
-parallel --halt now,success=1 ::: \
-  "$STLCC ${EXTRA_ARGS[*]} $INPUT" \
-  "$STLCC --fol ${EXTRA_ARGS[*]} $INPUT"
+parallel --tag --lb --halt now,success=1 -- \
+  "$STLSAT ${EXTRA_ARGS[*]} $INPUT" \
+  "$STLSAT --fol ${EXTRA_ARGS[*]} $INPUT"

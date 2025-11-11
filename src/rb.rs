@@ -3,7 +3,7 @@ use std::sync::Arc;
 use clap::Parser;
 use num_rational::Ratio;
 use rand::{Rng, seq::IndexedRandom, seq::SliceRandom};
-use stlcc::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, Interval, RelOp, VariableName};
+use stlsat::formula::{AExpr, ArithOp, Expr, ExprKind, Formula, Interval, RelOp, VariableName};
 
 #[derive(Parser, Debug)]
 pub struct GeneratorArgs {
