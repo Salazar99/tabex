@@ -21,7 +21,7 @@ logic="$1"
 shift
 if [ "$logic" != "MLTL" ] && [ "$logic" != "STL" ]; then
     echo "Error: first argument must be either MLTL or STL"
-    echo "Usage: $0 {MLTL|STL} [--timeout N] [--bench-sets \"SET1 SET2 ...\"] [--base-dir DIR]"
+    echo "Usage: $0 {MLTL|STL} [--timeout N] [--bench-sets \"SET1 SET2 ...\"] [--base-dir DIR] [--output-dir DIR] [--adjacent-plots]"
     exit 1
 fi
 
@@ -29,6 +29,8 @@ fi
 basedir=""
 timeout=120
 datasets=()
+outdir="../resources/results/plots"
+adjacent_plots=false
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -44,6 +46,14 @@ while [[ $# -gt 0 ]]; do
         --base-dir)
             basedir="$2"
             shift 2
+            ;;
+        --output-dir)
+            outdir="$2"
+            shift 2
+            ;;
+        --adjacent-plots)
+            adjacent_plots=true
+            shift
             ;;
         *)
             echo "Unknown argument: $1"
@@ -75,11 +85,21 @@ elif [ "$logic" = "STL" ]; then
     prefix="stl"
 fi
 
+if [ ! -d "${outdir}" ]; then
+    mkdir -p "${outdir}"
+fi
+
 set -x
 
 # Generate main plots
+y_label=
+plot_no=0
 for dataset in "${datasets[@]}"; do
-    python3 plot.py "${tools}" "$(make_tools_csvs "${basedir}" "${dataset}" "${tool_names[@]}")" ${timeout} --markers-survival -o "${prefix}_${dataset}"
+    if ((plot_no > 0)) && [ "$adjacent_plots" = true ]; then
+        y_label="--no-y-label"
+    fi
+    ((plot_no++))
+    python3 plot.py "${tools}" "$(make_tools_csvs "${basedir}" "${dataset}" "${tool_names[@]}")" ${timeout} --survival --markers-survival ${y_label} -o "${outdir}/${prefix}_${dataset}"
 done
 
 
@@ -87,6 +107,13 @@ done
 tools_scatter="STLSat (tableau),STLSat (FOL)"
 tool_names_scatter=("stlcc" "stlcc_fol")
 
+
+y_label=
+plot_no=0
 for dataset in "${datasets[@]}"; do
-    python3 plot.py "${tools_scatter}" "$(make_tools_csvs "${basedir}" "${dataset}" "${tool_names_scatter[@]}")" ${timeout} --scatter -o "${prefix}_${dataset}"
+    if ((plot_no > 0)) && [ "$adjacent_plots" = true ]; then
+        y_label="--no-y-label"
+    fi
+    ((plot_no++))
+    python3 plot.py "${tools_scatter}" "$(make_tools_csvs "${basedir}" "${dataset}" "${tool_names_scatter[@]}")" ${timeout} --scatter ${y_label} -o "${outdir}/${prefix}_${dataset}"
 done

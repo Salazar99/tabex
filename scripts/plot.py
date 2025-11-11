@@ -56,6 +56,56 @@ def make_survival_line(tool, data, markers):
         line=dict(shape='linear',width=2,simplify=True)
     ) 
 
+def make_survival_plot(tools, data, output, markers, no_y_label, log_scale, no_legend):
+    # Create the Plotly object for Figure
+    fig = go.Figure()
+
+    for tool in tools:
+        line = make_survival_line(tool, data[tool], markers)
+        fig.add_trace(line)
+
+    # set the labels
+    fig.update_layout(
+        font_family="Linux Libertine Display O,serif",
+        #font_size=12,
+        xaxis_title="Time (s)",
+        yaxis_title=None if no_y_label else "Number of benchmarks solved",
+        margin=dict(l=0, r=0, t=0, b=0),
+        plot_bgcolor='white',      # No background color
+        paper_bgcolor='white',     # No outer background
+        xaxis=dict(
+            type='log' if log_scale else 'linear',
+            showgrid=True,
+            gridcolor='lightgrey',  # Grey grid lines
+            # showline=True,             # Draw x=0 axis
+            # linecolor='black',     # Axis color
+            # linewidth=1
+            # mirror=True
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='lightgrey',  # Grey grid lines
+            showline=True,             # Draw x=0 axis
+            linecolor='black',     # Axis color
+            linewidth=1,
+            mirror=True,
+            zeroline=True,
+            zerolinecolor='black',  # Color of the zero line
+            zerolinewidth=1,         # Width of the zero line
+        ),
+        showlegend=not no_legend,
+        legend=dict(
+            yanchor="bottom",
+            y=0.08,
+            xanchor="right",
+            x=0.99,
+            # font=dict(size=8),
+        )
+    )
+
+    fig.write_image(output+".survival.pdf", format='pdf', width=350, height=350)
+
+
 def plot_identity_line(fig, end):
     idline = [0, end+.01]
     fig.add_trace(go.Scatter(
@@ -152,21 +202,20 @@ def make_scatter_plot(data, output, timeout, no_y_label):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('tools',
-                        default='_error_',
                         help='Comma-separated tool names.')
     parser.add_argument('tool_csvs',
-                        default='_error_',
                         help='List of comma-separated CSV files containing tool data.')
     parser.add_argument('timeout', type=int,
-                        default=-1,
                         help='Time value for the timeout.')
     parser.add_argument('-o', '--output', dest='output', 
                         default='output',
                         help='Name of the output file')
+    parser.add_argument('--survival', action='store_true',
+                        help='Create a survival plot (default).')
+    parser.add_argument('--scatter', action='store_true',
+                        help='Create a scatter plot.')
     parser.add_argument('--no-legend', action='store_true',
                         help='Do not show the legend in the plot.')
-    parser.add_argument('--scatter', action='store_true',
-                        help='Also create a scatter plot.')
     parser.add_argument('--log-survival', action='store_true',
                         help='Use a log scale for the time axis in survival plots.')
     parser.add_argument('--markers-survival', action='store_true',
@@ -175,13 +224,9 @@ if __name__ == "__main__":
                         help='Do not show the y axis label.')
     args = parser.parse_args()
     
-    if args.tools == '_error_':
-        sys.exit('Please specify the tool names.')
-    if args.tool_csvs == '_error_':
-        sys.exit('Please specify paths to the CSV files.')
     if args.timeout < 0:
         sys.exit('Please specify a positive timeout value.')
-
+    
     tools = args.tools.strip().split(",")
     tool_csvs = args.tool_csvs.strip().split(",")
     if len(tools) != len(tool_csvs):
@@ -189,56 +234,10 @@ if __name__ == "__main__":
 
     data = read_csv_files(tools, tool_csvs, args.timeout)
 
-    # Create the Plotly object for Figure
-    fig = go.Figure()
-
-    for tool in tools:
-        line = make_survival_line(tool, data[tool], args.markers_survival)
-        fig.add_trace(line)
-
-    # set the labels
-    fig.update_layout(
-        font_family="Linux Libertine Display O,serif",
-        #font_size=12,
-        xaxis_title="Time (s)",
-        yaxis_title=None if args.no_y_label else "Number of benchmarks solved",
-        margin=dict(l=0, r=0, t=0, b=0),
-        plot_bgcolor='white',      # No background color
-        paper_bgcolor='white',     # No outer background
-        xaxis=dict(
-            type='log' if args.log_survival else 'linear',
-            showgrid=True,
-            gridcolor='lightgrey',  # Grey grid lines
-            # showline=True,             # Draw x=0 axis
-            # linecolor='black',     # Axis color
-            # linewidth=1
-            # mirror=True
-        ),
-        yaxis=dict(
-            showgrid=True,
-            gridcolor='lightgrey',  # Grey grid lines
-            showline=True,             # Draw x=0 axis
-            linecolor='black',     # Axis color
-            linewidth=1,
-            mirror=True,
-            zeroline=True,
-            zerolinecolor='black',  # Color of the zero line
-            zerolinewidth=1,         # Width of the zero line
-        ),
-        showlegend=not args.no_legend,
-        legend=dict(
-            yanchor="bottom",
-            y=0.08,
-            xanchor="right",
-            x=0.99,
-            # font=dict(size=8),
-        )
-    )
-
-    fig.write_image(args.output+".survival.pdf", format='pdf', width=350, height=350)
-
     if args.scatter:
         if len(tools) == 2:
             make_scatter_plot(data, args.output, args.timeout, args.no_y_label)
         else:
-            print("Scatter plot is only available for two tools.")
+            print("Scatter plot is only available for exactly two tools.")
+    else:
+        make_survival_plot(tools, data, args.output, args.markers_survival, args.no_y_label, args.log_survival, args.no_legend)
