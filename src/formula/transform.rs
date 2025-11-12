@@ -1,6 +1,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::formula::{Expr, ExprKind, Formula, Interval};
+use crate::{
+    formula::{Expr, ExprKind, Formula, Interval},
+    sat::tableau::solver::Solver,
+};
 
 #[cfg(test)]
 mod tests;
@@ -487,12 +490,9 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         });
 
         // 4. contradiction: A && !A = false
-        for u in &unique {
-            if let Formula::Not(inner) = u
-                && unique.iter().any(|x| x.eq_structural(inner))
-            {
-                return Formula::prop(Expr::false_expr());
-            }
+        let mut solver = Solver::new(false, false);
+        if !solver.quick_sat(&unique) {
+            return Formula::prop(Expr::false_expr());
         }
 
         // 5. simplify interaction with disjunctive structures

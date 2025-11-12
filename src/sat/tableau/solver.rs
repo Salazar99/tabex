@@ -81,7 +81,12 @@ impl Solver {
         }
     }
 
-    fn add_constraints(&mut self, node: &Node) {
+    pub fn check(&mut self, node: &Node) -> bool {
+        let formulas: Vec<Formula> = node.operands.iter().map(|f| f.kind.clone()).collect();
+        self.quick_sat(&formulas)
+    }
+
+    pub fn quick_sat(&mut self, formulas: &[Formula]) -> bool {
         fn get_assertion(formula: &Formula) -> Option<Assertion> {
             match &formula {
                 Formula::Prop(expr) => Some(Assertion {
@@ -96,30 +101,9 @@ impl Solver {
                 _ => None,
             }
         }
-        node.operands
-            .iter()
-            .map(|f| &f.kind)
-            .filter_map(get_assertion)
-            .for_each(|ass| match &ass.expr {
-                ExprKind::Atom(var) => {
-                    self.boolean_solver.add_constraint(ass.negated, var, ass.id);
-                }
-                ExprKind::Rel { left, right, op } => {
-                    self.real_solver.as_mut().unwrap().add_constraint(
-                        ass.negated,
-                        op.clone(),
-                        left.clone(),
-                        right.clone(),
-                        ass.id,
-                    );
-                }
-                _ => {}
-            });
-    }
 
-    pub fn check(&mut self, node: &Node) -> bool {
-        for f in &node.operands {
-            match &f.kind {
+        for f in formulas {
+            match &f {
                 Formula::Prop(expr) if matches!(expr.kind, ExprKind::False) => {
                     if self.unsat_core_extraction {
                         self.boolean_solver.unsat_core = Some(vec![expr.id]);
@@ -139,7 +123,27 @@ impl Solver {
                 _ => {}
             }
         }
-        self.add_constraints(node);
+
+        for f in formulas.iter() {
+            if let Some(ass) = get_assertion(f) {
+                match &ass.expr {
+                    ExprKind::Atom(var) => {
+                        self.boolean_solver.add_constraint(ass.negated, var, ass.id);
+                    }
+                    ExprKind::Rel { left, right, op } => {
+                        self.real_solver.as_mut().unwrap().add_constraint(
+                            ass.negated,
+                            op.clone(),
+                            left.clone(),
+                            right.clone(),
+                            ass.id,
+                        );
+                    }
+                    _ => {}
+                }
+            }
+        }
+
         let bool_ok = self.boolean_solver.check();
         let real_ok = self.real_solver.as_mut().is_none_or(RealSolver::check);
 

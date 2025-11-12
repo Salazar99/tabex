@@ -1,7 +1,7 @@
 use crate::formula::{
     Expr, Formula, Interval,
     transform::{
-        FlatTransformer, MLTLTransformer, NegationNormalFormTransformer,
+        FlatTransformer, FormulaSimplifier, MLTLTransformer, NegationNormalFormTransformer,
         RecursiveFormulaTransformer, ShiftBoundsTransformer,
     },
 };
@@ -25,6 +25,10 @@ fn make_test_flatten(input: Formula) -> Formula {
 
 fn make_test_rewrite_mltl(input: Formula) -> Formula {
     MLTLTransformer.visit(&input)
+}
+
+fn make_test_simplify(input: Formula) -> Formula {
+    FormulaSimplifier.visit(&input)
 }
 
 mod push_negation_tests {
@@ -551,5 +555,31 @@ mod mltl_rewrite_tests {
         ]);
         let res = make_test_rewrite_mltl(input_formula);
         assert_eq!(res, result_formula);
+    }
+}
+
+mod simplify_tests {
+    use crate::formula::AExpr;
+
+    use super::*;
+
+    #[test]
+    fn simplify_and_redundant() {
+        let a = prop("a");
+        let b = prop("b");
+        let input_formula = Formula::and(vec![a.clone(), b.clone(), a.clone()]);
+        let result_formula = Formula::and(vec![a, b]);
+        let res = make_test_simplify(input_formula);
+        assert_eq!(res, result_formula);
+    }
+
+    #[test]
+    fn contradiction_and() {
+        let a = Formula::prop(Expr::real(crate::formula::RelOp::Ge, AExpr::Var(Arc::from("x")), AExpr::Num(2.into())));
+        let b = Formula::prop(Expr::real(crate::formula::RelOp::Le, AExpr::Var(Arc::from("x")), AExpr::Num(1.into())));
+        let input_formula = Formula::and(vec![a, b]);
+        let result_formula = Formula::prop(Expr::false_expr());
+        let res = make_test_simplify(input_formula);
+        assert!(res.eq_structural(&result_formula));
     }
 }
