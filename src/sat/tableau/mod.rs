@@ -1,16 +1,17 @@
-use std::cell::RefCell;
-use std::collections::VecDeque;
-use std::rc::Rc;
-
 use dot_graph::{Graph, Kind};
 
-use crate::formula::parser::parse_formula;
-use crate::sat::config::{GeneralOptions, TableauOptions};
-use crate::sat::tableau::core::UnsatCore;
-use crate::sat::tableau::node::{Node, NodeFormula};
-use crate::sat::tableau::solver::Solver;
-use crate::sat::tableau::store::Store;
-use crate::sat::tableau::trace::{Trace, TraceBuilder};
+use crate::{
+    formula::parser::parse_formula,
+    sat::{
+        config::{GeneralOptions, TableauOptions},
+        tableau::{
+            core::UnsatCore,
+            node::{Node, NodeFormula},
+            solver::Solver,
+            store::{RejectedNode, Store},
+        },
+    },
+};
 
 #[cfg(test)]
 mod tests;
@@ -20,7 +21,6 @@ pub mod graph;
 pub mod node;
 pub mod solver;
 pub mod store;
-pub mod trace;
 
 pub struct Tableau {
     pub options: GeneralOptions,
@@ -28,28 +28,6 @@ pub struct Tableau {
     pub graph: Option<Graph>,
     pub store: Option<Store>,
     pub unsat_core: Option<UnsatCore>,
-    trace_builder: Option<TraceBuilder>,
-    pub trace: Option<Trace>,
-}
-
-#[derive(Clone, Copy)]
-enum JobState {
-    Sat,
-    Unsat,
-    Undefined,
-}
-
-enum JobOutcome {
-    Decomposed(Frame),
-    Final(JobState),
-}
-
-struct Frame {
-    node: Node,
-    children: VecDeque<Node>,
-    depth: usize,
-    solver: Rc<RefCell<Solver>>,
-    result: Option<JobState>,
 }
 
 impl Tableau {
@@ -70,20 +48,46 @@ impl Tableau {
         } else {
             None
         };
-        let trace = if tableau_options.trace_extraction {
-            Some(TraceBuilder::new())
-        } else {
-            None
-        };
         Tableau {
             options,
             tableau_options,
             graph,
             store,
             unsat_core,
-            trace_builder: trace,
-            trace: None,
         }
+    }
+
+    pub fn make_tableau_from_root(&mut self, mut root: Node) -> Option<bool> {
+        // Normalization Stage
+        root.negative_normal_form_rewrite();
+
+        if !self.options.mltl {
+            root.mltl_rewrite();
+        }
+
+        // Formula Optimization Stage
+        if self.tableau_options.formula_simplifications {
+            root.simplify();
+        }
+
+        root.flatten();
+
+        if self.tableau_options.formula_optimizations {
+            root.shift_bounds();
+        }
+
+        // Id Assignment Stage
+        if let Some(core) = &mut self.unsat_core {
+            core.initialize_root_node(&root);
+        }
+
+        // Solving Stage
+        self.add_graph_node(&root);
+        let mut local_solver = Solver::new(
+            self.tableau_options.unsat_core_extraction,
+            self.options.mltl,
+        );
+        self.add_children(root, &mut local_solver, 0)
     }
 
     pub fn make_tableau_from_str(&mut self, formula: &str) -> Option<bool> {
@@ -108,232 +112,89 @@ impl Tableau {
         self.make_tableau_from_root(root)
     }
 
-    pub fn make_tableau_from_root(&mut self, mut root: Node) -> Option<bool> {
-        self.normalize_root(&mut root);
-        self.initialize_root(&root);
-        self.solve_root(root)
-    }
-
-    fn normalize_root(&self, root: &mut Node) {
-        root.negative_normal_form_rewrite();
-
-        if !self.options.mltl {
-            root.mltl_rewrite();
-        }
-
-        if self.tableau_options.formula_simplifications {
-            root.simplify();
-        }
-
-        root.flatten();
-
-        if self.tableau_options.formula_optimizations {
-            root.shift_bounds();
-        }
-    }
-
-    fn initialize_root(&mut self, root: &Node) {
-        if let Some(core) = &mut self.unsat_core {
-            core.initialize_root_node(root);
-        }
-        self.add_graph_node(root);
-    }
-
-    fn solve_root(&mut self, root: Node) -> Option<bool> {
-        let mut solver = Solver::new(
-            self.tableau_options.unsat_core_extraction,
-            self.options.mltl,
-        );
-        solver.push();
-
-        if !solver.check(&root) {
-            return Some(false);
-        }
-
-        let Some(children) = self.decompose(&root) else {
-            return Some(true);
-        };
-        self.add_graph_children(&root, &children);
-
-        self.tableau_loop(root, children, solver)
-    }
-
-    fn tableau_loop(&mut self, root: Node, children: Vec<Node>, solver: Solver) -> Option<bool> {
-        fn merge_results(
-            previous: Option<JobState>,
-            current: JobState,
-            implies: bool,
-        ) -> Option<JobState> {
-            match (previous, current) {
-                (prev, JobState::Sat) => {
-                    if implies {
-                        prev
-                    } else {
-                        Some(JobState::Sat)
-                    }
-                }
-
-                (Some(JobState::Sat), JobState::Undefined) => Some(JobState::Sat),
-                (_, JobState::Undefined) => Some(JobState::Undefined),
-
-                (Some(JobState::Sat), JobState::Unsat) => Some(JobState::Sat),
-                (Some(JobState::Undefined), JobState::Unsat) => Some(JobState::Undefined),
-                (_, JobState::Unsat) => Some(JobState::Unsat),
-            }
-        }
-
-        let mut stack = VecDeque::new();
-        stack.push_front(Frame {
-            node: root,
-            children: children.into(),
-            depth: 0,
-            solver: Rc::new(RefCell::new(solver)),
-            result: None,
-        });
-
-        while let Some(mut job) = stack.pop_front() {
-            // Case 1: no more children — finalize frame
-            let Some(child) = job.children.pop_front() else {
-                // Case 1.1: no parent — done
-                let Some(parent) = stack.front_mut() else {
-                    return match job.result {
-                        Some(JobState::Sat) => {
-                            if let Some(trace) = &mut self.trace_builder
-                                && job.node.is_poised()
-                            {
-                                trace.add_node(&job.node);
-                            }
-                            if let Some(trace) = self.trace_builder.take() {
-                                self.trace = Some(trace.freeze());
-                            }
-                            Some(true)
-                        }
-                        Some(JobState::Unsat) => Some(false),
-                        Some(JobState::Undefined) => None,
-                        None => panic!(),
-                    };
-                };
-
-                // Case 1.2: has parent — propagate result
-                parent.solver.borrow_mut().pop();
-                let res = job.result.expect("Job result should be set");
-                let implies = job.node.implies.is_some();
-                parent.result = merge_results(parent.result, res, implies);
-
-                match res {
-                    JobState::Sat => {
-                        if implies {
-                            if let Some(trace) = &mut self.trace_builder {
-                                trace.reset();
-                            }
-                        } else {
-                            parent.children.clear();
-                            if let Some(trace) = &mut self.trace_builder
-                                && job.node.is_poised()
-                            {
-                                trace.add_node(&job.node);
-                            }
-                        }
-                    }
-                    JobState::Unsat => {
-                        if implies {
-                            parent.children.clear();
-                        }
-                        if parent.node.current_time < job.node.current_time
-                            && let Some(store) = &mut self.store
-                        {
-                            store.add_rejected(job.node.into());
-                        }
-                    }
-                    _ => {}
-                }
-                continue;
-            };
-
-            // Case 2: still has children — process next child
-            job.solver.borrow_mut().push();
-            let implies = child.implies.is_some();
-            let outcome =
-                self.process_job(child, job.node.current_time, &mut job.solver, job.depth);
-
-            match outcome {
-                // Case 2.1: child has result — handle and re-push job
-                JobOutcome::Final(res) => {
-                    match res {
-                        JobState::Sat if !implies => {
-                            job.children.clear();
-                            job.result = Some(JobState::Sat);
-                        }
-                        JobState::Undefined => job.result = Some(JobState::Undefined),
-                        JobState::Unsat => {
-                            job.result = Some(JobState::Unsat);
-                            if job.node.implies.is_some() {
-                                job.children.clear();
-                            }
-                        }
-                        _ => {}
-                    }
-                    job.solver.borrow_mut().pop();
-                    stack.push_front(job);
-                }
-                // Case 2.2: child needs decomposition — push both jobs in order
-                JobOutcome::Decomposed(new_job) => {
-                    stack.push_front(job);
-                    stack.push_front(new_job);
-                }
-            }
-        }
-        panic!("Tableau loop exited unexpectedly");
-    }
-
-    fn process_job(
+    fn add_children(
         &mut self,
         node: Node,
-        parent_time: i32,
-        solver: &mut Rc<RefCell<Solver>>,
+        local_solver: &mut Solver,
         depth: usize,
-    ) -> JobOutcome {
+    ) -> Option<bool> {
         if depth >= self.tableau_options.max_depth {
-            return JobOutcome::Final(JobState::Undefined);
+            return None;
         }
 
-        if !solver.borrow_mut().check(&node) {
-            if let Some(core) = &mut self.unsat_core
-                && let Some(new_core) = solver.borrow_mut().extract_unsat_core()
-            {
-                core.add_to_unsat_core(new_core);
+        local_solver.push();
+        let result: Option<bool> = if !local_solver.check(&node) {
+            if let Some(core) = &mut self.unsat_core {
+                if let Some(new_core) = local_solver.extract_unsat_core() {
+                    core.add_to_unsat_core(new_core);
+                }
             }
-            return JobOutcome::Final(JobState::Unsat);
-        }
-
-        if let Some(store) = &mut self.store
-            && parent_time < node.current_time
-        {
-            let rejected_node = node.clone().into();
-            if store.check_rejected(&rejected_node) {
-                return JobOutcome::Final(JobState::Unsat);
-            }
-        }
-
-        let Some(children) = self.decompose(&node) else {
-            return JobOutcome::Final(JobState::Sat);
-        };
-
-        self.add_graph_children(&node, &children);
-
-        let solver_ref = if parent_time < node.current_time {
-            Rc::new(RefCell::new(solver.borrow().empty_solver()))
+            Some(false)
         } else {
-            solver.clone()
+            let new_nodes = self.decompose(&node);
+            if new_nodes.is_none() {
+                return Some(true);
+            } else {
+                self.process_children(new_nodes.unwrap(), node, local_solver, depth)
+            }
         };
+        local_solver.pop();
+        result
+    }
 
-        let job = Frame {
-            node,
-            children: children.into(),
-            depth: depth + 1,
-            solver: solver_ref,
-            result: None,
-        };
-        JobOutcome::Decomposed(job)
+    fn process_children(
+        &mut self,
+        children: Vec<Node>,
+        node: Node,
+        local_solver: &mut Solver,
+        depth: usize,
+    ) -> Option<bool> {
+        for child in children.iter() {
+            self.add_graph_node(&child);
+            self.add_graph_edge(&node, &child);
+        }
+
+        let mut depth_reached = false;
+        for child in children {
+            let implies_siblings = child.implies.is_some();
+            let child_time = child.current_time;
+            let rejected_node = RejectedNode::from_node(&child);
+
+            let result = if child.current_time == node.current_time {
+                self.add_children(child, local_solver, depth + 1)
+            } else {
+                if let Some(store) = &self.store
+                    && store.check_rejected(&rejected_node)
+                {
+                    Some(false)
+                } else {
+                    self.add_children(child, &mut local_solver.empty_solver(), depth + 1)
+                }
+            };
+
+            match result {
+                Some(true) => {
+                    if !implies_siblings {
+                        return Some(true);
+                    }
+                }
+                Some(false) => {
+                    if child_time > node.current_time
+                        && let Some(store) = &mut self.store
+                    {
+                        store.add_rejected(rejected_node)
+                    }
+                    if implies_siblings {
+                        return Some(false);
+                    }
+                }
+                None => depth_reached = true,
+            }
+        }
+
+        if depth_reached {
+            return None;
+        }
+        return Some(false);
     }
 }

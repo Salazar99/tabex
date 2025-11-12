@@ -26,11 +26,4 @@ impl Tableau {
             graph.add_edge(edge);
         }
     }
-
-    pub(crate) fn add_graph_children(&mut self, parent: &Node, children: &[Node]) {
-        for child in children {
-            self.add_graph_node(child);
-            self.add_graph_edge(parent, child);
-        }
-    }
 }

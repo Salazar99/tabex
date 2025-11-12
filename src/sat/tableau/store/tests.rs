@@ -4,7 +4,7 @@ use crate::{
     formula::{Expr, Formula, Interval},
     sat::tableau::{
         node::{Node, NodeFormula},
-        store::Store,
+        store::{RejectedNode, Store},
     },
 };
 
@@ -23,12 +23,12 @@ fn make_check_rejected_test(
         let mut node = Node::from_operands(content);
         node.flatten();
         node.current_time = store_time;
-        store.add_rejected(node.into());
+        store.add_rejected(RejectedNode::from_node(&node));
     }
     let mut test_node = Node::from_operands(test_node);
     test_node.flatten();
     test_node.current_time = test_time;
-    store.check_rejected(&test_node.into())
+    store.check_rejected(&RejectedNode::from_node(&test_node))
 }
 
 #[test]
