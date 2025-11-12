@@ -1,7 +1,8 @@
 use crate::formula::{
     Expr, Formula, Interval,
     transform::{
-        FlatTransformer, MLTLTransformer, NegationNormalFormTransformer, RecursiveFormulaTransformer, ShiftBoundsTransformer
+        FlatTransformer, MLTLTransformer, NegationNormalFormTransformer,
+        RecursiveFormulaTransformer, ShiftBoundsTransformer,
     },
 };
 use std::sync::Arc;
@@ -522,19 +523,9 @@ mod mltl_rewrite_tests {
     fn mltl_rewrite_until() {
         let a = prop("a");
         let b = prop("b");
-        let input_formula = Formula::u(
-            Interval { lower: 2, upper: 5 },
-            a.clone(),
-            b.clone(),
-        );
+        let input_formula = Formula::u(Interval { lower: 2, upper: 5 }, a.clone(), b.clone());
         let result_formula = Formula::and(vec![
-            Formula::g(
-                Interval {
-                    lower: 0,
-                    upper: 2,
-                },
-                a.clone(),
-            ),
+            Formula::g(Interval { lower: 0, upper: 2 }, a.clone()),
             Formula::u(
                 Interval { lower: 2, upper: 5 },
                 a.clone(),
@@ -549,19 +540,9 @@ mod mltl_rewrite_tests {
     fn mltl_rewrite_release() {
         let a = prop("a");
         let b = prop("b");
-        let input_formula = Formula::r(
-            Interval { lower: 3, upper: 7 },
-            a.clone(),
-            b.clone(),
-        );
+        let input_formula = Formula::r(Interval { lower: 3, upper: 7 }, a.clone(), b.clone());
         let result_formula = Formula::or(vec![
-            Formula::f(
-                Interval {
-                    lower: 0,
-                    upper: 3,
-                },
-                a.clone(),
-            ),
+            Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
             Formula::r(
                 Interval { lower: 3, upper: 7 },
                 Formula::and(vec![a, b.clone()]),
