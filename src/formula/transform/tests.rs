@@ -1,8 +1,7 @@
 use crate::formula::{
     Expr, Formula, Interval,
     transform::{
-        FlatTransformer, NegationNormalFormTransformer, RecursiveFormulaTransformer,
-        ShiftBoundsTransformer,
+        FlatTransformer, MLTLTransformer, NegationNormalFormTransformer, RecursiveFormulaTransformer, ShiftBoundsTransformer
     },
 };
 use std::sync::Arc;
@@ -21,6 +20,10 @@ fn make_test_shift_bounds(input: Formula) -> Formula {
 
 fn make_test_flatten(input: Formula) -> Formula {
     FlatTransformer.visit(&input)
+}
+
+fn make_test_rewrite_mltl(input: Formula) -> Formula {
+    MLTLTransformer.visit(&input)
 }
 
 mod push_negation_tests {
@@ -509,5 +512,63 @@ mod flatten_tests {
             Formula::and(vec![p1, p2, p3]),
         );
         assert_eq!(res, exp);
+    }
+}
+
+mod mltl_rewrite_tests {
+    use super::*;
+
+    #[test]
+    fn mltl_rewrite_until() {
+        let a = prop("a");
+        let b = prop("b");
+        let input_formula = Formula::u(
+            Interval { lower: 2, upper: 5 },
+            a.clone(),
+            b.clone(),
+        );
+        let result_formula = Formula::and(vec![
+            Formula::g(
+                Interval {
+                    lower: 0,
+                    upper: 2,
+                },
+                a.clone(),
+            ),
+            Formula::u(
+                Interval { lower: 2, upper: 5 },
+                a.clone(),
+                Formula::and(vec![a, b]),
+            ),
+        ]);
+        let res = make_test_rewrite_mltl(input_formula);
+        assert_eq!(res, result_formula);
+    }
+
+    #[test]
+    fn mltl_rewrite_release() {
+        let a = prop("a");
+        let b = prop("b");
+        let input_formula = Formula::r(
+            Interval { lower: 3, upper: 7 },
+            a.clone(),
+            b.clone(),
+        );
+        let result_formula = Formula::or(vec![
+            Formula::f(
+                Interval {
+                    lower: 0,
+                    upper: 3,
+                },
+                a.clone(),
+            ),
+            Formula::r(
+                Interval { lower: 3, upper: 7 },
+                Formula::and(vec![a, b.clone()]),
+                b,
+            ),
+        ]);
+        let res = make_test_rewrite_mltl(input_formula);
+        assert_eq!(res, result_formula);
     }
 }

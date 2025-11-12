@@ -170,7 +170,7 @@ impl RecursiveFormulaTransformer for MLTLTransformer {
             g_part,
             formula
                 .with_interval(interval.clone())
-                .with_operand_couple(self.visit(left), self.visit(right)),
+                .with_operand_couple(self.visit(left), Formula::and(vec![self.visit(left), self.visit(right)])),
         ])
     }
 
@@ -192,7 +192,7 @@ impl RecursiveFormulaTransformer for MLTLTransformer {
             f_part,
             formula
                 .with_interval(interval.clone())
-                .with_operand_couple(self.visit(left), self.visit(right)),
+                .with_operand_couple(Formula::and(vec![self.visit(left), self.visit(right)]), self.visit(right)),
         ])
     }
 }
