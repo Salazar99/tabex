@@ -35,7 +35,7 @@ def get_stlsat_args(args):
         stlsat_args.append('--no-jump-rule')
     if args.no_formula_simplifications:
         stlsat_args.append('--no-formula-simplifications')
-    if args.fol:
+    if hasattr(args, 'fol') and args.fol:
         stlsat_args.append('--fol')
 
     return stlsat_args
