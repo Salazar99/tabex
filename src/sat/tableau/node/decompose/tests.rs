@@ -223,7 +223,7 @@ fn test_until_end() {
 fn test_release() {
     let a = prop("a");
     let b = prop("b");
-    let expected1: Node = Node::from_operands(vec![a.clone().into(), b.clone().into()]);
+    let expected1: Node = Node::from_operands(vec![a.clone().into()]);
     let expected2: Node = Node::from_operands(vec![
         NodeFormula::from(b.clone()).with_parent_upper(Some(5)),
         NodeFormula::from(Formula::r(
@@ -236,19 +236,6 @@ fn test_release() {
     make_test_decompose(
         vec![Formula::r(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into()],
         vec![expected1, expected2],
-        None,
-    );
-}
-
-#[test]
-fn test_release_end() {
-    let a = prop("a");
-    let b = prop("b");
-
-    let expected1: Node = Node::from_operands(vec![b.clone().into()]);
-    make_test_decompose(
-        vec![Formula::r(Interval { lower: 0, upper: 0 }, a.clone(), b.clone()).into()],
-        vec![expected1],
         None,
     );
 }

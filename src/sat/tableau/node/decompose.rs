@@ -259,26 +259,16 @@ impl Tableau {
             node.current_time
         );
 
-        if node.current_time < interval.upper {
-            // Node where R is satisfied (p and q)
-            let mut new_node1: Node = node.clone();
-            new_node1.operands[i] = left.temporal_expansion(node.current_time, None);
-            new_node1
-                .operands
-                .push(right.temporal_expansion(node.current_time, None));
+        // Node where R is satisfied (p)
+        let mut new_node1: Node = node.clone();
+        new_node1.operands[i] = left.temporal_expansion(node.current_time, None);
 
-            // Node in which R is not satisfied (q, OR)
-            let mut new_node2 = node.clone();
-            new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
-            new_node2.operands.push(r_formula.clone().with_marked(true));
+        // Node in which R is not satisfied (q, OR)
+        let mut new_node2 = node.clone();
+        new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
+        new_node2.operands.push(r_formula.clone().with_marked(true));
 
-            vec![new_node1, new_node2]
-        } else {
-            // Node where R is satisfied, special case (q)
-            let mut new_node = node.clone();
-            new_node.operands[i] = right.temporal_expansion(node.current_time, None);
-            vec![new_node]
-        }
+        vec![new_node1, new_node2]
     }
 
     #[must_use]
@@ -286,19 +276,13 @@ impl Tableau {
         fn retime_poised(
             formula: &NodeFormula,
             current_time: i32,
-            jump: i32,
         ) -> Option<NodeFormula> {
             let interval = formula.kind.get_interval()?;
             if current_time >= interval.upper {
                 return None;
             }
 
-            let kind = if jump != 1 && formula.is_parent_active_at(current_time) {
-                formula.kind.with_interval(interval.shift_right(jump))
-            } else {
-                formula.kind.clone()
-            };
-            Some(formula.clone().with_kind(kind).with_marked(false))
+            Some(formula.clone().with_marked(false))
         }
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
@@ -380,7 +364,7 @@ impl Tableau {
             .operands
             .iter()
             .filter_map(|op| match &op.kind.get_interval() {
-                Some(_) => retime_poised(op, node.current_time, jump),
+                Some(_) => retime_poised(op, node.current_time),
                 _ => None,
             })
             .collect();
