@@ -2,7 +2,7 @@ use crate::{
     formula::{
         Formula,
         transform::{
-            FlatTransformer, FormulaSimplifier, MLTLTransformer, NegationNormalFormTransformer,
+            FlatTransformer, FormulaSimplifier, STLTransformer, NegationNormalFormTransformer,
             RecursiveFormulaTransformer, ShiftBoundsTransformer,
         },
     },
@@ -107,7 +107,7 @@ impl Node {
 
     pub fn mltl_rewrite(&mut self) {
         self.operands.iter_mut().for_each(|f| {
-            f.kind = MLTLTransformer.visit(&f.kind);
+            f.kind = STLTransformer.visit(&f.kind);
         });
     }
 

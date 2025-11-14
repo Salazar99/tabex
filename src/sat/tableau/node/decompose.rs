@@ -259,38 +259,34 @@ impl Tableau {
             node.current_time
         );
 
-        if self.options.mltl { // MLTL decomposition
-            // Node where R is satisfied (p, q)
-            let mut new_node1: Node = node.clone();
-            new_node1.operands[i] = left.temporal_expansion(node.current_time, None);
-            new_node1.operands.insert(i, right.temporal_expansion(node.current_time, None));
-    
-            // Node in which R is not satisfied (q, OR)
-            let mut new_node2 = node.clone();
-            new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
+        // Node where R is satisfied now
+        let new_node1 = if self.options.mltl {
+            // MLTL decomposition (p, q)
+            let mut node: Node = node.clone();
+            node.operands[i] = left.temporal_expansion(node.current_time, None);
+            node.operands
+                .insert(i, right.temporal_expansion(node.current_time, None));
+            node
+        } else {
+            // STL decomposition (p)
+            let mut node: Node = node.clone();
+            node.operands[i] = left.temporal_expansion(node.current_time, None);
+            node
+        };
+
+        // Node in which R is not satisfied now (q, OR)
+        let mut new_node2 = node.clone();
+        new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
+        if node.current_time < interval.upper {
             new_node2.operands.push(r_formula.clone().with_marked(true));
-    
-            vec![new_node1, new_node2]
-        } else { // STL decomposition
-            // Node where R is satisfied (p)
-            let mut new_node1: Node = node.clone();
-            new_node1.operands[i] = left.temporal_expansion(node.current_time, None);
-    
-            // Node in which R is not satisfied (q, OR)
-            let mut new_node2 = node.clone();
-            new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
-            new_node2.operands.push(r_formula.clone().with_marked(true));
-    
-            vec![new_node1, new_node2]
         }
+
+        vec![new_node1, new_node2]
     }
 
     #[must_use]
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
-        fn retime_poised(
-            formula: &NodeFormula,
-            current_time: i32,
-        ) -> Option<NodeFormula> {
+        fn retime_poised(formula: &NodeFormula, current_time: i32) -> Option<NodeFormula> {
             let interval = formula.kind.get_interval()?;
             if current_time >= interval.upper {
                 return None;

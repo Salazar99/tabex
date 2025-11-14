@@ -1,7 +1,7 @@
 use crate::formula::{
     Expr, Formula, Interval,
     transform::{
-        FlatTransformer, MLTLTransformer, NegationNormalFormTransformer,
+        FlatTransformer, STLTransformer, NegationNormalFormTransformer,
         RecursiveFormulaTransformer, ShiftBoundsTransformer,
     },
 };
@@ -23,8 +23,8 @@ fn make_test_flatten(input: Formula) -> Formula {
     FlatTransformer.visit(&input)
 }
 
-fn make_test_rewrite_mltl(input: Formula) -> Formula {
-    MLTLTransformer.visit(&input)
+fn make_test_rewrite_stl(input: Formula) -> Formula {
+    STLTransformer.visit(&input)
 }
 
 mod push_negation_tests {
@@ -516,11 +516,11 @@ mod flatten_tests {
     }
 }
 
-mod mltl_rewrite_tests {
+mod stl_rewrite_tests {
     use super::*;
 
     #[test]
-    fn mltl_rewrite_until() {
+    fn rewrite_until() {
         let a = prop("a");
         let b = prop("b");
         let input_formula = Formula::u(Interval { lower: 2, upper: 5 }, a.clone(), b.clone());
@@ -532,24 +532,20 @@ mod mltl_rewrite_tests {
                 Formula::and(vec![a, b]),
             ),
         ]);
-        let res = make_test_rewrite_mltl(input_formula);
+        let res = make_test_rewrite_stl(input_formula);
         assert_eq!(res, result_formula);
     }
 
     #[test]
-    fn mltl_rewrite_release() {
+    fn rewrite_release() {
         let a = prop("a");
         let b = prop("b");
         let input_formula = Formula::r(Interval { lower: 3, upper: 7 }, a.clone(), b.clone());
         let result_formula = Formula::or(vec![
             Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
-            Formula::r(
-                Interval { lower: 3, upper: 7 },
-                a,
-                b,
-            ),
+            Formula::r(Interval { lower: 3, upper: 7 }, a, b),
         ]);
-        let res = make_test_rewrite_mltl(input_formula);
+        let res = make_test_rewrite_stl(input_formula);
         assert_eq!(res, result_formula);
     }
 }

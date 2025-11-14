@@ -150,8 +150,8 @@ impl RecursiveFormulaTransformer for NegationNormalFormTransformer {
     }
 }
 
-pub struct MLTLTransformer;
-impl RecursiveFormulaTransformer for MLTLTransformer {
+pub struct STLTransformer;
+impl RecursiveFormulaTransformer for STLTransformer {
     fn visit_until(
         &self,
         formula: &Formula,
@@ -191,10 +191,9 @@ impl RecursiveFormulaTransformer for MLTLTransformer {
         );
         Formula::or(vec![
             f_part,
-            formula.with_interval(interval.clone()).with_operand_couple(
-                self.visit(left),
-                self.visit(right),
-            ),
+            formula
+                .with_interval(interval.clone())
+                .with_operand_couple(self.visit(left), self.visit(right)),
         ])
     }
 }
