@@ -545,7 +545,7 @@ mod mltl_rewrite_tests {
             Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
             Formula::r(
                 Interval { lower: 3, upper: 7 },
-                Formula::and(vec![a, b.clone()]),
+                a,
                 b,
             ),
         ]);

@@ -214,3 +214,11 @@ fn test_step_r() {
         Some(true)
     );
 }
+
+#[test]
+fn test_jump_error() {
+    assert_eq!(
+        make_test("G[0,4] (!b) && a && (!a R[0,3] (c U[0,4] b))", false),
+        Some(false)
+    );
+}
