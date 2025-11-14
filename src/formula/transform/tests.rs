@@ -1,8 +1,8 @@
 use crate::formula::{
     Expr, Formula, Interval,
     transform::{
-        FlatTransformer, STLTransformer, NegationNormalFormTransformer,
-        RecursiveFormulaTransformer, ShiftBoundsTransformer,
+        FlatTransformer, NegationNormalFormTransformer, RecursiveFormulaTransformer,
+        STLTransformer, ShiftBoundsTransformer,
     },
 };
 use std::sync::Arc;

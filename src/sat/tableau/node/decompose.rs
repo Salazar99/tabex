@@ -286,13 +286,25 @@ impl Tableau {
 
     #[must_use]
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
-        fn retime_poised(formula: &NodeFormula, current_time: i32) -> Option<NodeFormula> {
+        fn retime_poised(
+            formula: &NodeFormula,
+            current_time: i32,
+            jump: i32,
+        ) -> Option<NodeFormula> {
             let interval = formula.kind.get_interval()?;
             if current_time >= interval.upper {
                 return None;
             }
 
-            Some(formula.clone().with_marked(false))
+            let kind = if jump != 1
+                && formula.is_parent_active_at(current_time)
+                && matches!(formula.kind, Formula::G { .. } | Formula::R { .. })
+            {
+                formula.kind.with_interval(interval.shift_right(jump - 1))
+            } else {
+                formula.kind.clone()
+            };
+            Some(formula.clone().with_kind(kind).with_marked(false))
         }
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
@@ -374,7 +386,7 @@ impl Tableau {
             .operands
             .iter()
             .filter_map(|op| match &op.kind.get_interval() {
-                Some(_) => retime_poised(op, node.current_time),
+                Some(_) => retime_poised(op, node.current_time, jump),
                 _ => None,
             })
             .collect();

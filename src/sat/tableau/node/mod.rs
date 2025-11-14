@@ -2,8 +2,8 @@ use crate::{
     formula::{
         Formula,
         transform::{
-            FlatTransformer, FormulaSimplifier, STLTransformer, NegationNormalFormTransformer,
-            RecursiveFormulaTransformer, ShiftBoundsTransformer,
+            FlatTransformer, FormulaSimplifier, NegationNormalFormTransformer,
+            RecursiveFormulaTransformer, STLTransformer, ShiftBoundsTransformer,
         },
     },
     util::join_with,
