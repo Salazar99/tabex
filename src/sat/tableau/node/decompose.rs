@@ -309,13 +309,17 @@ impl Tableau {
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
             fn top_level_interval(formula: &NodeFormula, current_time: i32) -> Option<Vec<i32>> {
-                match &formula.kind.get_interval() {
-                    Some(interval) if !formula.is_parent_active_at(current_time) => {
+                match &formula.kind {
+                    Formula::G { interval, .. } | Formula::R { interval, .. } if !formula.is_parent_active_at(current_time) => {
                         Some(vec![interval.lower, interval.upper])
                     }
-                    _ => None,
+                    Formula::F { interval, .. } | Formula::U { interval, .. } => {
+                        Some(vec![interval.lower, interval.upper])
+                    }
+                    _ => None
                 }
             }
+            
             node.operands
                 .iter()
                 .filter_map(|f| top_level_interval(f, node.current_time))
