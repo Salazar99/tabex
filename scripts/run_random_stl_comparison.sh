@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 [--benchdir DIR] [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH] [--bench-sets \"SET1 SET2 ...\"]"
+    echo "Usage: $0 [--benchdir DIR] [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH] [--bench-sets \"SET1 SET2 ...\"] [--output-dir DIR]"
     exit 1
 fi
 
@@ -48,6 +48,9 @@ while [[ $# -gt 0 ]]; do
             bench_sets=("$2")
             shift 2
             ;;
+        --output-dir)
+            outdir="$2"
+            shift 2
         *)
             echo "Unknown argument: $1"
             exit 1

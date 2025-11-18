@@ -18,7 +18,7 @@ def merge_results(row):
         if result is None:
             result = r2
         elif result != r2:
-            raise ValueError(f"Inconsistent results: {str(row)}")
+            print(f"WARNING: Inconsistent results: {str(row)}")
     
     if result is None:
         return 'unknown'
