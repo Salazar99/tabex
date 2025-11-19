@@ -10,6 +10,7 @@ use crate::sat::config::GeneralOptions;
 
 pub struct SmtSolver {
     pub options: GeneralOptions,
+    pub h: Int,
     pub bool_variables: BTreeMap<Arc<str>, FuncDecl>,
     pub real_variables: BTreeMap<Arc<str>, FuncDecl>,
 }
@@ -19,6 +20,7 @@ impl SmtSolver {
     pub fn new(general: GeneralOptions) -> Self {
         SmtSolver {
             options: general,
+            h: Int::new_const('h'.to_string()),
             bool_variables: BTreeMap::new(),
             real_variables: BTreeMap::new(),
         }
@@ -163,7 +165,7 @@ impl SmtSolver {
                     self.bool_variables.insert(n.clone(), func);
                     self.bool_variables.get(&n).unwrap()
                 };
-                func.apply(&[time]).try_into().unwrap()
+                Bool::and(&[func.apply(&[time]).try_into().unwrap(), self.h.ge(time)])
             }
             ExprKind::Rel { op, left, right } => self.encode_rel(op, left, right, time),
         }
@@ -204,13 +206,14 @@ impl SmtSolver {
         let l = self.encode_aexpr(left, time);
         let r = self.encode_aexpr(right, time);
 
-        match op {
+        let rel = match op {
             RelOp::Lt => l.lt(&r),
             RelOp::Le => l.le(&r),
             RelOp::Gt => l.gt(&r),
             RelOp::Ge => l.ge(&r),
             RelOp::Eq => l.eq(&r),
             RelOp::Ne => l.ne(&r),
-        }
+        };
+        Bool::and(&[self.h.ge(time), rel])
     }
 }

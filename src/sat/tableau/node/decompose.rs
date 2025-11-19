@@ -264,19 +264,11 @@ impl Tableau {
         );
 
         // Node where R is satisfied now
-        let new_node1 = if self.options.mltl {
-            // MLTL decomposition (p, q)
-            let mut node: Node = node.clone();
-            node.operands[i] = right.temporal_expansion(node.current_time, None);
-            node.operands
-                .insert(i, left.temporal_expansion(node.current_time, None));
-            node
-        } else {
-            // STL decomposition (p)
-            let mut node: Node = node.clone();
-            node.operands[i] = left.temporal_expansion(node.current_time, None);
-            node
-        };
+        let mut new_node1 = node.clone();
+        new_node1.operands[i] = right.temporal_expansion(node.current_time, None);
+        new_node1
+            .operands
+            .insert(i, left.temporal_expansion(node.current_time, None));
 
         // Node in which R is not satisfied now (OR, q)
         let mut new_node2 = node.clone();

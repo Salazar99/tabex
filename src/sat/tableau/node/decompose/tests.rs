@@ -212,7 +212,7 @@ fn test_release() {
     let b = prop("b");
     let input: NodeFormula =
         Formula::r(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into();
-    let expected1: Node = Node::from_operands(vec![a.clone().into()]);
+    let expected1: Node = Node::from_operands(vec![a.clone().into(), b.clone().into()]);
     let expected2: Node = Node::from_operands(vec![
         NodeFormula::from(Formula::r(
             Interval { lower: 0, upper: 5 },

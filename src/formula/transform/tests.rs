@@ -122,7 +122,7 @@ mod push_negation_tests {
             b.clone(),
         ));
         let result_formula = Formula::u(
-            Interval { lower: 0, upper: 0 },
+            Interval { lower: 0, upper: 5 },
             Formula::not(a),
             Formula::not(b),
         );
@@ -543,7 +543,8 @@ mod stl_rewrite_tests {
         let input_formula = Formula::r(Interval { lower: 3, upper: 7 }, a.clone(), b.clone());
         let result_formula = Formula::or(vec![
             Formula::f(Interval { lower: 0, upper: 3 }, a.clone()),
-            Formula::r(Interval { lower: 3, upper: 7 }, a, b),
+            Formula::u(Interval { lower: 3, upper: 7 }, b.clone(), a),
+            Formula::g(Interval { lower: 3, upper: 7 }, b),
         ]);
         let res = make_test_rewrite_stl(input_formula);
         assert_eq!(res, result_formula);

@@ -140,10 +140,7 @@ impl RecursiveFormulaTransformer for NegationNormalFormTransformer {
                 left,
                 right,
             } => Formula::u(
-                Interval {
-                    lower: 0,
-                    upper: interval.lower,
-                },
+                interval.clone(),
                 self.visit(&Formula::not(*left.clone())),
                 self.visit(&Formula::not(*right.clone())),
             ),
@@ -170,37 +167,33 @@ impl RecursiveFormulaTransformer for STLTransformer {
         );
         Formula::and(vec![
             g_part,
-            formula
-                .clone()
-                .with_interval(interval.clone())
-                .with_operand_couple(
-                    self.visit(left),
-                    Formula::and(vec![self.visit(left), self.visit(right)]),
-                ),
+            formula.clone().with_operand_couple(
+                self.visit(left),
+                Formula::and(vec![self.visit(left), self.visit(right)]),
+            ),
         ])
     }
 
     fn visit_release(
         &self,
-        formula: &Formula,
+        _formula: &Formula,
         interval: &Interval,
         left: &Formula,
         right: &Formula,
     ) -> Formula {
+        let new_left = self.visit(left);
+        let new_right = self.visit(right);
+
         let f_part = Formula::f(
             Interval {
                 lower: 0,
                 upper: interval.lower,
             },
-            self.visit(left),
+            new_left.clone(),
         );
-        Formula::or(vec![
-            f_part,
-            formula
-                .clone()
-                .with_interval(interval.clone())
-                .with_operand_couple(self.visit(left), self.visit(right)),
-        ])
+        let g_part = Formula::g(interval.clone(), new_right.clone());
+        let u_part = Formula::u(interval.clone(), new_right, new_left);
+        Formula::or(vec![f_part, u_part, g_part])
     }
 }
 
