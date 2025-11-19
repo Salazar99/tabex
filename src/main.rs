@@ -1,4 +1,5 @@
 use std::fs;
+use std::sync::atomic::Ordering;
 use std::time::Instant;
 
 use stlsat::sat::config::{
@@ -59,7 +60,8 @@ fn run_tableau(example: &str, options: GeneralOptions, tableau_options: TableauO
         && let Some(graph) = &tableau.graph
         && let Ok(dot) = graph.to_dot_string()
     {
-        println!("Node count: {NODE_ID:?}");
+        let nodes = NODE_ID.load(Ordering::Relaxed) - 1;
+        println!("Node count: {nodes}");
         fs::write(filename, &dot).expect("Unable to write file");
     }
 

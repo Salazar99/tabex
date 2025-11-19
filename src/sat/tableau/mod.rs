@@ -242,7 +242,7 @@ impl Tableau {
                         if parent.node.current_time < job.node.current_time
                             && let Some(store) = &mut self.store
                         {
-                            store.add_rejected(job.node.into());
+                            store.add_rejected((&job.node).into());
                         }
                     }
                     _ => {}
@@ -309,7 +309,7 @@ impl Tableau {
         if let Some(store) = &mut self.store
             && parent_time < node.current_time
         {
-            let rejected_node = node.clone().into();
+            let rejected_node = (&node).into();
             if store.check_rejected(&rejected_node) {
                 return JobOutcome::Final(JobState::Unsat);
             }

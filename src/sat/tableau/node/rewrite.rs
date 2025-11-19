@@ -13,12 +13,12 @@ mod tests;
 
 #[must_use]
 pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormula>> {
-    let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
+    let mut map: BTreeMap<(Formula, Option<usize>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
         if let Formula::G { interval, phi } = &op.kind {
-            let key = (*phi.clone(), op.parent_upper);
+            let key = (*phi.clone(), op.parent_id);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (_, int) = occ.get_mut();
@@ -60,12 +60,12 @@ pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormul
 
 #[must_use]
 pub fn merge_finally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormula>> {
-    let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
+    let mut map: BTreeMap<(Formula, Option<usize>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
         if let Formula::F { phi, interval } = &op.kind {
-            let key = (*phi.clone(), op.parent_upper);
+            let key = (*phi.clone(), op.parent_id);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (i, int) = occ.get_mut();

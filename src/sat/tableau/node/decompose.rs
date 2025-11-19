@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::vec;
 
-use crate::formula::{Formula, Interval};
+use crate::formula::Formula;
 use crate::sat::tableau::Tableau;
 use crate::sat::tableau::node::{Node, NodeFormula};
 
@@ -66,7 +66,7 @@ impl Tableau {
                     changed = true;
                     inner
                         .iter()
-                        .map(|f| nf.clone().with_kind(f.clone()))
+                        .map(|f| NodeFormula::from(f.clone()).with_parent_id(nf.parent_id))
                         .collect()
                 }
                 _ => vec![nf.clone()],
@@ -92,13 +92,11 @@ impl Tableau {
                     if f.is_active_at(node.current_time) && !f.marked =>
                 {
                     changed = true;
+                    let tex = phi.temporal_expansion(node.current_time, Some(f.id));
                     if node.current_time < interval.upper {
-                        vec![
-                            f.clone().with_marked(true),
-                            phi.temporal_expansion(node.current_time, Some(interval)),
-                        ]
+                        vec![f.clone().with_marked(true), tex]
                     } else {
-                        vec![phi.temporal_expansion(node.current_time, Some(interval))]
+                        vec![tex]
                     }
                 }
                 _ => vec![f.clone()],
@@ -123,7 +121,8 @@ impl Tableau {
             .iter()
             .map(|or_operand| {
                 let mut new_operands = node.operands.clone();
-                new_operands[i] = node.operands[i].clone().with_kind(or_operand.clone());
+                new_operands[i] =
+                    NodeFormula::from(or_operand.clone()).with_parent_id(new_operands[i].parent_id);
                 Node {
                     operands: new_operands,
                     ..node.clone()
@@ -144,14 +143,17 @@ impl Tableau {
         };
 
         let mut new_node1 = node.clone();
-        new_node1.operands[i] = node.operands[i].clone().with_kind((**not_left).clone());
+        new_node1.operands[i] =
+            NodeFormula::from((**not_left).clone()).with_parent_id(node.operands[i].parent_id);
 
         let mut new_node2 = node.clone();
-        new_node2.operands[i] = node.operands[i].clone().with_kind((**right).clone());
+        new_node2.operands[i] =
+            NodeFormula::from((**right).clone()).with_parent_id(node.operands[i].parent_id);
         if self.tableau_options.formula_optimizations {
-            new_node2
-                .operands
-                .insert(i, node.operands[i].clone().with_kind((**left).clone()));
+            new_node2.operands.insert(
+                i,
+                NodeFormula::from((**left).clone()).with_parent_id(node.operands[i].parent_id),
+            );
         }
 
         vec![new_node1, new_node2]
@@ -225,12 +227,13 @@ impl Tableau {
         if node.current_time < interval.upper {
             // Node in which U is not satisfied (p, OU)
             let mut new_node2 = node.clone();
-            new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(interval));
+            new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(u_formula.id));
             new_node2.operands.push(u_formula.clone().with_marked(true));
 
-            return vec![new_node1, new_node2];
+            vec![new_node1, new_node2]
+        } else {
+            vec![new_node1]
         }
-        vec![new_node1]
     }
 
     #[must_use]
@@ -276,7 +279,7 @@ impl Tableau {
 
         // Node in which R is not satisfied now (q, OR)
         let mut new_node2 = node.clone();
-        new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(interval));
+        new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(r_formula.id));
         if node.current_time < interval.upper {
             new_node2.operands.push(r_formula.clone().with_marked(true));
         }
@@ -286,18 +289,14 @@ impl Tableau {
 
     #[must_use]
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
-        fn retime_poised(
-            formula: &NodeFormula,
-            current_time: i32,
-            jump: i32,
-        ) -> Option<NodeFormula> {
+        fn retime_poised(formula: &NodeFormula, node: &Node, jump: i32) -> Option<NodeFormula> {
             let interval = formula.kind.get_interval()?;
-            if current_time >= interval.upper {
+            if node.current_time >= interval.upper {
                 return None;
             }
 
             let kind = if jump != 1
-                && formula.is_parent_active_at(current_time)
+                && formula.is_parent_active_in(node)
                 && matches!(formula.kind, Formula::G { .. } | Formula::R { .. })
             {
                 formula.kind.with_interval(interval.shift_right(jump - 1))
@@ -308,21 +307,23 @@ impl Tableau {
         }
 
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
-            fn top_level_interval(formula: &NodeFormula, current_time: i32) -> Option<Vec<i32>> {
+            fn top_level_interval(formula: &NodeFormula, node: &Node) -> Option<Vec<i32>> {
                 match &formula.kind {
-                    Formula::G { interval, .. } | Formula::R { interval, .. } if !formula.is_parent_active_at(current_time) => {
+                    Formula::G { interval, .. } | Formula::R { interval, .. }
+                        if !formula.is_parent_active_in(node) =>
+                    {
                         Some(vec![interval.lower, interval.upper])
                     }
                     Formula::F { interval, .. } | Formula::U { interval, .. } => {
                         Some(vec![interval.lower, interval.upper])
                     }
-                    _ => None
+                    _ => None,
                 }
             }
-            
+
             node.operands
                 .iter()
-                .filter_map(|f| top_level_interval(f, node.current_time))
+                .filter_map(|f| top_level_interval(f, node))
                 .flatten()
                 .collect()
         }
@@ -342,30 +343,26 @@ impl Tableau {
             || node
                 .operands
                 .iter()
-                .filter(|f| f.marked && !f.is_parent_active_at(node.current_time))
-                .any(|f| {
-                    f.kind.upper_bound() == Some(node.current_time)
-                        || match &f.kind {
-                            Formula::G { phi, interval, .. }
-                            | Formula::U {
-                                left: phi,
-                                interval,
-                                ..
-                            }
-                            | Formula::R {
-                                right: phi,
-                                interval,
-                                ..
-                            } => match get_max_upper(phi) {
-                                None => false,
-                                Some(max_upper) => node.current_time < interval.lower + max_upper,
-                            },
-                            _ => false,
-                        }
+                .filter(|f| f.marked && !f.is_parent_active_in(node))
+                .any(|f| match &f.kind {
+                    Formula::G { phi, interval, .. }
+                    | Formula::U {
+                        left: phi,
+                        interval,
+                        ..
+                    }
+                    | Formula::R {
+                        right: phi,
+                        interval,
+                        ..
+                    } => match get_max_upper(phi) {
+                        None => false,
+                        Some(max_upper) => node.current_time < interval.lower + max_upper,
+                    },
+                    _ => false,
                 })
             || (node.operands.iter().any(|f| {
-                matches!(f.kind, Formula::Prop(_) | Formula::Not(_))
-                    && !f.is_parent_active_at(node.current_time)
+                matches!(f.kind, Formula::Prop(_) | Formula::Not(_)) && !f.is_parent_active_in(node)
             }) && node.operands.iter().any(|f| {
                 matches!(
                     f.kind,
@@ -390,7 +387,7 @@ impl Tableau {
             .operands
             .iter()
             .filter_map(|op| match &op.kind.get_interval() {
-                Some(_) => retime_poised(op, node.current_time, jump),
+                Some(_) => retime_poised(op, node, jump),
                 _ => None,
             })
             .collect();
@@ -423,11 +420,7 @@ impl Tableau {
 }
 
 impl Formula {
-    fn temporal_expansion(
-        &self,
-        current_time: i32,
-        parent_interval: Option<&Interval>,
-    ) -> NodeFormula {
+    fn temporal_expansion(&self, current_time: i32, parent_id: Option<usize>) -> NodeFormula {
         fn inner(formula: &Formula, current_time: i32) -> Formula {
             match formula {
                 Formula::Prop(_) | Formula::Not(_) => formula.clone(),
@@ -451,7 +444,7 @@ impl Formula {
             }
         }
         let mut new_node: NodeFormula = inner(self, current_time).into();
-        new_node.parent_upper = parent_interval.map(|int| int.upper);
+        new_node.parent_id = parent_id;
         new_node
     }
 }

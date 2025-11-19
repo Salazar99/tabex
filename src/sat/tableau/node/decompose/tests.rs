@@ -106,28 +106,22 @@ fn test_imply() {
 #[test]
 fn test_globally() {
     let a = prop("a");
+    let input: NodeFormula = Formula::g(Interval { lower: 0, upper: 5 }, a.clone()).into();
     let expected1: Node = Node::from_operands(vec![
         NodeFormula::from(Formula::g(Interval { lower: 0, upper: 5 }, a.clone())).with_marked(true),
-        NodeFormula::from(a.clone()).with_parent_upper(Some(5)),
+        NodeFormula::from(a.clone()).with_parent_id(Some(input.id)),
     ]);
-    make_test_decompose(
-        vec![Formula::g(Interval { lower: 0, upper: 5 }, a).into()],
-        vec![expected1],
-        None,
-    );
+    make_test_decompose(vec![input], vec![expected1], None);
 }
 
 #[test]
 fn test_globally_end() {
     let a = prop("a");
+    let input: NodeFormula = Formula::g(Interval { lower: 0, upper: 0 }, a.clone()).into();
     let expected: Node = Node::from_operands(vec![
-        NodeFormula::from(a.clone()).with_parent_upper(Some(0)),
+        NodeFormula::from(a.clone()).with_parent_id(Some(input.id)),
     ]);
-    make_test_decompose(
-        vec![Formula::g(Interval { lower: 0, upper: 0 }, a).into()],
-        vec![expected],
-        None,
-    );
+    make_test_decompose(vec![input], vec![expected], None);
 }
 
 #[test]
@@ -158,6 +152,11 @@ fn test_finally_end() {
 #[test]
 fn test_gf() {
     let a = prop("a");
+    let input: NodeFormula = Formula::g(
+        Interval { lower: 0, upper: 5 },
+        Formula::f(Interval { lower: 0, upper: 5 }, a.clone()),
+    )
+    .into();
 
     let expected1: Node = Node::from_operands(vec![
         NodeFormula::from(Formula::g(
@@ -166,32 +165,24 @@ fn test_gf() {
         ))
         .with_marked(true),
         NodeFormula::from(Formula::f(Interval { lower: 0, upper: 5 }, a.clone()))
-            .with_parent_upper(Some(5)),
+            .with_parent_id(Some(input.id)),
     ]);
     let options = TableauOptions {
         formula_optimizations: false,
         ..Default::default()
     };
-    make_test_decompose(
-        vec![
-            Formula::g(
-                Interval { lower: 0, upper: 5 },
-                Formula::f(Interval { lower: 0, upper: 5 }, a.clone()),
-            )
-            .into(),
-        ],
-        vec![expected1],
-        Some(options),
-    );
+    make_test_decompose(vec![input], vec![expected1], Some(options));
 }
 
 #[test]
 fn test_until() {
     let a = prop("a");
     let b = prop("b");
+    let input: NodeFormula =
+        Formula::u(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into();
     let expected1: Node = Node::from_operands(vec![b.clone().into()]);
     let expected2: Node = Node::from_operands(vec![
-        NodeFormula::from(a.clone()).with_parent_upper(Some(5)),
+        NodeFormula::from(a.clone()).with_parent_id(Some(input.id)),
         NodeFormula::from(Formula::u(
             Interval { lower: 0, upper: 5 },
             a.clone(),
@@ -199,11 +190,7 @@ fn test_until() {
         ))
         .with_marked(true),
     ]);
-    make_test_decompose(
-        vec![Formula::u(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into()],
-        vec![expected1, expected2],
-        None,
-    );
+    make_test_decompose(vec![input], vec![expected1, expected2], None);
 }
 
 #[test]
@@ -223,9 +210,11 @@ fn test_until_end() {
 fn test_release() {
     let a = prop("a");
     let b = prop("b");
+    let input: NodeFormula =
+        Formula::r(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into();
     let expected1: Node = Node::from_operands(vec![a.clone().into()]);
     let expected2: Node = Node::from_operands(vec![
-        NodeFormula::from(b.clone()).with_parent_upper(Some(5)),
+        NodeFormula::from(b.clone()).with_parent_id(Some(input.id)),
         NodeFormula::from(Formula::r(
             Interval { lower: 0, upper: 5 },
             a.clone(),
@@ -233,11 +222,7 @@ fn test_release() {
         ))
         .with_marked(true),
     ]);
-    make_test_decompose(
-        vec![Formula::r(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into()],
-        vec![expected1, expected2],
-        None,
-    );
+    make_test_decompose(vec![input], vec![expected1, expected2], None);
 }
 
 #[test]
@@ -259,30 +244,6 @@ fn test_jump_temporal_end() {
     to_decompose.current_time = 5;
     let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
     assert_eq!(res, None);
-}
-
-#[test]
-fn test_jump_step_interval_end() {
-    let a = prop("a");
-    let mut to_decompose = Node::from_operands(vec![
-        NodeFormula::from(Formula::g(Interval { lower: 0, upper: 5 }, a.clone())).with_marked(true),
-        NodeFormula::from(Formula::f(
-            Interval { lower: 0, upper: 8 },
-            Formula::not(a.clone()),
-        ))
-        .with_marked(true),
-    ]);
-    to_decompose.current_time = 5;
-    let res = tableau_data_gen(Some(decompose_jump_opt())).decompose_jump(&to_decompose);
-    assert!(res.is_some());
-    let vec = res.unwrap();
-    assert_eq!(vec.len(), 1);
-    let node = &vec[0];
-    let expected = Node::from_operands(vec![
-        Formula::f(Interval { lower: 0, upper: 8 }, Formula::not(a.clone())).into(),
-    ]);
-    assert_eq!(node.current_time, 6);
-    assert_eq!(node.operands, expected.operands);
 }
 
 #[test]

@@ -222,3 +222,11 @@ fn test_jump_error() {
         Some(false)
     );
 }
+
+#[test]
+fn test_jump_until_satisfied() {
+    assert_eq!(
+        make_test("F[0,10] a && !b && ((G[0,5] !a) U[0,15] b)", false),
+        Some(true)
+    );
+}

@@ -16,13 +16,26 @@ use std::{
 pub mod decompose;
 pub mod rewrite;
 
+pub static NODE_FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
 pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Eq)]
 pub struct NodeFormula {
     pub kind: Formula,
     pub marked: bool,
-    pub parent_upper: Option<i32>,
+    pub parent_id: Option<usize>,
+    pub id: usize,
+}
+
+impl From<Formula> for NodeFormula {
+    fn from(kind: Formula) -> Self {
+        Self {
+            kind,
+            marked: false,
+            parent_id: None,
+            id: NODE_FORMULA_ID.fetch_add(1, Ordering::Relaxed),
+        }
+    }
 }
 
 impl NodeFormula {
@@ -36,8 +49,8 @@ impl NodeFormula {
         self
     }
 
-    pub fn with_parent_upper(mut self, parent_upper: Option<i32>) -> Self {
-        self.parent_upper = parent_upper;
+    pub fn with_parent_id(mut self, parend_id: Option<usize>) -> Self {
+        self.parent_id = parend_id;
         self
     }
 
@@ -50,26 +63,21 @@ impl NodeFormula {
     }
 
     #[must_use]
-    pub fn is_parent_active_at(&self, current_time: i32) -> bool {
-        match self.parent_upper {
+    pub fn is_parent_active_in(&self, node: &Node) -> bool {
+        match self.parent_id {
             None => false,
-            Some(upper) if current_time >= upper => false,
-            _ => true,
+            Some(id) => node.operands.iter().any(|f| f.id == id),
         }
     }
 }
 
-impl From<Formula> for NodeFormula {
-    fn from(kind: Formula) -> Self {
-        Self {
-            kind,
-            marked: false,
-            parent_upper: None,
-        }
+impl PartialEq for NodeFormula {
+    fn eq(&self, other: &Self) -> bool {
+        self.kind == other.kind && self.parent_id == other.parent_id && self.marked == other.marked
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Node {
     pub operands: Vec<NodeFormula>,
     pub current_time: i32,
