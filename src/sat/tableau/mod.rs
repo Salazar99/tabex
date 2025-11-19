@@ -110,7 +110,6 @@ impl Tableau {
 
     pub fn make_tableau_from_root(&mut self, mut root: Node) -> Option<bool> {
         self.normalize_root(&mut root);
-        root.id_tree();
         self.initialize_root(&root);
         self.solve_root(root)
     }
