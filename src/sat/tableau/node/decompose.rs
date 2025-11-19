@@ -225,11 +225,12 @@ impl Tableau {
         new_node1.operands[i] = right.temporal_expansion(node.current_time, None);
 
         if node.current_time < interval.upper {
-            // Node in which U is not satisfied (p, OU)
+            // Node in which U is not satisfied (OU, p)
             let mut new_node2 = node.clone();
             new_node2.operands[i] = left.temporal_expansion(node.current_time, Some(u_formula.id));
-            new_node2.operands.push(u_formula.clone().with_marked(true));
-
+            new_node2
+                .operands
+                .insert(i, u_formula.clone().with_marked(true));
             vec![new_node1, new_node2]
         } else {
             vec![new_node1]
@@ -266,9 +267,9 @@ impl Tableau {
         let new_node1 = if self.options.mltl {
             // MLTL decomposition (p, q)
             let mut node: Node = node.clone();
-            node.operands[i] = left.temporal_expansion(node.current_time, None);
+            node.operands[i] = right.temporal_expansion(node.current_time, None);
             node.operands
-                .insert(i, right.temporal_expansion(node.current_time, None));
+                .insert(i, left.temporal_expansion(node.current_time, None));
             node
         } else {
             // STL decomposition (p)
@@ -277,11 +278,13 @@ impl Tableau {
             node
         };
 
-        // Node in which R is not satisfied now (q, OR)
+        // Node in which R is not satisfied now (OR, q)
         let mut new_node2 = node.clone();
         new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(r_formula.id));
         if node.current_time < interval.upper {
-            new_node2.operands.push(r_formula.clone().with_marked(true));
+            new_node2
+                .operands
+                .insert(i, r_formula.clone().with_marked(true));
         }
 
         vec![new_node1, new_node2]
@@ -299,7 +302,10 @@ impl Tableau {
                 && formula.is_parent_active_in(node)
                 && matches!(formula.kind, Formula::G { .. } | Formula::R { .. })
             {
-                formula.kind.with_interval(interval.shift_right(jump - 1))
+                formula
+                    .kind
+                    .clone()
+                    .with_interval(interval.shift_right(jump - 1))
             } else {
                 formula.kind.clone()
             };
@@ -427,24 +433,23 @@ impl Formula {
                 Formula::F { interval, .. }
                 | Formula::G { interval, .. }
                 | Formula::U { interval, .. }
-                | Formula::R { interval, .. } => {
-                    formula.with_interval(interval.shift_right(current_time))
-                }
+                | Formula::R { interval, .. } => formula
+                    .clone()
+                    .with_interval(interval.shift_right(current_time)),
                 Formula::And(operands) | Formula::Or(operands) => formula
+                    .clone()
                     .with_operands(operands.iter().map(|op| inner(op, current_time)).collect()),
                 Formula::Imply {
                     left,
                     right,
                     not_left,
-                } => formula.with_implication(
+                } => formula.clone().with_implication(
                     inner(left, current_time),
                     inner(right, current_time),
                     inner(not_left, current_time),
                 ),
             }
         }
-        let mut new_node: NodeFormula = inner(self, current_time).into();
-        new_node.parent_id = parent_id;
-        new_node
+        NodeFormula::from(inner(self, current_time)).with_parent_id(parent_id)
     }
 }

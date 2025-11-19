@@ -49,8 +49,8 @@ impl NodeFormula {
         self
     }
 
-    pub fn with_parent_id(mut self, parend_id: Option<usize>) -> Self {
-        self.parent_id = parend_id;
+    pub fn with_parent_id(mut self, parent_id: Option<usize>) -> Self {
+        self.parent_id = parent_id;
         self
     }
 

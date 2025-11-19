@@ -45,7 +45,7 @@ pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormul
         let (idx, new_interval) = el.1;
         new_operands[idx] = new_operands[idx]
             .clone()
-            .with_kind(new_operands[idx].kind.with_interval(new_interval));
+            .with_kind(new_operands[idx].kind.clone().with_interval(new_interval));
     }
 
     new_operands = new_operands
@@ -117,22 +117,22 @@ pub fn rewrite_globally_finally(input: &Vec<NodeFormula>, time: i32) -> Option<V
             } = &**phi
             && op.is_active_at(time)
         {
-            let first = op.kind.with_interval(Interval {
+            let first = op.kind.clone().with_interval(Interval {
                 lower: time + 2,
                 upper: g_int.upper,
             });
 
             let second = Formula::or(vec![
-                phi.with_interval(Interval {
+                phi.clone().with_interval(Interval {
                     lower: time + f_int.lower + 1,
                     upper: time + f_int.upper,
                 }),
                 Formula::and(vec![
-                    phi.with_interval(Interval {
+                    phi.clone().with_interval(Interval {
                         lower: time + f_int.lower,
                         upper: time + f_int.lower,
                     }),
-                    phi.with_interval(Interval {
+                    phi.clone().with_interval(Interval {
                         lower: time + f_int.upper + 1,
                         upper: time + f_int.upper + 1,
                     }),

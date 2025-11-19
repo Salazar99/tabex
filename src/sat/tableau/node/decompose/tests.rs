@@ -182,13 +182,13 @@ fn test_until() {
         Formula::u(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into();
     let expected1: Node = Node::from_operands(vec![b.clone().into()]);
     let expected2: Node = Node::from_operands(vec![
-        NodeFormula::from(a.clone()).with_parent_id(Some(input.id)),
         NodeFormula::from(Formula::u(
             Interval { lower: 0, upper: 5 },
             a.clone(),
             b.clone(),
         ))
         .with_marked(true),
+        NodeFormula::from(a.clone()).with_parent_id(Some(input.id)),
     ]);
     make_test_decompose(vec![input], vec![expected1, expected2], None);
 }
@@ -214,13 +214,13 @@ fn test_release() {
         Formula::r(Interval { lower: 0, upper: 5 }, a.clone(), b.clone()).into();
     let expected1: Node = Node::from_operands(vec![a.clone().into()]);
     let expected2: Node = Node::from_operands(vec![
-        NodeFormula::from(b.clone()).with_parent_id(Some(input.id)),
         NodeFormula::from(Formula::r(
             Interval { lower: 0, upper: 5 },
             a.clone(),
             b.clone(),
         ))
         .with_marked(true),
+        NodeFormula::from(b.clone()).with_parent_id(Some(input.id)),
     ]);
     make_test_decompose(vec![input], vec![expected1, expected2], None);
 }

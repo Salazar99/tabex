@@ -33,54 +33,54 @@ pub trait RecursiveFormulaTransformer {
     }
 
     fn visit_and(&self, formula: &Formula, ops: &[Formula]) -> Formula {
-        formula.with_operands(ops.iter().map(|op| self.visit(op)).collect())
+        formula
+            .clone()
+            .with_operands(ops.iter().map(|op| self.visit(op)).collect())
     }
 
     fn visit_or(&self, formula: &Formula, ops: &[Formula]) -> Formula {
-        formula.with_operands(ops.iter().map(|op| self.visit(op)).collect())
+        formula
+            .clone()
+            .with_operands(ops.iter().map(|op| self.visit(op)).collect())
     }
 
     fn visit_not(&self, formula: &Formula, inner: &Formula) -> Formula {
-        formula.with_operand(self.visit(inner))
+        formula.clone().with_operand(self.visit(inner))
     }
 
     fn visit_next(&self, formula: &Formula, inner: &Formula) -> Formula {
-        formula.with_operand(self.visit(inner))
+        formula.clone().with_operand(self.visit(inner))
     }
 
-    fn visit_globally(&self, formula: &Formula, interval: &Interval, phi: &Formula) -> Formula {
-        formula
-            .with_interval(interval.clone())
-            .with_operand(self.visit(phi))
+    fn visit_globally(&self, formula: &Formula, _interval: &Interval, phi: &Formula) -> Formula {
+        formula.clone().with_operand(self.visit(phi))
     }
 
-    fn visit_finally(&self, formula: &Formula, interval: &Interval, phi: &Formula) -> Formula {
-        formula
-            .with_interval(interval.clone())
-            .with_operand(self.visit(phi))
+    fn visit_finally(&self, formula: &Formula, _interval: &Interval, phi: &Formula) -> Formula {
+        formula.clone().with_operand(self.visit(phi))
     }
 
     fn visit_until(
         &self,
         formula: &Formula,
-        interval: &Interval,
+        _interval: &Interval,
         left: &Formula,
         right: &Formula,
     ) -> Formula {
         formula
-            .with_interval(interval.clone())
+            .clone()
             .with_operand_couple(self.visit(left), self.visit(right))
     }
 
     fn visit_release(
         &self,
         formula: &Formula,
-        interval: &Interval,
+        _interval: &Interval,
         left: &Formula,
         right: &Formula,
     ) -> Formula {
         formula
-            .with_interval(interval.clone())
+            .clone()
             .with_operand_couple(self.visit(left), self.visit(right))
     }
 
@@ -91,7 +91,9 @@ pub trait RecursiveFormulaTransformer {
         right: &Formula,
         not_left: &Formula,
     ) -> Formula {
-        formula.with_implication(self.visit(left), self.visit(right), self.visit(not_left))
+        formula
+            .clone()
+            .with_implication(self.visit(left), self.visit(right), self.visit(not_left))
     }
 
     fn visit_leaf(&self, formula: &Formula, _expr: &Expr) -> Formula {
@@ -168,10 +170,13 @@ impl RecursiveFormulaTransformer for STLTransformer {
         );
         Formula::and(vec![
             g_part,
-            formula.with_interval(interval.clone()).with_operand_couple(
-                self.visit(left),
-                Formula::and(vec![self.visit(left), self.visit(right)]),
-            ),
+            formula
+                .clone()
+                .with_interval(interval.clone())
+                .with_operand_couple(
+                    self.visit(left),
+                    Formula::and(vec![self.visit(left), self.visit(right)]),
+                ),
         ])
     }
 
@@ -192,6 +197,7 @@ impl RecursiveFormulaTransformer for STLTransformer {
         Formula::or(vec![
             f_part,
             formula
+                .clone()
                 .with_interval(interval.clone())
                 .with_operand_couple(self.visit(left), self.visit(right)),
         ])
@@ -201,7 +207,7 @@ impl RecursiveFormulaTransformer for STLTransformer {
 pub struct FlatTransformer;
 impl RecursiveFormulaTransformer for FlatTransformer {
     fn visit_and(&self, formula: &Formula, ops: &[Formula]) -> Formula {
-        formula.with_operands(
+        formula.clone().with_operands(
             ops.iter()
                 .map(|op| self.visit(op))
                 .flat_map(|flat_op| {
@@ -216,7 +222,7 @@ impl RecursiveFormulaTransformer for FlatTransformer {
     }
 
     fn visit_or(&self, formula: &Formula, ops: &[Formula]) -> Formula {
-        formula.with_operands(
+        formula.clone().with_operands(
             ops.iter()
                 .map(|op| self.visit(op))
                 .flat_map(|flat_op| {
@@ -237,10 +243,11 @@ impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
         let new_phi = self.visit(phi);
         if let Some(shift) = new_phi.get_shift() {
             formula
+                .clone()
                 .with_interval(interval.shift_right(shift))
                 .with_operand(ShiftBackwardTransformer(shift).visit(&new_phi))
         } else {
-            formula.with_operand(new_phi)
+            formula.clone().with_operand(new_phi)
         }
     }
 
@@ -248,10 +255,11 @@ impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
         let new_phi = self.visit(phi);
         if let Some(shift) = new_phi.get_shift() {
             formula
+                .clone()
                 .with_interval(interval.shift_right(shift))
                 .with_operand(ShiftBackwardTransformer(shift).visit(&new_phi))
         } else {
-            formula.with_operand(new_phi)
+            formula.clone().with_operand(new_phi)
         }
     }
 
@@ -266,13 +274,14 @@ impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
         let new_right = self.visit(right);
         if let Some(shift) = new_left.get_shift().min(new_right.get_shift()) {
             formula
+                .clone()
                 .with_interval(interval.shift_right(shift))
                 .with_operand_couple(
                     ShiftBackwardTransformer(shift).visit(&new_left),
                     ShiftBackwardTransformer(shift).visit(&new_right),
                 )
         } else {
-            formula.with_operand_couple(new_left, new_right)
+            formula.clone().with_operand_couple(new_left, new_right)
         }
     }
 
@@ -287,13 +296,14 @@ impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
         let new_right = self.visit(right);
         if let Some(shift) = new_left.get_shift().min(new_right.get_shift()) {
             formula
+                .clone()
                 .with_interval(interval.shift_right(shift))
                 .with_operand_couple(
                     ShiftBackwardTransformer(shift).visit(&new_left),
                     ShiftBackwardTransformer(shift).visit(&new_right),
                 )
         } else {
-            formula.with_operand_couple(new_left, new_right)
+            formula.clone().with_operand_couple(new_left, new_right)
         }
     }
 }
@@ -301,11 +311,15 @@ impl RecursiveFormulaTransformer for ShiftBoundsTransformer {
 pub struct ShiftBackwardTransformer(i32);
 impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
     fn visit_globally(&self, formula: &Formula, interval: &Interval, _phi: &Formula) -> Formula {
-        formula.with_interval(interval.shift_left(self.0).unwrap())
+        formula
+            .clone()
+            .with_interval(interval.shift_left(self.0).unwrap())
     }
 
     fn visit_finally(&self, formula: &Formula, interval: &Interval, _phi: &Formula) -> Formula {
-        formula.with_interval(interval.shift_left(self.0).unwrap())
+        formula
+            .clone()
+            .with_interval(interval.shift_left(self.0).unwrap())
     }
 
     fn visit_until(
@@ -315,7 +329,9 @@ impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
         _left: &Formula,
         _right: &Formula,
     ) -> Formula {
-        formula.with_interval(interval.shift_left(self.0).unwrap())
+        formula
+            .clone()
+            .with_interval(interval.shift_left(self.0).unwrap())
     }
 
     fn visit_release(
@@ -325,18 +341,20 @@ impl RecursiveFormulaTransformer for ShiftBackwardTransformer {
         _left: &Formula,
         _right: &Formula,
     ) -> Formula {
-        formula.with_interval(interval.shift_left(self.0).unwrap())
+        formula
+            .clone()
+            .with_interval(interval.shift_left(self.0).unwrap())
     }
 }
 
 pub struct ShiftForwardTransformer(i32);
 impl RecursiveFormulaTransformer for ShiftForwardTransformer {
     fn visit_globally(&self, formula: &Formula, interval: &Interval, _phi: &Formula) -> Formula {
-        formula.with_interval(interval.shift_right(self.0))
+        formula.clone().with_interval(interval.shift_right(self.0))
     }
 
     fn visit_finally(&self, formula: &Formula, interval: &Interval, _phi: &Formula) -> Formula {
-        formula.with_interval(interval.shift_right(self.0))
+        formula.clone().with_interval(interval.shift_right(self.0))
     }
 
     fn visit_until(
@@ -346,7 +364,7 @@ impl RecursiveFormulaTransformer for ShiftForwardTransformer {
         _left: &Formula,
         _right: &Formula,
     ) -> Formula {
-        formula.with_interval(interval.shift_right(self.0))
+        formula.clone().with_interval(interval.shift_right(self.0))
     }
 
     fn visit_release(
@@ -356,7 +374,7 @@ impl RecursiveFormulaTransformer for ShiftForwardTransformer {
         _left: &Formula,
         _right: &Formula,
     ) -> Formula {
-        formula.with_interval(interval.shift_right(self.0))
+        formula.clone().with_interval(interval.shift_right(self.0))
     }
 
     fn visit_not(&self, formula: &Formula, _inner: &Formula) -> Formula {
@@ -434,7 +452,9 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
 
             let mut new_operands = input.clone();
             for (idx, merged_interval) in &map {
-                new_operands[*idx] = new_operands[*idx].with_interval(merged_interval.clone());
+                new_operands[*idx] = new_operands[*idx]
+                    .clone()
+                    .with_interval(merged_interval.clone());
             }
 
             new_operands
@@ -530,7 +550,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // 8. rebuild normalized formula
-        formula.with_operands(reduced)
+        formula.clone().with_operands(reduced)
     }
 
     fn visit_or(&self, formula: &Formula, ops: &[Formula]) -> Formula {
@@ -653,7 +673,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // 8. rebuild normalized formula
-        formula.with_operands(reduced)
+        formula.clone().with_operands(reduced)
     }
 
     fn visit_globally(&self, formula: &Formula, interval: &Interval, phi: &Formula) -> Formula {
@@ -702,7 +722,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // 6. rebuild
-        formula.with_operand(new_phi)
+        formula.clone().with_operand(new_phi)
     }
 
     fn visit_finally(&self, formula: &Formula, interval: &Interval, phi: &Formula) -> Formula {
@@ -742,7 +762,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // 5. rebuild
-        formula.with_operand(new_phi)
+        formula.clone().with_operand(new_phi)
     }
 
     fn visit_until(
@@ -813,7 +833,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
         }
 
         // 5. rebuild
-        formula.with_operand_couple(new_left, new_right)
+        formula.clone().with_operand_couple(new_left, new_right)
     }
 
     fn visit_release(
@@ -872,7 +892,7 @@ impl RecursiveFormulaTransformer for FormulaSimplifier {
             return self.visit(&Formula::g(interval.clone(), new_right.clone()));
         }
 
-        formula.with_operand_couple(new_left, new_right)
+        formula.clone().with_operand_couple(new_left, new_right)
     }
 }
 
