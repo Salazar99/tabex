@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --tools)
-            tools=("$2")
+            tools=($2)
             shift 2
             ;;
         --stltree-path)
@@ -45,12 +45,13 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --bench-sets)
-            bench_sets=("$2")
+            bench_sets=($2)
             shift 2
             ;;
         --output-dir)
             outdir="$2"
             shift 2
+            ;;
         *)
             echo "Unknown argument: $1"
             exit 1
