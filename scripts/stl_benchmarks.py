@@ -19,6 +19,7 @@ bench_names = {
     "mtl_requirements": "mtl.stl",
     "req_cps": "cps.stl",
     "avionics": "avionics.stl",
+    "irrigation": "irrigation.stl",
 }
 bench_files = {name: os.path.join(base_dir, filename) for name, filename in bench_names.items()}
 
