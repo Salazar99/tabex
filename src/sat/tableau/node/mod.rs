@@ -15,6 +15,7 @@ use std::{
 
 pub mod decompose;
 pub mod rewrite;
+pub mod signature;
 
 pub static NODE_FORMULA_ID: AtomicUsize = AtomicUsize::new(0);
 pub static NODE_ID: AtomicUsize = AtomicUsize::new(0);

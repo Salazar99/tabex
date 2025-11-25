@@ -3,6 +3,7 @@ use std::vec;
 
 use crate::formula::Formula;
 use crate::sat::tableau::Tableau;
+use crate::sat::tableau::node::signature::Signature;
 use crate::sat::tableau::node::{Node, NodeFormula};
 
 #[cfg(test)]
@@ -366,7 +367,8 @@ impl Tableau {
                     f.kind,
                     Formula::F { .. } | Formula::U { .. } | Formula::R { .. }
                 ) && f.marked
-            }));
+            }))
+            || Signature::new(node).problematic();
 
         // Select jump length
         let jump = if step {
