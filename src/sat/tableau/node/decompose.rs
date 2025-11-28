@@ -358,15 +358,7 @@ impl Tableau {
                         Some(max_upper) => node.current_time < interval.lower + max_upper,
                     },
                     _ => false,
-                })
-            || (node.operands.iter().any(|f| {
-                matches!(f.kind, Formula::Prop(_) | Formula::Not(_)) && !f.is_parent_active_in(node)
-            }) && node.operands.iter().any(|f| {
-                matches!(
-                    f.kind,
-                    Formula::F { .. } | Formula::U { .. } | Formula::R { .. }
-                ) && f.marked
-            }));
+                });
 
         // Select jump length
         let jump = if step {
@@ -375,7 +367,10 @@ impl Tableau {
             .into_iter()
             .find(|&t| t > node.current_time)
         {
-            target_time - node.current_time
+            let max_jump = target_time - node.current_time;
+            let new_jump = node.calculate_k_star(max_jump);
+            // println!("max time {max_jump} real time {new_jump}");
+            new_jump
         } else {
             return None;
         };

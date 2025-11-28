@@ -230,3 +230,14 @@ fn test_jump_until_satisfied() {
         Some(true)
     );
 }
+
+#[test]
+fn test_jump_completeness() {
+    assert_eq!(
+        make_test(
+            "(a U[0, 10] (b && G[20, 30] c)) && G[0, 27] !c && G[10, 10] !b",
+            false
+        ),
+        Some(true)
+    )
+}
