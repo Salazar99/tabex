@@ -187,7 +187,7 @@ impl Node {
                 Formula::R {
                     right, interval, ..
                 } => {
-                    obstacles.extend(right.calculate_s(interval.upper));
+                    obstacles.extend(right.calculate_s(interval.lower));
                 }
                 Formula::U { interval, left, .. } => {
                     obstacles.extend(left.calculate_s(interval.lower));
@@ -288,7 +288,20 @@ impl Formula {
                     inner_s(&not_left, delta, set);
                     inner_s(&right, delta, set);
                 }
-                _ => {}
+                Formula::G { interval, phi } => {
+                    inner_s(&phi, delta + interval.upper, set);
+                } 
+                Formula::F { interval, phi } => {
+                    inner_s(&phi, delta + interval.lower, set);
+                }
+                Formula::R { interval, left, right } => {
+                    inner_s(&left, delta + interval.lower, set);
+                    inner_s(&right, delta + interval.lower, set);
+                }
+                Formula::U { interval, left, right } => {
+                    inner_s(&left, delta + interval.lower, set);
+                    inner_s(&right, delta + interval.lower, set);
+                }
             }
         }
         let mut set = HashSet::new();
