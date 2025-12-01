@@ -6,37 +6,10 @@ use crate::sat::tableau::{
 };
 
 impl Tableau {
-    fn fmt_operand(&self, nf: &NodeFormula) -> String {
-        let mark = if nf.marked { "O" } else { "" };
-
-        let parent_str = match nf.parent_id {
-            Some(pid) => format!(" → ({})", pid),
-            None => "".into(),
-        };
-
-        let op_str = format!("{}{}", mark, nf.kind);
-
-        // final compact form:
-        // (id) ->(pid) | operator
-        format!("({}){} | {}", nf.id, parent_str, op_str)
-    }
-
-    fn fmt_node_label(&self, node: &Node) -> String {
-        let mut s = String::new();
-
-        s.push_str(&format!("Node {} | t = {}\n", node.id, node.current_time));
-        s.push_str("----------------------------------------\n");
-        for nf in &node.operands {
-            s.push_str(&self.fmt_operand(nf));
-            s.push('\n');
-        }
-
-        s
-    }
 
     pub(crate) fn add_graph_node(&mut self, node: &Node) {
-        let label = self.fmt_node_label(node);
         if let Some(graph) = &mut self.graph {
+            let label = node.fmt_node_label();
             let mut dot_node = DotNode::new(&format!("Node{}", node.id)).label(label.as_str()); // plain text label
 
             if node.implies.is_some() {
@@ -65,5 +38,37 @@ impl Tableau {
             self.add_graph_node(child);
             self.add_graph_edge(parent, child);
         }
+    }
+}
+
+impl NodeFormula {
+    fn fmt_operand(&self) -> String {
+        let mark = if self.marked { "O" } else { "" };
+    
+        let parent_str = match self.parent_id {
+            Some(pid) => format!(" → ({})", pid),
+            None => "".into(),
+        };
+    
+        let op_str = format!("{}{}", mark, self.kind);
+    
+        // final compact form:
+        // (id) ->(pid) | operator
+        format!("({}){} | {}", self.id, parent_str, op_str)
+    }
+}
+
+impl Node {
+    fn fmt_node_label(&self) -> String {
+        let mut s = String::new();
+    
+        s.push_str(&format!("Node {} | t = {}\n", self.id, self.current_time));
+        s.push_str("----------------------------------------\n");
+        for nf in &self.operands {
+            s.push_str(&nf.fmt_operand());
+            s.push('\n');
+        }
+    
+        s
     }
 }
