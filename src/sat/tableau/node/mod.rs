@@ -290,15 +290,23 @@ impl Formula {
                 }
                 Formula::G { interval, phi } => {
                     inner_s(&phi, delta + interval.upper, set);
-                } 
+                }
                 Formula::F { interval, phi } => {
                     inner_s(&phi, delta + interval.lower, set);
                 }
-                Formula::R { interval, left, right } => {
+                Formula::R {
+                    interval,
+                    left,
+                    right,
+                } => {
                     inner_s(&left, delta + interval.lower, set);
                     inner_s(&right, delta + interval.lower, set);
                 }
-                Formula::U { interval, left, right } => {
+                Formula::U {
+                    interval,
+                    left,
+                    right,
+                } => {
                     inner_s(&left, delta + interval.lower, set);
                     inner_s(&right, delta + interval.lower, set);
                 }

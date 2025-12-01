@@ -6,7 +6,14 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         mltl,
         ..Default::default()
     };
-    let tableau = TableauOptions::default();
+    // Only jump rule
+    let tableau = TableauOptions {
+        formula_optimizations: false,
+        formula_simplifications: false,
+        memoization: false,
+        simple_first: false,
+        ..Default::default()
+    };
     let mut tableau_solver = Tableau::new(general, tableau);
     tableau_solver.make_tableau_from_str(formula_str)
 }
@@ -236,6 +243,17 @@ fn test_jump_completeness() {
     assert_eq!(
         make_test(
             "(a U[0, 10] (b && G[20, 30] c)) && G[0, 27] !c && G[10, 10] !b",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_completeness_obstacle_nested() {
+    assert_eq!(
+        make_test(
+            "G[5, 5] G[5, 5] !a && b U[0, 5] G[10, 10] a && G[15, 15] !a",
             false
         ),
         Some(true)
