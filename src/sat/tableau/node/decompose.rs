@@ -368,9 +368,7 @@ impl Tableau {
             .find(|&t| t > node.current_time)
         {
             let max_jump = target_time - node.current_time;
-            let new_jump = node.calculate_k_star(max_jump);
-            // println!("max time {max_jump} real time {new_jump}");
-            new_jump
+            node.calculate_k_star(max_jump)
         } else {
             return None;
         };

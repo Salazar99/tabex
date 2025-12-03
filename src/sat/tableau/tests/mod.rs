@@ -259,3 +259,25 @@ fn test_jump_completeness_obstacle_nested() {
         Some(true)
     )
 }
+
+#[test]
+fn test_jump_completeness_release_obstacle() {
+    assert_eq!(
+        make_test(
+            "(F[0, 10] (b && G[20, 30] c)) && a R[0, 27] !c && G[10, 10] !b && G[0,50] !a",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_completeness_release_target_conflict() {
+    assert_eq!(
+        make_test(
+            "(F[0, 10] (b && G[20, 30] c)) && G[0, 27] !c && G[10, 10] !b && (F[10,10] !c) R[18,19] a && F[19,19] !a",
+            false
+        ),
+        Some(true)
+    )
+}

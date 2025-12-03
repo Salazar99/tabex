@@ -1,6 +1,6 @@
 use crate::{
     formula::{
-        Formula,
+        Formula, Interval,
         transform::{
             FlatTransformer, FormulaSimplifier, NegationNormalFormTransformer,
             RecursiveFormulaTransformer, STLTransformer, ShiftBoundsTransformer,
@@ -175,7 +175,7 @@ impl Node {
         targets
     }
 
-    fn compute_obstacle_set(&self) -> HashSet<i32> {
+    fn compute_obstacle_set(&self) -> HashSet<Interval> {
         let mut obstacles = HashSet::new();
 
         for operand in &self.operands {
@@ -185,18 +185,28 @@ impl Node {
 
             match &operand.kind {
                 Formula::R {
-                    right, interval, ..
-                } => {
-                    obstacles.extend(right.calculate_s(interval.lower));
+                    right: phi_1,
+                    interval,
+                    ..
                 }
-                Formula::U { interval, left, .. } => {
-                    obstacles.extend(left.calculate_s(interval.lower));
+                | Formula::U {
+                    interval,
+                    left: phi_1,
+                    ..
+                } => {
+                    obstacles.extend(phi_1.calculate_s(interval.clone()));
                 }
                 Formula::G { interval, phi } => {
-                    obstacles.extend(phi.calculate_s(interval.upper));
+                    obstacles.extend(phi.calculate_s(Interval {
+                        lower: interval.upper,
+                        upper: interval.upper,
+                    }));
                 }
                 Formula::Prop(_) | Formula::Not(_) => {
-                    obstacles.insert(self.current_time);
+                    obstacles.insert(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    });
                 }
                 _ => {}
             }
@@ -208,13 +218,22 @@ impl Node {
     pub fn calculate_k_star(&self, max_jump: i32) -> i32 {
         let targets = self.compute_target_set();
         let obstacles = self.compute_obstacle_set();
-        // println!("Targets: {:?}, Obstacles: {:?}", targets, obstacles);
-        targets
+        //println!("Targets: {:?}, Obstacles: {:?}", targets, obstacles);
+
+        let step = targets
             .iter()
-            .flat_map(|&t| obstacles.iter().map(move |&o| o - t + 1))
+            .any(|t| obstacles.iter().any(|o| &o.lower <= t && t <= &o.upper));
+        if step {
+            return 1;
+        }
+        let jump = targets
+            .iter()
+            .flat_map(|&t| obstacles.iter().map(move |o| o.lower - t + 1))
             .filter(|&k| k >= 1 && k <= max_jump)
             .min()
-            .unwrap_or(max_jump)
+            .unwrap_or(max_jump);
+        //println!("max jump {max_jump} real jump {jump}");
+        jump
     }
 }
 
@@ -268,8 +287,8 @@ impl Formula {
         set
     }
 
-    fn calculate_s(&self, delta: i32) -> HashSet<i32> {
-        pub fn inner_s(formula: &Formula, delta: i32, set: &mut HashSet<i32>) {
+    fn calculate_s(&self, interval: Interval) -> HashSet<Interval> {
+        pub fn inner_s(formula: &Formula, delta: Interval, set: &mut HashSet<Interval>) {
             match formula {
                 Formula::Prop(_) => {
                     set.insert(delta);
@@ -279,41 +298,66 @@ impl Formula {
                 }
                 Formula::Or(operands) | Formula::And(operands) => {
                     for op in operands {
-                        inner_s(op, delta, set);
+                        inner_s(op, delta.clone(), set);
                     }
                 }
                 Formula::Imply {
                     not_left, right, ..
                 } => {
-                    inner_s(&not_left, delta, set);
+                    inner_s(&not_left, delta.clone(), set);
                     inner_s(&right, delta, set);
                 }
                 Formula::G { interval, phi } => {
-                    inner_s(&phi, delta + interval.upper, set);
+                    inner_s(
+                        &phi,
+                        Interval {
+                            lower: delta.lower + interval.upper,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
                 }
                 Formula::F { interval, phi } => {
-                    inner_s(&phi, delta + interval.lower, set);
+                    inner_s(
+                        &phi,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
                 }
                 Formula::R {
                     interval,
                     left,
                     right,
-                } => {
-                    inner_s(&left, delta + interval.lower, set);
-                    inner_s(&right, delta + interval.lower, set);
                 }
-                Formula::U {
+                | Formula::U {
                     interval,
                     left,
                     right,
                 } => {
-                    inner_s(&left, delta + interval.lower, set);
-                    inner_s(&right, delta + interval.lower, set);
+                    inner_s(
+                        &left,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
+                    inner_s(
+                        &right,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
                 }
             }
         }
         let mut set = HashSet::new();
-        inner_s(self, delta, &mut set);
+        inner_s(self, interval, &mut set);
         set
     }
 }

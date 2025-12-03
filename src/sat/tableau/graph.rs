@@ -6,7 +6,6 @@ use crate::sat::tableau::{
 };
 
 impl Tableau {
-
     pub(crate) fn add_graph_node(&mut self, node: &Node) {
         if let Some(graph) = &mut self.graph {
             let label = node.fmt_node_label();
@@ -44,14 +43,14 @@ impl Tableau {
 impl NodeFormula {
     fn fmt_operand(&self) -> String {
         let mark = if self.marked { "O" } else { "" };
-    
+
         let parent_str = match self.parent_id {
             Some(pid) => format!(" → ({})", pid),
             None => "".into(),
         };
-    
+
         let op_str = format!("{}{}", mark, self.kind);
-    
+
         // final compact form:
         // (id) ->(pid) | operator
         format!("({}){} | {}", self.id, parent_str, op_str)
@@ -61,14 +60,14 @@ impl NodeFormula {
 impl Node {
     fn fmt_node_label(&self) -> String {
         let mut s = String::new();
-    
+
         s.push_str(&format!("Node {} | t = {}\n", self.id, self.current_time));
         s.push_str("----------------------------------------\n");
         for nf in &self.operands {
             s.push_str(&nf.fmt_operand());
             s.push('\n');
         }
-    
+
         s
     }
 }
