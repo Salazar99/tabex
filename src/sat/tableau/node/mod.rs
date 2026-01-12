@@ -151,7 +151,7 @@ impl Node {
         });
     }
 
-    fn compute_target_set(&self) -> HashSet<i32> {
+    fn compute_target_set(&self) -> HashSet<Interval> {
         let mut targets = HashSet::new();
 
         for operand in &self.operands {
@@ -161,13 +161,22 @@ impl Node {
 
             match &operand.kind {
                 Formula::U { right, .. } => {
-                    targets.extend(right.calculate_m(self.current_time));
+                    targets.extend(right.proposition_start_interval(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    }));
                 }
                 Formula::R { left, .. } => {
-                    targets.extend(left.calculate_m(self.current_time));
+                    targets.extend(left.proposition_end_interval(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    }));
                 }
                 Formula::F { phi, .. } => {
-                    targets.extend(phi.calculate_m(self.current_time));
+                    targets.extend(phi.proposition_start_interval(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    }));
                 }
                 _ => {}
             }
@@ -194,10 +203,10 @@ impl Node {
                     left: phi_1,
                     ..
                 } => {
-                    obstacles.extend(phi_1.calculate_s(interval.clone()));
+                    obstacles.extend(phi_1.proposition_end_interval(interval.clone()));
                 }
                 Formula::G { interval, phi } => {
-                    obstacles.extend(phi.calculate_s(Interval {
+                    obstacles.extend(phi.proposition_end_interval(Interval {
                         lower: interval.upper,
                         upper: interval.upper,
                     }));
@@ -215,100 +224,277 @@ impl Node {
         obstacles
     }
 
-    pub fn calculate_k_star(&self, max_jump: i32) -> i32 {
-        let targets = self.compute_target_set();
-        let obstacles = self.compute_obstacle_set();
-        //println!("Targets: {:?}, Obstacles: {:?}", targets, obstacles);
+    fn compute_n(&self) -> HashSet<Interval> {
+        let mut n_set = HashSet::new();
 
-        let step = targets
-            .iter()
-            .any(|t| obstacles.iter().any(|o| &o.lower <= t && t <= &o.upper));
-        if step {
+        for operand in &self.operands {
+            if !operand.marked {
+                continue;
+            }
+
+            match &operand.kind {
+                Formula::U { left, .. } => {
+                    n_set.extend(left.proposition_end_interval(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    }));
+                }
+                Formula::R { right, .. } => {
+                    n_set.extend(right.proposition_end_interval(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    }));
+                }
+                Formula::G { phi, .. } => {
+                    n_set.extend(phi.proposition_end_interval(Interval {
+                        lower: self.current_time,
+                        upper: self.current_time,
+                    }));
+                }
+                _ => {}
+            }
+        }
+        n_set
+    }
+
+    fn compute_o(&self) -> HashSet<Interval> {
+        let mut o_set = HashSet::new();
+
+        for operand in &self.operands {
+            if operand.is_parent_active_in(self) {
+                continue;
+            }
+
+            match &operand.kind {
+                Formula::U {
+                    left: phi_1,
+                    interval,
+                    ..
+                }
+                | Formula::R {
+                    interval,
+                    right: phi_1,
+                    ..
+                }
+                | Formula::G {
+                    interval,
+                    phi: phi_1,
+                } => {
+                    o_set.extend(phi_1.proposition_start_interval(Interval {
+                        lower: interval.lower,
+                        upper: interval.lower,
+                    }));
+                }
+                _ => {}
+            }
+        }
+
+        o_set
+    }
+
+    pub fn calculate_k_star(&self, max_jump: i32) -> i32 {
+        let target_starts = self.compute_target_set();
+        let invariant_ends = self.compute_obstacle_set();
+        //println!("M: {:?}, S: {:?}", target_starts, invariant_ends);
+
+        let active_invariant_ends = self.compute_n();
+        let invariant_starts = self.compute_o();
+        //println!("N: {:?}, O: {:?}", active_invariant_ends, invariant_starts);
+
+        let condition_step_complete = target_starts.iter().any(|t| {
+            invariant_ends
+                .iter()
+                .any(|o| o.lower <= t.upper && t.upper <= o.upper)
+        });
+
+        let condition_step_sound = active_invariant_ends.iter().any(|n| {
+            invariant_starts
+                .iter()
+                .any(|o| o.lower <= n.upper && n.upper <= o.upper)
+        });
+
+        if condition_step_complete || condition_step_sound {
             return 1;
         }
-        let jump = targets
+
+        let jump_complete = target_starts
             .iter()
-            .flat_map(|&t| obstacles.iter().map(move |o| o.lower - t + 1))
+            .flat_map(|t| invariant_ends.iter().map(move |o| o.lower - t.upper + 1))
             .filter(|&k| k >= 1 && k <= max_jump)
             .min()
             .unwrap_or(max_jump);
-        //println!("max jump {max_jump} real jump {jump}");
+
+        let jump_sound = active_invariant_ends
+            .iter()
+            .flat_map(|n| invariant_starts.iter().map(move |o| o.lower - n.upper))
+            .filter(|&k| k >= 1 && k <= max_jump)
+            .min()
+            .unwrap_or(max_jump);
+
+        let jump = jump_complete.min(jump_sound);
+        //println!("Node {}: max_jump = {:?}, jump_complete = {:?}, jump_sound = {:?}, selected jump = {}", self.id, max_jump, jump_complete, jump_sound, jump);
         jump
     }
 }
 
 impl Formula {
-    fn calculate_m(&self, delta: i32) -> HashSet<i32> {
-        pub fn inner_m(formula: &Formula, delta: i32, set: &mut HashSet<i32>) {
+    fn proposition_start_interval(&self, interval: Interval) -> HashSet<Interval> {
+        fn inner_start(formula: &Formula, delta: Interval, set: &mut HashSet<Interval>) {
             match formula {
                 Formula::Prop(_) => {
                     set.insert(delta);
                 }
                 Formula::Not(inner) => {
-                    inner_m(inner, delta, set);
+                    inner_start(inner, delta, set);
                 }
                 Formula::Or(operands) | Formula::And(operands) => {
                     for op in operands {
-                        inner_m(op, delta, set);
+                        inner_start(op, delta.clone(), set);
                     }
+                }
+                Formula::Imply {
+                    right, not_left, ..
+                } => {
+                    inner_start(&not_left, delta.clone(), set);
+                    inner_start(&right, delta, set);
                 }
                 Formula::U {
                     left,
                     right,
                     interval,
                 } => {
-                    inner_m(left, delta + interval.lower, set);
-                    inner_m(right, delta + interval.upper, set);
+                    inner_start(
+                        &left,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.lower,
+                        },
+                        set,
+                    );
+                    inner_start(
+                        &right,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
                 }
                 Formula::R {
                     left,
                     right,
                     interval,
                 } => {
-                    inner_m(left, delta + interval.upper, set);
-                    inner_m(right, delta + interval.lower, set);
-                }
-                Formula::Imply {
-                    right, not_left, ..
-                } => {
-                    inner_m(&not_left, delta, set);
-                    inner_m(&right, delta, set);
+                    inner_start(
+                        &left,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
+                    inner_start(
+                        &right,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.lower,
+                        },
+                        set,
+                    );
                 }
                 Formula::G { interval, phi } => {
-                    inner_m(&phi, delta + interval.lower, set);
+                    inner_start(
+                        &phi,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.lower,
+                        },
+                        set,
+                    );
                 }
                 Formula::F { interval, phi } => {
-                    inner_m(&phi, delta + interval.upper, set);
+                    inner_start(
+                        &phi,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
                 }
             }
         }
         let mut set = HashSet::new();
-        inner_m(&self, delta, &mut set);
+        inner_start(self, interval, &mut set);
         set
     }
 
-    fn calculate_s(&self, interval: Interval) -> HashSet<Interval> {
-        pub fn inner_s(formula: &Formula, delta: Interval, set: &mut HashSet<Interval>) {
+    fn proposition_end_interval(&self, interval: Interval) -> HashSet<Interval> {
+        fn inner_end(formula: &Formula, delta: Interval, set: &mut HashSet<Interval>) {
             match formula {
                 Formula::Prop(_) => {
                     set.insert(delta);
                 }
                 Formula::Not(inner) => {
-                    inner_s(&inner, delta, set);
+                    inner_end(inner, delta, set);
                 }
                 Formula::Or(operands) | Formula::And(operands) => {
                     for op in operands {
-                        inner_s(op, delta.clone(), set);
+                        inner_end(op, delta.clone(), set);
                     }
                 }
                 Formula::Imply {
-                    not_left, right, ..
+                    right, not_left, ..
                 } => {
-                    inner_s(&not_left, delta.clone(), set);
-                    inner_s(&right, delta, set);
+                    inner_end(&not_left, delta.clone(), set);
+                    inner_end(&right, delta, set);
+                }
+                Formula::U {
+                    left,
+                    right,
+                    interval,
+                } => {
+                    inner_end(
+                        &left,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
+                    inner_end(
+                        &right,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
+                }
+                Formula::R {
+                    left,
+                    right,
+                    interval,
+                } => {
+                    inner_end(
+                        &left,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
+                    inner_end(
+                        &right,
+                        Interval {
+                            lower: delta.lower + interval.lower,
+                            upper: delta.upper + interval.upper,
+                        },
+                        set,
+                    );
                 }
                 Formula::G { interval, phi } => {
-                    inner_s(
+                    inner_end(
                         &phi,
                         Interval {
                             lower: delta.lower + interval.upper,
@@ -318,35 +504,8 @@ impl Formula {
                     );
                 }
                 Formula::F { interval, phi } => {
-                    inner_s(
+                    inner_end(
                         &phi,
-                        Interval {
-                            lower: delta.lower + interval.lower,
-                            upper: delta.upper + interval.upper,
-                        },
-                        set,
-                    );
-                }
-                Formula::R {
-                    interval,
-                    left,
-                    right,
-                }
-                | Formula::U {
-                    interval,
-                    left,
-                    right,
-                } => {
-                    inner_s(
-                        &left,
-                        Interval {
-                            lower: delta.lower + interval.lower,
-                            upper: delta.upper + interval.upper,
-                        },
-                        set,
-                    );
-                    inner_s(
-                        &right,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -357,7 +516,7 @@ impl Formula {
             }
         }
         let mut set = HashSet::new();
-        inner_s(self, interval, &mut set);
+        inner_end(self, interval, &mut set);
         set
     }
 }
