@@ -269,18 +269,30 @@ impl Node {
                 Formula::U {
                     left: phi_1,
                     interval,
-                    ..
+                    right: phi_2
                 }
                 | Formula::R {
                     interval,
                     right: phi_1,
-                    ..
-                }
-                | Formula::G {
-                    interval,
-                    phi: phi_1,
+                    left: phi_2,
                 } => {
+                    o_set.extend(phi_2.proposition_start_interval(Interval {
+                        lower: interval.lower,
+                        upper: interval.upper,
+                    }));
                     o_set.extend(phi_1.proposition_start_interval(Interval {
+                        lower: interval.lower,
+                        upper: interval.lower,
+                    }));
+                }
+                Formula::F { interval, phi } => {
+                    o_set.extend(phi.proposition_start_interval(Interval {
+                        lower: interval.lower,
+                        upper: interval.upper,
+                    }));
+                }
+                Formula::G { interval, phi } => {
+                    o_set.extend(phi.proposition_start_interval(Interval {
                         lower: interval.lower,
                         upper: interval.lower,
                     }));
