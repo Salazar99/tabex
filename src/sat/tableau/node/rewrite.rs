@@ -115,6 +115,7 @@ pub fn rewrite_globally_finally(input: &Vec<NodeFormula>, time: i32) -> Option<V
             && let Formula::F {
                 interval: f_int, ..
             } = &**phi
+            && f_int.lower < f_int.upper
             && op.is_active_at(time)
         {
             let first = op.kind.clone().with_interval(Interval {
