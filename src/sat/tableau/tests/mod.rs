@@ -281,3 +281,25 @@ fn test_jump_completeness_release_target_conflict() {
         Some(true)
     )
 }
+
+#[test]
+fn test_jump_soundness() {
+    assert_eq!(
+        make_test(
+            "(G[0,1] (F[5,5] a)) U[0,5] (!b) && G[0,4] b && G[8,8] !a",
+            false
+        ),
+        Some(false)
+    )
+}
+
+#[test]
+fn test_jump_soundness_f() {
+    assert_eq!(
+        make_test(
+            "(G[0,1] (F[5,5] a)) U[0,5] (!b) && G[0,4] b && F[8,8] !a",
+            false
+        ),
+        Some(false)
+    )
+}
