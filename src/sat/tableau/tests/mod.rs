@@ -283,6 +283,17 @@ fn test_jump_completeness_release_target_conflict() {
 }
 
 #[test]
+fn test_jump_completeness_release_target_conflict_postponed() {
+    assert_eq!(
+        make_test(
+            "(F[0, 15] (b && G[20, 30] c)) && G[0, 27] !c && G[15, 15] !b && (d && F[10,10] !c) R[17,20] a && F[20,20] !a && F[17,17] !d",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
 fn test_jump_soundness() {
     assert_eq!(
         make_test(
