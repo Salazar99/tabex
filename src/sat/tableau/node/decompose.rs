@@ -284,26 +284,6 @@ impl Tableau {
 
     #[must_use]
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
-        fn retime_poised(formula: &NodeFormula, node: &Node, jump: i32) -> Option<NodeFormula> {
-            let interval = formula.kind.get_interval()?;
-            if node.current_time >= interval.upper {
-                return None;
-            }
-
-            let kind = if jump != 1
-                && formula.is_parent_active_in(node)
-                && matches!(formula.kind, Formula::G { .. } | Formula::R { .. })
-            {
-                formula
-                    .kind
-                    .clone()
-                    .with_interval(interval.shift_right(jump - 1))
-            } else {
-                formula.kind.clone()
-            };
-            Some(formula.clone().with_kind(kind).with_marked(false))
-        }
-
         fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
             fn top_level_interval(formula: &NodeFormula, node: &Node) -> Option<Vec<i32>> {
                 match &formula.kind {
@@ -326,42 +306,8 @@ impl Tableau {
                 .collect()
         }
 
-        pub fn get_max_upper(formula: &Formula) -> Option<i32> {
-            match &formula {
-                Formula::And(operands) | Formula::Or(operands) => {
-                    operands.iter().map(get_max_upper).max().unwrap_or(None)
-                }
-                Formula::Imply { left, right, .. } => get_max_upper(left).max(get_max_upper(right)),
-                _ => formula.upper_bound(),
-            }
-        }
-
-        // Verify jump rule condition
-        let step = !self.tableau_options.jump_rule_enabled
-            || node
-                .operands
-                .iter()
-                .filter(|f| f.marked && !f.is_parent_active_in(node))
-                .any(|f| match &f.kind {
-                    Formula::G { phi, interval, .. }
-                    | Formula::U {
-                        left: phi,
-                        interval,
-                        ..
-                    }
-                    | Formula::R {
-                        right: phi,
-                        interval,
-                        ..
-                    } => match get_max_upper(phi) {
-                        None => false,
-                        Some(max_upper) => node.current_time < interval.lower + max_upper,
-                    },
-                    _ => false,
-                });
-
         // Select jump length
-        let jump = if step {
+        let jump = if !self.tableau_options.jump_rule_enabled {
             1
         } else if let Some(target_time) = sorted_time_instants(node)
             .into_iter()
@@ -373,13 +319,17 @@ impl Tableau {
             return None;
         };
 
-        // Retain only temporal operators, and retimed O formulas
+        // Retain only temporal operators
         let new_operands: Vec<NodeFormula> = node
             .operands
             .iter()
-            .filter_map(|op| match &op.kind.get_interval() {
-                Some(_) => retime_poised(op, node, jump),
-                _ => None,
+            .filter_map(|op| {
+                if let Some(interval) = op.kind.get_interval()
+                    && node.current_time < interval.upper {
+                    Some(op.clone().with_marked(false))
+                } else {
+                    None
+                }
             })
             .collect();
 
