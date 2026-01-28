@@ -269,7 +269,7 @@ impl Node {
                 Formula::U {
                     left: phi_1,
                     interval,
-                    right: phi_2
+                    right: phi_2,
                 }
                 | Formula::R {
                     interval,
@@ -305,6 +305,10 @@ impl Node {
     }
 
     pub fn calculate_k_star(&self, max_jump: i32) -> i32 {
+        if max_jump <= 1 {
+            return 1;
+        }
+
         let target_starts = self.compute_target_set();
         let invariant_ends = self.compute_obstacle_set();
         //println!("M: {:?}, S: {:?}", target_starts, invariant_ends);
@@ -332,18 +336,18 @@ impl Node {
         let jump_complete = target_starts
             .iter()
             .flat_map(|t| invariant_ends.iter().map(move |o| o.lower - t.upper + 1))
-            .filter(|&k| k >= 1 && k <= max_jump)
+            .filter(|&k| k >= 1)
             .min()
             .unwrap_or(max_jump);
 
         let jump_sound = active_invariant_ends
             .iter()
             .flat_map(|n| invariant_starts.iter().map(move |o| o.lower - n.upper))
-            .filter(|&k| k >= 1 && k <= max_jump)
+            .filter(|&k| k >= 1)
             .min()
             .unwrap_or(max_jump);
 
-        let jump = jump_complete.min(jump_sound);
+        let jump = jump_complete.min(jump_sound).min(max_jump);
         //println!("Node {}: max_jump = {:?}, jump_complete = {:?}, jump_sound = {:?}, selected jump = {}", self.id, max_jump, jump_complete, jump_sound, jump);
         jump
     }
