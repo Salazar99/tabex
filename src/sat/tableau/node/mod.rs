@@ -326,7 +326,7 @@ impl Node {
         let condition_step_sound = active_invariant_ends.iter().any(|n| {
             invariant_starts
                 .iter()
-                .any(|o| o.lower <= n.upper && n.upper <= o.upper)
+                .any(|o| n.intersects(o))
         });
 
         if condition_step_complete || condition_step_sound {
