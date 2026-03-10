@@ -271,8 +271,8 @@ impl Formula {
     #[must_use]
     pub fn with_operand(mut self, operand: Formula) -> Self {
         match &mut self {
-            Formula::Not(inner) => *inner = Box::new(operand),
-            Formula::G { phi, .. } | Formula::F { phi, .. } => *phi = Box::new(operand),
+            Formula::Not(inner) => **inner = operand,
+            Formula::G { phi, .. } | Formula::F { phi, .. } => **phi = operand,
             _ => panic!("Cannot set operand on formula without a single inner operand"),
         }
         self
@@ -287,8 +287,8 @@ impl Formula {
             | Formula::R {
                 left: l, right: r, ..
             } => {
-                *l = Box::new(left);
-                *r = Box::new(right);
+                **l = left;
+                **r = right;
             }
             _ => panic!("Cannot set operands on formula without two inner operands"),
         }
@@ -324,9 +324,9 @@ impl Formula {
                 right: r,
                 not_left: nl,
             } => {
-                *l = Box::new(left);
-                *r = Box::new(right);
-                *nl = Box::new(not_left);
+                **l = left;
+                **r = right;
+                **nl = not_left;
             }
             _ => panic!("Cannot set implications on formulas different from Imply"),
         }

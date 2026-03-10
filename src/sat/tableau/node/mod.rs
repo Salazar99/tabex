@@ -327,11 +327,9 @@ impl Node {
                 .any(|o| o.lower <= t.upper && t.upper <= o.upper)
         });
 
-        let condition_step_sound = active_invariant_ends.iter().any(|n| {
-            invariant_starts
-                .iter()
-                .any(|o| n.intersects(o))
-        });
+        let condition_step_sound = active_invariant_ends
+            .iter()
+            .any(|n| invariant_starts.iter().any(|o| n.intersects(o)));
 
         if condition_step_complete || condition_step_sound {
             return 1;
@@ -351,9 +349,8 @@ impl Node {
             .min()
             .unwrap_or(max_jump);
 
-        let jump = jump_complete.min(jump_sound).min(max_jump);
         //println!("Node {}: max_jump = {:?}, jump_complete = {:?}, jump_sound = {:?}, selected jump = {}", self.id, max_jump, jump_complete, jump_sound, jump);
-        jump
+        jump_complete.min(jump_sound).min(max_jump)
     }
 }
 
@@ -375,8 +372,8 @@ impl Formula {
                 Formula::Imply {
                     right, not_left, ..
                 } => {
-                    inner_start(&not_left, delta.clone(), set);
-                    inner_start(&right, delta, set);
+                    inner_start(not_left, delta.clone(), set);
+                    inner_start(right, delta, set);
                 }
                 Formula::U {
                     left,
@@ -384,7 +381,7 @@ impl Formula {
                     interval,
                 } => {
                     inner_start(
-                        &left,
+                        left,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.lower,
@@ -392,7 +389,7 @@ impl Formula {
                         set,
                     );
                     inner_start(
-                        &right,
+                        right,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -406,7 +403,7 @@ impl Formula {
                     interval,
                 } => {
                     inner_start(
-                        &left,
+                        left,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -414,7 +411,7 @@ impl Formula {
                         set,
                     );
                     inner_start(
-                        &right,
+                        right,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.lower,
@@ -424,7 +421,7 @@ impl Formula {
                 }
                 Formula::G { interval, phi } => {
                     inner_start(
-                        &phi,
+                        phi,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.lower,
@@ -434,7 +431,7 @@ impl Formula {
                 }
                 Formula::F { interval, phi } => {
                     inner_start(
-                        &phi,
+                        phi,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -466,8 +463,8 @@ impl Formula {
                 Formula::Imply {
                     right, not_left, ..
                 } => {
-                    inner_end(&not_left, delta.clone(), set);
-                    inner_end(&right, delta, set);
+                    inner_end(not_left, delta.clone(), set);
+                    inner_end(right, delta, set);
                 }
                 Formula::U {
                     left,
@@ -475,7 +472,7 @@ impl Formula {
                     interval,
                 } => {
                     inner_end(
-                        &left,
+                        left,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -483,7 +480,7 @@ impl Formula {
                         set,
                     );
                     inner_end(
-                        &right,
+                        right,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -497,7 +494,7 @@ impl Formula {
                     interval,
                 } => {
                     inner_end(
-                        &left,
+                        left,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -505,7 +502,7 @@ impl Formula {
                         set,
                     );
                     inner_end(
-                        &right,
+                        right,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
@@ -515,7 +512,7 @@ impl Formula {
                 }
                 Formula::G { interval, phi } => {
                     inner_end(
-                        &phi,
+                        phi,
                         Interval {
                             lower: delta.lower + interval.upper,
                             upper: delta.upper + interval.upper,
@@ -525,7 +522,7 @@ impl Formula {
                 }
                 Formula::F { interval, phi } => {
                     inner_end(
-                        &phi,
+                        phi,
                         Interval {
                             lower: delta.lower + interval.lower,
                             upper: delta.upper + interval.upper,
