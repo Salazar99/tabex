@@ -12,16 +12,16 @@ pub struct RejectedNode {
     time: i32,
 }
 
-impl From<Node> for RejectedNode {
-    fn from(node: Node) -> Self {
+impl From<&Node> for RejectedNode {
+    fn from(node: &Node) -> Self {
         RejectedNode::from_node(node)
     }
 }
 
 impl RejectedNode {
-    fn from_node(node: Node) -> Self {
+    fn from_node(node: &Node) -> Self {
         RejectedNode {
-            operands: node.operands.into_iter().map(|f| f.kind).collect(),
+            operands: node.operands.iter().map(|f| f.kind.clone()).collect(),
             time: node.current_time,
         }
     }

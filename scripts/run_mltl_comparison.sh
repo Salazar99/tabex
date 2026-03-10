@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-    echo "Usage: $0 mltlsatdir [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--z3bin PATH] [--bench-sets \"SET1 SET2 ...\"] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH]"
+    echo "Usage: $0 mltlsatdir [--timeout SECONDS] [--jobs N] [--max-mem MB] [--iters N] [--z3bin PATH] [--bench-sets \"SET1 SET2 ...\"] [--tools \"TOOL1 TOOL2 ...\"] [--stltree-path PATH] [--output-dir DIR]"
     exit 1
 fi
 
@@ -40,15 +40,19 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --bench-sets)
-            bench_sets=("$2")
+            bench_sets=($2)
             shift 2
             ;;
         --tools)
-            tools=("$2")
+            tools=($2)
             shift 2
             ;;
         --stltree-path)
             stltree_path="$2"
+            shift 2
+            ;;
+        --output-dir)
+            outdir="$2"
             shift 2
             ;;
         *)

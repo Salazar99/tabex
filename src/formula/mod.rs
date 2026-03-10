@@ -269,73 +269,68 @@ impl Formula {
     }
 
     #[must_use]
-    pub fn with_operand(&self, operand: Formula) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return {
-            Formula::Not(inner) => *inner = Box::new(operand),
-            Formula::G { phi, .. } | Formula::F { phi, .. } => *phi = Box::new(operand),
+    pub fn with_operand(mut self, operand: Formula) -> Self {
+        match &mut self {
+            Formula::Not(inner) => **inner = operand,
+            Formula::G { phi, .. } | Formula::F { phi, .. } => **phi = operand,
             _ => panic!("Cannot set operand on formula without a single inner operand"),
         }
-        to_return
+        self
     }
 
     #[must_use]
-    pub fn with_operand_couple(&self, left: Formula, right: Formula) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return {
+    pub fn with_operand_couple(mut self, left: Formula, right: Formula) -> Self {
+        match &mut self {
             Formula::U {
                 left: l, right: r, ..
             }
             | Formula::R {
                 left: l, right: r, ..
             } => {
-                *l = Box::new(left);
-                *r = Box::new(right);
+                **l = left;
+                **r = right;
             }
             _ => panic!("Cannot set operands on formula without two inner operands"),
         }
-        to_return
+        self
     }
 
     #[must_use]
-    pub fn with_interval(&self, interval: Interval) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return {
+    pub fn with_interval(mut self, interval: Interval) -> Self {
+        match &mut self {
             Formula::G { interval: int, .. }
             | Formula::F { interval: int, .. }
             | Formula::U { interval: int, .. }
             | Formula::R { interval: int, .. } => *int = interval,
             _ => panic!("Cannot set interval on non-temporal formula"),
         }
-        to_return
+        self
     }
 
     #[must_use]
-    pub fn with_operands(&self, operands: Vec<Formula>) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return {
+    pub fn with_operands(mut self, operands: Vec<Formula>) -> Self {
+        match &mut self {
             Formula::And(ops) | Formula::Or(ops) => *ops = operands,
             _ => panic!("Cannot set operands on formulas different from And/Or"),
         }
-        to_return
+        self
     }
 
     #[must_use]
-    pub fn with_implication(&self, left: Formula, right: Formula, not_left: Formula) -> Self {
-        let mut to_return = self.clone();
-        match &mut to_return {
+    pub fn with_implication(mut self, left: Formula, right: Formula, not_left: Formula) -> Self {
+        match &mut self {
             Formula::Imply {
                 left: l,
                 right: r,
                 not_left: nl,
             } => {
-                *l = Box::new(left);
-                *r = Box::new(right);
-                *nl = Box::new(not_left);
+                **l = left;
+                **r = right;
+                **nl = not_left;
             }
             _ => panic!("Cannot set implications on formulas different from Imply"),
         }
-        to_return
+        self
     }
 
     #[must_use]

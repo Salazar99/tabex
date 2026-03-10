@@ -6,7 +6,14 @@ fn make_test(formula_str: &str, mltl: bool) -> Option<bool> {
         mltl,
         ..Default::default()
     };
-    let tableau = TableauOptions::default();
+    // Only jump rule
+    let tableau = TableauOptions {
+        formula_optimizations: false,
+        formula_simplifications: false,
+        memoization: false,
+        simple_first: false,
+        ..Default::default()
+    };
     let mut tableau_solver = Tableau::new(general, tableau);
     tableau_solver.make_tableau_from_str(formula_str)
 }
@@ -213,4 +220,97 @@ fn test_step_r() {
         make_test("(a R[0,10] b) && G[6,10] (!a && !b) && !a", false),
         Some(true)
     );
+}
+
+#[test]
+fn test_jump_error() {
+    assert_eq!(
+        make_test("G[0,4] (!b) && a && (!a R[0,3] (c U[0,4] b))", false),
+        Some(false)
+    );
+}
+
+#[test]
+fn test_jump_until_satisfied() {
+    assert_eq!(
+        make_test("F[0,10] a && !b && ((G[0,5] !a) U[0,15] b)", false),
+        Some(true)
+    );
+}
+
+#[test]
+fn test_jump_completeness() {
+    assert_eq!(
+        make_test(
+            "(a U[0, 10] (b && G[20, 30] c)) && G[0, 27] !c && G[10, 10] !b",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_completeness_obstacle_nested() {
+    assert_eq!(
+        make_test(
+            "G[5, 5] G[5, 5] !a && b U[0, 5] G[10, 10] a && G[15, 15] !a",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_completeness_release_obstacle() {
+    assert_eq!(
+        make_test(
+            "(F[0, 10] (b && G[20, 30] c)) && a R[0, 27] !c && G[10, 10] !b && G[0,50] !a",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_completeness_release_target_conflict() {
+    assert_eq!(
+        make_test(
+            "(F[0, 10] (b && G[20, 30] c)) && G[0, 27] !c && G[10, 10] !b && (F[10,10] !c) R[18,19] a && F[19,19] !a",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_completeness_release_target_conflict_postponed() {
+    assert_eq!(
+        make_test(
+            "(F[0, 15] (b && G[20, 30] c)) && G[0, 27] !c && G[15, 15] !b && (d && F[10,10] !c) R[17,20] a && F[20,20] !a && F[17,17] !d",
+            false
+        ),
+        Some(true)
+    )
+}
+
+#[test]
+fn test_jump_soundness() {
+    assert_eq!(
+        make_test(
+            "(G[0,1] (F[5,5] a)) U[0,5] (!b) && G[0,4] b && G[8,8] !a",
+            true
+        ),
+        Some(false)
+    )
+}
+
+#[test]
+fn test_jump_soundness_f() {
+    assert_eq!(
+        make_test(
+            "(G[0,1] (F[5,5] a)) U[0,5] (!b) && G[0,4] b && F[8,8] !a",
+            true
+        ),
+        Some(false)
+    )
 }

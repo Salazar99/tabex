@@ -13,12 +13,12 @@ mod tests;
 
 #[must_use]
 pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormula>> {
-    let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
+    let mut map: BTreeMap<(Formula, Option<usize>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
         if let Formula::G { interval, phi } = &op.kind {
-            let key = (*phi.clone(), op.parent_upper);
+            let key = (*phi.clone(), op.parent_id);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (_, int) = occ.get_mut();
@@ -45,7 +45,7 @@ pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormul
         let (idx, new_interval) = el.1;
         new_operands[idx] = new_operands[idx]
             .clone()
-            .with_kind(new_operands[idx].kind.with_interval(new_interval));
+            .with_kind(new_operands[idx].kind.clone().with_interval(new_interval));
     }
 
     new_operands = new_operands
@@ -60,12 +60,12 @@ pub fn merge_globally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormul
 
 #[must_use]
 pub fn merge_finally(input: &[NodeFormula], time: i32) -> Option<Vec<NodeFormula>> {
-    let mut map: BTreeMap<(Formula, Option<i32>), (usize, Interval)> = BTreeMap::new();
+    let mut map: BTreeMap<(Formula, Option<usize>), (usize, Interval)> = BTreeMap::new();
     let mut to_remove = BTreeSet::new();
 
     for (idx, op) in input.iter().enumerate() {
         if let Formula::F { phi, interval } = &op.kind {
-            let key = (*phi.clone(), op.parent_upper);
+            let key = (*phi.clone(), op.parent_id);
             match map.entry(key) {
                 Entry::Occupied(mut occ) => {
                     let (i, int) = occ.get_mut();
@@ -115,24 +115,25 @@ pub fn rewrite_globally_finally(input: &Vec<NodeFormula>, time: i32) -> Option<V
             && let Formula::F {
                 interval: f_int, ..
             } = &**phi
+            && f_int.lower < f_int.upper
             && op.is_active_at(time)
         {
-            let first = op.kind.with_interval(Interval {
+            let first = op.kind.clone().with_interval(Interval {
                 lower: time + 2,
                 upper: g_int.upper,
             });
 
             let second = Formula::or(vec![
-                phi.with_interval(Interval {
+                phi.clone().with_interval(Interval {
                     lower: time + f_int.lower + 1,
                     upper: time + f_int.upper,
                 }),
                 Formula::and(vec![
-                    phi.with_interval(Interval {
+                    phi.clone().with_interval(Interval {
                         lower: time + f_int.lower,
                         upper: time + f_int.lower,
                     }),
-                    phi.with_interval(Interval {
+                    phi.clone().with_interval(Interval {
                         lower: time + f_int.upper + 1,
                         upper: time + f_int.upper + 1,
                     }),

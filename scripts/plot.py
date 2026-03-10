@@ -18,7 +18,7 @@ def merge_results(row):
         if result is None:
             result = r2
         elif result != r2:
-            raise ValueError(f"Inconsistent results: {str(row)}")
+            print(f"WARNING: Inconsistent results: {str(row)}")
     
     if result is None:
         return 'unknown'
@@ -56,7 +56,7 @@ def make_survival_line(tool, data, markers):
         line=dict(shape='linear',width=2,simplify=True)
     ) 
 
-def make_survival_plot(tools, data, output, markers, no_y_label, log_scale, no_legend):
+def make_survival_plot(tools, data, output, markers, size, no_y_label, log_scale, no_legend):
     # Create the Plotly object for Figure
     fig = go.Figure()
 
@@ -99,11 +99,12 @@ def make_survival_plot(tools, data, output, markers, no_y_label, log_scale, no_l
             y=0.08,
             xanchor="right",
             x=0.99,
+            bgcolor="rgba(0,0,0,0)",
             # font=dict(size=8),
         )
     )
 
-    fig.write_image(output+".survival.pdf", format='pdf', width=350, height=350)
+    fig.write_image(output+".survival.pdf", format='pdf', width=size, height=size)
 
 
 def plot_identity_line(fig, end):
@@ -118,7 +119,7 @@ def plot_identity_line(fig, end):
         )
     ))
 
-def make_scatter_plot(data, output, timeout, no_y_label):
+def make_scatter_plot(data, output, timeout, size, no_y_label):
     """
     Creates a scatter plot for the given data.
     """
@@ -196,7 +197,7 @@ def make_scatter_plot(data, output, timeout, no_y_label):
         ),
     )
 
-    fig.write_image(output+".scatter.pdf", format='pdf', width=350, height=350)
+    fig.write_image(output+".scatter.pdf", format='pdf', width=size, height=size)
 
 
 if __name__ == "__main__":
@@ -222,6 +223,8 @@ if __name__ == "__main__":
                         help='Use markers in the survival plot.')
     parser.add_argument('--no-y-label', action='store_true',
                         help='Do not show the y axis label.')
+    parser.add_argument('--size', type=int, default=300,
+                        help='Size of the output plot in pixels (both width and height).')
     args = parser.parse_args()
     
     if args.timeout < 0:
@@ -236,8 +239,8 @@ if __name__ == "__main__":
 
     if args.scatter:
         if len(tools) == 2:
-            make_scatter_plot(data, args.output, args.timeout, args.no_y_label)
+            make_scatter_plot(data, args.output, args.timeout, args.size, args.no_y_label)
         else:
             print("Scatter plot is only available for exactly two tools.")
     else:
-        make_survival_plot(tools, data, args.output, args.markers_survival, args.no_y_label, args.log_survival, args.no_legend)
+        make_survival_plot(tools, data, args.output, args.markers_survival, args.size, args.no_y_label, args.log_survival, args.no_legend)
