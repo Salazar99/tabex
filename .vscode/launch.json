@@ -11,7 +11,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/target/debug/stlsat",
             "preLaunchTask": "rust: cargo build",
-            "args": ["${workspaceFolder}/resources/benchmarks/Metrictrials/example1.stl"],
+            "args": ["${workspaceFolder}/resources/benchmarks/Metrictrials/example1.stl", 
+            "--graph-output", "graph2.dot", "--no-jump-rule"],
             "cwd": "${workspaceFolder}",
             
         }

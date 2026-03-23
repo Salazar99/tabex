@@ -261,7 +261,7 @@ impl Tableau {
                 JobOutcome::Final(res) => {
                     match res {
                         JobState::Sat if !implies => {
-                            job.children.clear();
+                            //job.children.clear();
                             job.result = Some(JobState::Sat);
                         }
                         JobState::Undefined => job.result = Some(JobState::Undefined),
