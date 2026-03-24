@@ -192,6 +192,8 @@ impl Tableau {
         });
 
         while let Some(mut job) = stack.pop_front() {
+            println!("Processing node: {:?}\n", job.node);
+
             // Case 1: no more children — finalize frame
             let Some(child) = job.children.pop_front() else {
                 // Case 1.1: no parent — done
@@ -227,7 +229,7 @@ impl Tableau {
                                 trace.reset();
                             }
                         } else {
-                            parent.children.clear();
+                            //parent.children.clear();
                             if let Some(trace) = &mut self.trace_builder
                                 && job.node.is_poised()
                             {
