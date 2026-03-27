@@ -4,18 +4,35 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
-            "sourceLanguages": ["rust"],
-            "name": "Debug unit tests in library 'stlsat'",
-            "type": "lldb",
+            "name": "Debug: 'Tabex'",
+            "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/target/debug/stlsat",
-            "preLaunchTask": "rust: cargo build",
-            "args": ["${workspaceFolder}/resources/benchmarks/Metrictrials/example1.stl", 
-            "--graph-output", "graph2.dot", "--no-jump-rule", "--no-formula-simplifications", "--no-formula-optimizations"],
-            "cwd": "${workspaceFolder}",
-            
+            "program": "${workspaceFolder}/dotparser/tabex.py",
+            "args": [
+                "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
+                "./output.txt"               
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "sourceLanguages": [
+                "rust"
+            ],
+            "name": "Debug 'stlsat'",
+            "type": "lldb",
+            "cwd": "${workspaceFolder}/m_stlsat",
+            "request": "launch",
+            "program": "${workspaceFolder}/m_stlsat/target/debug/stlsat",
+            "preLaunchTask": "cargo build",
+            "args": [
+                "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
+                "--graph-output",
+                "graph_F.dot",
+                "--no-jump-rule",
+                "--no-formula-simplifications",
+                "--no-formula-optimizations"
+            ],
         }
     ]
 }

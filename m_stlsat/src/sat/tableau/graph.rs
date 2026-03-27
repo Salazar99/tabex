@@ -42,7 +42,7 @@ impl Tableau {
 
 impl NodeFormula {
     fn fmt_operand(&self) -> String {
-        let mark = if self.marked { "ZOK" } else { "" };
+        let mark = if self.marked { "O" } else { "" };
 
         let parent_str = match self.parent_id {
             Some(pid) => format!(" → ({})", pid),

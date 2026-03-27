@@ -89,8 +89,7 @@ impl Tableau {
             .iter()
             .flat_map(|f| match &f.kind {
                 Formula::G { interval, phi, .. }
-                    // if f.is_active_at(node.current_time) && !f.marked =>
-                    if f.is_active_at(node.current_time) =>
+                    if f.is_active_at(node.current_time) && !f.marked =>
                 {
                     changed = true;
                     let tex = phi.temporal_expansion(node.current_time, Some(f.id));
