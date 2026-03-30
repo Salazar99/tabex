@@ -1,0 +1,12 @@
+Path ID: 0
+t: 0 ['!(x > 0)', '!(y > 0)'] 
+t: 1 ['x > 0', 'y > 0'] 
+t: 2 ['(Undefined:x)', '(Undefined:y)'] 
+Path ID: 1
+t: 0 ['x > 0', 'y > 0'] 
+t: 1 ['(Undefined:x)', '(Undefined:y)'] 
+t: 2 ['(Undefined:x)', '(Undefined:y)'] 
+Path ID: 2
+t: 0 ['!(x > 0)', '!(y > 0)'] 
+t: 1 ['!(x > 0)', '!(y > 0)'] 
+t: 2 ['x > 0', 'y > 0'] 
