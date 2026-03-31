@@ -3,7 +3,7 @@ import sys
 import subprocess
 import os
 import re
-
+import json
 class NodeObj:
     def __init__(self, time_instant, formulas, original_string):
         self.time_instant = time_instant
@@ -11,7 +11,9 @@ class NodeObj:
         self.original_string = original_string
 
 class FormulaBounds:
-    def __init__(self):
+    def __init__(self,formula_name=None, variables=None):
+        self.variables = variables # set of variables appearing in the formulas,
+        self.formula_name = formula_name
         self.bounds = {} # time_instant: list of constraints
         
     def add_constraints(self, path_id, constraints):
@@ -28,7 +30,7 @@ class FormulaBounds:
             
     def __str__(self):
         ret_str = ""
-       
+        ret_str += f"Formula: {self.formula_name}\n"
        # Sort the bounds by time instant and format them for output
         for path_id, constraints in sorted(self.bounds.items()):
             ret_str += f"Path ID: {path_id}\n"
@@ -36,6 +38,28 @@ class FormulaBounds:
                 ret_str += f"t: {time} "
                 ret_str += f"{constraint} \n"
         return ret_str
+    
+    def to_json_str(self):
+        # Reconstruct into a list-based format for better portability
+        formatted_data = {
+            "formula": self.formula_name,
+            "vars": list(self.variables),
+            "paths": []
+        }
+
+        for path_id, time_steps in sorted(self.bounds.items()):
+            path_entry = {
+                "path_id": path_id,
+                "trace": []
+            }
+            for t, constraints in sorted(time_steps.items()):
+                path_entry["trace"].append({
+                    "t": t,
+                    "constraints": constraints
+                })
+            formatted_data["paths"].append(path_entry)
+
+        return json.dumps(formatted_data, indent=4)
 
 
 # Function to call stlsat with the specified arguments and generate the .dot file
@@ -89,7 +113,8 @@ def parse_dot_tableau(file_path):
         "leaves": [],      # list of node_ids that have no children
         "root": None,      # node_id of the root node (Node0)
         "simple_expressions": [], # node_id: list of simple expressions in the tableau (e.g., x <= 5)
-        "max_time_instant": 0 # maximum time instant found in the tableau, useful for adding undefined constraints
+        "max_time_instant": 0, # maximum time instant found in the tableau, useful for adding undefined constraints
+        "formula_name": ""
     }
     
     # 1. Extract Nodes
@@ -132,6 +157,7 @@ def parse_dot_tableau(file_path):
     for node_id in tableau_data["nodes"]:
         if node_id in sources and node_id not in destinations:
             tableau_data["root"] = node_id
+            tableau_data["formula_name"] = tableau_data["nodes"][node_id].formulas[0] if tableau_data["nodes"][node_id].formulas else ""
             break
     if tableau_data["root"] is None:
         print("Error: Root node not found.")
@@ -188,7 +214,12 @@ def process_data(tableau_data):
         #Combine all paths to get the complete set of "signals" that satisfy the original STL formula
         #Constraints in the same path are combined with AND, while constraints from different paths are combined with OR for each time instant.
     """    
-    formula_bounds = FormulaBounds()  
+    variables = set()
+    for simple_expression in tableau_data["simple_expressions"]:
+        var = simple_expression[0]
+        variables.add(var)
+        
+    formula_bounds = FormulaBounds(tableau_data["formula_name"], variables)
      
     #Node 0 is always the root node, so we start from there
     #Explore all paths from the leaves to node 0 (root) using the parent map
@@ -269,7 +300,7 @@ def gather_constraints(dot_file):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python tabex.py <input.dot> <output.txt>")
+        print("Usage: python tabex.py <input.dot> <output.json>")
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -277,6 +308,9 @@ if __name__ == "__main__":
 
     bounds = gather_constraints(input_file)
 
+    #debug print 
+    print(bounds)
+
     # Process and write to output file
     with open(output_file, 'w') as f:
-        f.write(str(bounds))
+        f.write(bounds.to_json_str())

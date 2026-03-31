@@ -1,0 +1,161 @@
+{
+    "formula": "F[0,2] (x > 0 || y > 0)",
+    "paths": [
+        {
+            "path_id": 0,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "y > 0",
+                        "!(x > 0)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 1,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "y > 0",
+                        "!(x > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 2,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "x > 0",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 3,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "x > 0",
+                        "!(y > 0)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 4,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "x > 0",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 5,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "y > 0",
+                        "!(x > 0)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                }
+            ]
+        }
+    ]
+}
