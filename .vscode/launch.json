@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug: 'Similarity'",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/similarity/stl_similarity.py",
+            "args": [
+                "./output_or.json",
+                "./output_or.json"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Debug: 'Tabex'",
             "type": "debugpy",
             "request": "launch",

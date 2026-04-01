@@ -1,5 +1,9 @@
 {
-    "formula": "F[0,2] (x > 0 || y > 0)",
+    "formula": "F[0,4] ((x > 0 && x < 5) || y > 0)",
+    "vars": [
+        "y",
+        "x"
+    ],
     "paths": [
         {
             "path_id": 0,
@@ -7,22 +11,41 @@
                 {
                     "t": 0,
                     "constraints": [
-                        "!(y > 0)",
-                        "!(x > 0)"
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
                     ]
                 },
                 {
                     "t": 1,
                     "constraints": [
-                        "!(y > 0)",
-                        "!(x > 0)"
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
                     ]
                 },
                 {
                     "t": 2,
                     "constraints": [
-                        "y > 0",
-                        "!(x > 0)"
+                        "x > 0",
+                        "x < 5",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
                     ]
                 }
             ]
@@ -33,20 +56,39 @@
                 {
                     "t": 0,
                     "constraints": [
-                        "y > 0",
-                        "!(x > 0)"
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
                     ]
                 },
                 {
                     "t": 1,
                     "constraints": [
-                        "(Undefined:x)",
-                        "(Undefined:y)"
+                        "y > 0",
+                        "!(x > 0)",
+                        "!(x < 5)"
                     ]
                 },
                 {
                     "t": 2,
                     "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
                         "(Undefined:x)",
                         "(Undefined:y)"
                     ]
@@ -60,6 +102,7 @@
                     "t": 0,
                     "constraints": [
                         "!(x > 0)",
+                        "!(x < 5)",
                         "!(y > 0)"
                     ]
                 },
@@ -67,12 +110,30 @@
                     "t": 1,
                     "constraints": [
                         "x > 0",
+                        "x < 5",
                         "!(y > 0)"
                     ]
                 },
                 {
                     "t": 2,
                     "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
                         "(Undefined:x)",
                         "(Undefined:y)"
                     ]
@@ -85,22 +146,41 @@
                 {
                     "t": 0,
                     "constraints": [
+                        "y > 0",
                         "!(x > 0)",
-                        "!(y > 0)"
+                        "!(x < 5)"
                     ]
                 },
                 {
                     "t": 1,
                     "constraints": [
-                        "!(x > 0)",
-                        "!(y > 0)"
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
                     ]
                 },
                 {
                     "t": 2,
                     "constraints": [
-                        "x > 0",
-                        "!(y > 0)"
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
                     ]
                 }
             ]
@@ -111,20 +191,39 @@
                 {
                     "t": 0,
                     "constraints": [
-                        "x > 0",
-                        "!(y > 0)"
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
                     ]
                 },
                 {
                     "t": 1,
                     "constraints": [
-                        "(Undefined:x)",
-                        "(Undefined:y)"
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
                     ]
                 },
                 {
                     "t": 2,
                     "constraints": [
+                        "y > 0",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
                         "(Undefined:x)",
                         "(Undefined:y)"
                     ]
@@ -137,20 +236,219 @@
                 {
                     "t": 0,
                     "constraints": [
-                        "!(y > 0)",
-                        "!(x > 0)"
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
                     ]
                 },
                 {
                     "t": 1,
                     "constraints": [
-                        "y > 0",
-                        "!(x > 0)"
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
                     ]
                 },
                 {
                     "t": 2,
                     "constraints": [
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "x > 0",
+                        "x < 5",
+                        "!(y > 0)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 6,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "!(x > 0)",
+                        "!(x < 5)",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "x > 0",
+                        "x < 5",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 7,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "x > 0",
+                        "x < 5",
+                        "!(y > 0)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
+                        "(Undefined:x)",
+                        "(Undefined:y)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 8,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "y > 0",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                }
+            ]
+        },
+        {
+            "path_id": 9,
+            "trace": [
+                {
+                    "t": 0,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 1,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 2,
+                    "constraints": [
+                        "!(y > 0)",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 3,
+                    "constraints": [
+                        "y > 0",
+                        "!(x > 0)",
+                        "!(x < 5)"
+                    ]
+                },
+                {
+                    "t": 4,
+                    "constraints": [
+                        "(Undefined:x)",
                         "(Undefined:x)",
                         "(Undefined:y)"
                     ]
