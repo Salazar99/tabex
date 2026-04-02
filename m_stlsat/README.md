@@ -8,12 +8,6 @@ A satisfiability checker for Signal Temporal Logic (STL) formulas.
 2. Install Z3 theorem prover: The program requires Z3 executable to be installed in your system: https://github.com/Z3Prover/z3
 3. Install the executables:
 
-```bash
-cargo install --git https://github.com/ZamponiMarco/stlsat.git
-```
-
-This installs three binaries: `stlsat` (main checker), `scanner` (scanner tool), and `rb` (random benchmark tool) to your Cargo bin directory (usually `~/.cargo/bin/`).
-
 ## Running
 
 ### stlsat

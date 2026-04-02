@@ -309,6 +309,13 @@ def one_way_similarity(volume1, volume2):
 def compute_similarity(volume1, volume2):
     return (one_way_similarity(volume1, volume2) + one_way_similarity(volume2, volume1))/2
 
+#Used to run the similarity computation from another module, e.g., run_similarity.py
+def calc_similarity(bounds1, bounds2):
+    formula_volume1 = extract_volume_from_bounds(bounds1)
+    formula_volume2 = extract_volume_from_bounds(bounds2)
+
+    print(f"Similarity score between formula: {formula_volume1.formula_name} and formula: {formula_volume2.formula_name} is: {compute_similarity(formula_volume1, formula_volume2)}")
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python stl_similarity.py <bounds_file_formula1> <bounds_file_formula2>")

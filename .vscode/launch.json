@@ -16,10 +16,10 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Debug: 'Tabex'",
+            "name": "Debug: 'input_creator'",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/dotparser/tabex.py",
+            "program": "${workspaceFolder}/dotparser/input_creator.py",
             "args": [
                 "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
                 "./output_F_or.json"               

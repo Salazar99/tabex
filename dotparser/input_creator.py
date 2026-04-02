@@ -278,10 +278,10 @@ def add_undefined(bounds, tableau_data):
     
     
 # Take the raw tableau data and gather the constaints 
-def gather_constraints(dot_file):
+def gather_constraints(input_file):
     
     #1 run stlsat to generate the .dot file
-    call_stlsat(dot_file)
+    call_stlsat(input_file)
 
     #2 parse the .dot file to extract tableau data    
     if os.path.exists("./m_stlsat/tmp.dot"):
@@ -297,10 +297,23 @@ def gather_constraints(dot_file):
     #4 add undefined contraints on bounds
     return add_undefined(bounds, tableau_data)
     
+#Used to generate formula volume using a .dot file from another script
+def generate_volumes(input_file,output_file=None):
+    bounds = gather_constraints(input_file)
+    
+    #debug print 
+    print(bounds)
+
+    if output_file:
+        with open(output_file, 'w') as f:
+            f.write(bounds.to_json_str())
+
+    # Process and write to output file
+    return bounds
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python tabex.py <input.dot> <output.json>")
+        print("Usage: python tabex.py <input.stl> <output.json>")
         sys.exit(1)
 
     input_file = sys.argv[1]
