@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/similarity/stl_similarity.py",
             "args": [
-                "./output_or.json",
-                "./output_or.json"
+                "./output_F.json",
+                "./output_F_or.json"
             ],
             "console": "integratedTerminal"
         },
@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}/dotparser/tabex.py",
             "args": [
                 "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
-                "./output_or.json"               
+                "./output_F_or.json"               
             ],
             "console": "integratedTerminal"
         },

@@ -6,8 +6,6 @@ import json
 import re 
 from enum import Enum
 
-from jinja2 import is_undefined
-
 class NumOperator(Enum):
     LT = "<" 
     GT = ">" 
@@ -30,14 +28,14 @@ class instant_contraint:
 
     #return true if the constraint is bounded (both bounds are finite), false otherwise
     def is_bounded(self):
-        if self.left != float("-inf") and self.right != float("inf"):
+        if math.isinf(self.left) and math.isinf(self.right):
             return True
         
         return False 
     
     #return true if the constraint is undefined, false otherwise
     def is_undefined(self):
-        return self.left is float("-inf") and self.right is float("inf")
+        return math.isinf(self.left) and math.isinf(self.right)
     
 #class that contains the volume of an STL formula
 #Volume is a collection of paths
@@ -245,7 +243,7 @@ def distance_decay_similarity(constraint1, constraint2):
 
 #Return true if the two constraints are disjuncted, false otherwise
 def disjuncted(constraint1, constraint2):
-    if constraint1.left > constraint2.right or constraint2.left > constraint1.right:
+    if constraint1.left >= constraint2.right or constraint2.left >= constraint1.right:
         return True
     return False
 
@@ -272,7 +270,7 @@ def point_similarity(constraint1, constraint2):
 
 #Path to path similarity
 def path_similarity(path1, path2, numvars, horizon):
-    normalizing_factor = horizon + numvars
+    normalizing_factor = horizon * numvars
 
     time_sum = 0
     for time in range(horizon):
@@ -301,7 +299,7 @@ def one_way_similarity(volume1, volume2):
     for path1 in volume1.volume:
         max_sim_path = 0
         for path2 in volume2.volume:
-            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars,volume1.horizon))    
+            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars,max(volume1.horizon,volume2.horizon)))    
         
         path_sim_sum += max_sim_path
     
