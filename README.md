@@ -36,7 +36,7 @@ This will print the similarity results on stdout.
 ### 2. Single steps
 You can also run the `volume generation` and `similarity calculation` independently.
 
-#### `**Volume generation**
+#### **Volume generation**
 
  If you want to generate the volume of a formula you can use:
 ```bash 

@@ -309,7 +309,7 @@ def generate_volumes(input_file,output_file=None):
             f.write(bounds.to_json_str())
 
     # Process and write to output file
-    return bounds
+    return bounds.to_json_str()
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

@@ -311,8 +311,10 @@ def compute_similarity(volume1, volume2):
 
 #Used to run the similarity computation from another module, e.g., run_similarity.py
 def calc_similarity(bounds1, bounds2):
-    formula_volume1 = extract_volume_from_bounds(bounds1)
-    formula_volume2 = extract_volume_from_bounds(bounds2)
+    bounds1_json = json.loads(bounds1)
+    bounds2_json = json.loads(bounds2)
+    formula_volume1 = extract_volume_from_bounds(bounds1_json)
+    formula_volume2 = extract_volume_from_bounds(bounds2_json)
 
     print(f"Similarity score between formula: {formula_volume1.formula_name} and formula: {formula_volume2.formula_name} is: {compute_similarity(formula_volume1, formula_volume2)}")
 

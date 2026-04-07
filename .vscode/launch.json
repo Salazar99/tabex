@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug: 'complete'",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/run_similarity.py",
+            "args": [
+                "F[0,2](x>0)",
+                "F[0,2](x>0)"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Debug: 'Similarity'",
             "type": "debugpy",
             "request": "launch",
