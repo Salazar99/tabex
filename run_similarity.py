@@ -36,7 +36,7 @@ if __name__ == "__main__":
         calc_similarity(volume1, volume2)
     finally:
         sys.stdout.flush()
-    #    #Cleanup tmp files
-    #    if not args.save_volumes:
-    #        os.remove("tmp1.stl")
-    #        os.remove("tmp2.stl")
+        #Cleanup tmp files
+        # if not args.save_volumes:
+        os.remove("tmp1.stl")
+        os.remove("tmp2.stl")

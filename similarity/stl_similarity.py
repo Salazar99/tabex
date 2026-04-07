@@ -269,22 +269,31 @@ def point_similarity(constraint1, constraint2):
             return distance_decay_similarity(constraint1, constraint2)
 
 #Path to path similarity
+#Horizon is referred only to path1 
 def path_similarity(path1, path2, numvars, horizon):
     normalizing_factor = horizon * numvars
 
     time_sum = 0
-    for time in range(horizon):
-        var_sim_sum = 0
+    for time in path1.keys():
+        var_sim_sum = 0    
+         
         for var in path1[time].keys():
-            if var in path2[time]:
+            if time not in path2.keys():
+                #path2 is undefined at this time
+                var_sim_sum += 0.0
+            elif var in path2[time]:
                 #compute the similarity of the two constraints on var at this time
                 constraint1 = path1[time][var]
                 constraint2 = path2[time][var]
                 #if one of the two constraints is undefined, similarity is 0
                 var_sim_sum += point_similarity(constraint1, constraint2)
             else:
-                #if var is not present in path2 at this time, we can consider it as an implicit undefined constraint, so similarity is 0
-                continue
+                #path2 is defined and
+                #var is not present in path2 at this time, we can consider it as an implicit undefined constraint, so similarity is 0
+                constraint1 = path1[time][var]
+                constraint2 = instant_contraint(var, time, float("-inf"), float("inf")) #undefined constraint
+                var_sim_sum += point_similarity(constraint1, constraint2)
+                
         time_sum += var_sim_sum
     return time_sum/normalizing_factor   
 #One way similarity from volume1 to volume2
@@ -299,7 +308,7 @@ def one_way_similarity(volume1, volume2):
     for path1 in volume1.volume:
         max_sim_path = 0
         for path2 in volume2.volume:
-            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars,max(volume1.horizon,volume2.horizon)))    
+            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars,volume1.horizon))    
         
         path_sim_sum += max_sim_path
     

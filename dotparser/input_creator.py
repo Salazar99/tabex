@@ -4,6 +4,8 @@ import subprocess
 import os
 import re
 import json
+
+TABEX_ROOT = os.environ.get("TABEX_ROOT", "~/tabex")  # Default to current working directory if not set
 class NodeObj:
     def __init__(self, time_instant, formulas, original_string):
         self.time_instant = time_instant
@@ -66,12 +68,13 @@ class FormulaBounds:
 def call_stlsat(input_file):
     argumetns = ["--graph-output", "tmp.dot", "--no-jump-rule", "--no-formula-simplifications", "--no-formula-optimizations"]
     
-    result = subprocess.run(["cargo", "run", "--release", input_file] + list(argumetns), capture_output=True, text=True, cwd="./m_stlsat")
+    result = subprocess.run(["cargo", "run", "--release", input_file] + list(argumetns), capture_output=True, text=True, cwd=f"{TABEX_ROOT}/m_stlsat")
     if result.returncode != 0:
         print("Error running stlsat:", result.stderr)
         sys.exit(1)
     else:
-        print("stlsat run successfully")
+        if False: #debug print
+            print("stlsat run successfully")
 
 #regex to get time from a label node
 time_regex = r"t\s*=\s*(\d+)"
@@ -114,6 +117,7 @@ def parse_dot_tableau(file_path):
         "root": None,      # node_id of the root node (Node0)
         "simple_expressions": [], # node_id: list of simple expressions in the tableau (e.g., x <= 5)
         "max_time_instant": 0, # maximum time instant found in the tableau, useful for adding undefined constraints
+        "starting_time": 0, #depends on the formula, we need to parse it from the root node, default is 0  
         "formula_name": ""
     }
     
@@ -163,6 +167,16 @@ def parse_dot_tableau(file_path):
         print("Error: Root node not found.")
         sys.exit(1)
         
+    #4.2 get starting time from root node formula
+    root_formula = tableau_data["nodes"][tableau_data["root"]].formulas[0]    
+    #We need the leftmost value in []     
+    match = re.search(r'\[(\d+),\d+\]', root_formula)
+    if match:
+        tableau_data["starting_time"] = int(match.group(1))
+    else:
+        print(f"Error: Starting time not found in root formula '{root_formula}'")
+        sys.exit(1)
+
     # 5. Extract simple expressions for the root
     root_node = tableau_data["nodes"][tableau_data["root"]]
     simple_expressions = []
@@ -236,7 +250,14 @@ def process_data(tableau_data):
             node_obj = tableau_data["nodes"][current_node]
            
             #Multiple nodes for the same time instant but not all are usefull
-            time_instant = node_obj.time_instant               
+            time_instant = node_obj.time_instant     
+           
+            if time_instant < tableau_data["starting_time"]:
+                #We are before the starting time, we can ignore these constraints as they are not relevant for the formula evaluation
+                #current_node = tableau_data["parent_map"][current_node]
+                finished = True
+                break 
+                      
             if time_instant not in path_constraints:
                 #get the constraints for this time instant based on the formulas in the node and previous constraints          
                 path_constraints[time_instant] = get_bounds(tableau_data,path_constraints,time_instant, node_obj.formulas) 
@@ -244,7 +265,10 @@ def process_data(tableau_data):
             current_node = tableau_data["parent_map"][current_node]
             
         if tableau_data["root"] == current_node:
+            finished = True
             #We reached the root node, we can add the constraints for this path to the formula bounds
+        
+        if finished:
             for time_instant in path_constraints.keys():
                 formula_bounds.add_constraints(path_id, (time_instant,path_constraints[time_instant]))
 
@@ -259,6 +283,7 @@ def process_data(tableau_data):
 def add_undefined(bounds, tableau_data):
     #Get max time instant 
     max_time_instant = tableau_data["max_time_instant"]
+    starting_time = tableau_data["starting_time"]
     #get simple expressions from the root node
     root_simple_expressions = tableau_data["simple_expressions"]
     for path_id, constraints in bounds.bounds.items():
@@ -267,7 +292,7 @@ def add_undefined(bounds, tableau_data):
             defined_time_instants.add(constraint)
         
         #Add undefined constraints for time instants not covered by the path
-        for time_instant in range(max_time_instant + 1):
+        for time_instant in range(starting_time, max_time_instant + 1):
             if time_instant not in defined_time_instants:
                 undefined_constraints = []
                 for expression in root_simple_expressions:
@@ -284,9 +309,9 @@ def gather_constraints(input_file):
     call_stlsat(input_file)
 
     #2 parse the .dot file to extract tableau data    
-    if os.path.exists("./m_stlsat/tmp.dot"):
-        tableau_data = parse_dot_tableau("./m_stlsat/tmp.dot")
-        os.remove("./m_stlsat/tmp.dot")  # Clean up the temporary .dot file
+    if os.path.exists(f"{TABEX_ROOT}/m_stlsat/tmp.dot"):
+        tableau_data = parse_dot_tableau(f"{TABEX_ROOT}/m_stlsat/tmp.dot")
+        os.remove(f"{TABEX_ROOT}/m_stlsat/tmp.dot")  # Clean up the temporary .dot file
     else:
         print("Error: Generated .dot file not found.")
         sys.exit(1)
@@ -302,7 +327,7 @@ def generate_volumes(input_file,output_file=None):
     bounds = gather_constraints(input_file)
     
     #debug print 
-    print(bounds)
+    #print(bounds)
 
     if output_file:
         with open(output_file, 'w') as f:
