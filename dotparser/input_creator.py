@@ -16,25 +16,25 @@ class FormulaBounds:
     def __init__(self,formula_name=None, variables=None):
         self.variables = variables # set of variables appearing in the formulas,
         self.formula_name = formula_name
-        self.bounds = {} # time_instant: list of constraints
-        
+        self.path_bounds = {} # time_instant: list of constraints
+        self.horizon = 0 #max time instant, used to normalize results
     def add_constraints(self, path_id, constraints):
         #if it is a new path
-        if path_id not in self.bounds:
-            self.bounds[path_id] = {}
-            self.bounds[path_id][constraints[0]] = constraints[1] #constraints is a tuple (time_instant, list of constraints)
+        if path_id not in self.path_bounds:
+            self.path_bounds[path_id] = {}
+            self.path_bounds[path_id][constraints[0]] = constraints[1] #constraints is a tuple (time_instant, list of constraints)
         else:    
             #if it is a new time instant for the path, add the constraints, otherwise extend the existing constraints for that time instant
-            if not self.bounds[path_id].get(constraints[0]):
-                self.bounds[path_id][constraints[0]] = constraints[1] #constraints is a tuple (time_instant, list of constraints)
+            if not self.path_bounds[path_id].get(constraints[0]):
+                self.path_bounds[path_id][constraints[0]] = constraints[1] #constraints is a tuple (time_instant, list of constraints)
             else:
-                self.bounds[path_id][constraints[0]].extend(constraints[1])
+                self.path_bounds[path_id][constraints[0]].extend(constraints[1])
             
     def __str__(self):
         ret_str = ""
         ret_str += f"Formula: {self.formula_name}\n"
        # Sort the bounds by time instant and format them for output
-        for path_id, constraints in sorted(self.bounds.items()):
+        for path_id, constraints in sorted(self.path_bounds.items()):
             ret_str += f"Path ID: {path_id}\n"
             for time,constraint in sorted(constraints.items()):
                 ret_str += f"t: {time} "
@@ -46,10 +46,11 @@ class FormulaBounds:
         formatted_data = {
             "formula": self.formula_name,
             "vars": list(self.variables),
+            "horizon": self.horizon,
             "paths": []
         }
 
-        for path_id, time_steps in sorted(self.bounds.items()):
+        for path_id, time_steps in sorted(self.path_bounds.items()):
             path_entry = {
                 "path_id": path_id,
                 "trace": []
@@ -286,18 +287,25 @@ def add_undefined(bounds, tableau_data):
     starting_time = tableau_data["starting_time"]
     #get simple expressions from the root node
     root_simple_expressions = tableau_data["simple_expressions"]
-    for path_id, constraints in bounds.bounds.items():
+    
+    global_horizon = 0
+    
+    for path_id, constraints in bounds.path_bounds.items():
         defined_time_instants = set()
         for constraint in constraints:
             defined_time_instants.add(constraint)
         
+        path_horizon = max(bounds.path_bounds[path_id].keys())
+        global_horizon = max(global_horizon, path_horizon + 1) 
         #Add undefined constraints for time instants not covered by the path
-        for time_instant in range(starting_time, max_time_instant + 1):
+        for time_instant in range(starting_time, max(bounds.path_bounds[path_id])):
             if time_instant not in defined_time_instants:
                 undefined_constraints = []
                 for expression in root_simple_expressions:
                     undefined_constraints.append(f"(Undefined:{expression[0]})")
                 bounds.add_constraints(path_id, (time_instant, undefined_constraints))
+    
+    bounds.horizon = global_horizon
     
     return bounds
     

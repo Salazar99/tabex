@@ -40,7 +40,7 @@ class instant_contraint:
 #class that contains the volume of an STL formula
 #Volume is a collection of paths
 class FormulaVolume:
-    def __init__(self,horizon, formula_name, vars):
+    def __init__(self, horizon, formula_name, vars):
         self.horizon = horizon
         self.formula_name = formula_name
         self.vars = vars
@@ -54,7 +54,7 @@ class FormulaVolume:
 def extract_volume_from_bounds(bounds):
     simple_expression_regex = r"(\w+)\s*(<=|>=|<|>|=)\s*(\d+)"
     # 1. initilize the volume to return 
-    volume = FormulaVolume(len(bounds["paths"][0]["trace"]),bounds["formula"], bounds["vars"])
+    volume = FormulaVolume(bounds["horizon"],bounds["formula"], bounds["vars"])
     
     # 2. Start manipulating the paths
     for path in bounds["paths"]:
@@ -271,18 +271,16 @@ def point_similarity(constraint1, constraint2):
 #Path to path similarity
 #Horizon is referred only to path1 
 def path_similarity(path1, path2, numvars, horizon):
-    temp_normalizing_factor = horizon * numvars
+    normalizing_factor = numvars * horizon #number of variables * number of time instants in path1
 
     time_sum = 0
     for time in path1.keys():
-        var_sim_sum = 0
-        
+        var_sim_sum = 0    
+         
         for var in path1[time].keys():
             if time not in path2.keys():
                 #path2 is undefined at this time
                 var_sim_sum += 0.0
-                temp_normalizing_factor -= numvars  #Reduce points used in calculation
-                
             elif var in path2[time]:
                 #compute the similarity of the two constraints on var at this time
                 constraint1 = path1[time][var]
@@ -292,18 +290,13 @@ def path_similarity(path1, path2, numvars, horizon):
             else:
                 #path2 is defined and
                 #var is not present in path2 at this time, we can consider it as an implicit undefined constraint, so similarity is 0
-                #constraint1 = path1[time][var]
-                #constraint2 = instant_contraint(var, time, float("-inf"), float("inf")) #undefined constraint
-                #var_sim_sum += point_similarity(constraint1, constraint2)
+                constraint1 = path1[time][var]
+                constraint2 = instant_contraint(var, time, float("-inf"), float("inf")) #undefined constraint
+                var_sim_sum += point_similarity(constraint1, constraint2)
+                #var_sim_sum += 0.0
                 
-                #Consider as 0 the the similarity when a var is undefined
-                var_sim_sum += 0.0
-                temp_normalizing_factor -= 1 #Reduce points used in calculation
         time_sum += var_sim_sum
-        #account for complete disjuction to avoid division by zero
-        temp_normalizing_factor = max(temp_normalizing_factor, 1) 
-        
-    return time_sum/temp_normalizing_factor   
+    return time_sum/normalizing_factor   
 #One way similarity from volume1 to volume2
 def one_way_similarity(volume1, volume2):
     normalizing_factor = len(volume1.volume)
@@ -316,7 +309,7 @@ def one_way_similarity(volume1, volume2):
     for path1 in volume1.volume:
         max_sim_path = 0
         for path2 in volume2.volume:
-            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars,volume1.horizon))    
+            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars, volume1.horizon))    
         
         path_sim_sum += max_sim_path
     
