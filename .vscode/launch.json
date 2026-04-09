@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/run_similarity.py",
             "args": [
-                "F[0,2](x>0)",
-                "F[3,4](x>0)"
+                "F[0,2](x<5)",
+                "F[0,2](x>0)"
             ],
             "console": "integratedTerminal"
         },
