@@ -75,7 +75,7 @@ def extract_volume_from_bounds(bounds):
             for expr in contraint["constraints"]:
                 expr = expr.strip("()") 
                 if expr.startswith("Undefined:"):
-                    variable = expr.split(":")[1]
+                    variable = expr.split(":")[1].strip()
                     variable_constraints[variable] = (None, None, None)
                 else:
                     negated = False
@@ -271,32 +271,41 @@ def point_similarity(constraint1, constraint2):
 #Path to path similarity
 #Horizon is referred only to path1 
 def path_similarity(path1, path2, numvars, horizon):
-    normalizing_factor = numvars * horizon #number of variables * number of time instants in path1
-
+    norm_time_factor = max(len(path1), len(path2)) #number of variables * number of time instants in path1
+    norm_vars = numvars
     time_sum = 0
+    #For each time instant in path1
     for time in path1.keys():
         var_sim_sum = 0    
-         
-        for var in path1[time].keys():
-            if time not in path2.keys():
+        
+        #If time is not in path2, similarity for this time is 0.0 and skip to next time point
+        if time not in path2.keys():
                 #path2 is undefined at this time
                 var_sim_sum += 0.0
-            elif var in path2[time]:
-                #compute the similarity of the two constraints on var at this time
-                constraint1 = path1[time][var]
-                constraint2 = path2[time][var]
-                #if one of the two constraints is undefined, similarity is 0
-                var_sim_sum += point_similarity(constraint1, constraint2)
-            else:
-                #path2 is defined and
-                #var is not present in path2 at this time, we can consider it as an implicit undefined constraint, so similarity is 0
-                constraint1 = path1[time][var]
-                constraint2 = instant_contraint(var, time, float("-inf"), float("inf")) #undefined constraint
-                var_sim_sum += point_similarity(constraint1, constraint2)
-                #var_sim_sum += 0.0
-                
-        time_sum += var_sim_sum
-    return time_sum/normalizing_factor   
+        else:    
+            #Time exists in path2       
+            #For each variable in path1 
+            for var in path1[time].keys():
+                #All var constraints at a given time are in && 
+                if var in path2[time]:
+                    #compute the similarity of the two constraints on var at this time
+                    constraint1 = path1[time][var]
+                    constraint2 = path2[time][var]
+                    #if one of the two constraints is undefined, similarity is 0
+                    var_sim_sum += point_similarity(constraint1, constraint2)
+                else:
+                    #path2 is defined and
+                    #var is not present in path2 at this time, we can consider it as an implicit undefined constraint
+                    if(path1[time][var].is_undefined()):
+                        #if the constraint in path1 is already undefined
+                        var_sim_sum += 1.0
+                    else:
+                        constraint1 = path1[time][var]
+                        constraint2 = instant_contraint(var, time, float("-inf"), float("inf")) #undefined constraint
+                        var_sim_sum += point_similarity(constraint1, constraint2)
+                    
+        time_sum += var_sim_sum/norm_vars
+    return time_sum/norm_time_factor   
 #One way similarity from volume1 to volume2
 def one_way_similarity(volume1, volume2):
     normalizing_factor = len(volume1.volume)
@@ -309,7 +318,7 @@ def one_way_similarity(volume1, volume2):
     for path1 in volume1.volume:
         max_sim_path = 0
         for path2 in volume2.volume:
-            max_sim_path = max(max_sim_path, path_similarity(path1, path2, uniquevars, volume1.horizon))    
+            max_sim_path = max(max_sim_path, path_similarity(path1, path2, len(set(volume1.vars)), volume1.horizon))    
         
         path_sim_sum += max_sim_path
     
