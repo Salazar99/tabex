@@ -200,7 +200,7 @@ def get_bounds(tableau_data, signal_constraints, time_instant, formulas):
         #Check for not defined contraints on other variables
         for expression in tableau_data["simple_expressions"]:
             if expression not in formulas:
-                ret.append(f"!({expression})") #if not defined in current node, add it as undefined
+                ret.append(f"Undefined: {expression[0]}") #if not defined in current node, add it as undefined
         #If the root has y > 0 and node contains for example only x < 5 and nothing is said about y, we add !(y > 0)   
         return ret        
     else:
@@ -215,6 +215,9 @@ def get_bounds(tableau_data, signal_constraints, time_instant, formulas):
                 #if not defined in current node, add its negation
                 if constraint.startswith("!"):
                     #if already negated we don't negate it again
+                    current_constraints.append(constraint)
+                elif constraint.startswith("Undefined:"):
+                    #if it is undefined we don't negate it, we keep it as undefined
                     current_constraints.append(constraint)
                 else:
                     current_constraints.append(f"!({constraint})")
