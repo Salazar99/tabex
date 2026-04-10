@@ -271,7 +271,7 @@ def point_similarity(constraint1, constraint2):
 #Path to path similarity
 #Horizon is referred only to path1 
 def path_similarity(path1, path2, numvars, horizon):
-    norm_time_factor = max(len(path1), len(path2)) #number of variables * number of time instants in path1
+    norm_time_factor = len(path1.keys() | path2.keys()) #number of variables * number of time instants in path1
     norm_vars = numvars
     time_sum = 0
     #For each time instant in path1

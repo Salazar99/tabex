@@ -1,108 +1,132 @@
-# tabex
-This is the official repository for the STL similarity metric calculator. 
-It uses a modified version of [stlsat](https://github.com/ZamponiMarco/stlsat.git) to extract the satisfaction constraints of a STL formula. 
-And allows the user to calculate similarity between STL formulas based on those constraints.
+# Tabex: STL Similarity Metric Calculator
 
-## Source code structure
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+
+**Tabex** is the official repository for the Signal Temporal Logic (STL) similarity metric calculator. It utilizes a modified version of [stlsat](https://github.com/ZamponiMarco/stlsat.git) to extract satisfaction constraints, allowing users to calculate similarity between STL formulas based on those constraints.
+
+---
+
+## 📂 Source Code Structure
+
 ```bash
 tabex_home/
-├── benchmarks/                             #benchmarks folder 
-|   ├── Manual                                  #Manually defined                      
-|   └── Random                                  #Random generated
-├── dotparser/input_creator.py              #Formula_volume_generation 
-├── similarity/stl_similarity.py            #Similarity calculation script
-├── run_similarity                          #Runs whole pipeline
-├── m_stlsat                                #Modified stlsat  
-|   ├── ...                                     #source code for stlsat                      
-|   └── README                                  #STLSAT README
-├── LICENSE.md
-└── README.md                               #This README
+├── benchmarks/                # Benchmarks folder
+│   ├── Manual/                # Manually defined test cases
+│   └── Random/                # Randomly generated test cases
+├── dotparser/
+│   └── input_creator.py       # Formula volume generation
+├── figures/                   # Images used in README
+├── similarity/
+│   └── stl_similarity.py      # Similarity calculation script
+├── run_similarity             # Runs the entire pipeline
+├── m_stlsat/                  # Modified stlsat source code
+├── LICENSE.md                 # Project license
+└── README.md                  # Documentation
 ```
 
-## Installation
+-----
+
+## 🚀 Installation
+
 ### Requirements
-1. Requires python (tested with python > 3.10)
-2. stlsat requirements(See the [README](./m_stlsat/README.md) in m_stlsat folder):
-    - Rust: https://rustup.rs/
-    - Z3 theorem prover: The program requires Z3 executable to be installed in your system: https://github.com/Z3Prover/z3
 
-> It is not necessary to to compile stlsat beforehand as it is run using "cargo run" which also builds the project automatically before running it 
+  * **Python**: Tested with Python \> 3.10.
+  * **Rust**: Required for stlsat ([rustup.rs](https://rustup.rs/)).
+  * **Z3 Theorem Prover**: Z3 executable must be installed on your system.
 
-### Clone the repository
-Clone the repository using:
+> **Note**: It is not necessary to compile `stlsat` beforehand; it is run using `cargo run`, which builds the project automatically.
+
+### Setup
+
+Clone the repository:
+
 ```bash
-$ git clone https://github.com/Salazar99/tabex.git
+git clone https://github.com/Salazar99/tabex.git
+cd tabex
 ```
-**You are now ready for the [usage](#usage) section.** 
 
-## Usage 
-### Define TABEX_ROOT
-Before running the Similarity calculation tool you need to define the `TABEX_ROOT` environment variable.
-You can do it by running this command:
+-----
+
+## 🛠 Usage
+
+### Define Environment Variable
+
+Before running the tool, you must define the `TABEX_ROOT` variable:
+
 ```bash
-$ export TABEX_ROOT=/path_to_tabex/tabex
+# If cloned to your home folder:
+export TABEX_ROOT=~/tabex
 ```
-If you cloned the repository in your home folder you can just copy and paste this command:
+
+### 1\. One-Command Execution
+
+Run the similarity calculation on two formulas directly:
+
 ```bash
-$ export TABEX_ROOT=~/tabex
+python run_similarity "First_formula" "Second_formula" [--save-volumes]
 ```
 
-### 1. One command run
-You can run the similarity calculation on two formulae by calling: 
+  * **--save-volumes**: (Optional) Saves the formula volumes in a `.json` file.
 
-```bash 
-$ python run_similarity "First_formula" "Second_formula" [--save-volumes]
-``` 
-This will print the similarity results on stdout.
-- "**--save-volumes**" is optional and can be used to save the formula volumes in a  **formula_name_volume.json** file 
+### 2\. Manual Steps
 
-### 2. Single steps
-You can also run the `volume generation` and `similarity calculation` independently.
+You can run the pipeline stages independently:
 
-#### **Volume generation**
+#### **Volume Generation**
 
- If you want to generate the volume of a formula you can use:
-```bash 
-$ python dotparser/input_creator.py formula.stl output_file.json 
+```bash
+python dotparser/input_creator.py formula.stl output_file.json 
 ```
-- "**formula.stl**" contains the formula structure, for the acceptedsyntaxrefer    to [stlsat](./m_stlsat/README.md)     
-- "**output_file.json**" will contain the generated formula's volume 
+
+  * `formula.stl`: Contains the formula structure.
+  * `output_file.json`: Will contain the generated formula's volume.
 
 #### **Similarity Calculation**
-If you already have two formula volumes you can run the similarity calculation with:
-```bash 
-$ python similarity/stl_similarity.py volume_1.json volume_2.json
-```
-- "volume_n.json" are both files generated by the `input_creator` script 
 
-### Usage example
-This is an example on how to run the complete pipeline for two formulas
-![](/figures/TABEX.gif)
-
-## Benchmarks
-You can find the benchmarks we used to test the metric in the `tabex/benchmarks` folder.
-
-Benchmarks are divided in **Manually defined** and **Random Generated**.
-### Manual benchmarks
-These are a collection of manually defined metric calculation between formulas, defined to show specific cases that may be of interest. 
-The manually defined benchmarks can be run from the [Manual](./benchmarks/Manual/) folder using:
 ```bash
-$ bash benchmark_gen.sh
-``` 
-This will generate a `results.txt` that contains the metric values for each benchmark.
+python similarity/stl_similarity.py volume_1.json volume_2.json
+```
 
-### Random benchmarks
->Work in progess...
+### Usage Example
 
+Below is a demonstration of the complete pipeline execution:
+![til](./figures/TABEX.gif)
+-----
 
-## Developers
-Daniele Nicoletti
-- daniele.nicoletti@univr.it 
-- mr.nicoletti99@gmail.com
+## 📊 Benchmarks
 
-## Credits
-Thanks to @ZamponiMarco for the original stlsat implementation and support. 
-Go pay him a visit at: https://github.com/ZamponiMarco
+Benchmarks are located in the `tabex/benchmarks` folder:
 
-## LICENSE 
-This software is under the MIT license, you can find the license file [here](./LICENSE)
+### Manual Benchmarks
+
+Designed to show specific cases of interest.
+
+```bash
+cd benchmarks/Manual
+bash benchmark_gen.sh
+```
+
+*This generates a `results.txt` containing the metric values for each benchmark.*
+
+### Random Benchmarks
+
+*Work in progress...*
+
+-----
+
+## 🤝 Developers & Credits
+
+**Developers**
+
+  * **Daniele Nicoletti**: daniele.nicoletti@univr.it | mr.nicoletti99@gmail.com
+
+**Credits**
+
+  * Original `stlsat` implementation by **@ZamponiMarco**.
+
+-----
+
+## 📄 License
+
+This software is licensed under the **MIT License**.
