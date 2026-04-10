@@ -30,7 +30,7 @@ tabex_home/
 ## 🚀 Installation
 
 ### Requirements
-
+  * **OS**: Tested on Ubuntu 22.04.5 LTS. 
   * **Python**: Tested with Python \> 3.10.
   * **Rust**: Required for stlsat ([rustup.rs](https://rustup.rs/)).
   * **Z3 Theorem Prover**: Z3 executable must be installed on your system.
