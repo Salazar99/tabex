@@ -1,18 +1,14 @@
 # tabex
-Formula volume extractor. 
+This is the official repository for the STL similarity metric calculator. 
 It uses a modified version of [stlsat](https://github.com/ZamponiMarco/stlsat.git) to extract the satisfaction constraints of a STL formula. 
+And allows the user to calculate similarity between STL formulas based on those constraints.
 
-## Installation
-1. Requires python (tested with python > 3.10)
-2. stlsat requirements(See the [README](./m_stlsat/README.md) in m_stlsat folder):
-    - Rust: https://rustup.rs/
-    - Z3 theorem prover: The program requires Z3 executable to be installed in your system: https://github.com/Z3Prover/z3
-
-> It is not necessary to to compile stlsat beforehand as it is run using "cargo run" which also builds the project automatically before running it 
-    
 ## Source code structure
 ```bash
 tabex_home/
+├── benchmarks/                             #benchmarks folder 
+|   ├── Manual                                  #Manually defined                      
+|   └── Random                                  #Random generated
 ├── dotparser/input_creator.py              #Formula_volume_generation 
 ├── similarity/stl_similarity.py            #Similarity calculation script
 ├── run_similarity                          #Runs whole pipeline
@@ -22,7 +18,34 @@ tabex_home/
 ├── LICENSE.md
 └── README.md                               #This README
 ```
-## Running
+
+## Installation
+### Requirements
+1. Requires python (tested with python > 3.10)
+2. stlsat requirements(See the [README](./m_stlsat/README.md) in m_stlsat folder):
+    - Rust: https://rustup.rs/
+    - Z3 theorem prover: The program requires Z3 executable to be installed in your system: https://github.com/Z3Prover/z3
+
+> It is not necessary to to compile stlsat beforehand as it is run using "cargo run" which also builds the project automatically before running it 
+
+### Clone the repository
+Clone the repository using:
+```bash
+$ git clone https://github.com/Salazar99/tabex.git
+```
+**You are now ready for the [usage](#usage) section.** 
+
+## Usage 
+### Define TABEX_ROOT
+Before running the Similarity calculation tool you need to define the `TABEX_ROOT` environment variable.
+You can do it by running this command:
+```bash
+$ export TABEX_ROOT=/path_to_tabex/tabex
+```
+If you cloned the repository in your home folder you can just copy and paste this command:
+```bash
+$ export TABEX_ROOT=~/tabex
+```
 
 ### 1. One command run
 You can run the similarity calculation on two formulae by calling: 
@@ -55,6 +78,22 @@ $ python similarity/stl_similarity.py volume_1.json volume_2.json
 ### Usage example
 This is an example on how to run the complete pipeline for two formulas
 ![](/figures/TABEX.gif)
+
+## Benchmarks
+You can find the benchmarks we used to test the metric in the `tabex/benchmarks` folder.
+
+Benchmarks are divided in **Manually defined** and **Random Generated**.
+### Manual benchmarks
+These are a collection of manually defined metric calculation between formulas, defined to show specific cases that may be of interest. 
+The manually defined benchmarks can be run from the [Manual](./benchmarks/Manual/) folder using:
+```bash
+$ bash benchmark_gen.sh
+``` 
+This will generate a `results.txt` that contains the metric values for each benchmark.
+
+### Random benchmarks
+>Work in progess...
+
 
 ## Developers
 Daniele Nicoletti

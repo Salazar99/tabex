@@ -7,7 +7,7 @@
 #4. F[0,2](x>0) and F[0,2](x>0 || y>0)
 #5. F[0,2](x>0) and F[0,2](x>0 && y>0)
 export TABEX_ROOT=~/tabex
-rm -rf risultati.txt
+rm -rf results.txt
 
 #1
 # INPUTS
@@ -15,22 +15,22 @@ IN1="F[0,2](x>0)"
 IN2="G[0,2](x>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 #2
 # INPUTS
 IN1="F[0,2](x>0)"
 IN2="F[3,4](x>0)"
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 #3
 # INPUTS
@@ -38,46 +38,46 @@ IN1="F[0,2](z>0)"
 IN2="F[0,2](x>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 #4
 # INPUTS
-IN1="G[0,20](x>0)"
-IN2="G[0,20](x>0 || y>0)"
+IN1="G[0,2](x>0)"
+IN2="G[0,2](x>0 || y>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 #5
 # INPUTS
-IN1="G[0,20](x>0)"
-IN2="G[0,20](x>0 && y>0)"
+IN1="G[0,2](x>0)"
+IN2="G[0,2](x>0 && y>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 # INPUTS
 IN1="F[0,2](x>0 && y>0)"
 IN2="F[0,2](x>0 || y>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 #5
 # INPUTS
@@ -85,11 +85,11 @@ IN1="F[0,2](x<5)"
 IN2="F[0,2](x>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt
 
 #6
 # INPUTS
@@ -97,8 +97,8 @@ IN1="F[0,4](x>0)"
 IN2="F[0,2](x>0)"
 
 # 1. Scrive gli input nel file tra virgolette
-echo "Formula1: $IN1 Formula2: $IN2" >> risultati.txt
+echo "Formula1: $IN1 Formula2: $IN2" >> results.txt
 # 2. Esegue il file Python e appende lo standard output (stdout)
-python3 ../../run_similarity.py "$IN1" "$IN2" >> risultati.txt
+python3 ../../run_similarity.py "$IN1" "$IN2" >> results.txt
 # 3. Aggiunge una riga vuota per leggibilità (opzionale)
-echo "" >> risultati.txt
+echo "" >> results.txt

@@ -275,11 +275,11 @@ def path_similarity(path1, path2, numvars, horizon):
     norm_vars = numvars
     time_sum = 0
     #For each time instant in path1
-    for time in path1.keys():
+    for time in path1.keys() | path2.keys():
         var_sim_sum = 0    
         
         #If time is not in path2, similarity for this time is 0.0 and skip to next time point
-        if time not in path2.keys():
+        if time not in path2.keys() or time not in path1.keys():
                 #path2 is undefined at this time
                 var_sim_sum += 0.0
         else:    
