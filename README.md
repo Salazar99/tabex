@@ -91,6 +91,7 @@ python similarity/stl_similarity.py volume_1.json volume_2.json
 ### Usage Example
 
 Below is a demonstration of the complete pipeline execution:
+
 ![til](./figures/TABEX.gif)
 -----
 
