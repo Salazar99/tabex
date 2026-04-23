@@ -52,7 +52,7 @@ class FormulaVolume:
 
 #Parse the input files to instantiate the volume of the STL formula
 def extract_volume_from_bounds(bounds):
-    simple_expression_regex = r"(\w+)\s*(<=|>=|<|>|=)\s*(\d+)"
+    simple_expression_regex = r"(\w+)\s*(<=|>=|<|>|==|!=)\s*(\d+)"
     # 1. initilize the volume to return 
     volume = FormulaVolume(bounds["horizon"],bounds["formula"], bounds["vars"])
     
@@ -173,6 +173,11 @@ def extract_volume_from_bounds(bounds):
                                 lvalue = value
                                 rvalue = value
                                 variable_constraints[variable] = [operator, lvalue, rvalue]
+                            case NumOperator.NEQ.value:
+                                #Not equal is a bit tricky to represent as an interval, we can represent it as two separate constraints: var < value or var > value    
+                                variable_constraints[variable] = (NumOperator.LT.value, float("-inf"), value)
+                                variable_constraints[variable].append((NumOperator.GT.value, value, float("inf")))
+                                #Need to add support for mutiple constraints on same variable
                             case _: 
                                 raise ValueError(f"Unsupported operator: {operator}")
                                 sys.exit(1)
@@ -187,7 +192,10 @@ def extract_volume_from_bounds(bounds):
                     lvalue = float("-inf")
                 if rvalue is None:
                     rvalue = float("inf") 
-                path_instance[time][variable] = instant_contraint(variable, time, lvalue, rvalue)
+                if path_instance[time].get(variable) is not None:
+                    path_instance[time][variable].append(instant_contraint(variable, time, lvalue, rvalue))
+                else:
+                    path_instance[time][variable] = [instant_contraint(variable, time, lvalue, rvalue)]
 
         #end of path instance creation for this path, add it to the volume
         volume.add_path(path_instance)    

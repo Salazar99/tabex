@@ -34,7 +34,7 @@
             "program": "${workspaceFolder}/dotparser/input_creator.py",
             "args": [
                 "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
-                "./output_F_or.json"               
+                "./output_F_x.json"               
             ],
             "console": "integratedTerminal"
         },
@@ -51,7 +51,7 @@
             "args": [
                 "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
                 "--graph-output",
-                "graph_F.dot",
+                "graph_G_or.dot",
                 "--no-jump-rule",
                 "--no-formula-simplifications",
                 "--no-formula-optimizations"

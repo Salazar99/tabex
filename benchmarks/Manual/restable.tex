@@ -1,0 +1,20 @@
+\begin{table}[h!]
+\centering
+\caption{Formula Similarity Analysis Results}
+\label{tab:formula_similarity}
+\begin{tabular}{|p{3cm}|p{3cm}|c|c|c|}
+\hline
+\textbf{Formula 1} & \textbf{Formula 2} & \textbf{OWS 1 $\to$ 2} & \textbf{OWS 2 $\to$ 1} & \textbf{Sim Score} \\ \hline
+$F[0,2](x>0)$ & $G[0,2](x>0)$ & 0.3333 [cite: 1] & 0.3333 [cite: 1] & 0.3333 [cite: 1] \\ \hline
+$F[0,2](x>0)$ & $F[3,4](x>0)$ & 0.0000 [cite: 1] & 0.0000 [cite: 1] & 0.0000 [cite: 2] \\ \hline
+$F[0,2](z>0)$ & $F[0,2](x>0)$ & 0.0000 [cite: 2] & 0.0000 [cite: 2] & 0.0000 [cite: 2] \\ \hline
+$G[0,2](x>0)$ & $G[0,2](x>0 \lor y>0)$ & 1.0000 [cite: 2] & 0.3958 [cite: 3] & 0.6979 [cite: 3] \\ \hline
+$G[0,2](x>0)$ & $G[0,2](x>0 \land y>0)$ & 1.0000 [cite: 3] & 0.5000 [cite: 3] & 0.7500 [cite: 4] \\ \hline
+$F[0,2](x>0)$ & $F[0,2](x>0 \lor y>0 \lor z>0 \lor w>0)$ & 1.0000 [cite: 4] & 0.6250 [cite: 4] & 0.8125 [cite: 4] \\ \hline
+$F[0,2](x>0)$ & $F[0,2](x>0 \land y>0 \land z>0 \land w>0)$ & 1.0000 [cite: 5] & 0.2500 [cite: 5] & 0.6250 [cite: 5] \\ \hline
+$F[0,2](x>0 \land y>0)$ & $F[0,2](x>0 \lor y>0)$ & 0.5000 [cite: 6] & 0.5000 [cite: 6] & 0.5000 [cite: 6] \\ \hline
+$F[0,2](x<5)$ & $F[0,2](x>0)$ & 0.1019 [cite: 6] & 0.1019 [cite: 7] & 0.1019 [cite: 7] \\ \hline
+$F[0,4](x>0)$ & $F[0,2](x>0)$ & 0.7800 [cite: 7] & 1.0000 [cite: 7] & 0.8900 [cite: 7] \\ \hline
+$G[0,20](x \in [0.2, 0.4])$ & $G[0,20](x \in [0.2, 0.44])$ & 1.0000 [cite: 8] & 1.0000 [cite: 8] & 1.0000 [cite: 8] \\ \hline
+\end{tabular}
+\end{table}
