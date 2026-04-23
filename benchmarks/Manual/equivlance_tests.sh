@@ -23,8 +23,8 @@ echo "" >> results.txt
 
 #1
 # PROBLEM! 1->2 is 1 but 2->1 is 0.5. Problem is that only the first part is taken(?), so only F[0,5](x>0)
-IN1="F[0,5](x>0 || x == 0)"
-IN2="F[0,5](x>=0)"
+IN1="true U[0,5] (x>0)"
+IN2="F[0,5](x>0)"
 
 # 1. Scrive gli input nel file tra virgolette
 echo "Formula1: $IN1 Formula2: $IN2" >> results.txt

@@ -51,7 +51,7 @@
             "args": [
                 "${workspaceFolder}/m_stlsat/resources/benchmarks/Metrictrials/example1.stl",
                 "--graph-output",
-                "graph_G_or.dot",
+                "graph_F_x.dot",
                 "--no-jump-rule",
                 "--no-formula-simplifications",
                 "--no-formula-optimizations"
