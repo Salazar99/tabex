@@ -295,6 +295,8 @@ def path_similarity(path1, path2, numvars, horizon):
             #For each variable in path1 
             for var in path1[time].keys():
                 #All var constraints at a given time are in && 
+                #We need to account for the case where we have multiple constraints on the same variable (neq case for example)
+                
                 if var in path2[time]:
                     #compute the similarity of the two constraints on var at this time
                     constraint1 = path1[time][var]
