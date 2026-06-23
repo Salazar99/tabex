@@ -39,6 +39,16 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Debug: 'parse_graph'",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/parse_graph.py",
+            "args": [
+                "${workspaceFolder}/graph_examples/graph_F_gex.dot",               
+            ],
+            "console": "integratedTerminal"
+        },
+        {
             "sourceLanguages": [
                 "rust"
             ],
@@ -56,6 +66,6 @@
                 "--no-formula-simplifications",
                 "--no-formula-optimizations"
             ],
-        }
+        },
     ]
 }

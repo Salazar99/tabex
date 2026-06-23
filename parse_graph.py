@@ -5,6 +5,9 @@ class Interval:
         self.l = float(l)
         self.r = float(r)
 
+    def is_empty(self):
+        return self.l > self.r
+
     def intersect(self, other):
         nl = max(self.l, other.l)
         nr = min(self.r, other.r)
@@ -34,14 +37,16 @@ class Path:
         return Path(new_tl)
 
 class Node:
-    def __init__(self, node_id, t, label):
+    def __init__(self, node_id, t, label, properties, formulas):
         self.id = node_id
         self.t = t
+        self.properties = properties
         self.label = label
         self.children = []
         self.intervals = {} # Populated by your parser
         self.paths = []     # Used for the standardization algorithm
-        
+        self.formulas = formulas  # Field to memorize the identifying formulas
+
 def parse_inequality_to_interval(op, val_str):
     val = float(val_str)
     if op in ('>', '>='): return Interval(val, float('inf'))
@@ -62,110 +67,16 @@ def invert_operator(op):
         '==': '!='
     }
     return mapping.get(op, '==')
-        
-def compress_path_list(paths):
-    """Algorithm 4: Compress Path List via Single-Step Variance Rule."""
-    changed = True
-    while changed:
-        changed = False
-        # Simplified implementation of the variance loop 
-        # Merges paths that differ by only one variable interval that touches/overlaps
-        for i in range(len(paths)):
-            for j in range(i + 1, len(paths)):
-                # If variance_count == 1 and intervals are mergeable 
-                # paths[i].timeline[t][v] = union(...)
-                # paths.remove(paths[j]); changed = True; break
-                pass 
-    return paths
 
-def pad_time_horizons(l_combined, all_vars):
-    """Algorithm 3: Pad Time Horizons[cite: 177]."""
-    if not l_combined: return l_combined
-    t_max = max(max(p.timeline.keys()) for p in l_combined)
-    for p in l_combined:
-        for t in range(t_max + 1):
-            if t not in p.timeline:
-                # Fill unconstrained steps with (-inf, inf) [cite: 177]
-                p.timeline[t] = {v: Interval(float('-inf'), float('inf')) for v in all_vars}
-    return l_combined
-
-def topological_sort_leaves_to_root(root):
-    """
-    Algorithm 2: Computes a post-order traversal ensuring 
-    children precede parents.
-    """
-    order = []
-    visited = set()
-
-    def dfs(node):
-        if node in visited:
-            return
-        
-        visited.add(node)
-        
-        # Recurse through all children first (Post-Order)
-        for child in node.children:
-            dfs(child)
-        
-        # Append node after all children have been processed
-        order.append(node)
-
-    dfs(root)
-    return order
-
-def standardize(node, all_vars):
-    """Algorithm 1: Iterative Signal Space Standardization."""
-    # CASE 1: Leaf Nodes 
-    if not node.children:
-        st = {v: Interval(float('-inf'), float('inf')) for v in all_vars}
-        st.update(node.intervals)
-        node.paths = [Path({node.t: st})]
-    
-    # CASE 2 & 3: Splits
-    else:
-        for child in node.children:
-            standardize(child, all_vars)
-        
-        # Spatial Split 
-        if "||" in node.label:
-            l_comb = [p for c in node.children for p in c.paths]
-            node.paths = compress_path_list(l_comb)
-            
-        # Temporal Split (Eventually/Until)       
-        else:
-             # SAFETY CHECK: Ensure we have both children
-           
-            if len(node.children) >= 2:
-                c_imm, c_def = node.children[0], node.children[1]
-                # Extract Domain Phi 
-                # Inject Negation into Deferred Branch 
-                l_def_prime = []
-                for p in c_def.paths:
-                    p_prime = p.copy()
-                    # Intersect with negation 
-                    l_def_prime.append(p_prime)
-
-                combined = c_imm.paths + l_def_prime
-                padded = pad_time_horizons(combined, all_vars)
-                node.paths = compress_path_list(padded)
-            else:
-                # If only one child exists, it's not a proper temporal split
-                # Treat it as a simple pass-through or handle error
-                node.paths = node.children[0].paths if node.children else []
-    return node.paths        
+import re
 
 def parse_tableau(dot_content):
     nodes = {}
-    all_variables = set()
-
+    
     node_pattern = re.compile(r'^\s*"([^"]+)"\s*\[\s*label\s*=\s*"(.*?)"\s*\]', re.MULTILINE | re.DOTALL)
+    # Optimized to ignore (N) or (N) -> (Y) and capture the actual formula
+    formula_strip_pattern = re.compile(r'\(.*?\)(?:\s*→\s*\(.*?\))?\s*\|\s*(.*)')
     ineq_pattern = re.compile(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)')
-
-    # Global variable discovery scan
-    for match in node_pattern.finditer(dot_content):
-        for var, _, _ in ineq_pattern.findall(match.group(2)):
-            if var not in ('F', 'OF', 'G', 'OG'):
-                all_variables.add(var)
 
     for match in node_pattern.finditer(dot_content):
         node_id = match.group(1)
@@ -174,78 +85,51 @@ def parse_tableau(dot_content):
         t_match = re.search(r'\bt\s*=\s*(\d+)', label_text, re.IGNORECASE)
         t = int(t_match.group(1)) if t_match else 0
         
-        # Initialize intervals for this node as completely undefined
-        node_intervals = {v: Interval(float('-inf'), float('inf')) for v in all_variables}
+        node_properties = {}
+        node_formulas = []
         
         normalized_label = label_text.replace('\\n', '\n')
         for line in normalized_label.split('\n'):
-            if '|' not in line:
+            # Only process lines that contain the formula structure
+            strip_match = formula_strip_pattern.search(line)
+            if not strip_match:
                 continue
             
-            formula_part = line.split('|', 1)[1].strip()
+            formula_part = strip_match.group(1).strip()
             
-            # Rule 1: Skip future commitments
+            # Rule 1 & 2: Temporal Filtering
             if re.match(r'^(O)?F\[\d+,\d+\]', formula_part):
                 continue
-                
-            # Rule 2: Evaluate global operators within active windows
             g_match = re.match(r'^(O)?G\[(\d+),(\d+)\]', formula_part)
             if g_match:
                 a, b = int(g_match.group(2)), int(g_match.group(3))
                 if not (a <= t <= b):
                     continue
             
-            # Rule 3: Process Immediate Constraints with Disjunction (||) Awareness
-            # Split by logical OR to treat them as alternatives (unions)
-            disjunction_parts = formula_part.split('||')
+            # Memorize the clean formula
+            node_formulas.append(formula_part)
             
-            line_var_intervals = {}
-            for part in disjunction_parts:
-                found_ineqs = ineq_pattern.findall(part)
-                
-                # Group inequalities by variable inside this specific option clause
-                part_var_constraints = {}
-                for var, op, val in found_ineqs:
-                    if var not in ('F', 'OF', 'G', 'OG'):
-                        if var not in part_var_constraints:
-                            part_var_constraints[var] = []
-                        part_var_constraints[var].append(parse_inequality_to_interval(op, val))
-                
-                # Intersect constraints inside the same clause option
-                for var, intervals in part_var_constraints.items():
-                    current_intersect = intervals[0]
-                    for nxt in intervals[1:]:
-                        current_intersect = current_intersect.intersect(nxt)
-                    
-                    if var not in line_var_intervals:
-                        line_var_intervals[var] = []
-                    if current_intersect:
-                        line_var_intervals[var].append(current_intersect)
-            
-            # Union the alternative clauses across the || operator
-            for var, intervals in line_var_intervals.items():
-                if intervals:
-                    current_union = intervals[0]
-                    for nxt in intervals[1:]:
-                        current_union = current_union.union(nxt)
-                    
-                    # Merge with any existing restrictions on this node
-                    if node_intervals[var].l == float('-inf') and node_intervals[var].r == float('inf'):
-                        node_intervals[var] = current_union
-                    else:
-                        node_intervals[var] = node_intervals[var].intersect(current_union)
+            # Rule 3: Capture Raw Constraints
+            found_ineqs = ineq_pattern.findall(formula_part)
+            for var, op, val in found_ineqs:
+                if var not in ('F', 'OF', 'G', 'OG'):
+                    if var not in node_properties:
+                        node_properties[var] = []
+                    node_properties[var].append(f"{op}{val}")
 
         nodes[node_id] = {
             'id': node_id,
             't': t,
-            'intervals': node_intervals
+            'properties': node_properties,
+            'formulas': node_formulas,
+            'label': label_text
         }
 
     return {
         'nodes': nodes,
         'sorted_node_ids': sorted(nodes.keys(), key=lambda x: int(re.search(r'\d+', x).group())),
     }
-
+    
 def build_tree_from_dot(dot_content):
     # 1. Reuse existing tableau parsing logic to get raw node data
     tableau_data = parse_tableau(dot_content)
@@ -254,9 +138,9 @@ def build_tree_from_dot(dot_content):
     # 2. Create Node objects
     tree_nodes = {}
     for nid, data in raw_nodes.items():
-        # You may need to refine the label extraction if not in 'data'
-        tree_nodes[nid] = Node(data['id'], data['t'], label="extracted_from_label")
-        tree_nodes[nid].intervals = data['intervals']
+        # Correctly passing the real label from the parsed data
+        tree_nodes[nid] = Node(data['id'], data['t'], label=data.get('label', ''), properties=data['properties'], formulas=data['formulas'])
+        
         
     # 3. Create structural edges
     # Standard DOT uses "--" for undirected graphs, usually representing 

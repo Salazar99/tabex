@@ -323,6 +323,7 @@ def gather_constraints(input_file):
     if os.path.exists(f"{TABEX_ROOT}/m_stlsat/tmp.dot"):
         tableau_data = parse_dot_tableau(f"{TABEX_ROOT}/m_stlsat/tmp.dot")
         os.remove(f"{TABEX_ROOT}/m_stlsat/tmp.dot")  # Clean up the temporary .dot file
+        os.move(f"{TABEX_ROOT}/m_stlsat/tmp.dot", f"{TABEX_ROOT}/m_stlsat/tmp_{os.path.basename(input_file)}.dot")  # Rename for debugging
     else:
         print("Error: Generated .dot file not found.")
         sys.exit(1)

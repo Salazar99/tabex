@@ -1,0 +1,65 @@
+Results for graph_F[3,4]x_or_y.dot:\n
+--- Standardized Feasible Paths for graph_F[3,4]x_or_y.dot ---
+
+Path #1:
+  t=0: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=1: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=2: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=3: {'x': [0.0, inf], 'y': [-inf, inf]}
+  t=4: {'x': [-inf, inf], 'y': [-inf, inf]}
+
+Path #2:
+  t=0: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=1: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=2: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=3: {'x': [-inf, inf], 'y': [0.0, inf]}
+  t=4: {'x': [-inf, inf], 'y': [-inf, inf]}
+
+Path #3:
+  t=0: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=1: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=2: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=3: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=4: {'x': [0.0, inf], 'y': [-inf, inf]}
+
+Path #4:
+  t=0: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=1: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=2: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=3: {'x': [-inf, inf], 'y': [-inf, inf]}
+  t=4: {'x': [-inf, inf], 'y': [0.0, inf]}
+Results for graph_F_g_or_eqx.dot:\n
+--- Standardized Feasible Paths for graph_F_g_or_eqx.dot ---
+
+Path #1:
+  t=0: {'x': [0.0, inf]}
+  t=1: {'x': [-inf, inf]}
+  t=2: {'x': [-inf, inf]}
+
+Path #2:
+  t=0: {'x': [-inf, inf]}
+  t=1: {'x': [0.0, inf]}
+  t=2: {'x': [-inf, inf]}
+
+Path #3:
+  t=0: {'x': [-inf, inf]}
+  t=1: {'x': [-inf, inf]}
+  t=2: {'x': [0.0, inf]}
+Results for graph_F_gex.dot:\n
+Analyzing node Node6 with label 'Node 6 | t = 2
+----------------------------------------
+(1) | F[0,2] x >= 0
+' at time 2
+Analyzing node Node5 with label 'Node 5 | t = 1
+----------------------------------------
+(1) | OF[0,2] x >= 0
+' at time 1
+Analyzing node Node3 with label 'Node 3 | t = 1
+----------------------------------------
+(1) | F[0,2] x >= 0
+' at time 1
+Results for graph_G.dot:\n
+--- Standardized Feasible Paths for graph_G.dot ---
+
+Path #1:
+  t=0: {'x': [0.0, inf]}
