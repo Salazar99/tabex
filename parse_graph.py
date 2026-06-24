@@ -1,5 +1,23 @@
 import re
 
+#debug flags
+dbg = True
+debug_only_tree = True
+
+# Print the parsed tree in a readable format 
+def pretty_print_tree(node, indent=0):
+    if node is None:
+        print(' ' * indent + '<empty>')
+        return
+    props = ', '.join(f"{k}={v}" for k, v in node.properties.items()) if node.properties else ''
+    formulas = ', '.join(node.formulas) if getattr(node, 'formulas', None) else ''
+    print(' ' * indent + f"Node {node.id} t={node.t} label={repr(node.label)}")
+    if props:
+        print(' ' * (indent + 2) + f"properties: {props}")
+    if formulas:
+        print(' ' * (indent + 2) + f"formulas: {formulas}")
+    for child in node.children:
+        pretty_print_tree(child, indent + 4)
 class Interval:
     def __init__(self, l, r):
         self.l = float(l)
@@ -26,11 +44,23 @@ class Interval:
     def to_tuple(self):
         return (self.l, self.r)
 
+#A path is a sequence of time-interval mappings for each variable
 class Path:
     def __init__(self, timeline):
         # timeline: {t: {var: Interval}}
         self.timeline = timeline
 
+    def add_interval(self, t, var, interval):
+        if t not in self.timeline:
+            self.timeline[t] = {}
+            self.timeline[t][var] = interval
+        else:
+            #If t already exists, either we pass or we are instantiating an empty variable
+            if var not in self.timeline[t]:
+                self.timeline[t][var] = interval
+            else:
+               print(f"Warning: Possible overwriting of existing interval for variable '{var}' at time {t}.")
+               
     def copy(self):
         new_tl = {t: {v: Interval(val.l, val.r) for v, val in vars.items()} 
                   for t, vars in self.timeline.items()}
@@ -68,8 +98,6 @@ def invert_operator(op):
     }
     return mapping.get(op, '==')
 
-import re
-
 def parse_tableau(dot_content):
     nodes = {}
     
@@ -97,25 +125,39 @@ def parse_tableau(dot_content):
             
             formula_part = strip_match.group(1).strip()
             
-            # Rule 1 & 2: Temporal Filtering
-            if re.match(r'^(O)?F\[\d+,\d+\]', formula_part):
-                continue
+            #Match Node's formula. 
+            #If the formula contains temporal operators with intervals,
+            #Check if Node time is within the specified interval. If not, mark node as strict undefined
+            f_match = re.match(r'^(O)?F\[(\d+),(\d+)\]', formula_part)
+            if f_match:
+                a, b = int(f_match.group(2)), int(f_match.group(3))
+                if not (a <= t <= b):
+                    formula_part = f"UNDEF"
             g_match = re.match(r'^(O)?G\[(\d+),(\d+)\]', formula_part)
             if g_match:
                 a, b = int(g_match.group(2)), int(g_match.group(3))
                 if not (a <= t <= b):
-                    continue
-            
+                    formula_part = f"UNDEF"
+            u_match = re.match(r'^(O)?U\[(\d+),(\d+)\]', formula_part)
+            if u_match:
+                a, b = int(u_match.group(2)), int(u_match.group(3))
+                if not (a <= t <= b):
+                    formula_part = f"UNDEF"
+                
             # Memorize the clean formula
             node_formulas.append(formula_part)
             
             # Rule 3: Capture Raw Constraints
+            
             found_ineqs = ineq_pattern.findall(formula_part)
             for var, op, val in found_ineqs:
                 if var not in ('F', 'OF', 'G', 'OG'):
                     if var not in node_properties:
                         node_properties[var] = []
-                    node_properties[var].append(f"{op}{val}")
+                    if formula_part != "UNDEF":    
+                        node_properties[var].append(f"{op}{val}")
+                    else:
+                        node_properties[var].append("UNDEF")
 
         nodes[node_id] = {
             'id': node_id,
@@ -164,7 +206,45 @@ def build_tree_from_dot(dot_content):
             break
             
     return root
-
+#Traverse the tree and standardize paths based on the discovered nodes
+def standardize(root, all_vars):
+    #If the root has no children, I am in a leaf node, so I will return the single constraint
+    if not root.children:
+        #Get intervals from properties of the node
+        timeline = {}
+        for var in all_vars:
+            if var in root.properties:
+                #Assuming properties[var] is a list of constraints, we will take the first one for simplicity
+                constraint = root.properties[var][0]
+                op = re.search(r'(>=|<=|>|<|==)', constraint).group(1)
+                val = re.search(r'([+-]?\d+(?:\.\d+)?)', constraint).group(1)
+                interval = parse_inequality_to_interval(op, val)
+                timeline[root.t] = {var: interval}
+            else:
+                #If the variable is not present, set it to unconstrained
+                timeline[root.t] = {var: Interval(float('-inf'), float('inf'))}
+        #return the path 
+        return [Path(timeline)]
+    
+    else:
+        if len(root.children) > 2:
+            print(f"Error: Node {root.id} has more than 2 children. This may not be a binary tree.")
+            sys.exit(1)
+        elif len(root.children) == 1:
+            #Single child, we can propagate down
+            child_paths = standardize(root.children[0], all_vars)
+            #return path up
+            return child_paths
+        else:
+            #Two children, node could be:
+            # F
+            # U 
+            # G
+            # OR
+            # OF, OU, OG 
+            #TODO
+            pass
+            
 def main(dot_file_path):
     # 1. Load and parse the DOT content
     with open(dot_file_path, 'r', encoding='utf-8') as f:
@@ -173,13 +253,13 @@ def main(dot_file_path):
     # 2. Build the hierarchical tree structure
     root = build_tree_from_dot(dot_content)
     
+    if dbg:
+        pretty_print_tree(root) 
+        sys.exit(0)  # Exit after printing the tree for debugging
+
     # 3. Discover system variables for padding
     # This assumes we have collected all variables from the parser earlier
     all_vars = discover_all_variables(dot_content) 
-
-    # 4. Perform Topological Sort (Algorithm 2)
-    # This prepares the nodes for post-order traversal
-    nodes_in_order = topological_sort_leaves_to_root(root)
 
     # 5. Execute Iterative Signal Space Standardization (Algorithm 1)
     # We pass the root and the globally discovered variables
