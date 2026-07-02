@@ -242,9 +242,42 @@ def standardize(root, all_vars):
             # G
             # OR
             # OF, OU, OG 
-            #TODO
-            pass
+            #TODO Make it work for simple cases
+            #TODO Implement logic for complex cases where we have multiple formulas per each node
+            #Node formulas preceded by "O" are considered as a pass-through for the moment 
+            if "OF" in root.formulas or "OG" in root.formulas or "OU" in root.formulas:
+                #This is a disjunction, we will take the union of the paths
+                child_paths = standardize(root.children[0], all_vars)
+                return child_paths
+            elif "F" in root.formulas:
+                #This is a conjunction, we will take the intersection of the paths
+                left_paths = standardize(root.children[0], all_vars)
+                right_paths = standardize(root.children[1], all_vars)
+                
+                retpaths = []
+                #Add current constraint to each path in left_paths and right_paths
+                #return a single obj containing both paths if not mergeable
+
+                
+                return retpaths
             
+            elif "G" in root.formulas:
+                
+                #Add constraint to child path and return
+                child_paths = standardize(root.children[0], all_vars)
+                return child_paths
+
+            elif "U" in root.formulas:
+                #This should behave more or less as an eventually but with a constant condition until trigger
+                left_paths = standardize(root.children[0], all_vars)
+                right_paths = standardize(root.children[1], all_vars)
+                retpaths = []
+                #Add current constraint to each path in left_paths and right_paths
+                #return a single obj containing both paths if not mergeable
+                return retpaths
+            else:
+                print(f"Warning: Node {root.id} has an unrecognized formula type. Treating as pass-through.")
+                
 def main(dot_file_path):
     # 1. Load and parse the DOT content
     with open(dot_file_path, 'r', encoding='utf-8') as f:

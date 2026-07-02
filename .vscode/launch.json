@@ -44,7 +44,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/parse_graph.py",
             "args": [
-                "${workspaceFolder}/graph_examples/graph_F_gex.dot",               
+                "${workspaceFolder}/graph_examples/graph_F[3,4]gx.dot",               
             ],
             "console": "integratedTerminal"
         },
