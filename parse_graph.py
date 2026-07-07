@@ -1,8 +1,8 @@
 import re
 
 #debug flags
-dbg = True
-debug_only_tree = True
+dbg = False
+debug_only_tree = False
 
 # Print the parsed tree in a readable format 
 def pretty_print_tree(node, indent=0):
@@ -18,6 +18,7 @@ def pretty_print_tree(node, indent=0):
         print(' ' * (indent + 2) + f"formulas: {formulas}")
     for child in node.children:
         pretty_print_tree(child, indent + 4)
+        
 class Interval:
     def __init__(self, l, r):
         self.l = float(l)
@@ -206,6 +207,60 @@ def build_tree_from_dot(dot_content):
             break
             
     return root
+
+
+def get_immediate_constraints(node):
+    #identify atomic constraints in the node formulas and store them in a temporry structure
+    immediate_constraints = {}
+    for formula in node.formulas:
+        #Extract atomic constraints using regex
+        ineq_pattern = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)$')
+        matches = ineq_pattern.findall(formula)
+        for var, op, val in matches:
+            if op in ('>', '>='):
+                immediate_constraints[var] = Interval(float(val), float('inf'))
+            elif op in ('<', '<='):
+                immediate_constraints[var] = Interval(float('-inf'), float(val))
+            elif op == '==':
+                immediate_constraints[var] = Interval(float(val), float(val))
+            else:
+                # Calculate the complement interval for op 
+                pass
+    
+    return immediate_constraints
+
+def advance_paths(paths, t, constraints):
+    if constraints is None or not constraints:
+        return paths  # No constraints to apply, return original paths
+    new_paths = []
+    for path in paths:
+        new_path = path.copy()
+        for var, interval in constraints.items():
+            new_path.add_interval(t, var, interval)
+        new_paths.append(new_path)
+    return new_paths
+
+def merge_paths(left_paths, right_paths):
+    merged_paths = []
+    for left in left_paths:
+        for right in right_paths:
+            merged_timeline = {}
+            all_times = set(left.timeline.keys()).union(right.timeline.keys())
+            for t in all_times:
+                merged_timeline[t] = {}
+                if t in left.timeline:
+                    merged_timeline[t].update(left.timeline[t])
+                if t in right.timeline:
+                    for var, interval in right.timeline[t].items():
+                        if var in merged_timeline[t]:
+                            # Merge intervals for the same variable
+                            merged_interval = merged_timeline[t][var].union(interval)
+                            merged_timeline[t][var] = merged_interval
+                        else:
+                            merged_timeline[t][var] = interval
+            merged_paths.append(Path(merged_timeline))
+    return merged_paths
+
 #Traverse the tree and standardize paths based on the discovered nodes
 def standardize(root, all_vars):
     #If the root has no children, I am in a leaf node, so I will return the single constraint
@@ -230,54 +285,47 @@ def standardize(root, all_vars):
         if len(root.children) > 2:
             print(f"Error: Node {root.id} has more than 2 children. This may not be a binary tree.")
             sys.exit(1)
-        elif len(root.children) == 1:
-            #Single child, we can propagate down
-            child_paths = standardize(root.children[0], all_vars)
-            #return path up
-            return child_paths
         else:
-            #Two children, node could be:
-            # F
-            # U 
-            # G
-            # OR
-            # OF, OU, OG 
-            #TODO Make it work for simple cases
-            #TODO Implement logic for complex cases where we have multiple formulas per each node
-            #Node formulas preceded by "O" are considered as a pass-through for the moment 
-            if "OF" in root.formulas or "OG" in root.formulas or "OU" in root.formulas:
-                #This is a disjunction, we will take the union of the paths
-                child_paths = standardize(root.children[0], all_vars)
-                return child_paths
-            elif "F" in root.formulas:
-                #This is a conjunction, we will take the intersection of the paths
-                left_paths = standardize(root.children[0], all_vars)
-                right_paths = standardize(root.children[1], all_vars)
-                
-                retpaths = []
-                #Add current constraint to each path in left_paths and right_paths
-                #return a single obj containing both paths if not mergeable
-
-                
-                return retpaths
+            current_constraints = get_immediate_constraints(root)
             
-            elif "G" in root.formulas:
-                
-                #Add constraint to child path and return
+            if len(root.children) == 1:  # Assuming 'G' is the only formula in this node
+                #Single child, propagate constraints
                 child_paths = standardize(root.children[0], all_vars)
-                return child_paths
 
-            elif "U" in root.formulas:
-                #This should behave more or less as an eventually but with a constant condition until trigger
-                left_paths = standardize(root.children[0], all_vars)
-                right_paths = standardize(root.children[1], all_vars)
-                retpaths = []
-                #Add current constraint to each path in left_paths and right_paths
-                #return a single obj containing both paths if not mergeable
-                return retpaths
-            else:
-                print(f"Warning: Node {root.id} has an unrecognized formula type. Treating as pass-through.")
+                #Now we need to add the current node's constraints to each of the child paths
+                #Need to keep consider the time and the possible merging of paths
+                if(root.t != root.children[0].t):
+                    ret_paths = advance_paths(child_paths, root.t, current_constraints)
+                else:
+                    ret_paths = child_paths
                 
+            else:
+                #Two children, handle disjunctions
+                left_paths = standardize(root.children[0], all_vars)
+                right_paths = standardize(root.children[1], all_vars)    
+                
+                merged_paths = merge_paths(left_paths, right_paths)
+                if (root.t != root.children[0].t):  # Assuming both children have the same time
+                    ret_paths = advance_paths(merged_paths, root.t, current_constraints)
+                else:
+                    ret_paths = merged_paths
+            
+            return ret_paths
+        
+
+def discover_all_variables(dot_content):
+    # Regex with 3 groups: variable, operator, value
+    ineq_pattern = re.compile(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:>=|<=|>|<|==)\s*[+-]?\d+(?:\.\d+)?')
+    
+    vars_found = set()
+    # Use findall on the content
+    for match in ineq_pattern.finditer(dot_content):
+        # Access the variable specifically (the first group)
+        var = match.group(1)
+        if var not in ('F', 'OF', 'G', 'OG', 'U', 'OU'):
+            vars_found.add(var)
+    return sorted(list(vars_found))
+
 def main(dot_file_path):
     # 1. Load and parse the DOT content
     with open(dot_file_path, 'r', encoding='utf-8') as f:
@@ -306,23 +354,12 @@ def main(dot_file_path):
             constraints = path.timeline[t]
             print(f"  t={t}: {constraints}")
 
-def discover_all_variables(dot_content):
-    # Regex with 3 groups: variable, operator, value
-    ineq_pattern = re.compile(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:>=|<=|>|<|==)\s*[+-]?\d+(?:\.\d+)?')
-    
-    vars_found = set()
-    # Use findall on the content
-    for match in ineq_pattern.finditer(dot_content):
-        # Access the variable specifically (the first group)
-        var = match.group(1)
-        if var not in ('F', 'OF', 'G', 'OG', 'U', 'OU'):
-            vars_found.add(var)
-    return sorted(list(vars_found))
-
 if __name__ == "__main__":
     import sys
     # Example usage: python script.py graph_G.dot
     if len(sys.argv) > 1:
         main(sys.argv[1])
     else:
-        print("Please provide a .dot file path.")
+        print("Please provide a .dot file path.")        
+                            
+
