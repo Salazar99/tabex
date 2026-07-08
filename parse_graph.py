@@ -1,4 +1,5 @@
 import re
+import pydot
 
 #debug flags
 dbg = False
@@ -99,26 +100,28 @@ def invert_operator(op):
     }
     return mapping.get(op, '==')
 
-def parse_tableau(dot_content):
+def parse_tableau(graph):
     nodes = {}
-    
-    node_pattern = re.compile(r'^\s*"([^"]+)"\s*\[\s*label\s*=\s*"(.*?)"\s*\]', re.MULTILINE | re.DOTALL)
+
     # Optimized to ignore (N) or (N) -> (Y) and capture the actual formula
     formula_strip_pattern = re.compile(r'\(.*?\)(?:\s*→\s*\(.*?\))?\s*\|\s*(.*)')
     ineq_pattern = re.compile(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)')
 
-    for match in node_pattern.finditer(dot_content):
-        node_id = match.group(1)
-        label_text = match.group(2)
-        
+    for dot_node in graph.get_nodes():
+        label_attr = dot_node.get_label()
+        if label_attr is None:
+            continue  # skip pydot artifacts / nodes without a label
+
+        node_id = dot_node.get_name().strip('"')
+        label_text = label_attr.strip('"')
+
         t_match = re.search(r'\bt\s*=\s*(\d+)', label_text, re.IGNORECASE)
         t = int(t_match.group(1)) if t_match else 0
-        
+
         node_properties = {}
         node_formulas = []
-        
-        normalized_label = label_text.replace('\\n', '\n')
-        for line in normalized_label.split('\n'):
+
+        for line in label_text.split('\n'):
             # Only process lines that contain the formula structure
             strip_match = formula_strip_pattern.search(line)
             if not strip_match:
@@ -174,27 +177,29 @@ def parse_tableau(dot_content):
     }
     
 def build_tree_from_dot(dot_content):
-    # 1. Reuse existing tableau parsing logic to get raw node data
-    tableau_data = parse_tableau(dot_content)
+    # 1. Parse the DOT structure once with a real DOT parser (pydot)
+    graph = pydot.graph_from_dot_data(dot_content)[0]
+
+    # 2. Reuse existing tableau parsing logic to get raw node data
+    tableau_data = parse_tableau(graph)
     raw_nodes = tableau_data['nodes']
-    
-    # 2. Create Node objects
+
+    # 3. Create Node objects
     tree_nodes = {}
     for nid, data in raw_nodes.items():
         # Correctly passing the real label from the parsed data
         tree_nodes[nid] = Node(data['id'], data['t'], label=data.get('label', ''), properties=data['properties'], formulas=data['formulas'])
-        
-        
-    # 3. Create structural edges
-    # Standard DOT uses "--" for undirected graphs, usually representing 
+
+
+    # 4. Create structural edges
+    # Standard DOT uses "--" for undirected graphs, usually representing
     # parent-child flow in tableau construction
-    edge_pattern = re.compile(r'^\s*"([^"]+)"\s*--\s*"([^"]+)"', re.MULTILINE)
-    
     # Track children to identify the root
     has_parent = set()
-    
-    for match in edge_pattern.finditer(dot_content):
-        parent_id, child_id = match.group(1), match.group(2)
+
+    for edge in graph.get_edges():
+        parent_id = edge.get_source().strip('"')
+        child_id = edge.get_destination().strip('"')
         if parent_id in tree_nodes and child_id in tree_nodes:
             tree_nodes[parent_id].children.append(tree_nodes[child_id])
             has_parent.add(child_id)
@@ -263,54 +268,142 @@ def merge_paths(left_paths, right_paths):
 
 #Traverse the tree and standardize paths based on the discovered nodes
 def standardize(root, all_vars):
-    #If the root has no children, I am in a leaf node, so I will return the single constraint
-    if not root.children:
-        #Get intervals from properties of the node
-        timeline = {}
-        for var in all_vars:
-            if var in root.properties:
-                #Assuming properties[var] is a list of constraints, we will take the first one for simplicity
-                constraint = root.properties[var][0]
-                op = re.search(r'(>=|<=|>|<|==)', constraint).group(1)
-                val = re.search(r'([+-]?\d+(?:\.\d+)?)', constraint).group(1)
-                interval = parse_inequality_to_interval(op, val)
-                timeline[root.t] = {var: interval}
-            else:
-                #If the variable is not present, set it to unconstrained
-                timeline[root.t] = {var: Interval(float('-inf'), float('inf'))}
-        #return the path 
-        return [Path(timeline)]
-    
-    else:
-        if len(root.children) > 2:
-            print(f"Error: Node {root.id} has more than 2 children. This may not be a binary tree.")
-            sys.exit(1)
-        else:
-            current_constraints = get_immediate_constraints(root)
-            
-            if len(root.children) == 1:  # Assuming 'G' is the only formula in this node
-                #Single child, propagate constraints
-                child_paths = standardize(root.children[0], all_vars)
+    all_times = set()
+    def collect_times(n):
+        all_times.add(n.t)
+        for c in n.children:
+            collect_times(c)
+    collect_times(root)
 
-                #Now we need to add the current node's constraints to each of the child paths
-                #Need to keep consider the time and the possible merging of paths
-                if(root.t != root.children[0].t):
-                    ret_paths = advance_paths(child_paths, root.t, current_constraints)
-                else:
-                    ret_paths = child_paths
-                
-            else:
-                #Two children, handle disjunctions
-                left_paths = standardize(root.children[0], all_vars)
-                right_paths = standardize(root.children[1], all_vars)    
-                
-                merged_paths = merge_paths(left_paths, right_paths)
-                if (root.t != root.children[0].t):  # Assuming both children have the same time
-                    ret_paths = advance_paths(merged_paths, root.t, current_constraints)
-                else:
-                    ret_paths = merged_paths
-            
-            return ret_paths
+    def node_own_constraints(node):
+        # Extract atomic var/op/val constraints directly owned by this node, tolerating
+        # a leading temporal-operator prefix (e.g. "G[0,2] x > 0"). Disjunctions ("||")
+        # are already decomposed into separate child nodes elsewhere in the tree, so a
+        # formula line containing "||" is skipped here rather than misread as a
+        # conjunction. Conjunctions ("&&") are NOT decomposed into children, so each
+        # conjunct is extracted independently (all hold simultaneously).
+        prefix_pattern = re.compile(r'^\(?O?[FGU]\[\d+,\d+\]\)?\s*')
+        atom_pattern = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)$')
+        result = {}
+        for formula in node.formulas:
+            stripped = prefix_pattern.sub('', formula).strip()
+            if '||' in stripped:
+                continue
+            inner = stripped
+            if inner.startswith('(') and inner.endswith(')'):
+                inner = inner[1:-1]
+            clauses = [c.strip() for c in inner.split('&&')] if '&&' in inner else [inner]
+            for clause in clauses:
+                m = atom_pattern.match(clause)
+                if m:
+                    var, op, val = m.groups()
+                    result[var] = parse_inequality_to_interval(op, val)
+        return result
+
+    def is_leaf(node):
+        return not node.children
+
+    def explicit_vars_at(timelines, t):
+        # Union of explicitly-constrained variables at time t, across alternative timelines
+        combined = {}
+        for tl in timelines:
+            for var, intervals in tl.get(t, {}).items():
+                combined.setdefault(var, []).extend(intervals)
+        return combined
+
+    def complement_pieces(intervals):
+        # Complement of the union of `intervals` (a witness constraint, possibly a merged
+        # multi-piece signal set), computed exactly via De Morgan: complement(A u B u ...)
+        # = complement(A) n complement(B) n ..., reusing Interval.intersect. This avoids
+        # over-approximating by merging unrelated ranges (e.g. complementing (0,inf) yields
+        # (-inf,0], not the whole real line).
+        per_interval_complements = []
+        for iv in intervals:
+            pieces = []
+            if iv.l != float('-inf'):
+                pieces.append(Interval(float('-inf'), iv.l))
+            if iv.r != float('inf'):
+                pieces.append(Interval(iv.r, float('inf')))
+            per_interval_complements.append(pieces)
+        result = per_interval_complements[0] if per_interval_complements else []
+        for pieces in per_interval_complements[1:]:
+            result = [inter for a in result for b in pieces if (inter := a.intersect(b)) is not None]
+        return result or [Interval(float('-inf'), float('inf'))]
+
+    def recurse(node):
+        # Returns a list of sparse timelines: [{t: {var: [Interval, ...]}}, ...]
+        if is_leaf(node):
+            slot = {var: [iv] for var, iv in node_own_constraints(node).items()}
+            return [{node.t: slot}]
+
+        if len(node.children) > 2:
+            print(f"Error: Node {node.id} has more than 2 children. This may not be a binary tree.")
+            sys.exit(1)
+
+        if len(node.children) == 1:
+            child_tls = recurse(node.children[0])
+            own = node_own_constraints(node)
+            if node.t == node.children[0].t or not own:
+                return child_tls
+            result = []
+            for tl in child_tls:
+                new_tl = {t: dict(v) for t, v in tl.items()}
+                slot = dict(new_tl.get(node.t, {}))
+                for var, iv in own.items():
+                    slot.setdefault(var, []).append(iv)
+                new_tl[node.t] = slot
+                result.append(new_tl)
+            return result
+
+        # Two children
+        left, right = node.children
+        left_tls, right_tls = recurse(left), recurse(right)
+        left_adv = any(t > node.t for tl in left_tls for t in tl)
+        right_adv = any(t > node.t for tl in right_tls for t in tl)
+
+        if not left_adv and not right_adv:
+            left_vars = explicit_vars_at(left_tls, node.t)
+            right_vars = explicit_vars_at(right_tls, node.t)
+            same_single_var = (set(left_vars) == set(right_vars) and len(left_vars) <= 1
+                                and len(left_tls) == 1 and len(right_tls) == 1)
+            if same_single_var:
+                # Same variable, same instant -> merge into one path with a list of intervals
+                merged = {t: dict(v) for t, v in left_tls[0].items()}
+                slot = dict(merged.get(node.t, {}))
+                for var, ivs in right_tls[0].get(node.t, {}).items():
+                    slot[var] = slot.get(var, []) + ivs
+                merged[node.t] = slot
+                return [merged]
+            return left_tls + right_tls  # Different variables -> keep as separate paths
+
+        if left_adv and right_adv:
+            return left_tls + right_tls  # No clear witness/continuation relation -> keep separate
+
+        # One side stays at this instant (witness), the other advances in time (continuation):
+        # the continuation implies the witness constraint does NOT hold yet at this instant.
+        witness_tls, continue_tls = (right_tls, left_tls) if left_adv else (left_tls, right_tls)
+        witness = explicit_vars_at(witness_tls, node.t)
+        adjusted = []
+        for tl in continue_tls:
+            new_tl = {t: dict(v) for t, v in tl.items()}
+            slot = dict(new_tl.get(node.t, {}))
+            for var, ivs in witness.items():
+                slot[var] = complement_pieces(ivs)
+            new_tl[node.t] = slot
+            adjusted.append(new_tl)
+        return witness_tls + adjusted
+
+    raw = recurse(root)
+    final_paths = []
+    for tl in raw:
+        full = {}
+        for t in sorted(all_times):
+            slot = dict(tl.get(t, {}))
+            for var in all_vars:
+                slot.setdefault(var, [Interval(float('-inf'), float('inf'))])
+            full[t] = slot
+        final_paths.append(Path(full))
+    return final_paths
         
 
 def discover_all_variables(dot_content):
