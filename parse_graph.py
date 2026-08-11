@@ -1,4 +1,10 @@
+import os
 import re
+import subprocess
+import sys
+import tempfile
+import pathlib
+
 import pydot
 
 #debug flags
@@ -297,7 +303,11 @@ def standardize(root, all_vars):
                 m = atom_pattern.match(clause)
                 if m:
                     var, op, val = m.groups()
-                    result[var] = parse_inequality_to_interval(op, val)
+                    iv = parse_inequality_to_interval(op, val)
+                    if var in result:
+                        prev = result[var]
+                        iv = Interval(max(prev.l, iv.l), min(prev.r, iv.r))
+                    result[var] = iv
         return result
 
     def is_leaf(node):
@@ -343,7 +353,7 @@ def standardize(root, all_vars):
         if len(node.children) == 1:
             child_tls = recurse(node.children[0])
             own = node_own_constraints(node)
-            if node.t == node.children[0].t or not own:
+            if not own:
                 return child_tls
             result = []
             for tl in child_tls:
@@ -419,6 +429,55 @@ def discover_all_variables(dot_content):
             vars_found.add(var)
     return sorted(list(vars_found))
 
+DEFAULT_STLSAT_ARGS = [
+    "--no-jump-rule",
+    "--no-formula-simplifications",
+    "--no-formula-optimizations",
+]
+
+def resolve_tabex_root(tabex_root=None):
+    root = tabex_root or os.environ.get("TABEX_ROOT", "~/tabex")
+    return pathlib.Path(root).expanduser()
+
+def run_stlsat(formula, tabex_root=None, extra_args=None):
+    # Runs the real stlsat binary (via `cargo run --release`) on `formula`
+    # and returns the DOT tableau it writes to --graph-output.
+    root = resolve_tabex_root(tabex_root)
+    args = DEFAULT_STLSAT_ARGS if extra_args is None else extra_args
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        stl_path = pathlib.Path(tmp_dir) / "formula.stl"
+        dot_path = pathlib.Path(tmp_dir) / "tableau.dot"
+        stl_path.write_text(formula, encoding="utf-8")
+
+        result = subprocess.run(
+            ["cargo", "run", "--release", str(stl_path), "--graph-output", str(dot_path), *args],
+            cwd=str(root / "m_stlsat"),
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"stlsat failed for formula {formula!r}:\n{result.stderr}")
+        if not dot_path.is_file():
+            raise RuntimeError(f"stlsat did not produce a graph output for formula {formula!r}")
+
+        return dot_path.read_text(encoding="utf-8")
+
+def generate_signal_space_from_formula(formula, tabex_root=None, extra_args=None):
+    # Full pipeline: formula string -> stlsat tableau -> tree -> standardized paths.
+    dot_content = run_stlsat(formula, tabex_root, extra_args)
+    root = build_tree_from_dot(dot_content)
+    all_vars = discover_all_variables(dot_content)
+    return standardize(root, all_vars)
+
+def print_paths(source_label, final_path_list):
+    print(f"--- Standardized Feasible Paths for {source_label} ---")
+    for i, path in enumerate(final_path_list, 1):
+        print(f"\nPath #{i}:")
+        for t in sorted(path.timeline.keys()):
+            constraints = path.timeline[t]
+            print(f"  t={t}: {constraints}")
+
 def main(dot_file_path):
     # 1. Load and parse the DOT content
     with open(dot_file_path, 'r', encoding='utf-8') as f:
@@ -426,33 +485,42 @@ def main(dot_file_path):
 
     # 2. Build the hierarchical tree structure
     root = build_tree_from_dot(dot_content)
-    
+
     if dbg:
-        pretty_print_tree(root) 
+        pretty_print_tree(root)
         sys.exit(0)  # Exit after printing the tree for debugging
 
     # 3. Discover system variables for padding
     # This assumes we have collected all variables from the parser earlier
-    all_vars = discover_all_variables(dot_content) 
+    all_vars = discover_all_variables(dot_content)
 
     # 5. Execute Iterative Signal Space Standardization (Algorithm 1)
     # We pass the root and the globally discovered variables
     final_path_list = standardize(root, all_vars)
 
     # 6. Output the results
-    print(f"--- Standardized Feasible Paths for {dot_file_path} ---")
-    for i, path in enumerate(final_path_list, 1):
-        print(f"\nPath #{i}:")
-        for t in sorted(path.timeline.keys()):
-            constraints = path.timeline[t]
-            print(f"  t={t}: {constraints}")
+    print_paths(dot_file_path, final_path_list)
 
 if __name__ == "__main__":
-    import sys
-    # Example usage: python script.py graph_G.dot
-    if len(sys.argv) > 1:
-        main(sys.argv[1])
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Build the standardized signal space from a stlsat tableau.")
+    parser.add_argument("dot_file", nargs="?", help="Path to an existing stlsat .dot tableau file.")
+    parser.add_argument("--formula", help="STL formula string; runs stlsat automatically instead of using dot_file.")
+    parser.add_argument("--tabex-root", help="Override TABEX_ROOT (default: $TABEX_ROOT or ~/tabex).")
+    parser.add_argument("--save-dot", help="If set with --formula, also save the intermediate tableau .dot here.")
+    cli_args = parser.parse_args()
+
+    if cli_args.formula:
+        dot_content = run_stlsat(cli_args.formula, cli_args.tabex_root)
+        if cli_args.save_dot:
+            pathlib.Path(cli_args.save_dot).write_text(dot_content, encoding="utf-8")
+        root = build_tree_from_dot(dot_content)
+        all_vars = discover_all_variables(dot_content)
+        print_paths(cli_args.formula, standardize(root, all_vars))
+    elif cli_args.dot_file:
+        main(cli_args.dot_file)
     else:
-        print("Please provide a .dot file path.")        
-                            
+        parser.error("Provide either a dot_file or --formula.")
+
 

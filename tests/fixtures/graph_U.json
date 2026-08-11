@@ -1,0 +1,428 @@
+{
+  "paths": [
+    {
+      "0": {
+        "x": [
+          [
+            0.0,
+            Infinity
+          ],
+          [
+            0.0,
+            Infinity
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            3.0,
+            Infinity
+          ],
+          [
+            3.0,
+            Infinity
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      },
+      "3": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      },
+      "4": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            0.0,
+            Infinity
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            3.0,
+            Infinity
+          ],
+          [
+            3.0,
+            Infinity
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      },
+      "3": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      },
+      "4": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            0.0,
+            Infinity
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            3.0,
+            Infinity
+          ],
+          [
+            3.0,
+            Infinity
+          ]
+        ]
+      },
+      "3": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      },
+      "4": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "3": {
+        "x": [
+          [
+            0.0,
+            Infinity
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            3.0,
+            Infinity
+          ],
+          [
+            3.0,
+            Infinity
+          ]
+        ]
+      },
+      "4": {
+        "x": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            Infinity
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "3": {
+        "x": [
+          [
+            -Infinity,
+            0.0
+          ]
+        ],
+        "y": [
+          [
+            -Infinity,
+            3.0
+          ]
+        ]
+      },
+      "4": {
+        "x": [
+          [
+            0.0,
+            Infinity
+          ],
+          [
+            0.0,
+            Infinity
+          ]
+        ],
+        "y": [
+          [
+            3.0,
+            Infinity
+          ],
+          [
+            3.0,
+            Infinity
+          ]
+        ]
+      }
+    }
+  ],
+  "vars": [
+    "x",
+    "y"
+  ]
+}

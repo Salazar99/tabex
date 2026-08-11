@@ -6,4 +6,5 @@ __pycache__
 *.stl
 *.dot
 *.pdf
-!graph_examples/
+!graph_examples/**
+!tests/**
