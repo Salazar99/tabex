@@ -15,20 +15,25 @@ tabex_home/
 │   ├── Manual/                # Manually defined test cases
 │   └── Random/                # Randomly generated test cases
 ├── dotparser/
-│   └── input_creator.py       # Formula volume generation
+│   └── input_creator.py       # Standalone formula volume (JSON) generation, not used by run_similarity
 ├── figures/                   # Images used in README
 ├── graph_examples/            # Sample stlsat tableau .dot files (also used as test fixtures)
 ├── similarity/
-│   └── stl_similarity.py      # Similarity calculation script
-├── tests/                     # Pytest suite for parse_graph.py
+│   ├── stl_similarity.py      # Similarity metric over parse_graph.py's signal space (preliminaries.tex)
+│   └── stl_similarity.py.bk   # Previous JSON-volume-based implementation, kept for reference
+├── tests/                     # Pytest suite
 │   ├── conftest.py
 │   ├── fixtures/              # Golden standardized-path outputs
 │   ├── test_units.py
 │   ├── test_dot_examples.py
-│   └── test_formula_to_signal_space.py
+│   ├── test_formula_to_signal_space.py
+│   ├── test_semantics_examples.py
+│   ├── test_stl_similarity.py
+│   └── test_similarity_check.py
 ├── parse_graph.py             # Tableau -> signal space (standardization, Algorithm 1)
 ├── pytest.ini                 # Pytest markers/config for tests/
-├── run_similarity              # Runs the entire similarity pipeline
+├── run_similarity.py           # Runs the entire similarity pipeline (CLI args)
+├── similarity_check.py         # Interactive interface (prompts for formulas)
 ├── m_stlsat/                  # Modified stlsat source code
 ├── LICENSE.md                 # Project license
 └── README.md                  # Documentation
@@ -78,24 +83,34 @@ python run_similarity "First_formula" "Second_formula" [--save-volumes]
 
   * **--save-volumes**: (Optional) Saves the formula volumes in a `.json` file.
 
+Prefer typing formulas interactively instead of shell-quoting them as CLI
+args? Run:
+
+```bash
+python similarity_check.py
+```
+
+It prompts for a first and second formula, prints the similarity score,
+and loops so you can run more comparisons without restarting the
+process. Type `quit` (or `exit`) at either prompt to leave.
+
 ### 2\. Manual Steps
 
-You can run the pipeline stages independently:
-
-#### **Volume Generation**
-
-```bash
-python dotparser/input_creator.py formula.stl output_file.json 
-```
-
-  * `formula.stl`: Contains the formula structure.
-  * `output_file.json`: Will contain the generated formula's volume.
-
-#### **Similarity Calculation**
+You can run the pipeline stages independently: generate each formula's
+signal space with `parse_graph.py`, then compare the two directly with
+`similarity/stl_similarity.py`, which takes formula strings and calls
+`stlsat` itself (no intermediate JSON file):
 
 ```bash
-python similarity/stl_similarity.py volume_1.json volume_2.json
+python similarity/stl_similarity.py "First_formula" "Second_formula" [--D VALUE]
 ```
+
+  * **--D**: (Optional) Truncation window for `Point_sim_D`
+    (Eq. `PointSimD`); auto-derived from the two formulas' constants if
+    omitted.
+
+> **Note**: `dotparser/input_creator.py` (JSON "volume" format) is a
+> separate, standalone tool — it is not part of this similarity pipeline.
 
 ### 3\. Signal Space Generation (`parse_graph.py`)
 

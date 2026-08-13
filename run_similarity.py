@@ -1,42 +1,42 @@
 import argparse
-import os
-from pathlib import Path
-import sys
-from similarity.stl_similarity import calc_similarity
-from dotparser.input_creator import generate_volumes
+import json
+
+from parse_graph import generate_signal_space_from_formula
+from similarity.stl_similarity import build_volume_from_paths, compute_similarity
+
+
+def _serialize_paths(paths):
+    return [
+        {
+            str(t): {var: sorted([iv.l, iv.r] for iv in ivs) for var, ivs in sorted(path.timeline[t].items())}
+            for t in sorted(path.timeline.keys())
+        }
+        for path in paths
+    ]
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Compare the similarity of two formulas."
-    )
+    parser = argparse.ArgumentParser(description="Compare the similarity of two formulas.")
     parser.add_argument("formula1", help="First formula")
     parser.add_argument("formula2", help="Second formula")
     parser.add_argument(
         "--save-volumes",
         action="store_true",
-        help="Keep the temporary STL files after running.",
+        help="Save each formula's standardized signal space to a .json file.",
     )
+    parser.add_argument("--tabex-root", help="Override $TABEX_ROOT / ~/tabex.")
     args = parser.parse_args()
-    filepath1 = Path("tmp1.stl")
-    filepath2 = Path("tmp2.stl")
-    #0.1 Create the tmp.stl files for both formulas
-    if not filepath1.is_file():
-        with open("tmp1.stl", "w") as f:
-            f.write(args.formula1)
-    if not filepath2.is_file():
-        with open("tmp2.stl", "w") as f:
-            f.write(args.formula2)
 
-    try:
-        #1 call input_creator to get the two formulas volumes
-        volume1 = generate_volumes(os.path.abspath("tmp1.stl"), f"{args.formula1}_volume.json" if args.save_volumes else None)
-        volume2 = generate_volumes(os.path.abspath("tmp2.stl"), f"{args.formula2}_volume.json" if args.save_volumes else None)
+    paths1 = generate_signal_space_from_formula(args.formula1, tabex_root=args.tabex_root)
+    paths2 = generate_signal_space_from_formula(args.formula2, tabex_root=args.tabex_root)
 
-        #2 call stl_similarity to get the similarity between the two volumes
-        calc_similarity(volume1, volume2)
-    finally:
-        sys.stdout.flush()
-        #Cleanup tmp files
-        # if not args.save_volumes:
-        os.remove("tmp1.stl")
-        os.remove("tmp2.stl")
+    if args.save_volumes:
+        with open(f"{args.formula1}_volume.json", "w") as f:
+            json.dump(_serialize_paths(paths1), f, indent=2)
+        with open(f"{args.formula2}_volume.json", "w") as f:
+            json.dump(_serialize_paths(paths2), f, indent=2)
+
+    volume1 = build_volume_from_paths(args.formula1, paths1)
+    volume2 = build_volume_from_paths(args.formula2, paths2)
+    score = compute_similarity(volume1, volume2)
+    print(f"Similarity score between formula {args.formula1!r} and formula {args.formula2!r} is: {score}")

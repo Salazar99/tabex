@@ -8,3 +8,5 @@ __pycache__
 *.pdf
 !graph_examples/**
 !tests/**
+tests/**/__pycache__/
+.pytest_cache/

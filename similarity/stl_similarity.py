@@ -1,356 +1,187 @@
-from ast import Set
-import math
-from re import findall
+"""STL similarity metric, per preliminaries.tex.
+
+Operates directly on parse_graph.py's signal space (list[Path], each
+Path.timeline: {t: {var: [Interval, ...]}}) instead of a separate JSON
+"bounds" format -- see similarity/stl_similarity.py.bk for the previous
+implementation, which consumed dotparser/input_creator.py's output.
+"""
+import argparse
 import sys
-import json
-import re 
-from enum import Enum
+from pathlib import Path as FilePath
 
-class NumOperator(Enum):
-    LT = "<" 
-    GT = ">" 
-    LEQ = "<=" 
-    GEQ = ">=" 
-    EQ = "==" 
-    NEQ = "!="
+sys.path.insert(0, str(FilePath(__file__).resolve().parent.parent))
 
-#class that contains a constraint at a specific time
-#variable: the variable that is constrained
-#time: the time at which the constraint is applied
-#left: the left bound of the constraint
-#right: the right bound of the constraint
-class instant_contraint:
-    def __init__(self, variable, time, left, right):
-        self.variable = variable
-        self.time = time
-        self.left = left
-        self.right = right
+from parse_graph import Interval, Path, generate_signal_space_from_formula
 
-    #return true if the constraint is bounded (both bounds are finite), false otherwise
-    def is_bounded(self):
-        if math.isinf(self.left) and math.isinf(self.right):
-            return True
-        
-        return False 
-    
-    #return true if the constraint is undefined, false otherwise
-    def is_undefined(self):
-        return math.isinf(self.left) and math.isinf(self.right)
-    
-#class that contains the volume of an STL formula
-#Volume is a collection of paths
-class FormulaVolume:
-    def __init__(self, horizon, formula_name, vars):
-        self.horizon = horizon
-        self.formula_name = formula_name
-        self.vars = vars
-        self.volume = []
-
-    def add_path(self, path):
-        self.volume.append(path)
+UNDEFINED = [Interval(float("-inf"), float("inf"))]
 
 
-#Parse the input files to instantiate the volume of the STL formula
-def extract_volume_from_bounds(bounds):
-    simple_expression_regex = r"(\w+)\s*(<=|>=|<|>|=)\s*(\d+)"
-    # 1. initilize the volume to return 
-    volume = FormulaVolume(bounds["horizon"],bounds["formula"], bounds["vars"])
-    
-    # 2. Start manipulating the paths
-    for path in bounds["paths"]:
-        path_instance = {}
-        for contraint in path["trace"]:
-            time = contraint["t"]
-            path_instance[time] = {}
-            #constraint is a list of expressions of the form "var op value" or "Undefined:var"
-            #Multiple expression could be present for the same variable at the same time, in this case we can treat them as a conjunction of constraints
-            
-            #Support var to create the instant_constraint instances
-            #variable
-            #operator
-            #leftvalue
-            #rightvalue
-            variable_constraints = {}
-            
-            for expr in contraint["constraints"]:
-                expr = expr.strip("()") 
-                if expr.startswith("Undefined:"):
-                    variable = expr.split(":")[1].strip()
-                    variable_constraints[variable] = (None, None, None)
-                else:
-                    negated = False
-                    if expr.startswith("!"):
-                        negated = True
-                        expr = expr[1:] #remove the negation for parsing
-                        expr = expr.strip("()")
-                    # Parse the expression to extract variable, operator, and value
-                    match = re.match(simple_expression_regex, str(expr))
-                    if match:
-                        variable = match.group(1)
-                        operator = match.group(2)
-                        value = int(match.group(3))
-                        
-                        if negated:
-                            #Negate the operator
-                            match operator:
-                                case NumOperator.LT.value:
-                                    operator = NumOperator.GEQ.value
-                                case NumOperator.GT.value:
-                                    operator = NumOperator.LEQ.value
-                                case NumOperator.LEQ.value:
-                                    operator = NumOperator.GT.value
-                                case NumOperator.GEQ.value:
-                                    operator = NumOperator.LT.value
-                                case NumOperator.EQ.value:
-                                    operator = NumOperator.NEQ.value
-                                case NumOperator.NEQ.value:
-                                    operator = NumOperator.EQ.value
-                                case _:
-                                    raise ValueError(f"Unsupported operator: {operator}")
-                                    sys.exit(1)
-                        
-                        lvalue, rvalue = None, None
-                        
-                        match operator:
-                            case NumOperator.LT.value:
-                                #expr is var < value, so bounds is (-inf, rvalue)
-                                #x < 5 and new one is x < 3 --> update rvalue to 3
-                                rvalue = value
-                                if variable in variable_constraints:
-                                    #if it already exists and rvalue is less than the current lvalue, update it
-                                    if variable_constraints[variable][1] is not None and variable_constraints[variable][1] > rvalue:
-                                        variable_constraints[variable][3] = rvalue
-                                    #if it already exists and lvalue is None, update it
-                                    elif variable_constraints[variable][1] is None:
-                                        variable_constraints[variable][3] = rvalue
-                                    #Otherwise do nothing, 
-                                else:
-                                    variable_constraints[variable] = (operator, None, rvalue)
-                            
-                            case NumOperator.GT.value:
-                                #expr is var > value, so bounds is (lvalue, +inf)
-                                # x > 5 and new one is x > 7 --> update lvalue to 7
-                                lvalue = value
-                                if variable in variable_constraints:
-                                    #if it already exists and lvalue is greater than the current lvalue, update it
-                                    if variable_constraints[variable][1] is not None and variable_constraints[variable][1] < lvalue:
-                                        variable_constraints[variable][2] = lvalue
-                                    #if it already exists and lvalue is None, update it
-                                    elif variable_constraints[variable][1] is None:
-                                        variable_constraints[variable][2] = lvalue
-                                    #Otherwise do nothing, 
-                                else:
-                                    variable_constraints[variable] = [operator, lvalue, None]
-                            case NumOperator.LEQ.value:
-                                #expr is var < value, so bounds is (-inf, rvalue)
-                                #x < 5 and new one is x < 3 --> update rvalue to 3
-                                rvalue = value
-                                if variable in variable_constraints:
-                                    #if it already exists and rvalue is less than the current lvalue, update it
-                                    if variable_constraints[variable][1] is not None and variable_constraints[variable][1] > rvalue:
-                                        variable_constraints[variable][3] = rvalue
-                                    #if it already exists and lvalue is None, update it
-                                    elif variable_constraints[variable][1] is None:
-                                        variable_constraints[variable][3] = rvalue
-                                    #Otherwise do nothing, 
-                                else:
-                                    variable_constraints[variable] = [operator, None, rvalue]
-                            case NumOperator.GEQ.value:
-                                #expr is var > value, so bounds is (lvalue, +inf)
-                                # x > 5 and new one is x > 7 --> update lvalue to 7
-                                lvalue = value
-                                if variable in variable_constraints:
-                                    #if it already exists and lvalue is greater than the current lvalue, update it
-                                    if variable_constraints[variable][1] is not None and variable_constraints[variable][1] < lvalue:
-                                        variable_constraints[variable][2] = lvalue
-                                    #if it already exists and lvalue is None, update it
-                                    elif variable_constraints[variable][1] is None:
-                                        variable_constraints[variable][2] = lvalue
-                                    #Otherwise do nothing, 
-                                else:
-                                    variable_constraints[variable] = [operator, lvalue, None]
-                            case NumOperator.EQ.value:
-                                lvalue = value
-                                rvalue = value
-                                variable_constraints[variable] = [operator, lvalue, rvalue]
-                            case _: 
-                                raise ValueError(f"Unsupported operator: {operator}")
-                                sys.exit(1)
-                    else:
-                        raise ValueError(f"Unsupported expression format: {expr}")
-                        sys.exit(1)
-                    #end of expression parsing for this time instat       
-            #end of expressions parsign for this time instant
-            #Create the instant constraint instances for each variable
-            for variable, [operator, lvalue, rvalue] in variable_constraints.items():
-                if lvalue is None:
-                    lvalue = float("-inf")
-                if rvalue is None:
-                    rvalue = float("inf") 
-                path_instance[time][variable] = instant_contraint(variable, time, lvalue, rvalue)
-
-        #end of path instance creation for this path, add it to the volume
-        volume.add_path(path_instance)    
-                
-    return volume
+def merge_pieces(pieces):
+    # Collapse overlapping/touching Interval pieces into a minimal disjoint
+    # set, so duplicate/overlapping pieces (e.g. [[0,inf],[0,inf]]) don't
+    # double-count length in measure().
+    merged = []
+    for iv in sorted(pieces, key=lambda iv: iv.l):
+        if merged and iv.l <= merged[-1].r:
+            merged[-1] = Interval(merged[-1].l, max(merged[-1].r, iv.r))
+        else:
+            merged.append(Interval(iv.l, iv.r))
+    return merged
 
 
-def jaccard_similarity(constraint1, constraint2):
-    """
-    Calculates the Jaccard Index for two finite intervals.
-    I and J are tuples or lists: (start, end)
-    """
-    # Find the intersection coordinates
-    inter_start = max(constraint1.left, constraint2.left)
-    inter_end = min(constraint1.right, constraint2.right)
-    
-    # Calculate intersection length
-    intersection = max(0, inter_end - inter_start)
+def measure(pieces):
+    total = 0.0
+    for iv in merge_pieces(pieces):
+        length = iv.r - iv.l
+        if length == float("inf"):
+            return float("inf")
+        total += length
+    return total
 
-    # Calculate union length: Area(I) + Area(J) - Intersection
-    len_i = constraint1.right - constraint1.left
-    len_j = constraint2.right - constraint2.left
-    union = len_i + len_j - intersection
-    
+
+def intersect_pieces(a, b):
+    result = [iv for x in a for y in b if (iv := x.intersect(y)) is not None]
+    return merge_pieces(result)
+
+
+def union_pieces(a, b):
+    return merge_pieces(list(a) + list(b))
+
+
+def is_undefined(pieces):
+    # standardize() pads an unconstrained (t, var) slot with exactly this.
+    return len(pieces) == 1 and pieces[0].l == float("-inf") and pieces[0].r == float("inf")
+
+
+def is_bounded(pieces):
+    return all(iv.l != float("-inf") and iv.r != float("inf") for iv in pieces)
+
+
+def truncate(pieces, D):
+    result = []
+    for iv in pieces:
+        l, r = max(iv.l, -D), min(iv.r, D)
+        if l <= r:
+            result.append(Interval(l, r))
+    return result
+
+
+def point_sim_d(pieces1, pieces2, D):
+    # Eq. PointSimD: truncate to the D-window first, then a single Jaccard
+    # formula covers every remaining case (no separate distance-decay case).
+    undef1, undef2 = is_undefined(pieces1), is_undefined(pieces2)
+    if undef1 and undef2:
+        return 1.0
+    if undef1 != undef2:
+        return 0.0
+
+    t1, t2 = truncate(pieces1, D), truncate(pieces2, D)
+    intersection = measure(intersect_pieces(t1, t2))
+    if intersection == 0:
+        return 0.0
+    union = measure(union_pieces(t1, t2))
     return intersection / union if union > 0 else 0.0
 
-def distance_decay_similarity(constraint1, constraint2):
-    """
-    Calculates proximity similarity for intersecting, unbounded constraints.
-    Used when at least one constraint is semi-infinite (e.g., x > 0).
-    
-    Formula: 1 / (1 + dist(I, J))
-    """
-    if constraint1.is_bounded() and not constraint2.is_bounded():
-        # If constraint1 is bounded and constraint2 is unbounded, we can consider the distance as the distance between the finite endpoint of constraint1 and the infinite endpoint of constraint2
-        threshold_c1 = (constraint1.left + constraint1.right) / 2 # we can consider the midpoint of the interval as the representative point for distance calculation
-        threshold_c2 = constraint2.left if constraint2.left != float("-inf") else constraint2.right
-    elif not constraint1.is_bounded() and constraint2.is_bounded():
-        # If constraint1 is unbounded and constraint2 is bounded, we can consider the distance as the distance between the finite endpoint of constraint2 and the infinite endpoint of constraint1
-        threshold_c1 = constraint1.left if constraint1.left != float("-inf") else constraint1.right
-        threshold_c2 = (constraint2.left + constraint2.right) / 2 # we can consider the midpoint of the interval as the representative point for distance calculation
-    else:
-        # If both constraints are unbounded, we can consider the distance as the distance between the finite endpoints of the two constraints
-        threshold_c1 = constraint1.left if constraint1.left != float("-inf") else constraint1.right
-        threshold_c2 = constraint2.left if constraint2.left != float("-inf") else constraint2.right
-        
-    # 2. Calculate the distance-based decay
-    # dist(I, J) is the Euclidean distance between finite endpoints.
-    dist = abs(threshold_c1 - threshold_c2)
-    
-    return 1 / (1 + dist)
+
+def _finite_bounds(volumes):
+    for volume in volumes:
+        for path in volume.volume:
+            for slot in path.timeline.values():
+                for pieces in slot.values():
+                    for iv in pieces:
+                        if iv.l != float("-inf"):
+                            yield abs(iv.l)
+                        if iv.r != float("inf"):
+                            yield abs(iv.r)
 
 
-#Return true if the two constraints are disjuncted, false otherwise
-def disjuncted(constraint1, constraint2):
-    if constraint1.left >= constraint2.right or constraint2.left >= constraint1.right:
-        return True
-    return False
+def default_D(volumes, margin=1.0):
+    # Well-formedness (preliminaries.tex): D must exceed every finite bound
+    # occurring in either formula, so this is derived rather than guessed.
+    bounds = list(_finite_bounds(volumes))
+    return (max(bounds) if bounds else 0.0) + margin
 
-def point_similarity(constraint1, constraint2):
-    #if only one of the two constraints is undefined, similarity is 0
-    if constraint1.is_undefined() != constraint2.is_undefined():
-        return 0.0
-    #if both constraints are undefined, similarity is 1
-    elif constraint1.is_undefined() == constraint2.is_undefined() == True:
+
+def path_similarity(path1, path2, all_vars, D):
+    times = set(path1.timeline.keys()) | set(path2.timeline.keys())
+    total = 0.0
+    for t in times:
+        if t not in path1.timeline or t not in path2.timeline:
+            # t is entirely outside one formula's own horizon -- not a shared
+            # instant where both are "silent" (which is Point_sim's undef/undef
+            # case), just not comparable, so it contributes 0 rather than
+            # falling back to a vacuous undef/undef match.
+            continue
+        slot1, slot2 = path1.timeline[t], path2.timeline[t]
+        for var in all_vars:
+            total += point_sim_d(slot1.get(var, UNDEFINED), slot2.get(var, UNDEFINED), D)
+    denom = len(times) * len(all_vars)
+    return total / denom if denom else 1.0
+
+
+def one_way_similarity(volume1, volume2, all_vars, D):
+    if not volume1.volume:
         return 1.0
-    #if the two constraints are disjuncted, similarity is 0
-    elif disjuncted(constraint1, constraint2):
-        return 0.0
-    else:
-        #Defined constraints similarity can be computed using different methods depending on whether the constraints are bounded or unbounded
-        #bounded
-        if constraint1.is_bounded() and constraint2.is_bounded():
-            #Jaccard
-            return jaccard_similarity(constraint1, constraint2)
-        #unbounded
-        else: 
-            #Distance decay
-            return distance_decay_similarity(constraint1, constraint2)
+    total = sum(
+        max(path_similarity(path1, path2, all_vars, D) for path2 in volume2.volume)
+        for path1 in volume1.volume
+    )
+    return total / len(volume1.volume)
 
-#Path to path similarity
-#Horizon is referred only to path1 
-def path_similarity(path1, path2, numvars, horizon):
-    norm_time_factor = len(path1.keys() | path2.keys()) #number of variables * number of time instants in path1
-    norm_vars = numvars
-    time_sum = 0
-    #For each time instant in path1
-    for time in path1.keys() | path2.keys():
-        var_sim_sum = 0    
-        
-        #If time is not in path2, similarity for this time is 0.0 and skip to next time point
-        if time not in path2.keys() or time not in path1.keys():
-                #path2 is undefined at this time
-                var_sim_sum += 0.0
-        else:    
-            #Time exists in path2       
-            #For each variable in path1 
-            for var in path1[time].keys():
-                #All var constraints at a given time are in && 
-                if var in path2[time]:
-                    #compute the similarity of the two constraints on var at this time
-                    constraint1 = path1[time][var]
-                    constraint2 = path2[time][var]
-                    #if one of the two constraints is undefined, similarity is 0
-                    var_sim_sum += point_similarity(constraint1, constraint2)
-                else:
-                    #path2 is defined and
-                    #var is not present in path2 at this time, we can consider it as an implicit undefined constraint
-                    if(path1[time][var].is_undefined()):
-                        #if the constraint in path1 is already undefined
-                        var_sim_sum += 1.0
-                    else:
-                        constraint1 = path1[time][var]
-                        constraint2 = instant_contraint(var, time, float("-inf"), float("inf")) #undefined constraint
-                        var_sim_sum += point_similarity(constraint1, constraint2)
-                    
-        time_sum += var_sim_sum/norm_vars
-    return time_sum/norm_time_factor   
-#One way similarity from volume1 to volume2
-def one_way_similarity(volume1, volume2):
-    normalizing_factor = len(volume1.volume)
-    path_sim_sum = 0
-    
-    #compute number of unique variables in the two volumes to use as part of the normalizing factor
-    uniquevars = len(set(volume1.vars).union(set(volume2.vars)))
-    
-    #For each path in volume1, find the best matching path in volume2 and add its similarity to the sum
-    for path1 in volume1.volume:
-        max_sim_path = 0
-        for path2 in volume2.volume:
-            max_sim_path = max(max_sim_path, path_similarity(path1, path2, len(set(volume1.vars)), volume1.horizon))    
-        
-        path_sim_sum += max_sim_path
-    
-    print(f"One way similarity from formula: {volume1.formula_name} to formula: {volume2.formula_name} is: {path_sim_sum/normalizing_factor}")
-    return path_sim_sum/normalizing_factor
-#Global similarity 
-def compute_similarity(volume1, volume2):
-    return (one_way_similarity(volume1, volume2) + one_way_similarity(volume2, volume1))/2
 
-#Used to run the similarity computation from another module, e.g., run_similarity.py
-def calc_similarity(bounds1, bounds2):
-    bounds1_json = json.loads(bounds1)
-    bounds2_json = json.loads(bounds2)
-    formula_volume1 = extract_volume_from_bounds(bounds1_json)
-    formula_volume2 = extract_volume_from_bounds(bounds2_json)
+def compute_similarity(volume1, volume2, D=None):
+    all_vars = sorted(set(volume1.vars) | set(volume2.vars))
+    if D is None:
+        D = default_D([volume1, volume2])
+    forward = one_way_similarity(volume1, volume2, all_vars, D)
+    backward = one_way_similarity(volume2, volume1, all_vars, D)
+    return (forward + backward) / 2
 
-    print(f"Similarity score between formula: {formula_volume1.formula_name} and formula: {formula_volume2.formula_name} is: {compute_similarity(formula_volume1, formula_volume2)}")
+
+class FormulaVolume:
+    def __init__(self, formula_name, vars, paths):
+        self.formula_name = formula_name
+        self.vars = vars
+        self.volume = paths
+        self.horizon = max((t for path in paths for t in path.timeline), default=0)
+
+
+def trim_trailing_undef(path):
+    # Once every variable is undefined from some point to the end of a path,
+    # nothing more is asserted there (an eventuality already discharged, or
+    # a formula's own horizon ended) -- drop that trailing run so it can't
+    # spuriously match another formula's unrelated silence at the same instants.
+    times = sorted(path.timeline.keys())
+    cutoff = len(times)
+    for t in reversed(times):
+        if all(is_undefined(pieces) for pieces in path.timeline[t].values()):
+            cutoff -= 1
+        else:
+            break
+    return Path({t: path.timeline[t] for t in times[:cutoff]})
+
+
+def build_volume_from_paths(formula_name, paths, all_vars=None):
+    if all_vars is None:
+        all_vars = sorted(next(iter(paths[0].timeline.values())).keys()) if paths else []
+    return FormulaVolume(formula_name, all_vars, [trim_trailing_undef(p) for p in paths])
+
+
+def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None):
+    paths1 = generate_signal_space_from_formula(formula1, tabex_root=tabex_root)
+    paths2 = generate_signal_space_from_formula(formula2, tabex_root=tabex_root)
+    volume1 = build_volume_from_paths(formula1, paths1)
+    volume2 = build_volume_from_paths(formula2, paths2)
+    return compute_similarity(volume1, volume2, D=D)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python stl_similarity.py <bounds_file_formula1> <bounds_file_formula2>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Compute STL formula similarity from parse_graph.py's signal space.")
+    parser.add_argument("formula1")
+    parser.add_argument("formula2")
+    parser.add_argument("--tabex-root", help="Override $TABEX_ROOT / ~/tabex.")
+    parser.add_argument("--D", type=float, default=None, help="Truncation window; auto-derived if omitted.")
+    cli_args = parser.parse_args()
 
-    with open(sys.argv[1]) as f:
-        bounds1 = json.load(f)
-    #print(bounds1)
-
-    with open(sys.argv[2]) as f:
-        bounds2 = json.load(f)
-    #print(bounds2)
-
-    formula_volume1 = extract_volume_from_bounds(bounds1)
-    formula_volume2 = extract_volume_from_bounds(bounds2)
-
-    print(f"Similarity score between formula: {formula_volume1.formula_name} and formula: {formula_volume2.formula_name} is: {compute_similarity(formula_volume1, formula_volume2)}")
+    score = calc_similarity_from_formulas(cli_args.formula1, cli_args.formula2, tabex_root=cli_args.tabex_root, D=cli_args.D)
+    print(f"Similarity score between formula {cli_args.formula1!r} and formula {cli_args.formula2!r} is: {score}")
