@@ -148,3 +148,70 @@ def test_disjoint_time_windows_score_zero_after_alignment_too():
     paths2 = generate_signal_space_from_formula("F[0,2] x>0", tabex_root=REPO_ROOT)
     volume1, volume2 = build_aligned_volumes("F[3,4] x>0", paths1, "F[0,2] x>0", paths2)
     assert compute_similarity(volume1, volume2) == 0.0
+
+
+def test_point_sim_d_identical_degenerate_interval_is_one():
+    # preliminaries.tex, Definition AltPointSim: two identical degenerate
+    # constraints (e.g. from an atom x==5) must score 1, not fall through to
+    # the Jaccard case as 0/0 (zero-length intersection).
+    c = [Interval(5, 5)]
+    assert point_sim_d(c, c, 100) == 1.0
+
+
+def test_one_way_similarity_unsat_vs_sat_is_zero_not_one():
+    # Eq. 7: exactly one of P(phi), P(theta) empty -> 0 (maximally
+    # dissimilar), not 1. Also must not crash computing the reverse
+    # direction (max() over an empty path list).
+    from similarity.stl_similarity import one_way_similarity
+
+    unsat = build_volume_from_paths("unsat", [])
+    sat_paths = [Path({0: {"x": [Interval(0, math.inf)]}})]
+    sat = build_volume_from_paths("sat", sat_paths, all_vars=["x"])
+
+    assert one_way_similarity(unsat, sat, ["x"], 100) == 0.0
+    assert one_way_similarity(sat, unsat, ["x"], 100) == 0.0
+    assert compute_similarity(unsat, sat) == 0.0
+
+
+def test_one_way_similarity_both_unsat_is_one():
+    unsat1 = build_volume_from_paths("unsat1", [])
+    unsat2 = build_volume_from_paths("unsat2", [])
+    assert compute_similarity(unsat1, unsat2) == 1.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_trim_after_align_matches_paper_worked_example():
+    # preliminaries.tex, Definition 7 / Remark 1: phi:=T, theta:=(x<=0)||(x>=0)
+    # are equivalent (S(phi)=S(theta)=R). Requires align.py's
+    # _globally_unconstrained_vars: phi never mentions x anywhere, so its
+    # axis must be cut against theta's real breakpoint at x=0 even though
+    # _own_constrained_axes alone says no (phi has no real constraint on x
+    # at this -- or any -- instant).
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    assert calc_similarity_from_formulas("true", "(x<=0) || (x>=0)", tabex_root=REPO_ROOT) == 1.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_globally_unconstrained_var_is_per_variable_not_per_formula():
+    # Regression for the fix's scope: a formula that's globally silent on
+    # one variable but genuinely constrains another (at the SAME instant as
+    # the other formula's real constraint) must only get the silent
+    # variable's axis cut -- not have its real constraint's axis touched,
+    # and must not collapse into the disjoint-time-window false-positive
+    # this gate exists to prevent.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    # x==5 pins x to a single point; theta never mentions x, only y, so
+    # theta's silence on x must be free to align with phi's x==5 without
+    # either formula's y-less/x-less status corrupting the other axis.
+    score = calc_similarity_from_formulas("x==5", "(x==5) && ((y<=0) || (y>=0))", tabex_root=REPO_ROOT)
+    assert score == 1.0
+
+    # Sanity: the disjoint-time-window case this gate protects must still
+    # be unaffected by the global-unconstrained carve-out (neither formula
+    # is ever globally silent on x -- both constrain it, just at different
+    # times).
+    assert calc_similarity_from_formulas("F[3,4] x>0", "F[0,2] x>0", tabex_root=REPO_ROOT) == 0.0

@@ -476,11 +476,16 @@ def run_stlsat(formula, tabex_root=None, extra_args=None):
 
         return dot_path.read_text(encoding="utf-8")
 
-def generate_signal_space_from_formula(formula, tabex_root=None, extra_args=None):
+def generate_signal_space_from_formula(formula, tabex_root=None, extra_args=None, all_vars=None):
     # Full pipeline: formula string -> stlsat tableau -> tree -> standardized paths.
+    # `all_vars` defaults to this formula's own variables, but a comparison
+    # between two formulas must pass the *joint* variable set (Definition
+    # 5/6: an axis is active for the comparison if either side constrains
+    # it) -- see similarity/stl_similarity.py's calc_similarity_from_formulas.
     dot_content = run_stlsat(formula, tabex_root, extra_args)
     root = build_tree_from_dot(dot_content)
-    all_vars = discover_all_variables(dot_content)
+    if all_vars is None:
+        all_vars = discover_all_variables(dot_content)
     return standardize(root, all_vars)
 
 def print_paths(source_label, final_path_list):

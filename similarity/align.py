@@ -49,6 +49,25 @@ def _own_constrained_axes(paths):
     return axes
 
 
+def _globally_unconstrained_vars(paths):
+    # Vars this formula never constrains anywhere across its own horizon
+    # (e.g. a variable it never mentions at all), as opposed to a var it's
+    # merely silent on right now but constrains later in the same path
+    # (e.g. F[3,4]'s x before t=3). Remark 1: "an axis is cut whenever
+    # either side constrains it, including when one side leaves it
+    # unconstrained *everywhere*" -- the "everywhere" is what licenses
+    # cutting here even though _own_constrained_axes says no for this
+    # specific instant.
+    seen, constrained = set(), set()
+    for path in paths:
+        for slot in path.timeline.values():
+            for var, pieces in slot.items():
+                seen.add(var)
+                if not _is_undef(pieces):
+                    constrained.add(var)
+    return seen - constrained
+
+
 def _cut_piece(piece, cuts):
     # Subdivide `piece` at every breakpoint strictly inside it.
     inside = sorted(b for b in cuts if piece.l < b < piece.r)
@@ -56,19 +75,24 @@ def _cut_piece(piece, cuts):
     return [Interval(edges[i], edges[i + 1]) for i in range(len(edges) - 1)]
 
 
-def _cells_of_path(path, breakpoints, own_constrained_axes):
+def _cells_of_path(path, breakpoints, own_constrained_axes, globally_unconstrained_vars):
     # Definition 6: Cartesian product of the per-(var, t) elementary
     # sub-intervals that subdivide `path`'s own box. An axis this formula
-    # never constrains anywhere is left uncut even if the *other* formula
-    # has a real breakpoint there -- otherwise slicing manufactures a
-    # spurious "half-undef" cell that can coincidentally equal the other
-    # formula's real constraint and score as a false match, when the
-    # original box asserted nothing about that axis at all.
+    # is merely silent on *right now* (but constrains later, at another t,
+    # in the same path -- e.g. F[3,4]'s x before t=3) is left uncut even if
+    # the *other* formula has a real breakpoint there -- otherwise slicing
+    # manufactures a spurious "half-undef" cell that can coincidentally
+    # equal the other formula's real constraint and score as a false match.
+    # A var this formula never constrains *anywhere* (Remark 1's "leaves it
+    # unconstrained everywhere") is cut regardless -- splitting a genuinely
+    # empty box loses nothing (Lemma 1) and is required for phi:=T-style
+    # equivalences to align at all.
     axes = []  # [(t, var, [Interval, ...]), ...]
     for t in sorted(path.timeline):
         slot = path.timeline[t]
         for var in sorted(slot):
-            cuts = breakpoints.get((var, t), ()) if (var, t) in own_constrained_axes else ()
+            cuttable = (var, t) in own_constrained_axes or var in globally_unconstrained_vars
+            cuts = breakpoints.get((var, t), ()) if cuttable else ()
             subpieces = []
             # Merge first: a slot's raw pieces can overlap/be redundant (e.g.
             # [0,inf) and the degenerate point [0,0] from a prior union
@@ -110,12 +134,13 @@ def align(paths1, paths2):
     """
     breakpoints = _joint_breakpoints(paths1, paths2)
     own1, own2 = _own_constrained_axes(paths1), _own_constrained_axes(paths2)
+    global1, global2 = _globally_unconstrained_vars(paths1), _globally_unconstrained_vars(paths2)
 
-    def aligned(paths, own_constrained_axes):
+    def aligned(paths, own_constrained_axes, globally_unconstrained_vars):
         seen = {}
         for path in paths:
-            for cell in _cells_of_path(path, breakpoints, own_constrained_axes):
+            for cell in _cells_of_path(path, breakpoints, own_constrained_axes, globally_unconstrained_vars):
                 seen.setdefault(_cell_key(cell), cell)
         return list(seen.values())
 
-    return aligned(paths1, own1), aligned(paths2, own2)
+    return aligned(paths1, own1, global1), aligned(paths2, own2, global2)

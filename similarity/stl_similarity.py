@@ -11,7 +11,16 @@ from pathlib import Path as FilePath
 
 sys.path.insert(0, str(FilePath(__file__).resolve().parent.parent))
 
-from parse_graph import Interval, Path, generate_signal_space_from_formula, merge_pieces
+from parse_graph import (
+    Interval,
+    Path,
+    build_tree_from_dot,
+    discover_all_variables,
+    generate_signal_space_from_formula,
+    merge_pieces,
+    run_stlsat,
+    standardize,
+)
 from similarity.align import align
 
 UNDEFINED = [Interval(float("-inf"), float("inf"))]
@@ -64,6 +73,13 @@ def point_sim_d(pieces1, pieces2, D):
         return 0.0
 
     t1, t2 = truncate(pieces1, D), truncate(pieces2, D)
+    m1, m2 = merge_pieces(t1), merge_pieces(t2)
+    if [iv.to_tuple() for iv in m1] == [iv.to_tuple() for iv in m2]:
+        # Eq. 5 case 1: ĉ1,D = ĉ2,D. Must be checked before the Jaccard case
+        # below, or two identical degenerate constraints (e.g. x==5, both
+        # truncate to a zero-length point) hit intersection==0 and wrongly
+        # score 0 instead of 1.
+        return 1.0
     intersection = measure(intersect_pieces(t1, t2))
     if intersection == 0:
         return 0.0
@@ -108,8 +124,12 @@ def path_similarity(path1, path2, all_vars, D):
 
 
 def one_way_similarity(volume1, volume2, all_vars, D):
-    if not volume1.volume:
+    # Eq. 7: both empty -> 1 (two unsatisfiable formulas are equivalent);
+    # exactly one empty -> 0 (sat vs unsat is maximally dissimilar).
+    if not volume1.volume and not volume2.volume:
         return 1.0
+    if not volume1.volume or not volume2.volume:
+        return 0.0
     total = sum(
         max(path_similarity(path1, path2, all_vars, D) for path2 in volume2.volume)
         for path1 in volume1.volume
@@ -149,27 +169,39 @@ def trim_trailing_undef(path):
     return Path({t: path.timeline[t] for t in times[:cutoff]})
 
 
-def build_volume_from_paths(formula_name, paths, all_vars=None):
+def build_volume_from_paths(formula_name, paths, all_vars=None, trim=True):
     if all_vars is None:
         all_vars = sorted(next(iter(paths[0].timeline.values())).keys()) if paths else []
-    return FormulaVolume(formula_name, all_vars, [trim_trailing_undef(p) for p in paths])
+    volume_paths = [trim_trailing_undef(p) for p in paths] if trim else list(paths)
+    return FormulaVolume(formula_name, all_vars, volume_paths)
 
 
 def build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=None):
-    # Align both formulas' path decompositions onto a shared cell grid
-    # (Section 4.3) before they're compared -- required for the soundness
-    # guarantee G(phi,theta)=1 <=> phi==theta (Section 6): two equivalent
-    # formulas can otherwise cut the same region into different boxes.
-    volume1 = build_volume_from_paths(formula1, paths1, all_vars)
-    volume2 = build_volume_from_paths(formula2, paths2, all_vars)
+    # Pipeline (preliminaries.tex, canonical decomposition): Align must run
+    # before trim, not after. Trimming a formula's paths first can collapse
+    # a genuinely-silent-everywhere path (e.g. phi:=T) to an empty timeline,
+    # which then can't align against the other formula's real breakpoints --
+    # exactly the failure Definition 7 warns about.
+    volume1 = build_volume_from_paths(formula1, paths1, all_vars, trim=False)
+    volume2 = build_volume_from_paths(formula2, paths2, all_vars, trim=False)
     volume1.volume, volume2.volume = align(volume1.volume, volume2.volume)
+    volume1.volume = [trim_trailing_undef(p) for p in volume1.volume]
+    volume2.volume = [trim_trailing_undef(p) for p in volume2.volume]
     return volume1, volume2
 
 
 def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None):
-    paths1 = generate_signal_space_from_formula(formula1, tabex_root=tabex_root)
-    paths2 = generate_signal_space_from_formula(formula2, tabex_root=tabex_root)
-    volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2)
+    # Definition 5/6: an axis is active for the *comparison* if either
+    # formula constrains it, so both tableaus must be standardized against
+    # their joint variable set -- not each formula's own variables -- or a
+    # formula that never mentions a variable the other one does (e.g.
+    # phi:=T vs theta:=(x<=0)||(x>=0)) can't align on that axis at all.
+    dot1 = run_stlsat(formula1, tabex_root=tabex_root)
+    dot2 = run_stlsat(formula2, tabex_root=tabex_root)
+    all_vars = sorted(set(discover_all_variables(dot1)) | set(discover_all_variables(dot2)))
+    paths1 = standardize(build_tree_from_dot(dot1), all_vars)
+    paths2 = standardize(build_tree_from_dot(dot2), all_vars)
+    volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=all_vars)
     return compute_similarity(volume1, volume2, D=D)
 
 
