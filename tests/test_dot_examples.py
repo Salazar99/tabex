@@ -13,6 +13,7 @@ EXAMPLES = [
     ("graph_G_or.dot", "graph_G_or.json", 28),
     ("graph_U.dot", "graph_U.json", 20),
     ("graph_F[3,4]x_or_y.dot", "graph_F_3,4_x_or_y.json", 12),
+    ("graph_or3.dot", "graph_or3.json", 6),
 ]
 
 

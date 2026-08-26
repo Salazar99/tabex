@@ -285,42 +285,145 @@ def merge_paths(left_paths, right_paths):
             merged_paths.append(Path(merged_timeline))
     return merged_paths
 
-#Traverse the tree and standardize paths based on the discovered nodes
-def standardize(root, all_vars):
-    all_times = set()
-    def collect_times(n):
-        all_times.add(n.t)
+# Canonicalization of stlsat's formula-label strings into the atomic
+# constraints a node asserts AT ITS OWN INSTANT. stlsat prints a negated
+# atom with the "!" glued to the variable and the operator NOT flipped
+# ("!(x<0)" -> "(!x < 0)"), so the flip has to happen here.
+NEGATED_OP = {'>': '<=', '>=': '<', '<': '>=', '<=': '>', '==': '!='}
+_ATOM = re.compile(r'^(!\s*)?([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)$')
+_TEMPORAL = re.compile(r'^(O?)([FG])\[(\d+),(\d+)\]\s*')
+_O_MARK = re.compile(r'^O(?=[\(A-Za-z])')
+
+
+def split_top_level(text, sep):
+    # Split on `sep` only where parenthesis depth is 0, so a nested
+    # "(a && b)" inside a larger formula is not mis-split.
+    parts, depth, current, i = [], 0, [], 0
+    while i < len(text):
+        c = text[i]
+        if c == '(':
+            depth += 1
+        elif c == ')':
+            depth -= 1
+        if depth == 0 and text.startswith(sep, i):
+            parts.append(''.join(current))
+            current = []
+            i += len(sep)
+            continue
+        current.append(c)
+        i += 1
+    parts.append(''.join(current))
+    return [p.strip() for p in parts]
+
+
+def strip_outer_parens(text):
+    # Only strip parens that genuinely wrap the whole string: "(a) && (b)"
+    # must keep its outer characters.
+    text = text.strip()
+    while text.startswith('(') and text.endswith(')'):
+        depth = 0
+        for i, c in enumerate(text):
+            if c == '(':
+                depth += 1
+            elif c == ')':
+                depth -= 1
+                if depth == 0 and i != len(text) - 1:
+                    return text
+        text = text[1:-1].strip()
+    return text
+
+
+def atom_to_pieces(op, val):
+    # A constraint is a *list* of Interval pieces (read as a union), because
+    # "!=" -- produced by negating "==" -- is two disjoint half-lines.
+    v = float(val)
+    if op in ('>', '>='):
+        return [Interval(v, float('inf'))]
+    if op in ('<', '<='):
+        return [Interval(float('-inf'), v)]
+    if op == '==':
+        return [Interval(v, v)]
+    if op == '!=':
+        return [Interval(float('-inf'), v), Interval(v, float('inf'))]
+    return [Interval(float('-inf'), float('inf'))]
+
+
+def intersect_piece_lists(a, b):
+    out = [iv for x in a for y in b if (iv := x.intersect(y)) is not None]
+    # An empty result means genuinely contradictory bounds; keep an explicit
+    # empty interval rather than [] (which would read as "unconstrained").
+    return out or [Interval(float('inf'), float('-inf'))]
+
+
+def canonical_atoms(formula):
+    # One formula label -> {var: [Interval, ...]} it asserts at this instant.
+    text = strip_outer_parens(formula)
+    if not text or text == 'UNDEF':
+        return {}
+    # An "O"-marked obligation was already unfolded WITHOUT success at this
+    # instant, so it asserts nothing now -- its atoms belong to the instants
+    # it defers to. Stripping the prefix and reading the inner conjuncts
+    # instead would wrongly constrain the continuation branch.
+    if _O_MARK.match(text):
+        return {}
+    m = _TEMPORAL.match(text)
+    if m:
+        # G[a,b] phi asserts phi now (persistence). F[a,b] phi does not -- it
+        # splits into a witness/continuation pair, and so does "U".
+        if m.group(1) == 'O' or m.group(2) == 'F':
+            return {}
+        text = strip_outer_parens(text[m.end():])
+    if len(split_top_level(text, '||')) > 1:
+        return {}  # disjuncts are already separate children
+    result = {}
+    for clause in split_top_level(text, '&&'):
+        clause = strip_outer_parens(clause)
+        atom = _ATOM.match(clause)
+        if atom:
+            neg, var, op, val = atom.groups()
+            pieces = atom_to_pieces(NEGATED_OP[op] if neg else op, val)
+        elif clause != text:
+            pieces_by_var = canonical_atoms(clause)  # nested group / G-prefixed conjunct
+            for var, pieces in pieces_by_var.items():
+                result[var] = intersect_piece_lists(result[var], pieces) if var in result else pieces
+            continue
+        else:
+            continue
+        result[var] = intersect_piece_lists(result[var], pieces) if var in result else pieces
+    return result
+
+
+def collect_times(root):
+    # Every discrete instant this formula's tableau mentions.
+    times = set()
+    def walk(n):
+        times.add(n.t)
         for c in n.children:
-            collect_times(c)
-    collect_times(root)
+            walk(c)
+    walk(root)
+    return times
+
+
+#Traverse the tree and standardize paths based on the discovered nodes
+def standardize(root, all_vars, all_times=None):
+    # `all_times` defaults to this formula's own instants. A comparison
+    # between two formulas passes the *joint* time domain, for the same
+    # reason it passes the joint variable set: padding an instant with
+    # [-inf, +inf] does not change the region, but leaving it out gives the
+    # two sides different time domains, which Path_sim's |T1 u T2|
+    # denominator then charges as disagreement even when the formulas are
+    # equivalent. Canonicalisation plus trimming remove the padding again.
+    all_times = set(collect_times(root)) if all_times is None else set(all_times)
 
     def node_own_constraints(node):
-        # Extract atomic var/op/val constraints directly owned by this node, tolerating
-        # a leading temporal-operator prefix (e.g. "G[0,2] x > 0"). Disjunctions ("||")
-        # are already decomposed into separate child nodes elsewhere in the tree, so a
-        # formula line containing "||" is skipped here rather than misread as a
-        # conjunction. Conjunctions ("&&") are NOT decomposed into children, so each
-        # conjunct is extracted independently (all hold simultaneously).
-        prefix_pattern = re.compile(r'^\(?O?[FGU]\[\d+,\d+\]\)?\s*')
-        atom_pattern = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)$')
+        # Constraints this node asserts at its own instant, as
+        # {var: [Interval, ...]} (a union of pieces). All the parsing cases
+        # -- negated atoms, O-marked deferred obligations, G vs F prefixes,
+        # top-level "||"/"&&" -- live in canonical_atoms() above.
         result = {}
         for formula in node.formulas:
-            stripped = prefix_pattern.sub('', formula).strip()
-            if '||' in stripped:
-                continue
-            inner = stripped
-            if inner.startswith('(') and inner.endswith(')'):
-                inner = inner[1:-1]
-            clauses = [c.strip() for c in inner.split('&&')] if '&&' in inner else [inner]
-            for clause in clauses:
-                m = atom_pattern.match(clause)
-                if m:
-                    var, op, val = m.groups()
-                    iv = parse_inequality_to_interval(op, val)
-                    if var in result:
-                        prev = result[var]
-                        iv = Interval(max(prev.l, iv.l), min(prev.r, iv.r))
-                    result[var] = iv
+            for var, pieces in canonical_atoms(formula).items():
+                result[var] = intersect_piece_lists(result[var], pieces) if var in result else pieces
         return result
 
     def is_leaf(node):
@@ -356,12 +459,8 @@ def standardize(root, all_vars):
     def recurse(node):
         # Returns a list of sparse timelines: [{t: {var: [Interval, ...]}}, ...]
         if is_leaf(node):
-            slot = {var: [iv] for var, iv in node_own_constraints(node).items()}
+            slot = {var: list(pieces) for var, pieces in node_own_constraints(node).items()}
             return [{node.t: slot}]
-
-        if len(node.children) > 2:
-            print(f"Error: Node {node.id} has more than 2 children. This may not be a binary tree.")
-            sys.exit(1)
 
         if len(node.children) == 1:
             child_tls = recurse(node.children[0])
@@ -372,48 +471,62 @@ def standardize(root, all_vars):
             for tl in child_tls:
                 new_tl = {t: dict(v) for t, v in tl.items()}
                 slot = dict(new_tl.get(node.t, {}))
-                for var, iv in own.items():
-                    slot.setdefault(var, []).append(iv)
+                for var, pieces in own.items():
+                    slot.setdefault(var, []).extend(pieces)
                 new_tl[node.t] = slot
                 result.append(new_tl)
             return result
 
-        # Two children
-        left, right = node.children
-        left_tls, right_tls = recurse(left), recurse(right)
-        left_adv = any(t > node.t for tl in left_tls for t in tl)
-        right_adv = any(t > node.t for tl in right_tls for t in tl)
+        # N >= 2 children. STLSAT flattens an n-ary disjunction (A || B || C)
+        # into one node with N children rather than nested binary splits, so
+        # Definition 4's binary combination rules are generalized here by
+        # associativity of "or" (A || B || C == A || (B || C)). This is done
+        # by classifying all N children by whether each one individually
+        # advances past node.t, ONCE, then combining the two groups -- not by
+        # folding children pairwise left-to-right, which is order-dependent:
+        # if a witness-like and a continuation-like child get folded together
+        # before every witness is grouped, the next fold step overwrites
+        # (rather than accumulates) a witness's own real constraint with a
+        # complement. Classify-then-combine reuses explicit_vars_at and
+        # complement_pieces unchanged (both already operate over lists of
+        # timelines), and is byte-for-byte the same control flow as the
+        # previous N=2-only code when there are exactly 2 children.
+        groups = [recurse(c) for c in node.children]
+        advances = [any(t > node.t for tl in g for t in tl) for g in groups]
 
-        if not left_adv and not right_adv:
-            left_vars = explicit_vars_at(left_tls, node.t)
-            right_vars = explicit_vars_at(right_tls, node.t)
-            same_single_var = (set(left_vars) == set(right_vars) and len(left_vars) <= 1
-                                and len(left_tls) == 1 and len(right_tls) == 1)
+        if not any(advances):
+            var_sets = [set(explicit_vars_at(g, node.t)) for g in groups]
+            same_single_var = (len(set(map(frozenset, var_sets))) == 1 and len(var_sets[0]) <= 1
+                                and all(len(g) == 1 for g in groups))
             if same_single_var:
                 # Same variable, same instant -> merge into one path with a list of intervals
-                merged = {t: dict(v) for t, v in left_tls[0].items()}
+                merged = {t: dict(v) for t, v in groups[0][0].items()}
                 slot = dict(merged.get(node.t, {}))
-                for var, ivs in right_tls[0].get(node.t, {}).items():
-                    slot[var] = slot.get(var, []) + ivs
+                for g in groups[1:]:
+                    for var, ivs in g[0].get(node.t, {}).items():
+                        slot[var] = slot.get(var, []) + ivs
                 merged[node.t] = slot
                 return [merged]
-            return left_tls + right_tls  # Different variables -> keep as separate paths
+            return [tl for g in groups for tl in g]  # Different variables -> keep as separate paths
 
-        if left_adv and right_adv:
-            return left_tls + right_tls  # No clear witness/continuation relation -> keep separate
+        if all(advances):
+            return [tl for g in groups for tl in g]  # No clear witness/continuation relation -> keep separate
 
-        # One side stays at this instant (witness), the other advances in time (continuation):
-        # the continuation implies the witness constraint does NOT hold yet at this instant.
-        witness_tls, continue_tls = (right_tls, left_tls) if left_adv else (left_tls, right_tls)
+        # Some children stay at this instant (witness), others advance in time
+        # (continuation): the continuation implies the witness constraint does
+        # NOT hold yet at this instant.
+        witness_tls = [tl for g, adv in zip(groups, advances) if not adv for tl in g]
+        continue_groups = [g for g, adv in zip(groups, advances) if adv]
         witness = explicit_vars_at(witness_tls, node.t)
         adjusted = []
-        for tl in continue_tls:
-            new_tl = {t: dict(v) for t, v in tl.items()}
-            slot = dict(new_tl.get(node.t, {}))
-            for var, ivs in witness.items():
-                slot[var] = complement_pieces(ivs)
-            new_tl[node.t] = slot
-            adjusted.append(new_tl)
+        for g in continue_groups:
+            for tl in g:
+                new_tl = {t: dict(v) for t, v in tl.items()}
+                slot = dict(new_tl.get(node.t, {}))
+                for var, ivs in witness.items():
+                    slot[var] = complement_pieces(ivs)
+                new_tl[node.t] = slot
+                adjusted.append(new_tl)
         return witness_tls + adjusted
 
     raw = recurse(root)
@@ -476,17 +589,17 @@ def run_stlsat(formula, tabex_root=None, extra_args=None):
 
         return dot_path.read_text(encoding="utf-8")
 
-def generate_signal_space_from_formula(formula, tabex_root=None, extra_args=None, all_vars=None):
+def generate_signal_space_from_formula(formula, tabex_root=None, extra_args=None, all_vars=None, all_times=None):
     # Full pipeline: formula string -> stlsat tableau -> tree -> standardized paths.
-    # `all_vars` defaults to this formula's own variables, but a comparison
-    # between two formulas must pass the *joint* variable set (Definition
-    # 5/6: an axis is active for the comparison if either side constrains
-    # it) -- see similarity/stl_similarity.py's calc_similarity_from_formulas.
+    # `all_vars`/`all_times` default to this formula's own variables/instants,
+    # but a comparison between two formulas must pass the *joint* sets
+    # (Definition 5/6: an axis is active for the comparison if either side
+    # constrains it) -- see similarity/stl_similarity.py's calc_similarity_from_formulas.
     dot_content = run_stlsat(formula, tabex_root, extra_args)
     root = build_tree_from_dot(dot_content)
     if all_vars is None:
         all_vars = discover_all_variables(dot_content)
-    return standardize(root, all_vars)
+    return standardize(root, all_vars, all_times)
 
 def print_paths(source_label, final_path_list):
     print(f"--- Standardized Feasible Paths for {source_label} ---")

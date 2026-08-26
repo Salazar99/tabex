@@ -15,13 +15,14 @@ from parse_graph import (
     Interval,
     Path,
     build_tree_from_dot,
+    collect_times,
     discover_all_variables,
     generate_signal_space_from_formula,
     merge_pieces,
     run_stlsat,
     standardize,
 )
-from similarity.align import align
+from similarity.canon import canonicalize
 
 UNDEFINED = [Interval(float("-inf"), float("inf"))]
 
@@ -177,30 +178,38 @@ def build_volume_from_paths(formula_name, paths, all_vars=None, trim=True):
 
 
 def build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=None):
-    # Pipeline (preliminaries.tex, canonical decomposition): Align must run
-    # before trim, not after. Trimming a formula's paths first can collapse
-    # a genuinely-silent-everywhere path (e.g. phi:=T) to an empty timeline,
-    # which then can't align against the other formula's real breakpoints --
-    # exactly the failure Definition 7 warns about.
+    # Pipeline: extract -> canonicalize -> trim, each side independently.
+    #
+    # canonicalize() (similarity/canon.py) depends only on the region a
+    # formula's paths cover, never on the formula it is being compared
+    # against, so two tableaux that cut the same region into different boxes
+    # produce the identical cell list. That is what the L-shaped example
+    # needs, and it is why no pairwise alignment step -- and none of the
+    # axis-cutting gates it used to require -- appears here any more.
+    #
+    # Trimming must still come last: it drops a cell's trailing all-undef
+    # run, and coarsening can turn a spuriously-split instant back into a
+    # silent one that then becomes trimmable.
     volume1 = build_volume_from_paths(formula1, paths1, all_vars, trim=False)
     volume2 = build_volume_from_paths(formula2, paths2, all_vars, trim=False)
-    volume1.volume, volume2.volume = align(volume1.volume, volume2.volume)
-    volume1.volume = [trim_trailing_undef(p) for p in volume1.volume]
-    volume2.volume = [trim_trailing_undef(p) for p in volume2.volume]
+    volume1.volume = [trim_trailing_undef(c) for c in canonicalize(volume1.volume)]
+    volume2.volume = [trim_trailing_undef(c) for c in canonicalize(volume2.volume)]
     return volume1, volume2
 
 
 def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None):
-    # Definition 5/6: an axis is active for the *comparison* if either
-    # formula constrains it, so both tableaus must be standardized against
-    # their joint variable set -- not each formula's own variables -- or a
-    # formula that never mentions a variable the other one does (e.g.
-    # phi:=T vs theta:=(x<=0)||(x>=0)) can't align on that axis at all.
+    # Both tableaux are standardized over the *joint* variable set and the
+    # *joint* time domain, so the two decompositions live in the same ambient
+    # space and Path_sim's |T1 u T2| denominator is not charged for a horizon
+    # difference that canonicalisation and trimming would otherwise remove.
+    # Padding with [-inf, +inf] does not change either region.
     dot1 = run_stlsat(formula1, tabex_root=tabex_root)
     dot2 = run_stlsat(formula2, tabex_root=tabex_root)
+    tree1, tree2 = build_tree_from_dot(dot1), build_tree_from_dot(dot2)
     all_vars = sorted(set(discover_all_variables(dot1)) | set(discover_all_variables(dot2)))
-    paths1 = standardize(build_tree_from_dot(dot1), all_vars)
-    paths2 = standardize(build_tree_from_dot(dot2), all_vars)
+    all_times = sorted(collect_times(tree1) | collect_times(tree2))
+    paths1 = standardize(tree1, all_vars, all_times)
+    paths2 = standardize(tree2, all_vars, all_times)
     volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=all_vars)
     return compute_similarity(volume1, volume2, D=D)
 

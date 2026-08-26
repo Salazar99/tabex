@@ -11,8 +11,10 @@ import pytest
 from conftest import EXAMPLES_DIR, REPO_ROOT, stlsat_available
 from parse_graph import (
     build_tree_from_dot,
+    canonical_atoms,
     discover_all_variables,
     generate_signal_space_from_formula,
+    intersect_piece_lists,
     standardize,
 )
 
@@ -116,3 +118,68 @@ def test_conjunction_on_one_node_is_correctly_intersected():
     for t in (0, 1, 2):
         pieces = paths[0].timeline[t]["x"]
         assert all(iv.to_tuple() == (0.0, 5.0) for iv in pieces)
+
+
+def test_negated_atoms_flip_their_operator_instead_of_being_dropped():
+    # stlsat prints a negated atom with the "!" glued to the variable and the
+    # operator NOT flipped: "!(x<0)" comes out as the label "(!x < 0)". If the
+    # "!" isn't handled the clause matches no atom pattern and is silently
+    # discarded, leaving the variable fully unconstrained -- so "!(x<0)" would
+    # read as "any x" rather than "x >= 0".
+    INF = math.inf
+    assert canonical_atoms("(!x < 0)")["x"][0].to_tuple() == (0.0, INF)
+    assert canonical_atoms("(!x <= 0)")["x"][0].to_tuple() == (0.0, INF)
+    assert canonical_atoms("(!x > 0)")["x"][0].to_tuple() == (-INF, 0.0)
+    assert canonical_atoms("(!x >= 0)")["x"][0].to_tuple() == (-INF, 0.0)
+    # Negating "==" gives "!=", which is a *union* of two half-lines, so a
+    # constraint has to be a list of pieces rather than a single interval.
+    assert [iv.to_tuple() for iv in canonical_atoms("(!x == 5)")["x"]] == [(-INF, 5.0), (5.0, INF)]
+
+
+def test_negated_bounds_reconstruct_the_same_interval_as_plain_ones():
+    # !(x<0) && !(x>10) is semantically x in [0,10] -- the whole point of
+    # flipping the operator rather than dropping the clause.
+    pieces = canonical_atoms("(!x < 0)")["x"]
+    other = canonical_atoms("(!x > 10)")["x"]
+    combined = intersect_piece_lists(pieces, other)
+    assert [iv.to_tuple() for iv in combined] == [(0.0, 10.0)]
+
+
+def test_deferred_obligation_asserts_nothing_at_its_own_instant():
+    # An "O"-marked formula was already unfolded WITHOUT success at this
+    # instant, so it constrains nothing now -- its atoms belong to the
+    # instants it defers to. Stripping the prefix and reading the inner
+    # conjuncts instead leaks "x > 0" into the continuation branch, which is
+    # what made F[0,1](G[0,1] x>0) and F[0,1](x>0 && G[1,1] x>0) -- provably
+    # equivalent -- extract differently.
+    assert canonical_atoms("OF[0,1] (x > 0 && G[1,1] x > 0)") == {}
+    assert canonical_atoms("OG[0,2] x > 0") == {}
+    assert canonical_atoms("O(x > 0 U[0,4] (y > 3))") == {}
+    # G asserts its body now (persistence); F does not (it splits).
+    assert canonical_atoms("G[0,2] x > 0")["x"][0].to_tuple() == (0.0, math.inf)
+    assert canonical_atoms("F[0,2] x >= 0") == {}
+
+
+def test_nested_conjunction_is_not_mis_split_on_a_nested_disjunction():
+    # "&&" must be split at paren depth 0 only: the nested "(y > 1 || y < -1)"
+    # is a disjunction this node doesn't own, but "x > 0" beside it is a real
+    # top-level conjunct and must survive.
+    atoms = canonical_atoms("(x > 0 && (y > 1 || y < -1))")
+    assert atoms["x"][0].to_tuple() == (0.0, math.inf)
+    assert "y" not in atoms
+
+
+def test_n_ary_disjunction_merges_all_branches_not_just_a_pair():
+    # (x>=0 && x<=5) || (x==5 || (x>=5 && x<=10)) is semantically x in [0,10].
+    # STLSAT flattens this 3-way "||" into ONE tableau node with 3 children
+    # (not nested binary splits), so this exercises standardize()'s N-ary
+    # generalization of the same-instant/same-variable merge rule -- if it
+    # silently dropped a branch instead of unioning all of them, this would
+    # wrongly exclude part of [0,10].
+    paths = signal_space_from_dot_fixture("graph_or3.dot")
+    assert len(paths) == 1
+    pieces = paths[0].timeline[0]["x"]
+    for value in (0.0, 2.5, 5.0, 7.5, 10.0):
+        assert value_in_pieces(value, pieces)
+    assert not value_in_pieces(-0.1, pieces)
+    assert not value_in_pieces(10.1, pieces)

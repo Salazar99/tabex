@@ -36,13 +36,13 @@ tabex_home/
 ├── graph_examples/            # Sample stlsat tableau .dot files (also used as test fixtures)
 ├── scripts_old/               # Archived/legacy files, no longer part of the active pipeline
 ├── similarity/
-│   ├── align.py                # Aligns both formulas' paths onto a shared cell grid before comparison (preliminaries.tex Section 4.3)
+│   ├── canon.py                # Canonical box decomposition of a formula's own signal space (unary, no comparison partner)
 │   └── stl_similarity.py      # Similarity metric over parse_graph.py's signal space (preliminaries.tex)
 ├── tests/                     # Pytest suite
 │   ├── conftest.py
 │   ├── fixtures/              # Golden standardized-path outputs
 │   ├── test_units.py
-│   ├── test_align.py
+│   ├── test_canon.py
 │   ├── test_dot_examples.py
 │   ├── test_formula_to_signal_space.py
 │   ├── test_semantics_examples.py
@@ -179,30 +179,38 @@ from parse_graph import generate_signal_space_from_formula
 paths = generate_signal_space_from_formula("F[0,2] x >= 0")
 ```
 
-### 4\. Alignment (`similarity/align.py`)
+### 4\. Canonicalization (`similarity/canon.py`)
 
 Two logically equivalent formulas can decompose the same signal-space
 region into differently-shaped boxes (e.g. differently grouped
 disjuncts), which understates their similarity if the boxes are compared
-directly. `align()` cuts both formulas' paths down to a shared grid of
-elementary cells fine enough that every original box is exactly a union
-of cells, so equivalent formulas score `1.0` as
-expected.
+directly. `canonicalize()` is **unary** — it depends only on the region a
+formula's own paths cover, never on the formula it's being compared
+against — and reduces that formula's paths to a canonical cell list in
+four steps: pool the finite endpoints the formula's own boxes use, per
+axis; cut every box at them, giving an exact grid cover of the region;
+drop each grid cell contained in another (a point cell from an `==` atom
+that a wider box already covers); and drop every breakpoint the region
+doesn't actually *bend* at (where the cross-section just below equals the
+one just above), widening the cells across it. Because two decompositions
+of the same region agree on exactly which breakpoints are bends, they
+canonicalize to the identical cell list, so equivalent formulas score
+`1.0` as expected — with no comparison-partner gating required.
 
 `build_aligned_volumes()` in `similarity/stl_similarity.py` wires this in
 before comparison — `run_similarity.py`, `similarity_check.py`, and
-`similarity/stl_similarity.py`'s own CLI all align automatically.
+`similarity/stl_similarity.py`'s own CLI all canonicalize automatically.
 `compute_similarity()` itself stays pure math over whatever two path
 lists it's given, so calling it directly on volumes from
-`build_volume_from_paths()` (bypassing alignment) is possible but skips
-this guarantee.
+`build_volume_from_paths()` (bypassing canonicalization) is possible but
+skips this guarantee.
 
 As a library:
 
 ```python
-from similarity.align import align
+from similarity.canon import canonicalize
 
-aligned1, aligned2 = align(paths1, paths2)
+canonical1, canonical2 = canonicalize(paths1), canonicalize(paths2)
 ```
 
 ### Usage Example

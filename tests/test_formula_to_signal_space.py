@@ -21,6 +21,7 @@ FORMULA_EXAMPLES = [
     ("F[0,2] x >= 0", "graph_F_gex.dot"),
     ("G[0,2] x > 0", "graph_G.dot"),
     ("G[0,2] (x > 0 || y > 3)", "graph_G_or.dot"),
+    ("(x>=0 && x<=5) || (x==5 || (x>=5 && x<=10))", "graph_or3.dot"),
 ]
 
 

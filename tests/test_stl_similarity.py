@@ -143,7 +143,9 @@ def test_disjoint_time_windows_score_zero_after_alignment_too():
     # t=3 (undef, not "x<0"); aligning against F[0,2] (which does constrain
     # x at t=0..2) must leave that undef axis uncut rather than slicing it
     # into a half-interval that can coincidentally match F[0,2]'s real
-    # constraint -- see similarity/align.py's _own_constrained_axes.
+    # constraint -- canonicalize() only ever cuts an axis at breakpoints the
+    # formula's *own* boxes contribute, so that silence cannot be sliced this
+    # way -- see similarity/canon.py's _breakpoints.
     paths1 = generate_signal_space_from_formula("F[3,4] x>0", tabex_root=REPO_ROOT)
     paths2 = generate_signal_space_from_formula("F[0,2] x>0", tabex_root=REPO_ROOT)
     volume1, volume2 = build_aligned_volumes("F[3,4] x>0", paths1, "F[0,2] x>0", paths2)
@@ -183,11 +185,11 @@ def test_one_way_similarity_both_unsat_is_one():
 @pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
 def test_trim_after_align_matches_paper_worked_example():
     # preliminaries.tex, Definition 7 / Remark 1: phi:=T, theta:=(x<=0)||(x>=0)
-    # are equivalent (S(phi)=S(theta)=R). Requires align.py's
-    # _globally_unconstrained_vars: phi never mentions x anywhere, so its
-    # axis must be cut against theta's real breakpoint at x=0 even though
-    # _own_constrained_axes alone says no (phi has no real constraint on x
-    # at this -- or any -- instant).
+    # are equivalent (S(phi)=S(theta)=R). Handled by coarsening rather than
+    # by cutting: theta's breakpoint at x=0 is not a bend of the region, so
+    # canonicalize() drops it and theta's two cells merge into the single
+    # unconstrained cell phi already had. phi is never refined up to theta --
+    # see similarity/canon.py's _essential.
     from similarity.stl_similarity import calc_similarity_from_formulas
 
     assert calc_similarity_from_formulas("true", "(x<=0) || (x>=0)", tabex_root=REPO_ROOT) == 1.0
@@ -215,3 +217,29 @@ def test_globally_unconstrained_var_is_per_variable_not_per_formula():
     # is ever globally silent on x -- both constrain it, just at different
     # times).
     assert calc_similarity_from_formulas("F[3,4] x>0", "F[0,2] x>0", tabex_root=REPO_ROOT) == 0.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_negated_bounds_are_equivalent_to_plain_bounds():
+    # !(x<0) && !(x>10) is the same region as x>=0 && x<=10. Scored 0.0 before
+    # canonical_atoms() learned to flip a negated atom's operator: stlsat's
+    # "(!x < 0)" label matched no atom pattern, so the constraint was dropped
+    # and the formula extracted as fully unconstrained.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    assert calc_similarity_from_formulas(
+        "x>=0 && x<=10", "!(x<0) && !(x>10)", tabex_root=REPO_ROOT) == 1.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_nested_G_in_F_equivalent_to_unfolded_conjunction():
+    # F[0,1](G[0,1] x>0) and F[0,1](x>0 && G[1,1] x>0) both reduce to
+    # (x(0)>0 && x(1)>0) || (x(1)>0 && x(2)>0). Scored 0.611 before O-marked
+    # deferred obligations stopped leaking their inner conjuncts into the
+    # continuation branch's own instant.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    assert calc_similarity_from_formulas(
+        "F[0,1](G[0,1](x>0))", "F[0,1](x>0 && G[1,1](x>0))", tabex_root=REPO_ROOT) == 1.0
