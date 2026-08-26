@@ -2,7 +2,7 @@ import argparse
 import json
 
 from parse_graph import generate_signal_space_from_formula
-from similarity.stl_similarity import build_volume_from_paths, compute_similarity
+from similarity.stl_similarity import build_aligned_volumes, compute_similarity
 
 
 def _serialize_paths(paths):
@@ -36,7 +36,6 @@ if __name__ == "__main__":
         with open(f"{args.formula2}_volume.json", "w") as f:
             json.dump(_serialize_paths(paths2), f, indent=2)
 
-    volume1 = build_volume_from_paths(args.formula1, paths1)
-    volume2 = build_volume_from_paths(args.formula2, paths2)
+    volume1, volume2 = build_aligned_volumes(args.formula1, paths1, args.formula2, paths2)
     score = compute_similarity(volume1, volume2)
     print(f"Similarity score between formula {args.formula1!r} and formula {args.formula2!r} is: {score}")

@@ -52,6 +52,19 @@ class Interval:
     def to_tuple(self):
         return (self.l, self.r)
 
+
+def merge_pieces(pieces):
+    # Collapse overlapping/touching Interval pieces into a minimal disjoint
+    # set, so duplicate/overlapping pieces (e.g. [[0,inf],[0,inf]]) don't
+    # double-count length or get treated as distinct alternatives.
+    merged = []
+    for iv in sorted(pieces, key=lambda iv: iv.l):
+        if merged and iv.l <= merged[-1].r:
+            merged[-1] = Interval(merged[-1].l, max(merged[-1].r, iv.r))
+        else:
+            merged.append(Interval(iv.l, iv.r))
+    return merged
+
 #A path is a sequence of time-interval mappings for each variable
 class Path:
     def __init__(self, timeline):

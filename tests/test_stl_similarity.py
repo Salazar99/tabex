@@ -5,6 +5,7 @@ import pytest
 from conftest import EXAMPLES_DIR, REPO_ROOT, stlsat_available
 from parse_graph import Interval, Path, build_tree_from_dot, discover_all_variables, generate_signal_space_from_formula, standardize
 from similarity.stl_similarity import (
+    build_aligned_volumes,
     build_volume_from_paths,
     compute_similarity,
     is_bounded,
@@ -132,3 +133,18 @@ def test_disjoint_time_windows_score_zero_not_spuriously_positive():
     v1 = build_volume_from_paths("F[3,4] x>0", generate_signal_space_from_formula("F[3,4] x>0", tabex_root=REPO_ROOT))
     v2 = build_volume_from_paths("F[0,2] x>0", generate_signal_space_from_formula("F[0,2] x>0", tabex_root=REPO_ROOT))
     assert compute_similarity(v1, v2) == 0.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_disjoint_time_windows_score_zero_after_alignment_too():
+    # Regression: Align must not reintroduce the bug above through a
+    # different door. F[3,4]'s tableau genuinely never constrains x before
+    # t=3 (undef, not "x<0"); aligning against F[0,2] (which does constrain
+    # x at t=0..2) must leave that undef axis uncut rather than slicing it
+    # into a half-interval that can coincidentally match F[0,2]'s real
+    # constraint -- see similarity/align.py's _own_constrained_axes.
+    paths1 = generate_signal_space_from_formula("F[3,4] x>0", tabex_root=REPO_ROOT)
+    paths2 = generate_signal_space_from_formula("F[0,2] x>0", tabex_root=REPO_ROOT)
+    volume1, volume2 = build_aligned_volumes("F[3,4] x>0", paths1, "F[0,2] x>0", paths2)
+    assert compute_similarity(volume1, volume2) == 0.0

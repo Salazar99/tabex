@@ -1,13 +1,14 @@
 """Interactive interface: type two STL formulas, get their similarity score."""
 from parse_graph import generate_signal_space_from_formula
-from similarity.stl_similarity import build_volume_from_paths, compute_similarity
+from similarity.stl_similarity import build_aligned_volumes, compute_similarity
 
 QUIT_WORDS = {"quit", "exit"}
 
 
 def run_comparison(formula1, formula2, tabex_root=None):
-    volume1 = build_volume_from_paths(formula1, generate_signal_space_from_formula(formula1, tabex_root))
-    volume2 = build_volume_from_paths(formula2, generate_signal_space_from_formula(formula2, tabex_root))
+    paths1 = generate_signal_space_from_formula(formula1, tabex_root)
+    paths2 = generate_signal_space_from_formula(formula2, tabex_root)
+    volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2)
     return compute_similarity(volume1, volume2)
 
 

@@ -11,22 +11,10 @@ from pathlib import Path as FilePath
 
 sys.path.insert(0, str(FilePath(__file__).resolve().parent.parent))
 
-from parse_graph import Interval, Path, generate_signal_space_from_formula
+from parse_graph import Interval, Path, generate_signal_space_from_formula, merge_pieces
+from similarity.align import align
 
 UNDEFINED = [Interval(float("-inf"), float("inf"))]
-
-
-def merge_pieces(pieces):
-    # Collapse overlapping/touching Interval pieces into a minimal disjoint
-    # set, so duplicate/overlapping pieces (e.g. [[0,inf],[0,inf]]) don't
-    # double-count length in measure().
-    merged = []
-    for iv in sorted(pieces, key=lambda iv: iv.l):
-        if merged and iv.l <= merged[-1].r:
-            merged[-1] = Interval(merged[-1].l, max(merged[-1].r, iv.r))
-        else:
-            merged.append(Interval(iv.l, iv.r))
-    return merged
 
 
 def measure(pieces):
@@ -167,11 +155,21 @@ def build_volume_from_paths(formula_name, paths, all_vars=None):
     return FormulaVolume(formula_name, all_vars, [trim_trailing_undef(p) for p in paths])
 
 
+def build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=None):
+    # Align both formulas' path decompositions onto a shared cell grid
+    # (Section 4.3) before they're compared -- required for the soundness
+    # guarantee G(phi,theta)=1 <=> phi==theta (Section 6): two equivalent
+    # formulas can otherwise cut the same region into different boxes.
+    volume1 = build_volume_from_paths(formula1, paths1, all_vars)
+    volume2 = build_volume_from_paths(formula2, paths2, all_vars)
+    volume1.volume, volume2.volume = align(volume1.volume, volume2.volume)
+    return volume1, volume2
+
+
 def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None):
     paths1 = generate_signal_space_from_formula(formula1, tabex_root=tabex_root)
     paths2 = generate_signal_space_from_formula(formula2, tabex_root=tabex_root)
-    volume1 = build_volume_from_paths(formula1, paths1)
-    volume2 = build_volume_from_paths(formula2, paths2)
+    volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2)
     return compute_similarity(volume1, volume2, D=D)
 
 

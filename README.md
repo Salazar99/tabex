@@ -1,9 +1,27 @@
 # Tabex: STL Similarity Metric Calculator
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
 **Tabex** is the official repository for the Signal Temporal Logic (STL) similarity metric calculator. It utilizes a modified version of [stlsat](https://github.com/ZamponiMarco/stlsat.git) to extract satisfaction constraints, allowing users to calculate similarity between STL formulas based on those constraints.
+
+---
+
+## ⚡ Quick Start
+
+```bash
+git clone https://github.com/Salazar99/tabex.git
+cd tabex
+pip install pydot pytest
+export TABEX_ROOT=$(pwd)
+
+python run_similarity.py "F[0,2] x>0" "G[0,2] x>0"   # run the tool
+pytest -q                                             # run the fast test suite
+```
+
+Rust + Z3 must also be installed before the first run (`run_similarity.py`
+calls `stlsat` under the hood) — see [Installation](#-installation) below.
+See [Testing](#-testing) for the full three-tier test suite (fast/integration/slow).
 
 ---
 
@@ -13,18 +31,18 @@
 tabex_home/
 ├── benchmarks/                # Benchmarks folder
 │   ├── Manual/                # Manually defined test cases
-│   └── Random/                # Randomly generated test cases
-├── dotparser/
-│   └── input_creator.py       # Standalone formula volume (JSON) generation, not used by run_similarity
-├── figures/                   # Images used in README
+│   └── Random/                # NOT YET IMPLEMENTED -- planned, doesn't exist on disk
+├── figures/                   # TABEX.gif (README demo, pending re-recording against the aligned pipeline)
 ├── graph_examples/            # Sample stlsat tableau .dot files (also used as test fixtures)
+├── scripts_old/               # Archived/legacy files, no longer part of the active pipeline
 ├── similarity/
-│   ├── stl_similarity.py      # Similarity metric over parse_graph.py's signal space (preliminaries.tex)
-│   └── stl_similarity.py.bk   # Previous JSON-volume-based implementation, kept for reference
+│   ├── align.py                # Aligns both formulas' paths onto a shared cell grid before comparison (preliminaries.tex Section 4.3)
+│   └── stl_similarity.py      # Similarity metric over parse_graph.py's signal space (preliminaries.tex)
 ├── tests/                     # Pytest suite
 │   ├── conftest.py
 │   ├── fixtures/              # Golden standardized-path outputs
 │   ├── test_units.py
+│   ├── test_align.py
 │   ├── test_dot_examples.py
 │   ├── test_formula_to_signal_space.py
 │   ├── test_semantics_examples.py
@@ -35,7 +53,7 @@ tabex_home/
 ├── run_similarity.py           # Runs the entire similarity pipeline (CLI args)
 ├── similarity_check.py         # Interactive interface (prompts for formulas)
 ├── m_stlsat/                  # Modified stlsat source code
-├── LICENSE.md                 # Project license
+├── LICENSE                    # Project license
 └── README.md                  # Documentation
 ```
 
@@ -60,6 +78,15 @@ git clone https://github.com/Salazar99/tabex.git
 cd tabex
 ```
 
+### Python Dependencies
+
+```bash
+pip install pydot pytest
+```
+
+  * **pydot**: required to parse stlsat's `.dot` tableau output (every code path).
+  * **pytest**: only needed to run the test suite.
+
 -----
 
 ## 🛠 Usage
@@ -78,7 +105,7 @@ export TABEX_ROOT=~/tabex
 Run the similarity calculation on two formulas directly:
 
 ```bash
-python run_similarity "First_formula" "Second_formula" [--save-volumes]
+python run_similarity.py "First_formula" "Second_formula" [--save-volumes]
 ```
 
   * **--save-volumes**: (Optional) Saves the formula volumes in a `.json` file.
@@ -109,8 +136,11 @@ python similarity/stl_similarity.py "First_formula" "Second_formula" [--D VALUE]
     (Eq. `PointSimD`); auto-derived from the two formulas' constants if
     omitted.
 
-> **Note**: `dotparser/input_creator.py` (JSON "volume" format) is a
-> separate, standalone tool — it is not part of this similarity pipeline.
+<!--
+> **Note**: The old JSON "volume" format tool (`input_creator.py`) has been
+> archived to `scripts_old/` — it was superseded by `parse_graph.py`'s
+> `Path`-based signal space and was never part of this similarity pipeline.
+-->
 
 ### 3\. Signal Space Generation (`parse_graph.py`)
 
@@ -149,11 +179,42 @@ from parse_graph import generate_signal_space_from_formula
 paths = generate_signal_space_from_formula("F[0,2] x >= 0")
 ```
 
+### 4\. Alignment (`similarity/align.py`)
+
+Two logically equivalent formulas can decompose the same signal-space
+region into differently-shaped boxes (e.g. differently grouped
+disjuncts), which understates their similarity if the boxes are compared
+directly. `align()` cuts both formulas' paths down to a shared grid of
+elementary cells fine enough that every original box is exactly a union
+of cells, so equivalent formulas score `1.0` as
+expected.
+
+`build_aligned_volumes()` in `similarity/stl_similarity.py` wires this in
+before comparison — `run_similarity.py`, `similarity_check.py`, and
+`similarity/stl_similarity.py`'s own CLI all align automatically.
+`compute_similarity()` itself stays pure math over whatever two path
+lists it's given, so calling it directly on volumes from
+`build_volume_from_paths()` (bypassing alignment) is possible but skips
+this guarantee.
+
+As a library:
+
+```python
+from similarity.align import align
+
+aligned1, aligned2 = align(paths1, paths2)
+```
+
 ### Usage Example
 
-Below is a demonstration of the complete pipeline execution:
+<!--
+Recorded before the Alignment step (Section 4.3) existed -- this GIF
+shows the pre-alignment pipeline and score, which is now out of date.
+Commented out until a new recording reflects the aligned pipeline.
 
 ![til](./figures/TABEX.gif)
+-->
+
 -----
 
 ## 📊 Benchmarks
@@ -171,9 +232,14 @@ bash benchmark_gen.sh
 
 *This generates a `results.txt` containing the metric values for each benchmark.*
 
+<!--
+Random Benchmarks is aspirational -- benchmarks/Random/ doesn't exist on
+disk yet. Commented out until it's actually implemented.
+
 ### Random Benchmarks
 
 *Work in progress...*
+-->
 
 -----
 
