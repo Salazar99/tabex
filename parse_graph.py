@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 import pathlib
+from fractions import Fraction
 
 import pydot
 
@@ -235,14 +236,35 @@ def build_tree_from_dot(dot_content):
     return root
 
 
+class UnsupportedFormula(ValueError):
+    """A tableau label outside the fragment the extraction can represent.
+
+    Raised rather than returning {} because {} already means "constrains
+    nothing at this instant" -- a real answer for F, U, O-marked obligations
+    and branching connectives. A silently dropped label is indistinguishable
+    from a genuinely free one, so it widens the signal space to all of R and
+    the pipeline reports a confident, wrong answer. See README's
+    "Supported fragment".
+    """
+
+
 # Canonicalization of stlsat's formula-label strings into the atomic
 # constraints a node asserts AT ITS OWN INSTANT. stlsat prints a negated
 # atom with the "!" glued to the variable and the operator NOT flipped
 # ("!(x<0)" -> "(!x < 0)"), so the flip has to happen here.
-NEGATED_OP = {'>': '<=', '>=': '<', '<': '>=', '<=': '>', '==': '!='}
-_ATOM = re.compile(r'^(!\s*)?([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)$')
+NEGATED_OP = {'>': '<=', '>=': '<', '<': '>=', '<=': '>', '==': '!=', '!=': '=='}
+# A constant may be an integer, a decimal, or a RATIONAL: stlsat's AExpr::Num
+# is a Ratio<i64> and prints as "3/2". Matching only integers and decimals made
+# "x > 5" work while "x > 3/2" silently fell through to "unconstrained".
+_CONST = r'[+-]?\d+(?:\.\d+)?(?:/\d+)?'
+_ATOM = re.compile(
+    rf'^(!\s*)?([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|!=|==|>|<)\s*({_CONST})$')
 _TEMPORAL = re.compile(r'^(O?)([FG])\[(\d+),(\d+)\]\s*')
 _O_MARK = re.compile(r'^O(?=[\(A-Za-z])')
+# Shapes that legitimately assert nothing at this instant, and so must NOT be
+# mistaken for something we failed to parse.
+_UNTIL = re.compile(r'\bU\[\d+,\d+\]')
+_RELEASE = re.compile(r'\bR\[\d+,\d+\]')
 
 
 def split_top_level(text, sep):
@@ -285,10 +307,27 @@ def strip_outer_parens(text):
 
 def atom_to_pieces(op, val):
     # A constraint is a *list* of Interval pieces (read as a union), because
-    # "!=" -- produced by negating "==" -- is two disjoint half-lines.
-    # Strict operators produce OPEN endpoints, so "x>0 && x<=0" comes out empty
-    # instead of collapsing to the point [0,0].
-    v = float(val)
+    # "!=" is two disjoint half-lines -- written directly, or produced by
+    # negating "==". Strict operators produce OPEN endpoints, so "x>0 && x<=0"
+    # comes out empty instead of collapsing to the point [0,0].
+    if op not in NEGATED_OP:
+        # There used to be a catch-all "return everything" here, which is the
+        # exact failure mode UnsupportedFormula exists to prevent: an operator
+        # we cannot read became the widest possible claim.
+        raise UnsupportedFormula(
+            f"unsupported comparison operator {op!r}; the fragment allows "
+            f"{sorted(NEGATED_OP)}. See README's 'Supported fragment'.")
+    # Endpoints are binary64, so a constant that does not survive the round trip
+    # would denote a DIFFERENT set of reals than the formula does -- and two
+    # distinct rationals could collapse onto one region, breaking
+    # "S(phi) = S(theta) => phi == theta". Refuse instead.
+    rational = Fraction(str(val))
+    v = float(rational)
+    if Fraction(v) != rational:
+        raise UnsupportedFormula(
+            f"constant {val!r} is not exactly representable in binary64, so the "
+            f"region would denote a different set of reals than the formula does. "
+            f"See FORMAL_PROOFS.md §0.1.")
     if op == '>':
         return [Interval(v, float('inf'), lo=True)]
     if op == '>=':
@@ -299,9 +338,7 @@ def atom_to_pieces(op, val):
         return [Interval(float('-inf'), v)]
     if op == '==':
         return [Interval(v, v)]
-    if op == '!=':
-        return [Interval(float('-inf'), v, ro=True), Interval(v, float('inf'), lo=True)]
-    return [Interval(float('-inf'), float('inf'))]
+    return [Interval(float('-inf'), v, ro=True), Interval(v, float('inf'), lo=True)]
 
 
 def intersect_piece_lists(a, b):
@@ -311,8 +348,24 @@ def intersect_piece_lists(a, b):
     return out or [Interval(float('inf'), float('-inf'))]
 
 
-def canonical_atoms(formula):
-    # One formula label -> {var: [Interval, ...]} it asserts at this instant.
+def canonical_atoms(formula, t, relative=False):
+    # One formula label -> {var: [Interval, ...]} it asserts AT INSTANT `t`.
+    #
+    # Nesting needs care, because the two levels of a label are anchored
+    # differently. stlsat REBASES an inner operator only when it unfolds the
+    # outer one -- "G[0,1](G[0,1] x>0)" becomes "G[1,2] x>0" at t=1 -- so in an
+    # un-unfolded label:
+    #
+    #   * the OUTERMOST interval is absolute: "G[a,b] phi" constrains this node
+    #     exactly while a <= t <= b (`relative=False`);
+    #   * an interval BELOW a temporal operator is still relative to it, so
+    #     "G[c,d] phi" there constrains the *current* instant only when its
+    #     window starts at 0 (`relative=True`).
+    #
+    # Reading a nested window as absolute is what makes "G[1,1] G[1,2] P" at
+    # t=1 wrongly assert P now, when P is really required on [2,3].
+    # Boolean connectives do not change the anchor -- only passing through a
+    # temporal operator does.
     text = strip_outer_parens(formula)
     if not text or text == 'UNDEF':
         return {}
@@ -324,13 +377,25 @@ def canonical_atoms(formula):
         return {}
     m = _TEMPORAL.match(text)
     if m:
-        # G[a,b] phi asserts phi now (persistence). F[a,b] phi does not -- it
-        # splits into a witness/continuation pair, and so does "U".
+        # G[a,b] phi asserts phi now, but only while t is inside [a,b].
+        # F[a,b] phi asserts nothing now -- it splits into a witness /
+        # continuation pair, and so does "U".
         if m.group(1) == 'O' or m.group(2) == 'F':
             return {}
-        text = strip_outer_parens(text[m.end():])
+        lower, upper = int(m.group(3)), int(m.group(4))
+        covers_now = lower == 0 if relative else lower <= t <= upper
+        if not covers_now:
+            return {}
+        # Recurse rather than stop: the body may be another temporal that this
+        # G is the only carrier of. Measured on random nested formulas, a
+        # nested temporal is the sole source of a constraint at roughly a
+        # quarter of the nodes that carry one, so giving up here silently
+        # leaves those instants unconstrained.
+        return canonical_atoms(text[m.end():], t, relative=True)
     if len(split_top_level(text, '||')) > 1:
         return {}  # disjuncts are already separate children
+    if len(split_top_level(text, '->')) > 1:
+        return {}  # "A -> B" is "!A || B": the same branching case as "||"
     result = {}
     for clause in split_top_level(text, '&&'):
         clause = strip_outer_parens(clause)
@@ -339,14 +404,52 @@ def canonical_atoms(formula):
             neg, var, op, val = atom.groups()
             pieces = atom_to_pieces(NEGATED_OP[op] if neg else op, val)
         elif clause != text:
-            pieces_by_var = canonical_atoms(clause)  # nested group / G-prefixed conjunct
+            pieces_by_var = canonical_atoms(clause, t, relative)  # nested group / temporal conjunct
             for var, pieces in pieces_by_var.items():
                 result[var] = intersect_piece_lists(result[var], pieces) if var in result else pieces
             continue
-        else:
+        elif _asserts_nothing_here(clause):
             continue
+        else:
+            # Everything the fragment cannot represent lands here. Returning {}
+            # would say "this instant is unconstrained", which is the widest
+            # possible claim -- so an unparsed atom silently turns the signal
+            # space into all of R.
+            raise UnsupportedFormula(f"{_why_unsupported(clause)} (at t={t}). "
+                                     f"See README's 'Supported fragment'.")
         result[var] = intersect_piece_lists(result[var], pieces) if var in result else pieces
     return result
+
+
+def _asserts_nothing_here(clause):
+    # Shapes that genuinely constrain nothing at this instant, and so must not
+    # be mistaken for something we failed to parse. Everything here is either
+    # vacuous or resolved by the tableau's own branching.
+    if clause == 'true':
+        return True
+    if _UNTIL.search(clause):
+        # An until splits into witness / continuation children, and its
+        # invariant reaches us as a sibling "G[0,a] phi" conjunct.
+        return True
+    return False
+
+
+def _why_unsupported(clause):
+    # A specific diagnosis beats "unparsed": the caller needs to know whether
+    # they hit a scope boundary or a bug.
+    if clause == 'false':
+        return (f"{clause!r} admits no signal, but the signal space has no way "
+                f"to say 'empty' for an unnamed variable")
+    if _RELEASE.search(clause):
+        return (f"{clause!r} still contains a release operator, which stlsat "
+                f"should have rewritten into F/U/G before emitting the graph")
+    if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', clause):
+        return (f"{clause!r} is a boolean atom; the signal space models "
+                f"real-valued signals only")
+    return (f"cannot represent {clause!r}: the signal space is a union of "
+            f"per-variable intervals, so an atom must be "
+            f"'variable op constant' (a relation between variables, an "
+            f"arithmetic term or an absolute value is not a box)")
 
 
 def collect_times(root):
@@ -399,6 +502,13 @@ def complement_of(intervals):
     #
     # The complement FLIPS each endpoint's openness: not(v, inf) is
     # (-inf, v], so the two never overlap at v.
+    # An EMPTY input means "nothing is required", whose complement is the whole
+    # line. An empty RESULT means the input already covered the line, whose
+    # complement is nothing at all. Conflating the two used to hand a
+    # tautological witness an unconstrained continuation instead of killing the
+    # branch -- the widest possible answer where the right one was "no branch".
+    if not intervals:
+        return [Interval(float('-inf'), float('inf'))]
     per_interval_complements = []
     for iv in intervals:
         pieces = []
@@ -407,10 +517,10 @@ def complement_of(intervals):
         if iv.r != float('inf'):
             pieces.append(Interval(iv.r, float('inf'), lo=not iv.ro))
         per_interval_complements.append(pieces)
-    result = per_interval_complements[0] if per_interval_complements else []
+    result = per_interval_complements[0]
     for pieces in per_interval_complements[1:]:
         result = [inter for a in result for b in pieces if (inter := a.intersect(b)) is not None]
-    return result or [Interval(float('-inf'), float('inf'))]
+    return result
 
 
 def negate_witness_boxes(boxes):
@@ -475,7 +585,7 @@ def standardize(root, all_vars, all_times=None):
         # top-level "||"/"&&" -- live in canonical_atoms() above.
         result = {}
         for formula in node.formulas:
-            for var, pieces in canonical_atoms(formula).items():
+            for var, pieces in canonical_atoms(formula, node.t).items():
                 result[var] = intersect_piece_lists(result[var], pieces) if var in result else pieces
         return result
 
@@ -576,9 +686,13 @@ def standardize(root, all_vars, all_times=None):
         
 
 def discover_all_variables(dot_content):
-    # Regex with 3 groups: variable, operator, value
-    ineq_pattern = re.compile(r'([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:>=|<=|>|<|==)\s*[+-]?\d+(?:\.\d+)?')
-    
+    # Must accept exactly the operators and constants _ATOM does, or a variable
+    # constrained only by an omitted form goes missing from the ambient space
+    # entirely -- "x != 5" used to yield no variables at all.
+    ineq_pattern = re.compile(
+        rf'([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:>=|<=|!=|==|>|<)\s*{_CONST}')
+
+
     vars_found = set()
     # Use findall on the content
     for match in ineq_pattern.finditer(dot_content):

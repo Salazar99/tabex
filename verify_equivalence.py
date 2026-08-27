@@ -77,6 +77,21 @@ def rewrites(lower, upper, point):
                                                 f"((({f}) U[{a},{b}] ({g}))) && {TRUE}")),
         ("U idempotent",          lambda f, g: (f"(({f}) U[{a},{b}] ({g}))",
                                                 f"((({f}) U[{a},{b}] ({g}))) || ((({f}) U[{a},{b}] ({g})))")),
+        # The next four pin stlsat's reading of "until": the invariant holds up
+        # to AND INCLUDING the witness instant, so "phi U[a,b] psi" means
+        # "exists t in [a,b]: psi(t) and phi on [0,t]". Each is false under the
+        # textbook half-open reading, so they fail loudly if either the tool or
+        # the extraction drifts.
+        ("U absorbs its invariant",
+                                  lambda f, g: (f"(({f}) U[{a},{b}] ({g}))",
+                                                f"(({f}) U[{a},{b}] (({f}) && ({g})))")),
+        ("U at a point",          lambda f, g: (f"(({f}) U[{p},{p}] ({g}))",
+                                                f"(G[0,{p}]({f})) && (G[{p},{p}]({g}))")),
+        ("U over ||",             lambda f, g: (f"(({f}) U[{a},{b}] (({g}) || ({f})))",
+                                                f"((({f}) U[{a},{b}] ({g}))) || ((({f}) U[{a},{b}] ({f})))")),
+        ("U with a true invariant",
+                                  lambda f, g: (f"({TRUE} U[{a},{b}] ({f}))",
+                                                f"F[{a},{b}]({f})")),
     ]
 
 

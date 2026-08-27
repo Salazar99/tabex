@@ -147,8 +147,9 @@ def test_self_canonicalization_reproduces_the_same_box():
 
 def test_tautological_conjunct_at_a_later_instant_scores_one():
     # phi := (x>0) & G[1,1](y>0);  theta := phi & G[1,1]((x<=0)||(x>0)).
-    # The extra conjunct is a tautology. Under the old joint grid this scored
-    # 0.75, because only theta cut the (x, 1) axis.
+    # The extra conjunct is a tautology, so theta's split of the (x, 1) axis is
+    # not a bend of the region and must coarsen away -- only phi's real
+    # constraints may survive on either side.
     phi = [Path({0: {"x": [Interval(0, INF)], "y": UNDEF},
                  1: {"x": UNDEF, "y": [Interval(0, INF)]}})]
     theta = [Path({0: {"x": [Interval(0, INF)], "y": UNDEF},

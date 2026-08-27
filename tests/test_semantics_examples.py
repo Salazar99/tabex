@@ -141,14 +141,14 @@ def test_negated_atoms_flip_their_operator_instead_of_being_dropped():
     # The flip also flips strictness: not(x < 0) is x >= 0, CLOSED at 0,
     # while not(x <= 0) is x > 0, open at 0.
     INF = math.inf
-    assert canonical_atoms("(!x < 0)")["x"][0].to_tuple() == (0.0, INF, False, True)
-    assert canonical_atoms("(!x <= 0)")["x"][0].to_tuple() == (0.0, INF, True, True)
-    assert canonical_atoms("(!x > 0)")["x"][0].to_tuple() == (-INF, 0.0, True, False)
-    assert canonical_atoms("(!x >= 0)")["x"][0].to_tuple() == (-INF, 0.0, True, True)
+    assert canonical_atoms("(!x < 0)", 0)["x"][0].to_tuple() == (0.0, INF, False, True)
+    assert canonical_atoms("(!x <= 0)", 0)["x"][0].to_tuple() == (0.0, INF, True, True)
+    assert canonical_atoms("(!x > 0)", 0)["x"][0].to_tuple() == (-INF, 0.0, True, False)
+    assert canonical_atoms("(!x >= 0)", 0)["x"][0].to_tuple() == (-INF, 0.0, True, True)
     # Negating "==" gives "!=", which is a *union* of two OPEN half-lines --
     # so a constraint has to be a list of pieces rather than a single interval,
     # and the two pieces must not merge back into the whole line.
-    assert [iv.to_tuple() for iv in canonical_atoms("(!x == 5)")["x"]] == [
+    assert [iv.to_tuple() for iv in canonical_atoms("(!x == 5)", 0)["x"]] == [
         (-INF, 5.0, True, True),
         (5.0, INF, True, True),
     ]
@@ -157,8 +157,8 @@ def test_negated_atoms_flip_their_operator_instead_of_being_dropped():
 def test_negated_bounds_reconstruct_the_same_interval_as_plain_ones():
     # !(x<0) && !(x>10) is semantically x in [0,10] -- the whole point of
     # flipping the operator rather than dropping the clause.
-    pieces = canonical_atoms("(!x < 0)")["x"]
-    other = canonical_atoms("(!x > 10)")["x"]
+    pieces = canonical_atoms("(!x < 0)", 0)["x"]
+    other = canonical_atoms("(!x > 10)", 0)["x"]
     combined = intersect_piece_lists(pieces, other)
     assert [iv.to_tuple() for iv in combined] == [(0.0, 10.0, False, False)]
 
@@ -170,19 +170,44 @@ def test_deferred_obligation_asserts_nothing_at_its_own_instant():
     # conjuncts instead leaks "x > 0" into the continuation branch, which is
     # what made F[0,1](G[0,1] x>0) and F[0,1](x>0 && G[1,1] x>0) -- provably
     # equivalent -- extract differently.
-    assert canonical_atoms("OF[0,1] (x > 0 && G[1,1] x > 0)") == {}
-    assert canonical_atoms("OG[0,2] x > 0") == {}
-    assert canonical_atoms("O(x > 0 U[0,4] (y > 3))") == {}
+    assert canonical_atoms("OF[0,1] (x > 0 && G[1,1] x > 0)", 0) == {}
+    assert canonical_atoms("OG[0,2] x > 0", 0) == {}
+    assert canonical_atoms("O(x > 0 U[0,4] (y > 3))", 0) == {}
     # G asserts its body now (persistence); F does not (it splits).
-    assert canonical_atoms("G[0,2] x > 0")["x"][0].to_tuple() == (0.0, math.inf, True, True)
-    assert canonical_atoms("F[0,2] x >= 0") == {}
+    assert canonical_atoms("G[0,2] x > 0", 0)["x"][0].to_tuple() == (0.0, math.inf, True, True)
+    assert canonical_atoms("F[0,2] x >= 0", 0) == {}
+
+
+def test_a_nested_temporal_window_is_relative_not_absolute():
+    # The two levels of a label are anchored differently, because stlsat only
+    # REBASES an inner operator when it unfolds the outer one ("G[0,1](G[0,1]
+    # x>0)" becomes "G[1,2] x>0" at t=1). So in an un-unfolded label the
+    # outermost window is absolute and anything below it is still relative.
+    INF = math.inf
+    # outermost: absolute, so t must lie inside it
+    assert canonical_atoms("G[1,2] x > 0", 0) == {}
+    assert canonical_atoms("G[1,2] x > 0", 1)["x"][0].to_tuple() == (0.0, INF, True, True)
+    # nested: relative, so it constrains NOW only if its window starts at 0
+    assert canonical_atoms("G[0,1] G[0,1] x > 0", 1)["x"][0].to_tuple() == (0.0, INF, True, True)
+    assert canonical_atoms("G[0,1] G[1,2] x > 0", 1) == {}
+    # Reading that inner [1,2] as absolute would assert P at t=1 for
+    # "G[1,1] G[1,2] P", when P is really only required on [2,3].
+    assert canonical_atoms("G[1,1] G[1,2] y >= -2", 1) == {}
+    # The nested operator is often the SOLE carrier at its node, so stopping
+    # at the outer G instead of recursing leaves the instant free.
+    nested = canonical_atoms("G[1,2] (G[0,1] x >= -2 && (y < -1 || x > -2))", 1)
+    assert nested["x"][0].to_tuple() == (-2.0, INF, False, True)
+    assert "y" not in nested          # the disjunction is a separate branch
+    # F still asserts nothing now, however deeply it is wrapped.
+    assert canonical_atoms("G[0,2] F[0,1] x > 0", 0) == {}
+    assert canonical_atoms("F[0,0] G[0,1] x >= -1", 0) == {}
 
 
 def test_nested_conjunction_is_not_mis_split_on_a_nested_disjunction():
     # "&&" must be split at paren depth 0 only: the nested "(y > 1 || y < -1)"
     # is a disjunction this node doesn't own, but "x > 0" beside it is a real
     # top-level conjunct and must survive.
-    atoms = canonical_atoms("(x > 0 && (y > 1 || y < -1))")
+    atoms = canonical_atoms("(x > 0 && (y > 1 || y < -1))", 0)
     assert atoms["x"][0].to_tuple() == (0.0, math.inf, True, True)
     assert "y" not in atoms
 
@@ -203,3 +228,37 @@ def test_n_ary_disjunction_covers_every_branch_not_just_a_pair():
         assert covered(value), f"{value} is in [0,10] but no branch admits it"
     assert not covered(-0.1)
     assert not covered(10.1)
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+@pytest.mark.parametrize("original,rewritten,why", [
+    ("x != 5", "(x < 5) || (x > 5)",
+     "!= is a union of two open half-lines, which the piece list already models"),
+    ("!(x != 5)", "x == 5",
+     "negating != gives ==, so NEGATED_OP needs the key"),
+    ("x > 3/2", "x > 1.5",
+     "stlsat prints a rational constant as 3/2; both are the same bound"),
+    ("F[0,2](x != 5)", "F[0,2]((x < 5) || (x > 5))",
+     "a != atom under a temporal operator behaves like any other atom"),
+])
+def test_newly_supported_atoms_extract_correctly(original, rewritten, why):
+    # Each of these used to extract to a FULLY UNCONSTRAINED region: the label
+    # matched no atom pattern, canonical_atoms returned {}, and {} reads as
+    # "this instant is free". The score was 1.0 against almost anything.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    assert calc_similarity_from_formulas(original, rewritten, tabex_root=REPO_ROOT) == 1.0, why
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_a_not_equal_atom_really_excludes_its_point():
+    # The sharpest check: 5 must be OUT of the region and 4.9 in it. Under the
+    # old silent drop both were in, because the region was all of R.
+    paths = generate_signal_space_from_formula("x != 5", tabex_root=REPO_ROOT)
+    assert paths, "x != 5 is satisfiable"
+    at_zero = [p.timeline[0]["x"] for p in paths]
+    assert any(value_in_pieces(4.9, pieces) for pieces in at_zero)
+    assert any(value_in_pieces(5.1, pieces) for pieces in at_zero)
+    assert not any(value_in_pieces(5.0, pieces) for pieces in at_zero)

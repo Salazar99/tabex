@@ -5,7 +5,6 @@ import pytest
 from conftest import EXAMPLES_DIR, REPO_ROOT, stlsat_available
 from parse_graph import Interval, Path, build_tree_from_dot, discover_all_variables, generate_signal_space_from_formula, standardize
 from similarity.stl_similarity import (
-    build_aligned_volumes,
     build_volume_from_paths,
     compute_similarity,
     is_bounded,
@@ -127,29 +126,19 @@ def test_trim_trailing_undef_fully_silent_path_collapses_to_empty():
 @pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
 def test_disjoint_time_windows_score_zero_not_spuriously_positive():
     # The reported bug: F[3,4] and F[0,2] are never obligated at the same
-    # instant. Before trimming, both formulas' genuine "already discharged" /
-    # "not yet started" silence at shared instants (t=1,2) scored as
-    # agreement (undef == undef), inflating this to ~0.3-0.45.
-    v1 = build_volume_from_paths("F[3,4] x>0", generate_signal_space_from_formula("F[3,4] x>0", tabex_root=REPO_ROOT))
-    v2 = build_volume_from_paths("F[0,2] x>0", generate_signal_space_from_formula("F[0,2] x>0", tabex_root=REPO_ROOT))
-    assert compute_similarity(v1, v2) == 0.0
+    # instant. Both formulas' genuine "already discharged" / "not yet started"
+    # silence at the shared instants (t=1,2) used to score as agreement
+    # (undef == undef), inflating this to ~0.3-0.45.
+    #
+    # The silence also must not be sliced into a concrete half-interval that
+    # could coincidentally match the other formula's real constraint:
+    # F[3,4]'s tableau never constrains x before t=3 (undef, not "x<0"), and
+    # canonicalize() only ever cuts an axis at breakpoints the formula's *own*
+    # boxes contribute -- see similarity/canon.py's _breakpoints.
+    from similarity.stl_similarity import calc_similarity_from_formulas
 
-
-@pytest.mark.integration
-@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
-def test_disjoint_time_windows_score_zero_after_alignment_too():
-    # Regression: Align must not reintroduce the bug above through a
-    # different door. F[3,4]'s tableau genuinely never constrains x before
-    # t=3 (undef, not "x<0"); aligning against F[0,2] (which does constrain
-    # x at t=0..2) must leave that undef axis uncut rather than slicing it
-    # into a half-interval that can coincidentally match F[0,2]'s real
-    # constraint -- canonicalize() only ever cuts an axis at breakpoints the
-    # formula's *own* boxes contribute, so that silence cannot be sliced this
-    # way -- see similarity/canon.py's _breakpoints.
-    paths1 = generate_signal_space_from_formula("F[3,4] x>0", tabex_root=REPO_ROOT)
-    paths2 = generate_signal_space_from_formula("F[0,2] x>0", tabex_root=REPO_ROOT)
-    volume1, volume2 = build_aligned_volumes("F[3,4] x>0", paths1, "F[0,2] x>0", paths2)
-    assert compute_similarity(volume1, volume2) == 0.0
+    assert calc_similarity_from_formulas(
+        "F[3,4] x>0", "F[0,2] x>0", tabex_root=REPO_ROOT) == 0.0
 
 
 def test_point_sim_d_identical_degenerate_interval_is_one():
@@ -183,40 +172,19 @@ def test_one_way_similarity_both_unsat_is_one():
 
 @pytest.mark.integration
 @pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
-def test_trim_after_align_matches_paper_worked_example():
+def test_tautological_disjunction_scores_one_end_to_end():
     # preliminaries.tex, Definition 7 / Remark 1: phi:=T, theta:=(x<=0)||(x>=0)
     # are equivalent (S(phi)=S(theta)=R). Handled by coarsening rather than
     # by cutting: theta's breakpoint at x=0 is not a bend of the region, so
     # canonicalize() drops it and theta's two cells merge into the single
     # unconstrained cell phi already had. phi is never refined up to theta --
     # see similarity/canon.py's _axis_partition.
+    #
+    # test_canon.py builds the same region by hand and compares cell sets;
+    # this one is the end-to-end path, through a real tableau.
     from similarity.stl_similarity import calc_similarity_from_formulas
 
     assert calc_similarity_from_formulas("true", "(x<=0) || (x>=0)", tabex_root=REPO_ROOT) == 1.0
-
-
-@pytest.mark.integration
-@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
-def test_globally_unconstrained_var_is_per_variable_not_per_formula():
-    # Regression for the fix's scope: a formula that's globally silent on
-    # one variable but genuinely constrains another (at the SAME instant as
-    # the other formula's real constraint) must only get the silent
-    # variable's axis cut -- not have its real constraint's axis touched,
-    # and must not collapse into the disjoint-time-window false-positive
-    # this gate exists to prevent.
-    from similarity.stl_similarity import calc_similarity_from_formulas
-
-    # x==5 pins x to a single point; theta never mentions x, only y, so
-    # theta's silence on x must be free to align with phi's x==5 without
-    # either formula's y-less/x-less status corrupting the other axis.
-    score = calc_similarity_from_formulas("x==5", "(x==5) && ((y<=0) || (y>=0))", tabex_root=REPO_ROOT)
-    assert score == 1.0
-
-    # Sanity: the disjoint-time-window case this gate protects must still
-    # be unaffected by the global-unconstrained carve-out (neither formula
-    # is ever globally silent on x -- both constrain it, just at different
-    # times).
-    assert calc_similarity_from_formulas("F[3,4] x>0", "F[0,2] x>0", tabex_root=REPO_ROOT) == 0.0
 
 
 @pytest.mark.integration
@@ -237,6 +205,9 @@ def test_negated_bounds_are_equivalent_to_plain_bounds():
 @pytest.mark.parametrize("formula,rewritten,why", [
     ("y<-1", "(y<-1) && ((y>0) || (y<=0))",
      "dead disjunct: y<-1 && y>0 is a branch stlsat emits but rejects"),
+    ("x==5", "(x==5) && ((y<=0) || (y>=0))",
+     "tautological conjunct over a DEGENERATE region: x==5 is a point, and "
+     "coarsening away the tautology's split must not erase it"),
     ("F[0,0](x<=2)", "(F[0,0](x<=2)) || ((F[0,0](x<=2)) && (x>0))",
      "absorption: the && conjunct must intersect, not union, into the slot"),
     ("((x<=2 || y<0) && x>=2)", "(((x<=2 || y<0) && x>=2)) || (((x<=2 || y<0) && x>=2))",
@@ -340,3 +311,29 @@ def test_a_truncated_branch_is_dropped_not_partially_extracted():
     for name in ("graph_G.dot", "graph_U.dot", "graph_F_gex.dot"):
         tree = build_tree_from_dot((EXAMPLES_DIR / name).read_text(encoding="utf-8"))
         assert not prune_incomplete(tree), f"{name} is complete; nothing may be pruned"
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+@pytest.mark.parametrize("original,rewritten,why", [
+    ("((x>0) U[0,0] (y>3))", "((x>0) && (y>3))",
+     "U[0,0] pins the invariant AT the witness: it is not just the witness"),
+    ("((x>0) U[2,2] (y>3))", "(G[0,2](x>0)) && (G[2,2](y>3))",
+     "a point until is the invariant up to the witness, and the witness"),
+    ("((x>0) U[0,2] (y>3))", "((x>0) U[0,2] ((x>0) && (y>3)))",
+     "the invariant is already required at the witness, so conjoining it is a no-op"),
+    ("((x>0) U[0,2] ((y>3) || (y<-3)))",
+     "(((x>0) U[0,2] (y>3))) || (((x>0) U[0,2] (y<-3)))",
+     "until distributes over a disjunction in its right argument"),
+    ("(((y>0) || (y<=0)) U[1,3] (x>0))", "F[1,3](x>0)",
+     "a vacuous invariant collapses until to eventually"),
+])
+def test_until_semantics(original, rewritten, why):
+    # stlsat rewrites "phi U[a,b] psi" into "G[0,a] phi && (phi U[a,b] (phi && psi))",
+    # so its until requires the invariant up to AND INCLUDING the witness --
+    # NOT the textbook half-open [t, witness). Every case here is false under
+    # the half-open reading, so this is the file to look at if a future stlsat
+    # changes that rewrite.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    assert calc_similarity_from_formulas(original, rewritten, tabex_root=REPO_ROOT) == 1.0, why

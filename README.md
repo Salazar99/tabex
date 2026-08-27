@@ -47,11 +47,13 @@ tabex_home/
 │   ├── test_formula_to_signal_space.py
 │   ├── test_semantics_examples.py
 │   ├── test_stl_similarity.py
+│   ├── test_reference_semantics.py  # the definition, and the tableau cross-checked against it
 │   └── test_similarity_check.py
 ├── parse_graph.py             # Tableau -> signal space (standardization, Algorithm 1)
 ├── pytest.ini                 # Pytest markers/config for tests/
 ├── run_similarity.py           # Runs the entire similarity pipeline (CLI args)
 ├── similarity_check.py         # Interactive interface (prompts for formulas)
+├── reference_semantics.py     # THE DEFINITION of the signal space (denotational, no tableau); the default path
 ├── verify_semantics.py        # Randomised: extracted region == the formula's real semantics
 ├── verify_equivalence.py      # Randomised: equivalent formulas score G = 1
 ├── verify_canon.py            # Randomised: canon.py is lossless and canonical
@@ -133,12 +135,17 @@ signal space with `parse_graph.py`, then compare the two directly with
 `stlsat` itself (no intermediate JSON file):
 
 ```bash
-python similarity/stl_similarity.py "First_formula" "Second_formula" [--D VALUE]
+python similarity/stl_similarity.py "First_formula" "Second_formula" [--D VALUE] [--via WHICH]
 ```
 
   * **--D**: (Optional) Truncation window for `Point_sim_D`
     (Eq. `PointSimD`); auto-derived from the two formulas' constants if
     omitted.
+  * **--via**: `definition` (default) computes each signal space by structural
+    recursion on the formula — the route [FORMAL_PROOFS.md](./FORMAL_PROOFS.md)
+    proves correct, and it needs no `stlsat`. `tableau` computes it from
+    `stlsat` instead: faster on large formulas, and cross-checked against the
+    definition rather than trusted.
 
 <!--
 > **Note**: The old JSON "volume" format tool (`input_creator.py`) has been
@@ -229,6 +236,92 @@ Commented out until a new recording reflects the aligned pipeline.
 
 -----
 
+## 🧩 Supported fragment
+
+### Why there is a fragment at all
+
+A signal space is a **union of boxes**: per instant, per variable, a union of
+intervals. That representation is what makes a canonical form possible — a
+canonical decomposition needs axis-aligned cells — and it is also exactly what
+decides the fragment. A constraint is representable iff it cuts each variable's
+axis *independently*.
+
+`x > 5` is an interval. `x > y` is a half-plane, and no union of boxes equals
+it. So the boundary below is not an implementation shortcut you could paper
+over; it is where the geometry stops working.
+
+[**PROOF.md**](./PROOF.md) works through why that box representation gives
+equivalent formulas the same canonical signal space — what is proved, what is
+only validated, and what a counterexample hunt over ~1,800 regions did and did
+not find.
+
+### Supported
+
+```
+formula  ::= atom | !formula | formula && formula | formula || formula
+           | formula -> formula
+           | F[a,b] formula | G[a,b] formula | formula U[a,b] formula
+           | formula R[a,b] formula      (stlsat rewrites release into F/U/G)
+atom     ::= variable op constant        op ∈ { <  <=  >  >=  ==  != }
+constant ::= integer | decimal | rational          e.g. 5, -2, 1.5, 3/2
+```
+
+Constants must be **exactly representable in binary64**. `1/2`, `1.5` and `-3`
+are; `1/3` and integers past `2**53` are not, and are rejected rather than
+rounded — a rounded constant would make the region denote a different set of
+reals than the formula does, and could make two distinct formulas produce the
+same signal space. See [FORMAL_PROOFS.md §0.1](./FORMAL_PROOFS.md).
+
+Temporal operators nest freely. Two rules here are surprising enough to be
+worth stating, and both are pinned by tests:
+
+- **`U` includes its witness — and this is a deliberate definition, not
+  textbook STL.** The invariant is required up to *and including* the witness
+  instant, not on the half-open `[t, witness)`, so `x>0 U[0,0] y>3` is
+  `x>0 ∧ y>3` and not `y>3`. Equivalently `φ U ψ` here is `φ U_textbook (φ ∧ ψ)`
+  — a legitimate variant, chosen because it costs nothing to prove and is what
+  stlsat's tableau already computes. The reasoning is in
+  [PROOF.md §2.4](./PROOF.md); it is pinned by
+  `tests/test_reference_semantics.py::test_until_includes_its_witness` and
+  `tests/test_stl_similarity.py::test_until_semantics`.
+- **A nested window is relative.** stlsat rebases an inner operator only when it
+  unfolds the outer one, so in an un-unfolded label the outermost interval is
+  absolute and anything below it is relative to the operator above.
+  `G[1,1] G[1,2] P` requires `P` on `[2,3]` and asserts nothing at `t=1`.
+  (`tests/test_semantics_examples.py::test_a_nested_temporal_window_is_relative_not_absolute`)
+
+### Not supported
+
+| shape | example | why |
+|---|---|---|
+| relation between variables | `x > y` | a half-plane, not a box |
+| arithmetic terms | `x + y > 0`, `x - 1 > 0` | not a box |
+| absolute value | `\|x\| > 1` | not a box |
+| bare boolean atom | `p` | not a real-valued signal |
+| `false` literal | `false` | admits nothing, which an interval union cannot say |
+
+Each raises `UnsupportedFormula`, naming the offending label and the instant.
+**It does not return an empty or unconstrained region.**
+
+That last sentence is the whole point of this section. Until these raised, every
+row above extracted to a *fully unconstrained* signal space — the widest
+possible claim — and the tool then reported a confident, wrong similarity score:
+
+| formula | extracted at t0, before | correct |
+|---|---|---|
+| `x != 5` | *(no constraint)* | `(-∞,5) ∪ (5,∞)` |
+| `x > 3/2` | `(-inf, inf)` | `(1.5, ∞)` |
+| `x > y` | *(no constraint)* | not representable |
+| `p` | *(no constraint)* | not representable |
+| `x > 5` | `(5.0, inf)` | ✓ was already right |
+
+`!=` and rational constants were in the fragment all along and are now handled;
+the rest fail loudly. Supporting them needs a representation richer than
+per-variable interval unions, so it is a design change rather than a parsing
+fix — but failing loudly is the prerequisite for attempting it.
+
+-----
+
 ## 📊 Benchmarks
 
 Benchmarks are located in the `tabex/benchmarks` folder:
@@ -302,6 +395,28 @@ under-approximation that equivalence testing alone cannot see. **Run it with
 `--boundary`** — sampling exactly on the integer bounds is what proves
 endpoint openness is handled, and is what a closed-only interval
 representation can never pass.
+
+It generates **nested** temporal operators (`--max-nesting`, default 2, about a
+quarter of the formulas). That matters because the two levels of a tableau
+label are anchored differently: stlsat rebases an inner operator only when it
+unfolds the outer one, so in an un-unfolded label the outermost window is
+absolute while anything below it is still relative to the operator above.
+`G[1,1] G[1,2] P` therefore requires `P` on `[2,3]` and asserts nothing at
+`t=1`. Every single-level test passes whichever way you read that, so only the
+nested sweep pins it down.
+
+`U` is covered too (about 30% of generated formulas contain one; `--no-until`
+turns it off to isolate a failure). Worth knowing: **stlsat's until is not the
+textbook one.** It rewrites
+
+    φ U[a,b] ψ    ⟶    G[0,a] φ  ∧  (φ U[a,b] (φ ∧ ψ))
+
+so the invariant is required up to **and including** the witness instant, not
+on the half-open `[t, witness)`. Concretely `x>0 U[0,0] y>3` is `x>0 ∧ y>3`,
+not `y>3`. The reference interpreter follows that reading, and
+`tests/test_stl_similarity.py::test_until_semantics` pins five identities that
+are all *false* under the half-open reading — that is the place to look if a
+future stlsat changes the rewrite.
 
 `verify_equivalence.py` generates pairs that are equivalent *by construction*
 (a random formula and a meaning-preserving rewrite of it), so it never has to

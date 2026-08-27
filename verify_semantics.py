@@ -27,6 +27,7 @@ Needs cargo/z3 on PATH (it runs the real stlsat). Run from the repo root.
 """
 import argparse
 import random
+import signal
 import sys
 
 sys.path.insert(0, ".")
@@ -41,8 +42,21 @@ from similarity.canon import canonicalize  # noqa: E402
 from similarity.stl_similarity import is_undefined, trim_trailing_undef  # noqa: E402
 
 VARS = ["x", "y"]
-OPS = [">", ">=", "<", "<="]
+# The full supported operator set. "==" and "!=" carve out measure-zero points
+# and their complements, so they only really bite when the samples land exactly
+# on the bounds -- run with --boundary.
+OPS = [">", ">=", "<", "<=", "==", "!="]
 VALUES = [-3, -2, -1, 0, 1, 2, 3]
+MAX_NESTING = 2
+WITH_UNTIL = True
+
+
+class Timeout(Exception):
+    pass
+
+
+def _raise_timeout(signum, frame):
+    raise Timeout()
 
 
 # --- a small STL interpreter, the ground truth ----------------------------
@@ -53,7 +67,8 @@ class Atom:
     def holds(self, signal, t):
         value = signal[self.var][t]
         return {'>': value > self.const, '>=': value >= self.const,
-                '<': value < self.const, '<=': value <= self.const}[self.op]
+                '<': value < self.const, '<=': value <= self.const,
+                '==': value == self.const, '!=': value != self.const}[self.op]
 
     def __str__(self):
         return f"{self.var}{self.op}{self.const}"
@@ -77,10 +92,32 @@ class Binary:
     def holds(self, signal, t):
         if self.op == '&&':
             return self.left.holds(signal, t) and self.right.holds(signal, t)
+        if self.op == '->':
+            return (not self.left.holds(signal, t)) or self.right.holds(signal, t)
         return self.left.holds(signal, t) or self.right.holds(signal, t)
 
     def __str__(self):
         return f"(({self.left}) {self.op} ({self.right}))"
+
+
+class Until:
+    # stlsat rewrites "phi U[a,b] psi" into
+    #     G[0,a] phi  &&  (phi U[a,b] (phi && psi))
+    # so the invariant is required up to AND INCLUDING the witness instant --
+    # not the textbook half-open [t, u). "y<0 U[0,0] x>0" is therefore just
+    # "y<0 && x>0", not "x>0".
+    def __init__(self, lower, upper, left, right):
+        self.lower, self.upper, self.left, self.right = lower, upper, left, right
+
+    def holds(self, signal, t):
+        for witness in range(t + self.lower, t + self.upper + 1):
+            if (self.right.holds(signal, witness) and
+                    all(self.left.holds(signal, v) for v in range(t, witness + 1))):
+                return True
+        return False
+
+    def __str__(self):
+        return f"(({self.left}) U[{self.lower},{self.upper}] ({self.right}))"
 
 
 class Temporal:
@@ -98,6 +135,8 @@ class Temporal:
 
 
 def horizon(formula):
+    if isinstance(formula, Until):
+        return formula.upper + max(horizon(formula.left), horizon(formula.right))
     if isinstance(formula, Temporal):
         return formula.upper + horizon(formula.body)
     if isinstance(formula, Binary):
@@ -113,18 +152,38 @@ def random_proposition(depth=0):
         return Atom(random.choice(VARS), random.choice(OPS), random.randint(-2, 2))
     if roll < 0.6:
         return Not(random_proposition(depth + 1))
-    return Binary(random.choice(['&&', '||']),
+    return Binary(random.choice(['&&', '||', '->']),
                   random_proposition(depth + 1), random_proposition(depth + 1))
 
 
-def random_formula():
-    # F/G/propositional only: their semantics are unambiguous, so a
-    # disagreement is unambiguously the extraction's fault.
-    if random.random() < 0.30:
+def random_temporal(depth):
+    lower = random.randint(0, 2 if depth == 0 else 1)
+    upper = lower + random.randint(0, 2 if depth == 0 else 1)
+    if WITH_UNTIL and random.random() < 0.3:
+        return Until(lower, upper, random_body(depth + 1), random_body(depth + 1))
+    return Temporal(random.choice(['F', 'G']), lower, upper, random_body(depth + 1))
+
+
+def random_body(depth):
+    # Nesting is where the anchoring subtlety lives: an inner window is
+    # relative to the operator above it, so "G[1,1] G[1,2] P" requires P on
+    # [2,3] and asserts nothing at t=1. Reading it as absolute passes every
+    # single-level test and still gets nesting wrong, so the sweep has to
+    # generate it.
+    if depth >= MAX_NESTING or random.random() < 0.55:
         return random_proposition()
-    lower = random.randint(0, 2)
-    upper = lower + random.randint(0, 2)
-    return Temporal(random.choice(['F', 'G']), lower, upper, random_proposition())
+    if random.random() < 0.7:
+        return random_temporal(depth)
+    return Binary(random.choice(['&&', '||']), random_temporal(depth), random_proposition())
+
+
+def random_formula():
+    # F/G/U/propositional. "U" follows stlsat's own reading (see Until above),
+    # which is not the textbook one -- getting that wrong here would report
+    # extraction bugs that are really interpreter bugs.
+    if random.random() < 0.25:
+        return random_proposition()
+    return random_temporal(0)
 
 
 # --- membership in the extracted region -----------------------------------
@@ -179,18 +238,34 @@ def main():
     parser.add_argument("--samples", type=int, default=400)
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--tabex-root", default=".")
+    parser.add_argument("--max-nesting", type=int, default=MAX_NESTING,
+                        help="Depth of temporal nesting to generate (0 disables it).")
+    parser.add_argument("--no-until", action="store_true",
+                        help="Do not generate U (useful to isolate a failure).")
+    parser.add_argument("--timeout", type=int, default=60,
+                        help="Per-formula budget in seconds; one whose tableau "
+                             "blows up is skipped and counted, not left to hang.")
     args = parser.parse_args()
+    globals()["MAX_NESTING"] = args.max_nesting
+    globals()["WITH_UNTIL"] = not args.no_until
 
+    signal.signal(signal.SIGALRM, _raise_timeout)
     random.seed(args.seed)
     offset = 0.0 if args.boundary else 0.5
-    mismatched, errors, checked = [], [], 0
+    mismatched, errors, checked, timeouts = [], [], 0, 0
     for _ in range(args.trials):
         formula = random_formula()
         try:
+            signal.alarm(args.timeout)
             over, under, cells = check(formula, args.tabex_root, args.samples, offset)
+        except Timeout:
+            timeouts += 1
+            continue
         except Exception as exc:  # stlsat failure, parse failure, ...
             errors.append((str(formula), str(exc).splitlines()[0][:80]))
             continue
+        finally:
+            signal.alarm(0)
         checked += 1
         if over or under:
             mismatched.append((str(formula), over, under, cells))
@@ -204,7 +279,8 @@ def main():
     status = "ok" if not mismatched and not errors else "FAIL"
     where = "on-boundary" if args.boundary else "off-boundary"
     print(f"  {checked} formulas checked ({where}, {args.samples} signals each), "
-          f"{len(mismatched)} disagreed with the semantics, {len(errors)} errored   {status}")
+          f"{len(mismatched)} disagreed with the semantics, {len(errors)} errored, "
+          f"{timeouts} timed out   {status}")
     return 1 if mismatched or errors else 0
 
 

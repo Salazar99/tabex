@@ -194,23 +194,61 @@ def build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=None):
     return volume1, volume2
 
 
-def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None):
-    # Both tableaux are standardized over the *joint* variable set and the
-    # *joint* time domain, so the two decompositions live in the same ambient
-    # space and Path_sim's |T1 u T2| denominator is not charged for a horizon
-    # difference that canonicalisation and trimming would otherwise remove.
-    # Padding with [-inf, +inf] does not change either region.
-    #
-    # stlsat's SAT verdict is not consulted: standardize() prunes the branches
-    # stlsat left unexpanded, so an unsatisfiable formula extracts to no paths
-    # on its own. Eq. 7 then handles empty-vs-empty (1) and empty-vs-nonempty (0).
+def signal_spaces_from_definition(formula1, formula2):
+    """Both regions straight from `reference_semantics`, over the joint grid.
+
+    This is the path with a proof behind it (FORMAL_PROOFS.md Theorem A). The
+    joint variable set and joint horizon put the two regions in the same ambient
+    space, which Path_sim's |T1 u T2| denominator needs and which is also
+    hypothesis H1 of Theorem B. Padding with [-inf, +inf] changes neither region.
+    """
+    from reference_semantics import parse, signal_space, variables
+
+    tree1, tree2 = parse(formula1), parse(formula2)
+    all_vars = sorted(variables(tree1) | variables(tree2))
+    horizon = max(tree1.horizon(), tree2.horizon())
+    return (signal_space(tree1, all_vars, horizon=horizon),
+            signal_space(tree2, all_vars, horizon=horizon),
+            all_vars)
+
+
+def signal_spaces_from_tableau(formula1, formula2, tabex_root=None):
+    """Both regions via stlsat's tableau -- the faster alternative.
+
+    Kept because the tableau scales to formulas the denotational evaluator
+    cannot, and because it is the only path that can read a hand-written .dot.
+    It is *cross-checked* against the definition rather than trusted; see
+    tests/test_reference_semantics.py.
+
+    stlsat's SAT verdict is not consulted: standardize() prunes the branches
+    stlsat left unexpanded, so an unsatisfiable formula extracts to no paths on
+    its own. Eq. 7 then handles empty-vs-empty (1) and empty-vs-nonempty (0).
+    """
     dot1 = run_stlsat(formula1, tabex_root=tabex_root)
     dot2 = run_stlsat(formula2, tabex_root=tabex_root)
     tree1, tree2 = build_tree_from_dot(dot1), build_tree_from_dot(dot2)
     all_vars = sorted(set(discover_all_variables(dot1)) | set(discover_all_variables(dot2)))
     all_times = sorted(collect_times(tree1) | collect_times(tree2))
-    paths1 = standardize(tree1, all_vars, all_times)
-    paths2 = standardize(tree2, all_vars, all_times)
+    return (standardize(tree1, all_vars, all_times),
+            standardize(tree2, all_vars, all_times),
+            all_vars)
+
+
+def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
+                                  via="definition"):
+    """Similarity of two formula strings.
+
+    `via="definition"` (the default) computes each signal space by structural
+    recursion on the formula -- the route Theorem A is about. `via="tableau"`
+    computes it from stlsat instead, which is faster on large formulas and is
+    validated against the definition rather than trusted.
+    """
+    if via == "definition":
+        paths1, paths2, all_vars = signal_spaces_from_definition(formula1, formula2)
+    elif via == "tableau":
+        paths1, paths2, all_vars = signal_spaces_from_tableau(formula1, formula2, tabex_root)
+    else:
+        raise ValueError(f"via must be 'definition' or 'tableau', not {via!r}")
     volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=all_vars)
     return compute_similarity(volume1, volume2, D=D)
 
@@ -221,7 +259,11 @@ if __name__ == "__main__":
     parser.add_argument("formula2")
     parser.add_argument("--tabex-root", help="Override $TABEX_ROOT / ~/tabex.")
     parser.add_argument("--D", type=float, default=None, help="Truncation window; auto-derived if omitted.")
+    parser.add_argument("--via", choices=("definition", "tableau"), default="definition",
+                        help="Compute the signal space denotationally (default) or via stlsat's tableau.")
     cli_args = parser.parse_args()
 
-    score = calc_similarity_from_formulas(cli_args.formula1, cli_args.formula2, tabex_root=cli_args.tabex_root, D=cli_args.D)
+    score = calc_similarity_from_formulas(cli_args.formula1, cli_args.formula2,
+                                          tabex_root=cli_args.tabex_root, D=cli_args.D,
+                                          via=cli_args.via)
     print(f"Similarity score between formula {cli_args.formula1!r} and formula {cli_args.formula2!r} is: {score}")
