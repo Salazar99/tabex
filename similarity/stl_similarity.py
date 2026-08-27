@@ -56,12 +56,9 @@ def is_bounded(pieces):
 
 
 def truncate(pieces, D):
-    result = []
-    for iv in pieces:
-        l, r = max(iv.l, -D), min(iv.r, D)
-        if l <= r:
-            result.append(Interval(l, r))
-    return result
+    # Clamp via intersect so endpoint openness survives the window.
+    window = Interval(-D, D)
+    return [clamped for iv in pieces if (clamped := iv.intersect(window)) is not None]
 
 
 def point_sim_d(pieces1, pieces2, D):
@@ -203,6 +200,10 @@ def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None):
     # space and Path_sim's |T1 u T2| denominator is not charged for a horizon
     # difference that canonicalisation and trimming would otherwise remove.
     # Padding with [-inf, +inf] does not change either region.
+    #
+    # stlsat's SAT verdict is not consulted: standardize() prunes the branches
+    # stlsat left unexpanded, so an unsatisfiable formula extracts to no paths
+    # on its own. Eq. 7 then handles empty-vs-empty (1) and empty-vs-nonempty (0).
     dot1 = run_stlsat(formula1, tabex_root=tabex_root)
     dot2 = run_stlsat(formula2, tabex_root=tabex_root)
     tree1, tree2 = build_tree_from_dot(dot1), build_tree_from_dot(dot2)

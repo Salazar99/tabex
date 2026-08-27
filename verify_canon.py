@@ -21,35 +21,43 @@ LATTICE = [i * 0.5 for i in range(0, 2 * N + 1)]   # half-integers: a point box
                                                    # [5,5] is distinguishable
                                                    # from an interval
 
+# Boxes are built from real Interval objects so the sweep exercises endpoint
+# OPENNESS, not just the closed case. Without that, "(x<1)||(x>1)" and "true"
+# look like the same region and the properties below are vacuous where it
+# matters most.
+
+
+def _contains(interval, value):
+    return ((value > interval.l if interval.lo else value >= interval.l) and
+            (value < interval.r if interval.ro else value <= interval.r))
+
 
 def _paths_2d(boxes):
-    return [Path({0: {"x": [Interval(x0, x1)], "y": [Interval(y0, y1)]}})
-            for (x0, x1, y0, y1) in boxes]
+    return [Path({0: {"x": [x], "y": [y]}}) for (x, y) in boxes]
 
 
 def _points_2d(boxes):
     return frozenset((a, b) for a in LATTICE for b in LATTICE
-                     if any(x0 <= a <= x1 and y0 <= b <= y1 for (x0, x1, y0, y1) in boxes))
+                     if any(_contains(x, a) and _contains(y, b) for (x, y) in boxes))
 
 
 def _canon_boxes_2d(boxes):
-    out = []
-    for cell in canonicalize(_paths_2d(boxes)):
-        x = cell.timeline[0]["x"][0]
-        y = cell.timeline[0]["y"][0]
-        out.append((x.l, x.r, y.l, y.r))
-    return out
+    return [(cell.timeline[0]["x"][0], cell.timeline[0]["y"][0])
+            for cell in canonicalize(_paths_2d(boxes))]
+
+
+def _random_interval(degenerate_probability):
+    lo = random.randint(0, N - 1)
+    if random.random() < degenerate_probability:
+        return Interval(lo, lo)                       # an "==" atom
+    hi = random.randint(lo + 1, N)
+    return Interval(lo, hi, random.random() < 0.5, random.random() < 0.5)
 
 
 def _random_2d(degenerate_probability):
-    boxes = []
-    for _ in range(random.randint(1, 4)):
-        x0 = random.randint(0, N - 1)
-        x1 = x0 if random.random() < degenerate_probability else random.randint(x0 + 1, N)
-        y0 = random.randint(0, N - 1)
-        y1 = y0 if random.random() < degenerate_probability else random.randint(y0 + 1, N)
-        boxes.append((x0, x1, y0, y1))
-    return boxes
+    return [(_random_interval(degenerate_probability),
+             _random_interval(degenerate_probability))
+            for _ in range(random.randint(1, 4))]
 
 
 def check_losslessness(trials=15000):
@@ -91,33 +99,24 @@ def check_3d(trials=12000):
     print("cross-axis independence  (three axes over two instants)")
 
     def paths(boxes):
-        return [Path({0: {"x": [Interval(a0, a1)], "y": [Interval(b0, b1)]},
-                      1: {"x": [Interval(c0, c1)], "y": [Interval(-math.inf, math.inf)]}})
-                for (a0, a1, b0, b1, c0, c1) in boxes]
+        return [Path({0: {"x": [a], "y": [b]},
+                      1: {"x": [c], "y": [Interval(-math.inf, math.inf)]}})
+                for (a, b, c) in boxes]
 
     def points(boxes):
         return frozenset((i, j, k)
-                         for i in range(N) for j in range(N) for k in range(N)
-                         if any(a0 <= i < a1 and b0 <= j < b1 and c0 <= k < c1
-                                for (a0, a1, b0, b1, c0, c1) in boxes))
+                         for i in LATTICE for j in LATTICE for k in LATTICE
+                         if any(_contains(a, i) and _contains(b, j) and _contains(c, k)
+                                for (a, b, c) in boxes))
 
     def canon_points(boxes):
-        out = []
-        for cell in canonicalize(paths(boxes)):
-            a, b = cell.timeline[0]["x"][0], cell.timeline[0]["y"][0]
-            d = cell.timeline[1]["x"][0]
-            out.append((a.l, a.r, b.l, b.r, d.l, d.r))
-        return points(out)
+        return points([(cell.timeline[0]["x"][0], cell.timeline[0]["y"][0],
+                        cell.timeline[1]["x"][0])
+                       for cell in canonicalize(paths(boxes))])
 
     def random_boxes():
-        out = []
-        for _ in range(random.randint(1, 4)):
-            values = []
-            for _ in range(3):
-                lo = random.randint(0, N - 1)
-                values += [lo, random.randint(lo + 1, N)]
-            out.append(tuple(values))
-        return out
+        return [tuple(_random_interval(0.0) for _ in range(3))
+                for _ in range(random.randint(1, 4))]
 
     random.seed(11)
     lossy, by_region = 0, {}

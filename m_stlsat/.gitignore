@@ -26,5 +26,4 @@ Cargo.lock
 scripts/output_mltl
 scripts/output_stl
 scripts/plots
-
-.vscode/
+.venv

@@ -29,20 +29,24 @@ def check_benchmark(bench_name, bench_file, stltree_path, timeout, iters):
     results = {'dataset': bench_name}
 
     # SMT BMC-like encoding
-    args_smt = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stltree', stltree_path, '--smt'])
+    args_smt = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', '--bash-time', 'stlsat', '--engine', 'smt'])
     _, results['time_smt'], _, results['result_smt'] = iter_bench(bench_file, args_smt)
 
     # FOL encoding
-    args_fol = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stlsat', '--fol'])
+    args_fol = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', '--bash-time', 'stlsat', '--engine', 'fol'])
     _, results['time_fol'], _, results['result_fol'] = iter_bench(bench_file, args_fol)
 
-    # Python tableau-based checking
-    args_python_tableau = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stltree', stltree_path])
+    # STLTree tableau-based checking
+    args_python_tableau = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', '--bash-time', 'stltree', stltree_path])
     _, results['time_python_tableau'], _, results['result_python_tableau'] = iter_bench(bench_file, args_python_tableau)
 
     # Rust tableau-based checking
-    args_rust_tableau = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', 'stlsat'])
+    args_rust_tableau = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', '--bash-time', 'stlsat', '--engine', 'tableau'])
     _, results['time_rust_tableau'], _, results['result_rust_tableau'] = iter_bench(bench_file, args_rust_tableau)
+
+    # Rust tableau-based checking without JUMP rule
+    args_rust_tableau_no_jump = argp.parse_args(['--iters', str(iters), '--timeout', str(timeout), 'dummy.list', '--bash-time', 'stlsat', '--engine', 'tableau', '--no-jump-rule'])
+    _, results['time_rust_tableau_no_jump'], _, results['result_rust_tableau_no_jump'] = iter_bench(bench_file, args_rust_tableau_no_jump)
 
     return results
 
@@ -58,13 +62,13 @@ def pretty_print(results, timeout, csvfile):
             write_timeout(r['time_smt']), r['result_smt'],
             write_timeout(r['time_fol']), r['result_fol'],
             write_timeout(r['time_python_tableau']), r['result_python_tableau'],
-            write_timeout(r['time_rust_tableau']), r['result_rust_tableau']
-        ]
-        for r in results
+            write_timeout(r['time_rust_tableau']), r['result_rust_tableau'],
+            write_timeout(r['time_rust_tableau_no_jump']), r['result_rust_tableau_no_jump'],
+        ] for r in results
     ]
 
     # Table header
-    header = ["Dataset", f"SMT (s)", "SMT Result", f"FOL (s)", "FOL Result", f"Python Tableau (s)", "Python Tableau Result", f"Rust Tableau (s)", "Rust Tableau Result"]
+    header = ["Dataset", f"SMT (s)", "SMT Result", f"FOL (s)", "FOL Result", f"Python Tableau (s)", "Python Tableau Result", f"Rust Tableau (s)", "Rust Tableau Result", f"Rust Tableau No Jump (s)", "Rust Tableau No Jump Result"]
 
     print(tabulate(results_matrix, headers=header))
 

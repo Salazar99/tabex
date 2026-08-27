@@ -52,7 +52,11 @@ tabex_home/
 ├── pytest.ini                 # Pytest markers/config for tests/
 ├── run_similarity.py           # Runs the entire similarity pipeline (CLI args)
 ├── similarity_check.py         # Interactive interface (prompts for formulas)
-├── m_stlsat/                  # Modified stlsat source code
+├── verify_semantics.py        # Randomised: extracted region == the formula's real semantics
+├── verify_equivalence.py      # Randomised: equivalent formulas score G = 1
+├── verify_canon.py            # Randomised: canon.py is lossless and canonical
+├── m_stlsat/                  # Vendored stlsat (fix-completeness) -- see m_stlsat/TABEX_FORK.md
+│   └── TABEX_FORK.md          # The one file TABEX modifies, and why
 ├── LICENSE                    # Project license
 └── README.md                  # Documentation
 ```
@@ -277,6 +281,39 @@ necessarily *bugs*). `tests/test_semantics_examples.py` instead checks
 partitioning into disjoint earliest-witness paths), with the reasoning
 in each test's docstring — that's the file to read if you want to know
 *why* a given signal space is correct, not just that it hasn't changed.
+
+### Randomised verification
+
+Three scripts sample far more cases than the fixed suite can, and are what
+the correctness of the signal space actually rests on. All need `cargo`/`z3`
+except `verify_canon.py`:
+
+```bash
+python verify_semantics.py               # region == the formula's real semantics
+python verify_semantics.py --boundary    # ... with values exactly ON the bounds
+python verify_equivalence.py             # equivalent formulas score G = 1
+python verify_canon.py                   # canon.py is lossless and canonical
+```
+
+`verify_semantics.py` is the ground truth: it evaluates each random formula
+with its own small STL interpreter and compares that verdict against
+membership in the extracted region, so it catches over- and
+under-approximation that equivalence testing alone cannot see. **Run it with
+`--boundary`** — sampling exactly on the integer bounds is what proves
+endpoint openness is handled, and is what a closed-only interval
+representation can never pass.
+
+`verify_equivalence.py` generates pairs that are equivalent *by construction*
+(a random formula and a meaning-preserving rewrite of it), so it never has to
+ask anything whether two formulas are equivalent.
+
+Nor does the pipeline read stlsat's `Tableau result:` verdict.
+`prune_incomplete()` derives emptiness from the graph instead: in a fully
+unrolled tableau every leaf carries atoms only (`graph_G.dot` ends at `x > 0`,
+`graph_U.dot` at `x > 0, y > 3`), so a leaf still naming `F`/`G`/`U` is a
+branch stlsat stopped expanding — normally one it rejected, which is exactly
+what an unsatisfiable formula needs. Extracting a partial constraint from such
+an unfinished node instead would silently under-constrain the region.
 
 -----
 

@@ -27,42 +27,76 @@ def pretty_print_tree(node, indent=0):
         pretty_print_tree(child, indent + 4)
         
 class Interval:
-    def __init__(self, l, r):
+    # Endpoints carry their own openness (`lo`/`ro`: True = OPEN at that end).
+    # Without it "y < 0" and "y > 0" both become bounds touching at 0 and their
+    # intersection is the non-empty point [0,0], so a contradictory branch --
+    # which stlsat writes to the DOT before Z3 rejects it -- survives
+    # standardize()'s rejected-branch filter as a spurious degenerate cell.
+    __slots__ = ("l", "r", "lo", "ro")
+
+    def __init__(self, l, r, lo=False, ro=False):
         self.l = float(l)
         self.r = float(r)
+        # An infinite end is unreachable, so it is always open.
+        self.lo = bool(lo) or self.l == float('-inf')
+        self.ro = bool(ro) or self.r == float('inf')
 
     def is_empty(self):
-        return self.l > self.r
+        # A single point survives only when closed on both sides: (0,0], [0,0)
+        # and (0,0) all admit no value.
+        return self.l > self.r or (self.l == self.r and (self.lo or self.ro))
 
     def intersect(self, other):
-        nl = max(self.l, other.l)
-        nr = min(self.r, other.r)
-        if nl > nr: return None
-        return Interval(nl, nr)
-
-    def union(self, other):
-        # Takes the spanning union of two intervals for disjunctions (||)
-        return Interval(min(self.l, other.l), max(self.r, other.r))
+        if self.l > other.l:
+            nl, nlo = self.l, self.lo
+        elif self.l < other.l:
+            nl, nlo = other.l, other.lo
+        else:
+            nl, nlo = self.l, self.lo or other.lo
+        if self.r < other.r:
+            nr, nro = self.r, self.ro
+        elif self.r > other.r:
+            nr, nro = other.r, other.ro
+        else:
+            nr, nro = self.r, self.ro or other.ro
+        result = Interval(nl, nr, nlo, nro)
+        return None if result.is_empty() else result
 
     def __repr__(self):
         l_str = "-inf" if self.l == float('-inf') else str(self.l)
         r_str = "inf" if self.r == float('inf') else str(self.r)
-        return f"[{l_str}, {r_str}]"
+        return f"{'(' if self.lo else '['}{l_str}, {r_str}{')' if self.ro else ']'}"
 
     def to_tuple(self):
-        return (self.l, self.r)
+        return (self.l, self.r, self.lo, self.ro)
+
+    def __eq__(self, other):
+        return isinstance(other, Interval) and self.to_tuple() == other.to_tuple()
+
+    def __hash__(self):
+        return hash(self.to_tuple())
 
 
 def merge_pieces(pieces):
     # Collapse overlapping/touching Interval pieces into a minimal disjoint
     # set, so duplicate/overlapping pieces (e.g. [[0,inf],[0,inf]]) don't
     # double-count length or get treated as distinct alternatives.
+    # Empty pieces (the marker intersect_piece_lists returns for contradictory
+    # bounds) are dropped: they admit no value, so they must not survive as an
+    # alternative.
+    #
+    # Two pieces meeting at b only touch when at least one of them is CLOSED
+    # there -- "(-inf,1)" and "(1,inf)" leave a hole at 1 and stay separate,
+    # which is what makes "(x<1) || (x>1)" different from "true".
     merged = []
-    for iv in sorted(pieces, key=lambda iv: iv.l):
-        if merged and iv.l <= merged[-1].r:
-            merged[-1] = Interval(merged[-1].l, max(merged[-1].r, iv.r))
+    for iv in sorted((p for p in pieces if not p.is_empty()), key=lambda p: (p.l, p.lo)):
+        if merged and (iv.l < merged[-1].r or
+                       (iv.l == merged[-1].r and not (iv.lo and merged[-1].ro))):
+            last = merged[-1]
+            if iv.r > last.r or (iv.r == last.r and last.ro and not iv.ro):
+                merged[-1] = Interval(last.l, iv.r, last.lo, iv.ro)
         else:
-            merged.append(Interval(iv.l, iv.r))
+            merged.append(Interval(iv.l, iv.r, iv.lo, iv.ro))
     return merged
 
 #A path is a sequence of time-interval mappings for each variable
@@ -71,20 +105,9 @@ class Path:
         # timeline: {t: {var: Interval}}
         self.timeline = timeline
 
-    def add_interval(self, t, var, interval):
-        if t not in self.timeline:
-            self.timeline[t] = {}
-            self.timeline[t][var] = interval
-        else:
-            #If t already exists, either we pass or we are instantiating an empty variable
-            if var not in self.timeline[t]:
-                self.timeline[t][var] = interval
-            else:
-               print(f"Warning: Possible overwriting of existing interval for variable '{var}' at time {t}.")
-               
     def copy(self):
-        new_tl = {t: {v: Interval(val.l, val.r) for v, val in vars.items()} 
-                  for t, vars in self.timeline.items()}
+        new_tl = {t: {v: list(pieces) for v, pieces in slot.items()}
+                  for t, slot in self.timeline.items()}
         return Path(new_tl)
 
 class Node:
@@ -97,27 +120,6 @@ class Node:
         self.intervals = {} # Populated by your parser
         self.paths = []     # Used for the standardization algorithm
         self.formulas = formulas  # Field to memorize the identifying formulas
-
-def parse_inequality_to_interval(op, val_str):
-    val = float(val_str)
-    if op in ('>', '>='): return Interval(val, float('inf'))
-    elif op in ('<', '<='): return Interval(float('-inf'), val)
-    elif op == '==': return Interval(val, val)
-    return Interval(float('-inf'), float('inf'))
-
-def invert_operator(op):
-    """
-    Returns the logically negated (complement) operator 
-    for a given mathematical inequality.
-    """
-    mapping = {
-        '>': '<=',
-        '>=': '<',
-        '<': '>=',
-        '<=': '>',
-        '==': '!='
-    }
-    return mapping.get(op, '==')
 
 def parse_tableau(graph):
     nodes = {}
@@ -233,58 +235,6 @@ def build_tree_from_dot(dot_content):
     return root
 
 
-def get_immediate_constraints(node):
-    #identify atomic constraints in the node formulas and store them in a temporry structure
-    immediate_constraints = {}
-    for formula in node.formulas:
-        #Extract atomic constraints using regex
-        ineq_pattern = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_]*)\s*(>=|<=|>|<|==)\s*([+-]?\d+(?:\.\d+)?)$')
-        matches = ineq_pattern.findall(formula)
-        for var, op, val in matches:
-            if op in ('>', '>='):
-                immediate_constraints[var] = Interval(float(val), float('inf'))
-            elif op in ('<', '<='):
-                immediate_constraints[var] = Interval(float('-inf'), float(val))
-            elif op == '==':
-                immediate_constraints[var] = Interval(float(val), float(val))
-            else:
-                # Calculate the complement interval for op 
-                pass
-    
-    return immediate_constraints
-
-def advance_paths(paths, t, constraints):
-    if constraints is None or not constraints:
-        return paths  # No constraints to apply, return original paths
-    new_paths = []
-    for path in paths:
-        new_path = path.copy()
-        for var, interval in constraints.items():
-            new_path.add_interval(t, var, interval)
-        new_paths.append(new_path)
-    return new_paths
-
-def merge_paths(left_paths, right_paths):
-    merged_paths = []
-    for left in left_paths:
-        for right in right_paths:
-            merged_timeline = {}
-            all_times = set(left.timeline.keys()).union(right.timeline.keys())
-            for t in all_times:
-                merged_timeline[t] = {}
-                if t in left.timeline:
-                    merged_timeline[t].update(left.timeline[t])
-                if t in right.timeline:
-                    for var, interval in right.timeline[t].items():
-                        if var in merged_timeline[t]:
-                            # Merge intervals for the same variable
-                            merged_interval = merged_timeline[t][var].union(interval)
-                            merged_timeline[t][var] = merged_interval
-                        else:
-                            merged_timeline[t][var] = interval
-            merged_paths.append(Path(merged_timeline))
-    return merged_paths
-
 # Canonicalization of stlsat's formula-label strings into the atomic
 # constraints a node asserts AT ITS OWN INSTANT. stlsat prints a negated
 # atom with the "!" glued to the variable and the operator NOT flipped
@@ -336,15 +286,21 @@ def strip_outer_parens(text):
 def atom_to_pieces(op, val):
     # A constraint is a *list* of Interval pieces (read as a union), because
     # "!=" -- produced by negating "==" -- is two disjoint half-lines.
+    # Strict operators produce OPEN endpoints, so "x>0 && x<=0" comes out empty
+    # instead of collapsing to the point [0,0].
     v = float(val)
-    if op in ('>', '>='):
+    if op == '>':
+        return [Interval(v, float('inf'), lo=True)]
+    if op == '>=':
         return [Interval(v, float('inf'))]
-    if op in ('<', '<='):
+    if op == '<':
+        return [Interval(float('-inf'), v, ro=True)]
+    if op == '<=':
         return [Interval(float('-inf'), v)]
     if op == '==':
         return [Interval(v, v)]
     if op == '!=':
-        return [Interval(float('-inf'), v), Interval(v, float('inf'))]
+        return [Interval(float('-inf'), v, ro=True), Interval(v, float('inf'), lo=True)]
     return [Interval(float('-inf'), float('inf'))]
 
 
@@ -404,6 +360,99 @@ def collect_times(root):
     return times
 
 
+# A formula label that still holds an undischarged temporal obligation.
+#
+# In a fully unrolled tableau every leaf carries ATOMS ONLY -- check any of
+# graph_examples/*.dot: graph_G.dot ends at "x > 0", graph_U.dot at
+# "x > 0, y > 3". So a leaf that still names F, G or U is a branch stlsat
+# stopped expanding, not a branch it completed.
+_PENDING = re.compile(r'(?:^|[\s(])O?[FGU]\[\d+,\d+\]|^O(?=\()')
+
+
+def prune_incomplete(node):
+    # stlsat stops expanding a branch the moment it knows the branch is dead,
+    # so the DOT contains childless nodes that were never COMPLETED -- for the
+    # unsatisfiable "F[0,1](x>1 && x<0) && ((y>0)||(y<=0))" it ends with a
+    # childless node whose only formula is still "F[0,1] (x > 1 && x < 0)".
+    # canonical_atoms() reads an F as asserting nothing now, so that node would
+    # extract as a fully UNCONSTRAINED path and an unsatisfiable formula would
+    # come out with a non-empty signal space.
+    #
+    # A complete branch has discharged every eventuality: its leaf carries
+    # atoms, or UNDEF, and nothing else. Returns True when `node` is dead --
+    # and a node all of whose children died is dead too, which is what makes
+    # emptiness propagate to the root without consulting stlsat's own SAT
+    # verdict (which is order-dependent and sometimes wrong).
+    if not node.children:
+        return any(formula.strip() != 'UNDEF' and _PENDING.search(formula.strip())
+                   for formula in node.formulas)
+    node.children = [c for c in node.children if not prune_incomplete(c)]
+    return not node.children
+
+
+def complement_of(intervals):
+    # Complement of the union of `intervals` (a witness constraint, possibly a merged
+    # multi-piece signal set), computed exactly via De Morgan: complement(A u B u ...)
+    # = complement(A) n complement(B) n ..., reusing Interval.intersect. This avoids
+    # over-approximating by merging unrelated ranges (e.g. complementing (0,inf) yields
+    # (-inf,0], not the whole real line).
+    #
+    # The complement FLIPS each endpoint's openness: not(v, inf) is
+    # (-inf, v], so the two never overlap at v.
+    per_interval_complements = []
+    for iv in intervals:
+        pieces = []
+        if iv.l != float('-inf'):
+            pieces.append(Interval(float('-inf'), iv.l, ro=not iv.lo))
+        if iv.r != float('inf'):
+            pieces.append(Interval(iv.r, float('inf'), lo=not iv.ro))
+        per_interval_complements.append(pieces)
+    result = per_interval_complements[0] if per_interval_complements else []
+    for pieces in per_interval_complements[1:]:
+        result = [inter for a in result for b in pieces if (inter := a.intersect(b)) is not None]
+    return result or [Interval(float('-inf'), float('inf'))]
+
+
+def negate_witness_boxes(boxes):
+    # not(W1 or ... or Wk) = AND_j (OR_var not Wj[var]).
+    #
+    # Negating each variable of a MERGED witness bucket instead -- which is
+    # what pooling every witness timeline into one {var: pieces} map did --
+    # destroys the correlation between variables and between alternatives.
+    # For "F[0,1]((x>0 && y>0) || (x<0 && y<0))" the two witness boxes pool
+    # into x: [[0,inf],[-inf,0]], whose complement is the degenerate point
+    # x==0, and both continuation branches vanish.
+    #
+    # So distribute the conjunction of disjunctions into a list of
+    # alternative slots, one continuation path per combination.
+    alternatives = [{}]
+    for box in boxes:
+        if not box:
+            continue  # a witness that asserts nothing carries no information
+        expanded = []
+        for alternative in alternatives:
+            for var, pieces in box.items():
+                complement = complement_of(merge_pieces(pieces))
+                merged = dict(alternative)
+                merged[var] = (intersect_piece_lists(merged[var], complement)
+                               if var in merged else complement)
+                expanded.append(merged)
+        # Dedup and drop contradictory alternatives as we go -- the raw
+        # product is |vars|**|boxes| and blows up without this.
+        seen = {}
+        for alternative in expanded:
+            if any(not merge_pieces(pieces) for pieces in alternative.values()):
+                continue
+            key = tuple(sorted((var, iv.to_tuple())
+                               for var, pieces in alternative.items()
+                               for iv in merge_pieces(pieces)))
+            seen.setdefault(key, alternative)
+        alternatives = list(seen.values())
+        if not alternatives:
+            break
+    return alternatives
+
+
 #Traverse the tree and standardize paths based on the discovered nodes
 def standardize(root, all_vars, all_times=None):
     # `all_times` defaults to this formula's own instants. A comparison
@@ -413,6 +462,10 @@ def standardize(root, all_vars, all_times=None):
     # two sides different time domains, which Path_sim's |T1 u T2|
     # denominator then charges as disagreement even when the formulas are
     # equivalent. Canonicalisation plus trimming remove the padding again.
+    if prune_incomplete(root):
+        return []  # every branch was rejected -- L(phi) is empty
+    # After pruning, so an instant only reachable through a dead branch does
+    # not survive as a padded column.
     all_times = set(collect_times(root)) if all_times is None else set(all_times)
 
     def node_own_constraints(node):
@@ -428,33 +481,6 @@ def standardize(root, all_vars, all_times=None):
 
     def is_leaf(node):
         return not node.children
-
-    def explicit_vars_at(timelines, t):
-        # Union of explicitly-constrained variables at time t, across alternative timelines
-        combined = {}
-        for tl in timelines:
-            for var, intervals in tl.get(t, {}).items():
-                combined.setdefault(var, []).extend(intervals)
-        return combined
-
-    def complement_pieces(intervals):
-        # Complement of the union of `intervals` (a witness constraint, possibly a merged
-        # multi-piece signal set), computed exactly via De Morgan: complement(A u B u ...)
-        # = complement(A) n complement(B) n ..., reusing Interval.intersect. This avoids
-        # over-approximating by merging unrelated ranges (e.g. complementing (0,inf) yields
-        # (-inf,0], not the whole real line).
-        per_interval_complements = []
-        for iv in intervals:
-            pieces = []
-            if iv.l != float('-inf'):
-                pieces.append(Interval(float('-inf'), iv.l))
-            if iv.r != float('inf'):
-                pieces.append(Interval(iv.r, float('inf')))
-            per_interval_complements.append(pieces)
-        result = per_interval_complements[0] if per_interval_complements else []
-        for pieces in per_interval_complements[1:]:
-            result = [inter for a in result for b in pieces if (inter := a.intersect(b)) is not None]
-        return result or [Interval(float('-inf'), float('inf'))]
 
     def recurse(node):
         # Returns a list of sparse timelines: [{t: {var: [Interval, ...]}}, ...]
@@ -472,7 +498,12 @@ def standardize(root, all_vars, all_times=None):
                 new_tl = {t: dict(v) for t, v in tl.items()}
                 slot = dict(new_tl.get(node.t, {}))
                 for var, pieces in own.items():
-                    slot.setdefault(var, []).extend(pieces)
+                    # Algorithm 1 line 19: a node's own bound INTERSECTS what
+                    # its child already requires (both must hold at this
+                    # instant) -- appending would read the slot's piece list
+                    # as a union and wrongly widen the region, e.g. turning
+                    # "x<=2 && x>0" into all of R.
+                    slot[var] = intersect_piece_lists(slot[var], pieces) if var in slot else list(pieces)
                 new_tl[node.t] = slot
                 result.append(new_tl)
             return result
@@ -480,56 +511,58 @@ def standardize(root, all_vars, all_times=None):
         # N >= 2 children. STLSAT flattens an n-ary disjunction (A || B || C)
         # into one node with N children rather than nested binary splits, so
         # Definition 4's binary combination rules are generalized here by
-        # associativity of "or" (A || B || C == A || (B || C)). This is done
-        # by classifying all N children by whether each one individually
-        # advances past node.t, ONCE, then combining the two groups -- not by
-        # folding children pairwise left-to-right, which is order-dependent:
-        # if a witness-like and a continuation-like child get folded together
-        # before every witness is grouped, the next fold step overwrites
-        # (rather than accumulates) a witness's own real constraint with a
-        # complement. Classify-then-combine reuses explicit_vars_at and
-        # complement_pieces unchanged (both already operate over lists of
-        # timelines), and is byte-for-byte the same control flow as the
-        # previous N=2-only code when there are exactly 2 children.
-        groups = [recurse(c) for c in node.children]
-        advances = [any(t > node.t for tl in g for t in tl) for g in groups]
+        # associativity of "or" (A || B || C == A || (B || C)).
+        #
+        # Classification is PER TIMELINE, not per child: one child can return
+        # several alternative timelines and only some of them advance, and
+        # marking the whole group as advancing would then hand a witness
+        # timeline to the continuation branch below.
+        timelines = [tl for c in node.children for tl in recurse(c)]
+        advances = [any(t > node.t for t in tl) for tl in timelines]
 
-        if not any(advances):
-            var_sets = [set(explicit_vars_at(g, node.t)) for g in groups]
-            same_single_var = (len(set(map(frozenset, var_sets))) == 1 and len(var_sets[0]) <= 1
-                                and all(len(g) == 1 for g in groups))
-            if same_single_var:
-                # Same variable, same instant -> merge into one path with a list of intervals
-                merged = {t: dict(v) for t, v in groups[0][0].items()}
-                slot = dict(merged.get(node.t, {}))
-                for g in groups[1:]:
-                    for var, ivs in g[0].get(node.t, {}).items():
-                        slot[var] = slot.get(var, []) + ivs
-                merged[node.t] = slot
-                return [merged]
-            return [tl for g in groups for tl in g]  # Different variables -> keep as separate paths
+        if not any(advances) or all(advances):
+            # A plain disjunction at this instant, or several continuations
+            # with no witness among them: either way the alternatives are a
+            # union, which is exactly a list of separate paths. canonicalize()
+            # merges whatever is mergeable, so there is nothing to pre-merge
+            # here.
+            return timelines
 
-        if all(advances):
-            return [tl for g in groups for tl in g]  # No clear witness/continuation relation -> keep separate
-
-        # Some children stay at this instant (witness), others advance in time
-        # (continuation): the continuation implies the witness constraint does
-        # NOT hold yet at this instant.
-        witness_tls = [tl for g, adv in zip(groups, advances) if not adv for tl in g]
-        continue_groups = [g for g, adv in zip(groups, advances) if adv]
-        witness = explicit_vars_at(witness_tls, node.t)
+        # Some alternatives stay at this instant (witness), others advance in
+        # time (continuation): a continuation implies NO witness holds yet.
+        witness_tls = [tl for tl, adv in zip(timelines, advances) if not adv]
+        continue_tls = [tl for tl, adv in zip(timelines, advances) if adv]
+        alternatives = negate_witness_boxes([tl.get(node.t, {}) for tl in witness_tls])
         adjusted = []
-        for g in continue_groups:
-            for tl in g:
+        for tl in continue_tls:
+            for alternative in (alternatives or [{}]):
                 new_tl = {t: dict(v) for t, v in tl.items()}
                 slot = dict(new_tl.get(node.t, {}))
-                for var, ivs in witness.items():
-                    slot[var] = complement_pieces(ivs)
+                for var, complement in alternative.items():
+                    # Intersect, don't overwrite: whatever this instant already
+                    # requires (e.g. an Until's invariant) still has to hold.
+                    slot[var] = (intersect_piece_lists(slot[var], complement)
+                                 if var in slot else list(complement))
                 new_tl[node.t] = slot
                 adjusted.append(new_tl)
         return witness_tls + adjusted
 
     raw = recurse(root)
+    # Drop rejected branches -- the paper's Lemma 4 "Rejected" case, which
+    # Algorithm 1 leaves out because it assumes the tableau contains only
+    # accepted branches. stlsat's DOT does NOT: process_job() writes a node's
+    # children to the graph when it decomposes, before each child is itself
+    # Z3-checked, so a child that later fails the check is already in the
+    # file (as a childless leaf with contradictory bounds). Whole-formula
+    # satisfiability doesn't prevent this -- "(y<-1) && ((y>0) || (y<=0))" is
+    # satisfiable via y<=0, yet its y>0 disjunct is dead on arrival. Since
+    # every constraint is a per-variable interval, a branch admits no signal
+    # exactly when some variable's piece list is empty -- which needs the
+    # endpoints' openness to be right, or "y<0 && y>0" reads as the point
+    # [0,0] instead of nothing and the dead branch survives.
+    raw = [tl for tl in raw
+           if not any(not merge_pieces(pieces)
+                      for slot in tl.values() for pieces in slot.values())]
     final_paths = []
     for tl in raw:
         full = {}
@@ -568,6 +601,14 @@ def resolve_tabex_root(tabex_root=None):
 def run_stlsat(formula, tabex_root=None, extra_args=None):
     # Runs the real stlsat binary (via `cargo run --release`) on `formula`
     # and returns the DOT tableau it writes to --graph-output.
+    #
+    # stlsat's own "Tableau result:" verdict is deliberately NOT read.
+    # prune_incomplete() derives emptiness from the graph instead, which keeps
+    # the extraction independent of a one-line summary of a search whose shape
+    # we are already reading in full. It also means a truncated or
+    # mis-summarised tableau cannot silently empty a real signal space -- the
+    # failure mode that "(x<1) && ((F[2,3](y<2)) || (x>=1))" used to trigger,
+    # reporting UNSAT while the disjunct-swapped twin reported SAT.
     root = resolve_tabex_root(tabex_root)
     args = DEFAULT_STLSAT_ARGS if extra_args is None else extra_args
 
@@ -595,6 +636,7 @@ def generate_signal_space_from_formula(formula, tabex_root=None, extra_args=None
     # but a comparison between two formulas must pass the *joint* sets
     # (Definition 5/6: an axis is active for the comparison if either side
     # constrains it) -- see similarity/stl_similarity.py's calc_similarity_from_formulas.
+    # An unsatisfiable formula falls out of standardize() as an empty list.
     dot_content = run_stlsat(formula, tabex_root, extra_args)
     root = build_tree_from_dot(dot_content)
     if all_vars is None:

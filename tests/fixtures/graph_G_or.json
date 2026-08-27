@@ -1,17 +1,25 @@
 {
+  "vars": [
+    "x",
+    "y"
+  ],
   "paths": [
     {
       "0": {
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -19,13 +27,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -33,13 +45,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -49,13 +65,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -63,13 +83,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -77,13 +101,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -93,13 +121,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -107,13 +139,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -121,13 +157,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -137,13 +177,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -151,13 +195,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -165,13 +213,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -181,13 +233,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -195,13 +251,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -209,13 +269,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -225,13 +289,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -239,13 +307,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -253,13 +325,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -269,13 +345,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -283,13 +363,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -297,13 +381,17 @@
         "x": [
           [
             0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -313,13 +401,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -327,13 +419,17 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -341,20 +437,20 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ],
         "y": [
           [
             3.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
     }
-  ],
-  "vars": [
-    "x",
-    "y"
   ]
 }

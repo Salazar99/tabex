@@ -1,15 +1,16 @@
 {
+  "vars": [
+    "x"
+  ],
   "paths": [
     {
       "0": {
         "x": [
           [
             0.0,
-            0.0
-          ],
-          [
-            0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -17,7 +18,9 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -25,7 +28,41 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            0.0,
+            0.0,
+            false,
+            false
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            -Infinity,
+            Infinity,
+            true,
+            true
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            -Infinity,
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -35,11 +72,9 @@
         "x": [
           [
             -Infinity,
-            0.0
-          ],
-          [
             0.0,
-            0.0
+            true,
+            true
           ]
         ]
       },
@@ -47,11 +82,9 @@
         "x": [
           [
             0.0,
-            0.0
-          ],
-          [
-            0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -59,7 +92,9 @@
         "x": [
           [
             -Infinity,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
@@ -69,11 +104,41 @@
         "x": [
           [
             -Infinity,
-            0.0
-          ],
+            0.0,
+            true,
+            true
+          ]
+        ]
+      },
+      "1": {
+        "x": [
           [
             0.0,
-            0.0
+            0.0,
+            false,
+            false
+          ]
+        ]
+      },
+      "2": {
+        "x": [
+          [
+            -Infinity,
+            Infinity,
+            true,
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            -Infinity,
+            0.0,
+            true,
+            true
           ]
         ]
       },
@@ -81,11 +146,9 @@
         "x": [
           [
             -Infinity,
-            0.0
-          ],
-          [
             0.0,
-            0.0
+            true,
+            true
           ]
         ]
       },
@@ -93,17 +156,44 @@
         "x": [
           [
             0.0,
-            0.0
-          ],
+            Infinity,
+            true,
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "0": {
+        "x": [
+          [
+            -Infinity,
+            0.0,
+            true,
+            true
+          ]
+        ]
+      },
+      "1": {
+        "x": [
+          [
+            -Infinity,
+            0.0,
+            true,
+            true
+          ]
+        ]
+      },
+      "2": {
+        "x": [
           [
             0.0,
-            Infinity
+            0.0,
+            false,
+            false
           ]
         ]
       }
     }
-  ],
-  "vars": [
-    "x"
   ]
 }

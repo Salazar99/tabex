@@ -64,7 +64,7 @@ def test_merge_pieces_collapses_duplicates():
     pieces = [Interval(0, math.inf), Interval(0, math.inf)]
     merged = merge_pieces(pieces)
     assert len(merged) == 1
-    assert merged[0].to_tuple() == (0.0, math.inf)
+    assert merged[0].to_tuple() == (0.0, math.inf, False, True)
 
 
 def test_measure_ignores_duplicate_overlap():
@@ -189,7 +189,7 @@ def test_trim_after_align_matches_paper_worked_example():
     # by cutting: theta's breakpoint at x=0 is not a bend of the region, so
     # canonicalize() drops it and theta's two cells merge into the single
     # unconstrained cell phi already had. phi is never refined up to theta --
-    # see similarity/canon.py's _essential.
+    # see similarity/canon.py's _axis_partition.
     from similarity.stl_similarity import calc_similarity_from_formulas
 
     assert calc_similarity_from_formulas("true", "(x<=0) || (x>=0)", tabex_root=REPO_ROOT) == 1.0
@@ -234,6 +234,37 @@ def test_negated_bounds_are_equivalent_to_plain_bounds():
 
 @pytest.mark.integration
 @pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+@pytest.mark.parametrize("formula,rewritten,why", [
+    ("y<-1", "(y<-1) && ((y>0) || (y<=0))",
+     "dead disjunct: y<-1 && y>0 is a branch stlsat emits but rejects"),
+    ("F[0,0](x<=2)", "(F[0,0](x<=2)) || ((F[0,0](x<=2)) && (x>0))",
+     "absorption: the && conjunct must intersect, not union, into the slot"),
+    ("((x<=2 || y<0) && x>=2)", "(((x<=2 || y<0) && x>=2)) || (((x<=2 || y<0) && x>=2))",
+     "idempotence: merging branches on x must not drop their disagreement on y"),
+    ("F[0,1]((x>1 && x<0))", "(F[0,1]((x>1 && x<0))) && ((y>0) || (y<=0))",
+     "unsatisfiable both sides: stlsat's graph still holds the surviving tautology"),
+    ("F[0,1]((x>0 && y>0) || (x<0 && y<0))",
+     "(F[0,1](x>0 && y>0)) || (F[0,1](x<0 && y<0))",
+     "two witness boxes: negating a pooled per-variable bucket kills both continuations"),
+    ("((y<0) U[1,1] (x>0))", "(((y<0) U[1,1] (x>0))) && ((y>0) || (y<=0))",
+     "closed-only intervals: the dead y<0 && y>0 branch survives as the point [0,0]"),
+    ("(x<1) || (x>1)", "!(x==1)",
+     "a hole at a breakpoint is a genuine bend, not a coarsenable split"),
+    ("F[0,1](F[0,1](((x>-2 || y<-2) && (x<=-2 || y>=-2))))",
+     "F[0,2](((x>-2 || y<-2) && (x<=-2 || y>=-2)))",
+     "nested F over an XOR body: the witness disjunction must distribute"),
+])
+def test_equivalence_preserving_rewrites_score_one(formula, rewritten, why):
+    # Minimal counterexamples from the randomised equivalence sweep
+    # (verify_equivalence.py). Each scored below 1.0 before its fix in
+    # parse_graph.py; `why` names the specific extraction bug.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    assert calc_similarity_from_formulas(formula, rewritten, tabex_root=REPO_ROOT) == 1.0, why
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
 def test_nested_G_in_F_equivalent_to_unfolded_conjunction():
     # F[0,1](G[0,1] x>0) and F[0,1](x>0 && G[1,1] x>0) both reduce to
     # (x(0)>0 && x(1)>0) || (x(1)>0 && x(2)>0). Scored 0.611 before O-marked
@@ -243,3 +274,69 @@ def test_nested_G_in_F_equivalent_to_unfolded_conjunction():
 
     assert calc_similarity_from_formulas(
         "F[0,1](G[0,1](x>0))", "F[0,1](x>0 && G[1,1](x>0))", tabex_root=REPO_ROOT) == 1.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_unsatisfiable_formula_extracts_to_no_paths_without_a_sat_verdict():
+    # stlsat stops expanding a branch once it knows the branch is dead, so its
+    # DOT keeps childless nodes that were never COMPLETED -- here a leaf whose
+    # only formula is still "F[0,1] (x > 1 && x < 0)". Read as an accepted
+    # branch it becomes a fully unconstrained path and this unsatisfiable
+    # formula comes out with a non-empty signal space.
+    from parse_graph import generate_signal_space_from_formula
+
+    paths = generate_signal_space_from_formula(
+        "F[0,1]((x>1) && (x<0)) && ((y>0) || (y<=0))", tabex_root=REPO_ROOT)
+    assert paths == []
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_disjunct_order_does_not_change_the_region():
+    # These two differ only in the order of a disjunction, so they must extract
+    # the same region. The shape is worth pinning: it used to make
+    # tableau_loop() answer UNSAT for the first and SAT for the second, on
+    # identical tableaux, because a later unsatisfiable sibling overwrote a
+    # branch already found satisfiable. The extraction never reads that verdict
+    # -- prune_incomplete() derives emptiness from the graph -- so this held
+    # even while stlsat got it wrong, and it must keep holding.
+    from parse_graph import generate_signal_space_from_formula
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    formula = "(x<1) && ((F[2,3](y<2)) || (x>=1))"
+    swapped = "(x<1) && ((x>=1) || (F[2,3](y<2)))"
+    assert generate_signal_space_from_formula(formula, tabex_root=REPO_ROOT) != []
+    assert calc_similarity_from_formulas(formula, swapped, tabex_root=REPO_ROOT) == 1.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_nested_G_collapse_over_a_dead_disjunct():
+    # G[0,1](G[0,1] P) == G[0,2] P. Here P = (y<=-3 || x>=3) && x<-2, whose
+    # second disjunct is dead against x<-2. That shape used to make stlsat
+    # answer UNSAT for both sides (both are satisfiable, e.g. x=-3, y=-4) and,
+    # having "decided", stop expanding -- leaving a branch that still owed
+    # "G[0,1] G[0,1] P", which standardize() then dropped rather than extract a
+    # partial constraint from an unfinished node. It needs stlsat to unroll the
+    # whole tableau, which is what m_stlsat's graph-output mode now does.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    body = "((y<=-3 || x>=3) && x<-2)"
+    assert calc_similarity_from_formulas(
+        f"G[0,1](G[0,1]{body})", f"G[0,2]{body}", tabex_root=REPO_ROOT) == 1.0
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(not stlsat_available(), reason="cargo/z3 not available")
+def test_a_truncated_branch_is_dropped_not_partially_extracted():
+    # The invariant the above rests on: in a fully unrolled tableau every leaf
+    # carries atoms only (graph_G.dot ends at "x > 0", graph_U.dot at
+    # "x > 0, y > 3"), so a leaf still naming F/G/U is a branch stlsat stopped
+    # expanding. Extracting from it would silently under-constrain the region.
+    from parse_graph import build_tree_from_dot, prune_incomplete
+    from conftest import EXAMPLES_DIR
+
+    for name in ("graph_G.dot", "graph_U.dot", "graph_F_gex.dot"):
+        tree = build_tree_from_dot((EXAMPLES_DIR / name).read_text(encoding="utf-8"))
+        assert not prune_incomplete(tree), f"{name} is complete; nothing may be pruned"

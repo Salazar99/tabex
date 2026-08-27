@@ -8,6 +8,12 @@ A satisfiability checker for Signal Temporal Logic (STL) formulas.
 2. Install Z3 theorem prover: The program requires Z3 executable to be installed in your system: https://github.com/Z3Prover/z3
 3. Install the executables:
 
+```bash
+cargo install --git https://github.com/ZamponiMarco/stlsat.git
+```
+
+This installs three binaries: `stlsat` (main checker), `scanner` (scanner tool), and `rb` (random benchmark tool) to your Cargo bin directory (usually `~/.cargo/bin/`).
+
 ## Running
 
 ### stlsat
@@ -77,3 +83,30 @@ use stlsat::util;
 ```
 
 For API details, refer to the source code.
+
+## Tracing
+
+Parts of the program use the [`tracing`](https://crates.io/crates/tracing) and [`tracing-subscriber`](https://crates.io/crates/tracing-subscriber) crates for structured logging.
+You can configure the logging level by setting the `RUST_LOG` environment variable. For example:
+
+```bash
+RUST_LOG=stlsat=trace cargo run --release -- <args>
+```
+
+will enable trace-level logging for the `stlsat` crate.
+
+By default, logs are output to `stderr` in a human-readable format.
+To change the output format to JSON, you can set the `RUST_LOG_FORMAT` environment variable to `json`:
+
+```bash
+RUST_LOG_FORMAT=json RUST_LOG=stlsat=info cargo run --release -- <args>
+```
+
+The tracing subscriber is configured to log the `CLOSE` events of all spans, which can be useful for performance analysis since it captures the duration of operations.
+However, enabling tracing has a sizeable performance overhead.
+
+The root span includes a field `trace_id` which is a random unique identifier set at the start of the execution.
+The field is inherited by all child spans to facilitate correlation of events belonging to the same execution if a centralized logging system is used.
+
+Another environment variable that is useful for tracing is `STLSAT_SILENT`.
+When set to `1`, the program suppresses standard output of results to prevent cluttering the logs.

@@ -21,6 +21,15 @@ def l_shape_paths():
     return phi1, phi2
 
 
+# These tests build regions directly as Path/Interval boxes rather than going
+# through stlsat, so that they stay unit tests (no cargo/z3 needed). The names
+# below are the STL each hand-built region corresponds to -- they are what the
+# end-of-run similarity report in conftest.py prints, so they have to say what
+# was actually compared.
+L_SHAPE_1 = "(0<=x<=2 && 0<=y<=1) || (0<=x<=1 && 1<=y<=2)"
+L_SHAPE_2 = "(0<=x<=1 && 0<=y<=2) || (1<=x<=2 && 0<=y<=1)"
+
+
 def cell_set(paths):
     return {cell_key(path) for path in paths}
 
@@ -37,9 +46,9 @@ def test_l_shape_canonicalizes_identically_on_both_sides():
 
 def test_l_shape_scores_one_after_canonicalization_but_not_before():
     phi1, phi2 = l_shape_paths()
-    assert compute_similarity(build_volume_from_paths("phi1", phi1),
-                              build_volume_from_paths("phi2", phi2)) == 0.75
-    volume1, volume2 = build_aligned_volumes("phi1", phi1, "phi2", phi2)
+    assert compute_similarity(build_volume_from_paths(L_SHAPE_1, phi1),
+                              build_volume_from_paths(L_SHAPE_2, phi2)) == 0.75
+    volume1, volume2 = build_aligned_volumes(L_SHAPE_1, phi1, L_SHAPE_2, phi2)
     assert compute_similarity(volume1, volume2) == 1.0
 
 
@@ -48,7 +57,7 @@ def test_canonical_form_does_not_depend_on_the_other_formula():
     # it is compared against phi2, against itself, or against nothing.
     phi1, phi2 = l_shape_paths()
     alone = cell_set(canonicalize(phi1))
-    against_other, _ = build_aligned_volumes("phi1", phi1, "phi2", phi2)
+    against_other, _ = build_aligned_volumes(L_SHAPE_1, phi1, L_SHAPE_2, phi2)
     assert cell_set(against_other.volume) == alone
 
 
@@ -67,7 +76,7 @@ def test_tautological_disjunction_coarsens_to_a_single_unconstrained_cell():
     top = [Path({0: {"x": UNDEF}})]
     split = [Path({0: {"x": [Interval(-INF, 0)]}}), Path({0: {"x": [Interval(0, INF)]}})]
     assert cell_set(canonicalize(top)) == cell_set(canonicalize(split))
-    volume1, volume2 = build_aligned_volumes("T", top, "split", split)
+    volume1, volume2 = build_aligned_volumes("true", top, "(x<=0) || (x>=0)", split)
     assert compute_similarity(volume1, volume2) == 1.0
 
 
@@ -75,7 +84,7 @@ def test_genuine_bends_are_kept():
     # Disconnected region and a real half-line boundary must survive.
     gap = [Path({0: {"x": [Interval(0, 1)]}}), Path({0: {"x": [Interval(2, 3)]}})]
     assert len(canonicalize(gap)) == 2
-    assert cell_set(canonicalize([Path({0: {"x": [Interval(-INF, 0)]}})])) == {((0, "x", -INF, 0.0),)}
+    assert cell_set(canonicalize([Path({0: {"x": [Interval(-INF, 0)]}})])) == {((0, "x", -INF, 0.0, True, False),)}
 
 
 # --------------------------------------------------------------------------
@@ -83,18 +92,18 @@ def test_genuine_bends_are_kept():
 # --------------------------------------------------------------------------
 
 def test_subsumed_equality_atom_does_not_split_the_region():
-    # 0<=x<=10  vs  (0<=x<=5) || (x==5) || (5<=x<=10). Without _drop_subsumed
-    # the point cell [5,5] both survives and pins x=5, and the two sides
-    # canonicalize differently.
+    # 0<=x<=10  vs  (0<=x<=5) || (x==5) || (5<=x<=10). Without a true
+    # arrangement the point cell [5,5] both survives and pins x=5, so the two
+    # sides canonicalize differently even though they cover the same region.
     whole = [Path({0: {"x": [Interval(0, 10)]}})]
     with_point = [Path({0: {"x": [Interval(0, 5)]}}),
                   Path({0: {"x": [Interval(5, 5)]}}),
                   Path({0: {"x": [Interval(5, 10)]}})]
-    assert cell_set(canonicalize(with_point)) == cell_set(canonicalize(whole)) == {((0, "x", 0.0, 10.0),)}
+    assert cell_set(canonicalize(with_point)) == cell_set(canonicalize(whole)) == {((0, "x", 0.0, 10.0, False, False),)}
 
 
 def test_isolated_equality_atom_survives():
-    assert cell_set(canonicalize([Path({0: {"x": [Interval(5, 5)]}})])) == {((0, "x", 5.0, 5.0),)}
+    assert cell_set(canonicalize([Path({0: {"x": [Interval(5, 5)]}})])) == {((0, "x", 5.0, 5.0, False, False),)}
     # ... and is still isolated when the rest of the region is far away.
     apart = [Path({0: {"x": [Interval(0, 1)]}}), Path({0: {"x": [Interval(5, 5)]}})]
     assert len(canonicalize(apart)) == 2
@@ -112,8 +121,9 @@ def test_axis_this_formula_never_bounds_is_left_whole():
     theta = [Path({0: {"x": [Interval(-INF, 0)]}, 1: {"x": UNDEF}})]
     canonical_phi = canonicalize(phi)
     assert len(canonical_phi) == 1
-    assert [iv.to_tuple() for iv in canonical_phi[0].timeline[0]["x"]] == [(-INF, INF)]
-    volume_phi, volume_theta = build_aligned_volumes("phi", phi, "theta", theta)
+    assert [iv.to_tuple() for iv in canonical_phi[0].timeline[0]["x"]] == [(-INF, INF, True, True)]
+    volume_phi, volume_theta = build_aligned_volumes(
+        "G[1,1] x>=0", phi, "x<=0 (t=0 only)", theta)
     assert compute_similarity(volume_phi, volume_theta) == 0.0
 
 
@@ -123,12 +133,12 @@ def test_axis_no_formula_bounds_is_never_subdivided():
     for paths in ([p1], [p2]):
         cells = canonicalize(paths)
         assert len(cells) == 1
-        assert [iv.to_tuple() for iv in cells[0].timeline[0]["y"]] == [(-INF, INF)]
+        assert [iv.to_tuple() for iv in cells[0].timeline[0]["y"]] == [(-INF, INF, True, True)]
 
 
 def test_self_canonicalization_reproduces_the_same_box():
     p = Path({0: {"x": [Interval(0, 5)]}})
-    assert cell_set(canonicalize([p])) == {((0, "x", 0.0, 5.0),)}
+    assert cell_set(canonicalize([p])) == {((0, "x", 0.0, 5.0, False, False),)}
 
 
 # --------------------------------------------------------------------------
@@ -145,7 +155,9 @@ def test_tautological_conjunct_at_a_later_instant_scores_one():
                    1: {"x": [Interval(-INF, 0)], "y": [Interval(0, INF)]}}),
              Path({0: {"x": [Interval(0, INF)], "y": UNDEF},
                    1: {"x": [Interval(0, INF)], "y": [Interval(0, INF)]}})]
-    volume1, volume2 = build_aligned_volumes("phi", phi, "theta", theta)
+    volume1, volume2 = build_aligned_volumes(
+        "x>=0 && G[1,1] y>=0", phi,
+        "x>=0 && G[1,1] y>=0 && G[1,1](x<=0||x>=0)", theta)
     assert compute_similarity(volume1, volume2) == 1.0
 
 
@@ -158,7 +170,8 @@ def test_spurious_extra_instant_is_coarsened_then_trimmed():
                    1: {"x": UNDEF, "y": [Interval(0, INF)]}}),
              Path({0: {"x": [Interval(0, INF)], "y": UNDEF},
                    1: {"x": UNDEF, "y": [Interval(-INF, 0)]}})]
-    volume1, volume2 = build_aligned_volumes("phi", phi, "theta", theta)
+    volume1, volume2 = build_aligned_volumes(
+        "x>=0", phi, "x>=0 && G[1,1](y>=0||y<=0)", theta)
     assert compute_similarity(volume1, volume2) == 1.0
 
 
@@ -167,7 +180,8 @@ def test_a_real_extra_constraint_still_scores_below_one():
     # are *not* equivalent, and must not be merged into agreement.
     phi = [Path({0: {"x": [Interval(0, INF)]}, 1: {"x": UNDEF}})]
     theta = [Path({0: {"x": [Interval(0, INF)]}, 1: {"x": [Interval(0, INF)]}})]
-    volume1, volume2 = build_aligned_volumes("phi", phi, "theta", theta)
+    volume1, volume2 = build_aligned_volumes(
+        "x>=0", phi, "x>=0 && G[1,1] x>=0", theta)
     assert compute_similarity(volume1, volume2) < 1.0
 
 
@@ -175,11 +189,15 @@ def test_a_real_extra_constraint_still_scores_below_one():
 # the property soundness rests on
 # --------------------------------------------------------------------------
 
+def _contains(interval, value):
+    return ((value > interval.l if interval.lo else value >= interval.l) and
+            (value < interval.r if interval.ro else value <= interval.r))
+
+
 def _covered(cells, samples):
     return {
         point for point in samples
-        if any(all(cell.timeline[t][var][0].l <= value <= cell.timeline[t][var][0].r
-                   for (t, var), value in point)
+        if any(all(_contains(cell.timeline[t][var][0], value) for (t, var), value in point)
                for cell in cells)
     }
 
@@ -194,3 +212,69 @@ def test_canonicalization_is_lossless():
     grid = [i * 0.5 for i in range(0, 13)]
     samples = [(((0, "x"), a), ((0, "y"), b)) for a in grid for b in grid]
     assert _covered(canonicalize(paths), samples) == _covered(paths, samples)
+
+
+# --- regression guards, one minimal case per fixed bug --------------------
+
+
+def test_open_and_closed_cells_are_not_deduped_together():
+    # cell_key must include endpoint openness. Keyed on (l, r) alone, the
+    # arrangement cell "x in [1,inf)" and "x in (1,inf)" collide and
+    # _fine_cells' seen.setdefault silently discards one of them -- taking a
+    # genuine part of the region with it.
+    closed = Path({0: {"x": [Interval(1, INF)]}})
+    open_ = Path({0: {"x": [Interval(1, INF, lo=True)]}})
+    assert cell_key(closed) != cell_key(open_)
+
+
+def test_a_hole_at_a_breakpoint_is_not_coarsened_away():
+    # "(x<1) || (x>1)" has the SAME cross-section either side of 1 and still
+    # excludes 1. Judging the breakpoint inessential from matching
+    # cross-sections alone returns the whole line and admits x == 1.
+    gap = [Path({0: {"x": [Interval(-INF, 1, ro=True)]}}),
+           Path({0: {"x": [Interval(1, INF, lo=True)]}})]
+    cells = canonicalize(gap)
+    assert len(cells) == 2
+    assert not any(_contains(c.timeline[0]["x"][0], 1.0) for c in cells)
+    # ... while the closed pair really is the whole line
+    covering = [Path({0: {"x": [Interval(-INF, 1)]}}),
+                Path({0: {"x": [Interval(1, INF)]}})]
+    assert cell_set(canonicalize(covering)) == {((0, "x", -INF, INF, True, True),)}
+
+
+def test_boundary_sliver_survives_a_two_axis_union():
+    # "x>=1 && y>-1" and "x>1 && y>=-1" cut at the same breakpoints into cells
+    # that OVERLAP on the interior and each own a different boundary sliver.
+    # Only a true arrangement -- point slabs included -- keeps both, so the
+    # signal x=1, y=-1 stays out while x=1, y=0 stays in.
+    paths = [Path({0: {"x": [Interval(1, INF)], "y": [Interval(-1, INF, lo=True)]}}),
+             Path({0: {"x": [Interval(1, INF, lo=True)], "y": [Interval(-1, INF)]}})]
+    cells = canonicalize(paths)
+
+    def admits(x, y):
+        return any(_contains(c.timeline[0]["x"][0], x) and _contains(c.timeline[0]["y"][0], y)
+                   for c in cells)
+
+    assert admits(1.0, 0.0)      # x>=1 and y>-1
+    assert admits(2.0, -1.0)     # x>1  and y>=-1
+    assert not admits(1.0, -1.0)  # neither box contains the corner
+    assert not admits(0.5, 0.0)
+
+
+def test_canonical_form_does_not_depend_on_axis_order():
+    # Greedy pairwise coalescing is not confluent: merging x first and y first
+    # give two different (both minimal) answers on the L-shape. The canonical
+    # form has to be the product grid, so the same region must come back as
+    # the same cells no matter which axis is nominally "first".
+    l_shape = [Path({0: {"x": [Interval(0, 2)], "y": [Interval(0, 1)]}}),
+               Path({0: {"x": [Interval(0, 1)], "y": [Interval(1, 2)]}})]
+    transposed = [Path({0: {"y": [Interval(0, 2)], "x": [Interval(0, 1)]}}),
+                  Path({0: {"y": [Interval(0, 1)], "x": [Interval(1, 2)]}})]
+
+    def swap_axes(keys):
+        flip = {"x": "y", "y": "x"}
+        return {tuple(sorted((t, flip[v]) + tuple(rest) for (t, v, *rest) in key))
+                for key in keys}
+
+    assert len(canonicalize(l_shape)) == 3
+    assert swap_axes(cell_set(canonicalize(transposed))) == cell_set(canonicalize(l_shape))

@@ -1,13 +1,46 @@
+use std::fmt::Display;
+
 use clap::Parser;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ExecutionMode {
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Default, clap::ValueEnum)]
+pub enum SolverEngine {
+    #[default]
     Tableau,
     Fol,
+    Smt,
+}
+
+impl Display for SolverEngine {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SolverEngine::Tableau => write!(f, "tableau"),
+            SolverEngine::Fol => write!(f, "fol"),
+            SolverEngine::Smt => write!(f, "smt"),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Default, clap::ValueEnum)]
+pub enum SolverStrategy {
+    #[default]
+    Auto,
+    Z3,
+    DL,
+}
+
+impl Display for SolverStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SolverStrategy::Auto => write!(f, "auto"),
+            SolverStrategy::Z3 => write!(f, "z3"),
+            SolverStrategy::DL => write!(f, "dl"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default)]
 pub struct GeneralOptions {
+    pub engine: SolverEngine,
     pub mltl: bool,
     pub smtlib_result: bool,
 }
@@ -15,6 +48,7 @@ pub struct GeneralOptions {
 #[derive(Clone, Debug)]
 pub struct TableauOptions {
     pub max_depth: usize,
+    pub solver: SolverStrategy,
     pub graph_output: Option<String>,
     pub memoization: bool,
     pub simple_first: bool,
@@ -29,6 +63,7 @@ impl Default for TableauOptions {
     fn default() -> Self {
         TableauOptions {
             max_depth: 1000000,
+            solver: SolverStrategy::Auto,
             graph_output: None,
             memoization: true,
             simple_first: true,
@@ -48,9 +83,8 @@ pub struct CliArgs {
     /// Input formula file
     pub formula_file: String,
 
-    /// Enable FOL encoding
-    #[arg(long, default_value_t = false, help_heading = "General Options")]
-    pub fol: bool,
+    #[arg(long, default_value_t = GeneralOptions::default().engine, help_heading = "General Options")]
+    pub engine: SolverEngine,
 
     /// Use MLTL semantics
     #[arg(long, default_value_t = GeneralOptions::default().mltl, help_heading = "General Options")]
@@ -59,6 +93,10 @@ pub struct CliArgs {
     /// Print result in smtlib format
     #[arg(long, default_value_t = GeneralOptions::default().smtlib_result, help_heading = "General Options")]
     pub smtlib_result: bool,
+
+    /// The solver to use
+    #[arg(long, default_value_t = TableauOptions::default().solver, help_heading = "General Options")]
+    pub solver: SolverStrategy,
 
     /// Enable unsat core extraction
     #[arg(long, default_value_t = TableauOptions::default().unsat_core_extraction, help_heading = "Tableau Options")]
@@ -102,24 +140,20 @@ pub enum ConfigSource {
 }
 
 #[must_use]
-pub fn get_config(source: ConfigSource) -> (ExecutionMode, GeneralOptions, TableauOptions, String) {
+pub fn get_config(source: ConfigSource) -> (GeneralOptions, TableauOptions, String) {
     match source {
         ConfigSource::Cli => {
             let args = CliArgs::parse();
 
-            let mode = if args.fol {
-                ExecutionMode::Fol
-            } else {
-                ExecutionMode::Tableau
-            };
-
             let general = GeneralOptions {
+                engine: args.engine,
                 mltl: args.mltl,
                 smtlib_result: args.smtlib_result,
             };
 
             let tableau = TableauOptions {
                 max_depth: args.max_depth,
+                solver: args.solver,
                 graph_output: args.graph_output,
                 memoization: args.memoization,
                 simple_first: args.simple_first,
@@ -129,7 +163,7 @@ pub fn get_config(source: ConfigSource) -> (ExecutionMode, GeneralOptions, Table
                 unsat_core_extraction: args.unsat_core_extraction,
                 trace_extraction: args.trace_extraction,
             };
-            (mode, general, tableau, args.formula_file)
+            (general, tableau, args.formula_file)
         }
     }
 }

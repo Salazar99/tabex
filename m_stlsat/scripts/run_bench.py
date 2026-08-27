@@ -12,7 +12,7 @@ import joblib
 from tabulate import tabulate
 import csv
 
-time_pattern = re.compile(r"Total elapsed time \(s\): ([0-9]+\.[0-9]+)")
+time_pattern = re.compile(r"Total elapsed time \(s\): ([0-9]+(\.|,)[0-9]+)")
 mem_pattern = re.compile(r"Max memory used \(KB\): ([0-9]+)")
 result_pattern = re.compile(r"((sat)|(unsat)|(unknown)|(syntax error))")
 
@@ -35,8 +35,12 @@ def get_stlsat_args(args):
         stlsat_args.append('--no-jump-rule')
     if args.no_formula_simplifications:
         stlsat_args.append('--no-formula-simplifications')
-    if hasattr(args, 'fol') and args.fol:
-        stlsat_args.append('--fol')
+    if hasattr(args, 'engine') and args.engine:
+        stlsat_args.append('--engine')
+        stlsat_args.append(args.engine)
+    if hasattr(args, 'solver') and args.solver:
+        stlsat_args.append('--solver')
+        stlsat_args.append(args.solver)
 
     return stlsat_args
 
@@ -66,6 +70,17 @@ def get_stltree_args(args):
 
     return stltree_args
 
+def time_command(bash_time):
+    if bash_time:
+        return [
+            'bash -c \'time "$@"\' _'
+        ]
+    else:
+        return [
+            time_bin,
+            '-f',
+            '"Total elapsed time (s): %e\nMax memory used (KB): %M"'
+        ]
 
 def caps_command(timeout, max_mem):
     if timeout > 0 or max_mem > 0:
@@ -81,13 +96,14 @@ def caps_command(timeout, max_mem):
             '-p',
             'MemorySwapMax=0' if max_mem > 0 else 'MemorySwapMax=infinity',
             '-p',
-            'RuntimeMaxSec={:d}'.format(timeout) if timeout > 0 else 'RuntimeMaxSec=infinity'
+            'RuntimeMaxSec={:d}'.format(timeout) if timeout > 0 else 'RuntimeMaxSec=infinity',
+            '--setenv=TIMEFORMAT="Total elapsed time (s): %R"' # Only for bash time
         ]
     else:
         return []
 
 def bench_command(fname, args):
-    match args.engine:
+    match args.tool:
         case 'stlsat':
             prog_path = os.path.join(Path(os.path.dirname(__file__)).parent.absolute(), 'target/release/stlsat')
             return [prog_path, '--smtlib-result'] + get_stlsat_args(args) + [fname]
@@ -105,11 +121,7 @@ def exec_bench(fname, args):
 
     command = ' '.join(
         caps_command(args.timeout, args.max_mem)
-        + [
-            time_bin,
-            '-f',
-            '"Total elapsed time (s): %e\nMax memory used (KB): %M"'
-        ]
+        + time_command(args.bash_time)
         + bench_command(fname, args)
     )
 
@@ -143,12 +155,12 @@ def exec_bench(fname, args):
     mem_match = mem_pattern.search(raw_stderr)
     result_match = result_pattern.search(raw_stdout)
     if not result_match:
-        result_match = result_pattern.search(raw_stderr)
-    result = result_match[0] if result_match else 'no result!'
+        return (-1, -1, 'No result!')
+
     return (
-        float(time_match.group(1)),
-        int(mem_match.group(1)),
-        result
+        float(time_match.group(1).replace(',', '.')),
+        int(mem_match.group(1)) if not args.bash_time else -1,
+        result_match[0]
     )
 
 def iter_bench(fname, args):
@@ -204,8 +216,9 @@ def make_arg_parser():
     argp.add_argument('-v', '--verbose', action='count', default=0, help='Show individual benchmark results')
     argp.add_argument('--csv', type=str, default='', help='Output result in CSV format in the specified file')
     argp.add_argument('-b', '--base-path', type=str, default=None, help='Base path for benchmark files')
+    argp.add_argument('--bash-time', action='store_true', help='Use bash time command for timing')
     argp.add_argument('benchmarks', type=str, help='File containing a list of banchmark files, one per line')
-    subparsers = argp.add_subparsers(required=True, dest='engine')
+    subparsers = argp.add_subparsers(required=True, dest='tool')
 
     stlsat_p = subparsers.add_parser('stlsat', help='Use the Rust implementation of the tree-shaped tableau (stlsat)')
     stlsat_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')
@@ -214,7 +227,8 @@ def make_arg_parser():
     stlsat_p.add_argument('--no-formula-optimizations', action='store_true', help='Disable formula optimizations in tableau.')
     stlsat_p.add_argument('--no-jump-rule', action='store_true', help='Disable jump rule in tableau.')
     stlsat_p.add_argument('--no-formula-simplifications', action='store_true', help='Disable syntactic formula simplifications in tableau.')
-    stlsat_p.add_argument('--fol', action='store_true', help='Use FOL satisfiability checker instead of tree-based tableau.')
+    stlsat_p.add_argument('--engine', type=str, help='Choose satisfiability engine (default: tableau). Options: tableau, fol, smt.')
+    stlsat_p.add_argument('--solver', type=str, help='Change the solver for reals used by stlsat (default: z3). Options: auto, z3, dl.')
 
     stlsat_par_p = subparsers.add_parser('stlsat-parallel', help='Run stlsat with tableau and FOL encoding in parallel.')
     stlsat_par_p.add_argument('--mltl', action='store_true', help='Use MLTL semantics for U and R operators.')

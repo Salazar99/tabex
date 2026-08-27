@@ -1,4 +1,3 @@
-use std::collections::BTreeSet;
 use std::vec;
 
 use crate::formula::Formula;
@@ -263,13 +262,6 @@ impl Tableau {
             node.current_time
         );
 
-        // Node where R is satisfied now
-        let mut new_node1 = node.clone();
-        new_node1.operands[i] = right.temporal_expansion(node.current_time, None);
-        new_node1
-            .operands
-            .insert(i, left.temporal_expansion(node.current_time, None));
-
         // Node in which R is not satisfied now (OR, q)
         let mut new_node2 = node.clone();
         new_node2.operands[i] = right.temporal_expansion(node.current_time, Some(r_formula.id));
@@ -279,44 +271,26 @@ impl Tableau {
                 .insert(i, r_formula.clone().with_marked(true));
         }
 
-        vec![new_node1, new_node2]
+        if node.current_time < interval.upper {
+            // Node where R is satisfied now (p, q)
+            let mut new_node1 = node.clone();
+            new_node1.operands[i] = right.temporal_expansion(node.current_time, None);
+            new_node1
+                .operands
+                .insert(i, left.temporal_expansion(node.current_time, None));
+            vec![new_node1, new_node2]
+        } else {
+            vec![new_node2]
+        }
     }
 
     #[must_use]
     pub fn decompose_jump(&self, node: &Node) -> Option<Vec<Node>> {
-        fn sorted_time_instants(node: &Node) -> BTreeSet<i32> {
-            fn top_level_interval(formula: &NodeFormula, node: &Node) -> Option<Vec<i32>> {
-                match &formula.kind {
-                    Formula::G { interval, .. } | Formula::R { interval, .. }
-                        if !formula.is_parent_active_in(node) =>
-                    {
-                        Some(vec![interval.lower, interval.upper])
-                    }
-                    Formula::F { interval, .. } | Formula::U { interval, .. } => {
-                        Some(vec![interval.lower, interval.upper])
-                    }
-                    _ => None,
-                }
-            }
-
-            node.operands
-                .iter()
-                .filter_map(|f| top_level_interval(f, node))
-                .flatten()
-                .collect()
-        }
-
         // Select jump length
         let jump = if !self.tableau_options.jump_rule_enabled {
             1
-        } else if let Some(target_time) = sorted_time_instants(node)
-            .into_iter()
-            .find(|&t| t > node.current_time)
-        {
-            let max_jump = target_time - node.current_time;
-            node.calculate_k_star(max_jump)
         } else {
-            return None;
+            node.calculate_k_star()
         };
 
         // Retain only temporal operators
@@ -325,7 +299,7 @@ impl Tableau {
             .iter()
             .filter_map(|op| {
                 if let Some(interval) = op.kind.get_interval()
-                    && node.current_time < interval.upper
+                    && node.current_time + jump <= interval.upper
                 {
                     Some(op.clone().with_marked(false))
                 } else {

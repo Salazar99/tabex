@@ -21,8 +21,11 @@ from parse_graph import (
 
 def value_in_pieces(value, pieces):
     # A slot's interval list is read as a union: `value` satisfies the slot
-    # if it falls inside any one piece.
-    return any(iv.l <= value <= iv.r for iv in pieces)
+    # if it falls inside any one piece. Endpoints carry their own openness, so
+    # "x > 0" excludes 0 while "x >= 0" includes it.
+    return any((value > iv.l if iv.lo else value >= iv.l) and
+               (value < iv.r if iv.ro else value <= iv.r)
+               for iv in pieces)
 
 
 def signal_space_from_dot_fixture(dot_name):
@@ -35,15 +38,17 @@ def signal_space_from_dot_fixture(dot_name):
 def test_G_requires_the_atom_at_every_instant_in_bound():
     # G[0,2] x > 0 means x(t) > 0 for ALL t in [0,2]. No disjunction/eventuality
     # choice point exists in this formula, so there should be exactly one path,
-    # and it must require x in (0, inf) at every one of t=0,1,2 -- nothing more,
-    # nothing less.
+    # and it must require x in (0, inf) -- OPEN at 0, so x=0 does not satisfy
+    # it -- at every one of t=0,1,2, nothing more, nothing less.
     paths = signal_space_from_dot_fixture("graph_G.dot")
     assert len(paths) == 1
     path = paths[0]
     assert set(path.timeline.keys()) == {0, 1, 2}
     for t in (0, 1, 2):
         pieces = path.timeline[t]["x"]
-        assert all(iv.to_tuple() == (0.0, math.inf) for iv in pieces)
+        assert all(iv.to_tuple() == (0.0, math.inf, True, True) for iv in pieces)
+        assert not value_in_pieces(0.0, pieces)
+        assert value_in_pieces(0.5, pieces)
 
 
 def test_F_partitions_into_disjoint_earliest_witness_paths():
@@ -79,23 +84,27 @@ def test_F_partitions_into_disjoint_earliest_witness_paths():
     assert not any(in_path(p, never_satisfied) for p in paths)
 
 
-def test_disjunction_merge_produces_a_correct_union_not_intersection():
-    # F[0,2] (x>0 || x==0) is semantically F[0,2] x>=0. At the disjunction's
-    # choice point, standardize() merges the two sibling branches (x>0, x==0)
-    # into ONE path whose slot is a *list* of two Interval pieces -- this only
-    # matches the formula if that list means union (either piece satisfies),
-    # not intersection.
+def test_disjunction_branches_are_a_union_not_an_intersection():
+    # F[0,2] (x>0 || x==0) is semantically F[0,2] x>=0. The disjunction's two
+    # sibling branches (x>0, x==0) stay SEPARATE alternatives -- the region is
+    # their union -- so a value satisfying either disjunct must appear in some
+    # path, and a value satisfying neither must appear in none.
     paths = signal_space_from_dot_fixture("graph_F_g_or_eqx.dot")
-    witness_path = next(
-        p for p in paths
-        if value_in_pieces(0.0, p.timeline[0]["x"]) and value_in_pieces(2.0, p.timeline[0]["x"])
-    )
-    pieces = witness_path.timeline[0]["x"]
-    assert len(pieces) == 2
 
-    assert value_in_pieces(0.0, pieces)      # satisfies via the x==0 disjunct
-    assert value_in_pieces(2.0, pieces)      # satisfies via the x>0 disjunct
-    assert not value_in_pieces(-1.0, pieces)  # satisfies neither disjunct -> correctly excluded
+    def witnessed_at_0(value):
+        return any(value_in_pieces(value, p.timeline[0]["x"]) for p in paths)
+
+    assert witnessed_at_0(0.0)       # satisfies via the x==0 disjunct
+    assert witnessed_at_0(2.0)       # satisfies via the x>0 disjunct
+    # -1 satisfies neither disjunct, so no path may accept it as the witness
+    # at t=0 while ALSO leaving the later instants unconstrained.
+    witness_paths = [p for p in paths if value_in_pieces(-1.0, p.timeline[0]["x"])]
+    for path in witness_paths:
+        assert any(not _unconstrained(path.timeline[t]["x"]) for t in (1, 2))
+
+
+def _unconstrained(pieces):
+    return len(pieces) == 1 and pieces[0].l == -math.inf and pieces[0].r == math.inf
 
 
 @pytest.mark.integration
@@ -117,7 +126,10 @@ def test_conjunction_on_one_node_is_correctly_intersected():
     assert len(paths) == 1
     for t in (0, 1, 2):
         pieces = paths[0].timeline[t]["x"]
-        assert all(iv.to_tuple() == (0.0, 5.0) for iv in pieces)
+        # (0,5): OPEN at both ends, so neither 0 nor 5 satisfies it.
+        assert all(iv.to_tuple() == (0.0, 5.0, True, True) for iv in pieces)
+        assert not value_in_pieces(0.0, pieces)
+        assert value_in_pieces(2.5, pieces)
 
 
 def test_negated_atoms_flip_their_operator_instead_of_being_dropped():
@@ -126,14 +138,20 @@ def test_negated_atoms_flip_their_operator_instead_of_being_dropped():
     # "!" isn't handled the clause matches no atom pattern and is silently
     # discarded, leaving the variable fully unconstrained -- so "!(x<0)" would
     # read as "any x" rather than "x >= 0".
+    # The flip also flips strictness: not(x < 0) is x >= 0, CLOSED at 0,
+    # while not(x <= 0) is x > 0, open at 0.
     INF = math.inf
-    assert canonical_atoms("(!x < 0)")["x"][0].to_tuple() == (0.0, INF)
-    assert canonical_atoms("(!x <= 0)")["x"][0].to_tuple() == (0.0, INF)
-    assert canonical_atoms("(!x > 0)")["x"][0].to_tuple() == (-INF, 0.0)
-    assert canonical_atoms("(!x >= 0)")["x"][0].to_tuple() == (-INF, 0.0)
-    # Negating "==" gives "!=", which is a *union* of two half-lines, so a
-    # constraint has to be a list of pieces rather than a single interval.
-    assert [iv.to_tuple() for iv in canonical_atoms("(!x == 5)")["x"]] == [(-INF, 5.0), (5.0, INF)]
+    assert canonical_atoms("(!x < 0)")["x"][0].to_tuple() == (0.0, INF, False, True)
+    assert canonical_atoms("(!x <= 0)")["x"][0].to_tuple() == (0.0, INF, True, True)
+    assert canonical_atoms("(!x > 0)")["x"][0].to_tuple() == (-INF, 0.0, True, False)
+    assert canonical_atoms("(!x >= 0)")["x"][0].to_tuple() == (-INF, 0.0, True, True)
+    # Negating "==" gives "!=", which is a *union* of two OPEN half-lines --
+    # so a constraint has to be a list of pieces rather than a single interval,
+    # and the two pieces must not merge back into the whole line.
+    assert [iv.to_tuple() for iv in canonical_atoms("(!x == 5)")["x"]] == [
+        (-INF, 5.0, True, True),
+        (5.0, INF, True, True),
+    ]
 
 
 def test_negated_bounds_reconstruct_the_same_interval_as_plain_ones():
@@ -142,7 +160,7 @@ def test_negated_bounds_reconstruct_the_same_interval_as_plain_ones():
     pieces = canonical_atoms("(!x < 0)")["x"]
     other = canonical_atoms("(!x > 10)")["x"]
     combined = intersect_piece_lists(pieces, other)
-    assert [iv.to_tuple() for iv in combined] == [(0.0, 10.0)]
+    assert [iv.to_tuple() for iv in combined] == [(0.0, 10.0, False, False)]
 
 
 def test_deferred_obligation_asserts_nothing_at_its_own_instant():
@@ -156,7 +174,7 @@ def test_deferred_obligation_asserts_nothing_at_its_own_instant():
     assert canonical_atoms("OG[0,2] x > 0") == {}
     assert canonical_atoms("O(x > 0 U[0,4] (y > 3))") == {}
     # G asserts its body now (persistence); F does not (it splits).
-    assert canonical_atoms("G[0,2] x > 0")["x"][0].to_tuple() == (0.0, math.inf)
+    assert canonical_atoms("G[0,2] x > 0")["x"][0].to_tuple() == (0.0, math.inf, True, True)
     assert canonical_atoms("F[0,2] x >= 0") == {}
 
 
@@ -165,21 +183,23 @@ def test_nested_conjunction_is_not_mis_split_on_a_nested_disjunction():
     # is a disjunction this node doesn't own, but "x > 0" beside it is a real
     # top-level conjunct and must survive.
     atoms = canonical_atoms("(x > 0 && (y > 1 || y < -1))")
-    assert atoms["x"][0].to_tuple() == (0.0, math.inf)
+    assert atoms["x"][0].to_tuple() == (0.0, math.inf, True, True)
     assert "y" not in atoms
 
 
-def test_n_ary_disjunction_merges_all_branches_not_just_a_pair():
+def test_n_ary_disjunction_covers_every_branch_not_just_a_pair():
     # (x>=0 && x<=5) || (x==5 || (x>=5 && x<=10)) is semantically x in [0,10].
     # STLSAT flattens this 3-way "||" into ONE tableau node with 3 children
     # (not nested binary splits), so this exercises standardize()'s N-ary
-    # generalization of the same-instant/same-variable merge rule -- if it
-    # silently dropped a branch instead of unioning all of them, this would
-    # wrongly exclude part of [0,10].
+    # handling: each branch stays a separate alternative and the region is
+    # their union. If a branch were silently dropped, part of [0,10] would go
+    # missing; if the branches were intersected instead, almost all of it would.
     paths = signal_space_from_dot_fixture("graph_or3.dot")
-    assert len(paths) == 1
-    pieces = paths[0].timeline[0]["x"]
+
+    def covered(value):
+        return any(value_in_pieces(value, p.timeline[0]["x"]) for p in paths)
+
     for value in (0.0, 2.5, 5.0, 7.5, 10.0):
-        assert value_in_pieces(value, pieces)
-    assert not value_in_pieces(-0.1, pieces)
-    assert not value_in_pieces(10.1, pieces)
+        assert covered(value), f"{value} is in [0,10] but no branch admits it"
+    assert not covered(-0.1)
+    assert not covered(10.1)

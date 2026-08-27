@@ -1,15 +1,16 @@
 {
+  "vars": [
+    "x"
+  ],
   "paths": [
     {
       "0": {
         "x": [
           [
             0.0,
-            Infinity
-          ],
-          [
-            0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -17,11 +18,9 @@
         "x": [
           [
             0.0,
-            Infinity
-          ],
-          [
-            0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       },
@@ -29,17 +28,12 @@
         "x": [
           [
             0.0,
-            Infinity
-          ],
-          [
-            0.0,
-            Infinity
+            Infinity,
+            true,
+            true
           ]
         ]
       }
     }
-  ],
-  "vars": [
-    "x"
   ]
 }

@@ -140,9 +140,11 @@ impl Tableau {
     }
 
     fn solve_root(&mut self, root: Node) -> Option<bool> {
-        let mut solver = Solver::new(
+        let mut solver = Solver::factory(
             self.tableau_options.unsat_core_extraction,
             self.options.mltl,
+            self.tableau_options.solver,
+            &root,
         );
         solver.push();
 
@@ -192,8 +194,6 @@ impl Tableau {
         });
 
         while let Some(mut job) = stack.pop_front() {
-            println!("Processing node: {:?}\n", job.node);
-
             // Case 1: no more children — finalize frame
             let Some(child) = job.children.pop_front() else {
                 // Case 1.1: no parent — done
@@ -229,7 +229,14 @@ impl Tableau {
                                 trace.reset();
                             }
                         } else {
-                            //parent.children.clear();
+                            // Stopping at the first satisfying branch is right
+                            // for a SAT answer, but it truncates the graph.
+                            // TABEX consumes the WHOLE tableau -- every branch
+                            // is a disjunct of the signal space -- so keep
+                            // expanding whenever a graph is being written.
+                            if self.graph.is_none() {
+                                parent.children.clear();
+                            }
                             if let Some(trace) = &mut self.trace_builder
                                 && job.node.is_poised()
                             {
@@ -261,14 +268,23 @@ impl Tableau {
             match outcome {
                 // Case 2.1: child has result — handle and re-push job
                 JobOutcome::Final(res) => {
+                    // Merge, don't assign -- Case 1.2 above already does.
+                    // Assigning lets a later unsatisfiable sibling clobber a
+                    // branch this node already found satisfiable. That is
+                    // normally masked by the children.clear() below (nothing
+                    // comes after the first Sat), but exporting the whole
+                    // tableau removes the early exit and unmasks it.
+                    job.result = merge_results(job.result, res, implies);
                     match res {
                         JobState::Sat if !implies => {
-                            //job.children.clear();
-                            job.result = Some(JobState::Sat);
+                            // Keep the siblings when the tableau is being
+                            // exported as a graph: every branch is a disjunct
+                            // of the signal space TABEX reads back.
+                            if self.graph.is_none() {
+                                job.children.clear();
+                            }
                         }
-                        JobState::Undefined => job.result = Some(JobState::Undefined),
                         JobState::Unsat => {
-                            job.result = Some(JobState::Unsat);
                             if job.node.implies.is_some() {
                                 job.children.clear();
                             }

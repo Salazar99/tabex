@@ -1,18 +1,33 @@
 """Canonical box decomposition of a formula's signal space.
 
-Replaces the previous pairwise `align(P(phi), P(theta))` with a *unary*
-`canonicalize(P(phi))` that depends only on the region S_phi = union of
-P(phi), never on the formula it is being compared against. Two tableaux that
-cut the same region into different boxes therefore canonicalize to the same
-object, which is what the L-shaped example of the paper needs -- without the
-joint grid, and without the `_own_constrained_axes` /
-`_globally_unconstrained_vars` gates the joint grid forced.
+`canonicalize(P(phi))` is *unary*: it depends only on the region
+S_phi = union of P(phi), never on the formula it is being compared against.
+Two tableaux that cut the same region into different boxes therefore
+canonicalize to the same object, which is what the L-shaped example of the
+paper needs -- without a joint grid, and without the `_own_constrained_axes` /
+`_globally_unconstrained_vars` gates a joint grid would force.
 
-Soundness (G(phi,theta) = 1 => phi == theta) rests on exactly one property
-of this module: canonicalisation is lossless, i.e. the union of the returned
-cells is the region it started from. Coarsening (step 3-4) is the only step
-that could enlarge a cell, and it is admitted only across breakpoints the
-region is prismatic at, so it cannot.
+Soundness (G(phi,theta) = 1 => phi == theta) rests on exactly one property of
+this module: canonicalisation is lossless, i.e. the union of the returned cells
+is the region it started from.
+
+Two invariants make that work, and both are easy to break:
+
+1. `_fine_cells` must be a genuine ARRANGEMENT -- the cells must partition the
+   region. Cutting a piece at `b` into "..,b)" and "[b,..)" partitions a single
+   box but NOT a union of boxes that disagree about whether `b` itself is in:
+   "x>=1 && y>-1" and "x>1 && y>=-1" then yield two cells that overlap on the
+   interior and each own a different boundary sliver. So the cut also emits the
+   point slab [b,b]: the arrangement of R induced by b1<..<bk is
+   (-inf,b1), [b1,b1], (b1,b2), [b2,b2], ..., (bk,inf).
+
+2. The coarse form must be a PRODUCT GRID, not a greedy merge. Greedy pairwise
+   coalescing is not confluent -- on the L-shape, merging x first and y first
+   give two different (both minimal) answers, so the "canonical" form would
+   depend on axis order. `_axis_partition` instead computes, per axis and once
+   from the fine arrangement, the maximal runs of adjacent atoms carrying the
+   same cross-section. Those runs do not depend on any traversal order, so
+   their product is a grid.
 
 Output has the same structure as standardize()'s: list[Path], each
 Path.timeline = {t: {var: [Interval]}}, with exactly one interval per slot
@@ -26,16 +41,41 @@ INF = float("inf")
 
 
 def _cut_piece(piece, cuts):
-    """Subdivide `piece` at every breakpoint strictly inside it."""
+    """Subdivide `piece` into the arrangement atoms induced by `cuts`.
+
+    Emits the point slab [b,b] at every breakpoint the piece contains, so the
+    result partitions the piece even when a neighbouring box is open where this
+    one is closed. Without the point slabs the fine cells overlap and every
+    later step -- which assumes a partition -- quietly goes wrong.
+    """
     inside = sorted(b for b in cuts if piece.l < b < piece.r)
-    edges = [piece.l] + inside + [piece.r]
-    return [Interval(edges[i], edges[i + 1]) for i in range(len(edges) - 1)]
+    atoms = []
+    lo, lo_open = piece.l, piece.lo
+    for b in inside:
+        atoms.append(Interval(lo, b, lo_open, True))
+        atoms.append(Interval(b, b))
+        lo, lo_open = b, True
+    atoms.append(Interval(lo, piece.r, lo_open, piece.ro))
+    # A closed own endpoint sitting exactly on a breakpoint is an atom too.
+    if not piece.lo and piece.l in cuts and piece.l != piece.r:
+        head = atoms[0]
+        atoms[0] = Interval(head.l, head.r, True, head.ro)
+        atoms.insert(0, Interval(piece.l, piece.l))
+    if not piece.ro and piece.r in cuts and piece.l != piece.r:
+        tail = atoms[-1]
+        atoms[-1] = Interval(tail.l, tail.r, tail.lo, True)
+        atoms.append(Interval(piece.r, piece.r))
+    return [iv for iv in atoms if not iv.is_empty()]
 
 
 def cell_key(cell):
-    """Structural identity of a cell, for deduplication and comparison."""
+    """Structural identity of a cell, for deduplication and comparison.
+
+    Endpoint openness is part of the identity: without it "(1,inf)" and
+    "[1,inf)" collide and one of them is silently deduped away.
+    """
     return tuple(sorted(
-        (t, var, iv.l, iv.r)
+        (t, var) + iv.to_tuple()
         for t, slot in cell.timeline.items()
         for var, ivs in slot.items()
         for iv in ivs
@@ -66,7 +106,7 @@ def _breakpoints(paths):
 def _fine_cells(paths, breakpoints):
     """The arrangement cells over B that lie inside the region.
 
-    A grid cell over B is either inside a box or disjoint from it, since every
+    An arrangement atom is either inside a box or disjoint from it, since every
     box boundary is itself in B. So cutting each box at B and deduplicating
     yields precisely that arrangement -- no need to enumerate the full
     cross-axis grid, the overwhelming majority of which is outside the region.
@@ -76,58 +116,26 @@ def _fine_cells(paths, breakpoints):
         axes = []
         for t in sorted(path.timeline):
             for var in sorted(path.timeline[t]):
-                subpieces = []
+                atoms = []
                 # Merge first: a slot's raw pieces can overlap (e.g. [0,inf)
                 # and a degenerate [0,0] from an earlier union), and cutting
                 # those separately fabricates extra alternatives.
                 for piece in merge_pieces(path.timeline[t][var]):
-                    subpieces.extend(_cut_piece(piece, breakpoints.get((t, var), ())))
-                axes.append((t, var, subpieces))
+                    atoms.extend(_cut_piece(piece, breakpoints.get((t, var), ())))
+                axes.append((t, var, atoms))
         cells = [{}]
-        for t, var, subpieces in axes:
-            cells = [{**c, t: {**c.get(t, {}), var: [sub]}} for c in cells for sub in subpieces]
+        for t, var, atoms in axes:
+            cells = [{**c, t: {**c.get(t, {}), var: [atom]}} for c in cells for atom in atoms]
         for c in cells:
             cell = Path(c)
             seen.setdefault(cell_key(cell), cell)
     return list(seen.values())
 
 
-def _drop_subsumed(cells):
-    """Delete grid cells contained in another grid cell.
-
-    Fat grid cells have disjoint interiors, so this can only ever fire on a
-    cell that is degenerate (a point) on some axis -- one contributed by an
-    "==" atom that a wider box already covers. Left in place such a cell both
-    adds a spurious element to the decomposition and pins a breakpoint the
-    region does not bend at, so `0<=x<=10` and
-    `(0<=x<=5) || (x==5) || (5<=x<=10)` would not canonicalise alike.
-    Cutting first is what makes pairwise containment sufficient: a point cell
-    in the grid is either inside a single grid cell or genuinely its own
-    region.
-    """
-    # ponytail: O(n^2), but short-circuited to a no-op unless an "==" atom
-    # produced a degenerate cell. Index by projection if that stops holding.
-    def box(cell):
-        return {(t, var): ivs[0] for t, slot in cell.timeline.items() for var, ivs in slot.items()}
-
-    boxes = [box(c) for c in cells]
-    if not any(iv.l == iv.r for b in boxes for iv in b.values()):
-        return cells
-    kept = []
-    for i, bi in enumerate(boxes):
-        if not any(
-            j != i and all(o.l <= bi[k].l and bi[k].r <= o.r for k, o in bj.items())
-            and (bi != bj or j < i)
-            for j, bj in enumerate(boxes)
-        ):
-            kept.append(cells[i])
-    return kept
-
-
 def _projection(cell, axis):
     """The cell with `axis` projected out -- its cross-section coordinates."""
     return tuple(sorted(
-        (t, var, iv.l, iv.r)
+        (t, var) + iv.to_tuple()
         for t, slot in cell.timeline.items()
         for var, ivs in slot.items()
         for iv in ivs
@@ -135,55 +143,45 @@ def _projection(cell, axis):
     ))
 
 
-def _essential(cells, axis, candidates):
-    """Breakpoints the region actually bends at.
+def _axis_partition(cells, axis):
+    """Maximal runs of adjacent atoms carrying the same cross-section.
 
-    `b` is inessential when the region's cross-section just below `b` equals
-    the one just above it: the split at `b` is then an artifact of how this
-    particular tableau happened to branch, not a feature of the region, and
-    two decompositions of one region disagree on exactly such breakpoints.
-    Because `cells` is the full grid over B, comparing the two cross-sections
-    as sets of cell projections is the same as comparing them as regions.
+    A run may be collapsed because the region is prismatic across it: the
+    cross-section does not change, so the split is an artifact of how this
+    particular tableau happened to branch. Two decompositions of one region
+    disagree on exactly such splits.
 
-    A point slab {b} left over after _drop_subsumed is a genuine isolated
-    feature (e.g. a lone `x == 5`), so it pins `b`.
+    Computed once, from the fine arrangement, independently per axis -- that is
+    what makes the product of these partitions a canonical grid rather than an
+    order-dependent greedy merge. A hole needs no special case: "(x<1)||(x>1)"
+    simply has no [1,1] atom, and two atoms open at 1 do not touch.
     """
     t0, v0 = axis
-    ends, starts, degenerate = {}, {}, set()
+    fibres = {}
     for cell in cells:
         iv = cell.timeline[t0][v0][0]
-        if iv.l == iv.r:
-            degenerate.add(iv.l)
-            continue
-        ends.setdefault(iv.r, set()).add(_projection(cell, axis))
-        starts.setdefault(iv.l, set()).add(_projection(cell, axis))
-    keep = set()
-    for b in candidates:
-        below, above = ends.get(b), starts.get(b)
-        if b in degenerate or below is None or above is None or below != above:
-            keep.add(b)
-    return keep
+        fibres.setdefault(iv.to_tuple(), set()).add(_projection(cell, axis))
+    atoms = sorted(fibres, key=lambda key: (key[0], key[2]))
+    current, current_fibre, partition = Interval(*atoms[0]), fibres[atoms[0]], []
+    for key in atoms[1:]:
+        iv = Interval(*key)
+        touching = iv.l == current.r and not (iv.lo and current.ro)
+        if touching and fibres[key] == current_fibre:
+            current = Interval(current.l, iv.r, current.lo, iv.ro)
+        else:
+            partition.append(current)
+            current, current_fibre = iv, fibres[key]
+    partition.append(current)
+    return partition
 
 
-def _coarsen(cell, essential):
-    """Widen every axis interval to the enclosing interval of the coarse grid.
-
-    No containment test is needed: the region is prismatic across every
-    dropped breakpoint, so a coarse cell is either entirely inside the region
-    or entirely outside it. That is what makes this lossless, and losslessness
-    is what soundness rests on.
-    """
-    timeline = {}
-    for t, slot in cell.timeline.items():
-        new_slot = {}
-        for var, ivs in slot.items():
-            iv = ivs[0]
-            edges = essential.get((t, var), ())
-            lo = max((e for e in edges if e <= iv.l), default=-INF)
-            hi = min((e for e in edges if e >= iv.r), default=INF)
-            new_slot[var] = [Interval(lo, hi)]
-        timeline[t] = new_slot
-    return Path(timeline)
+def _slab_of(partition, iv):
+    for slab in partition:
+        starts_within = slab.l < iv.l or (slab.l == iv.l and (iv.lo or not slab.lo))
+        ends_within = iv.r < slab.r or (iv.r == slab.r and (iv.ro or not slab.ro))
+        if starts_within and ends_within:
+            return slab
+    return iv
 
 
 def canonicalize(paths):
@@ -196,10 +194,16 @@ def canonicalize(paths):
     if not paths:
         return []
     breakpoints = _breakpoints(paths)
-    fine = _drop_subsumed(_fine_cells(paths, breakpoints))
-    essential = {axis: _essential(fine, axis, cands) for axis, cands in breakpoints.items()}
-    seen = {}
+    fine = _fine_cells(paths, breakpoints)
+    partitions = {axis: _axis_partition(fine, axis) for axis in breakpoints}
+    canonical = {}
     for cell in fine:
-        coarse = _coarsen(cell, essential)
-        seen.setdefault(cell_key(coarse), coarse)
-    return list(seen.values())
+        timeline = {}
+        for t, slot in cell.timeline.items():
+            for var, ivs in slot.items():
+                axis = (t, var)
+                coarse = _slab_of(partitions[axis], ivs[0]) if axis in partitions else ivs[0]
+                timeline.setdefault(t, {})[var] = [coarse]
+        coarse_cell = Path(timeline)
+        canonical.setdefault(cell_key(coarse_cell), coarse_cell)
+    return list(canonical.values())
