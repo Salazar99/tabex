@@ -7,6 +7,7 @@ implementation, which consumed dotparser/input_creator.py's output.
 """
 import argparse
 import sys
+from fractions import Fraction
 from pathlib import Path as FilePath
 
 sys.path.insert(0, str(FilePath(__file__).resolve().parent.parent))
@@ -28,12 +29,13 @@ UNDEFINED = [Interval(float("-inf"), float("inf"))]
 
 
 def measure(pieces):
-    total = 0.0
+    # Endpoints are exact rationals, so lengths are computed exactly and only
+    # the Jaccard ratio at the end is turned into a float.
+    total = Fraction(0)
     for iv in merge_pieces(pieces):
-        length = iv.r - iv.l
-        if length == float("inf"):
+        if iv.l == float("-inf") or iv.r == float("inf"):
             return float("inf")
-        total += length
+        total += iv.r - iv.l
     return total
 
 
@@ -82,7 +84,9 @@ def point_sim_d(pieces1, pieces2, D):
     if intersection == 0:
         return 0.0
     union = measure(union_pieces(t1, t2))
-    return intersection / union if union > 0 else 0.0
+    # float() at the boundary: the ratio is exact, the score is reported as a
+    # float so callers and "== 1.0" comparisons behave as before.
+    return float(intersection / union) if union > 0 else 0.0
 
 
 def _finite_bounds(volumes):
@@ -101,7 +105,7 @@ def default_D(volumes, margin=1.0):
     # Well-formedness (preliminaries.tex): D must exceed every finite bound
     # occurring in either formula, so this is derived rather than guessed.
     bounds = list(_finite_bounds(volumes))
-    return (max(bounds) if bounds else 0.0) + margin
+    return (max(bounds) if bounds else Fraction(0)) + Fraction(str(margin))
 
 
 def path_similarity(path1, path2, all_vars, D):

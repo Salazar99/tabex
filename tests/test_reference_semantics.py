@@ -9,6 +9,7 @@ a failure in this file.
 The unit tests need no cargo/z3: they exercise the definition on its own.
 """
 import math
+from fractions import Fraction
 
 import pytest
 
@@ -189,22 +190,30 @@ def test_tableau_agrees_with_the_definition(formula):
 # could never see that it collapsed rationals to binary64. The reference now
 # owns its atom layer, and each side is checked separately.
 
-@pytest.mark.parametrize("text,why", [
-    ("x > 1/3", "1/3 has no exact binary64 form, so the region would denote "
-                "{x : x > float(1/3)} -- a different set of reals"),
-    ("x > 10000000000000000001", "integers past 2**53 collapse likewise"),
+@pytest.mark.parametrize("text,expected", [
+    ("x > 1/3", Fraction(1, 3)),
+    ("x > 0.1", Fraction(1, 10)),
+    ("x > 10000000000000000001", Fraction(10000000000000000001)),
 ])
-def test_inexact_constants_are_refused(text, why):
-    # Left silent, two DISTINCT formulas could produce the SAME region, which
-    # is exactly the failure of Corollary A1's reverse direction.
-    with pytest.raises(UnsupportedFormula):
-        parse(text)
+def test_constants_are_kept_exact(text, expected):
+    # Rounding to binary64 would make the region denote {x : x > float(c)} --
+    # a DIFFERENT subset of the reals than the atom does (Lemma 3), and would
+    # let two distinct endpoints collapse onto one breakpoint, which is what
+    # Lemma 7's dichotomy forbids.
+    formula = parse(text)
+    assert evaluate(formula, 0)[0][(0, "x")].l == expected
 
 
-def test_inexact_constants_are_refused_on_the_tableau_path_too():
+def test_distinct_constants_stay_distinct():
+    # Corollary A1's reverse direction needs this: two INEQUIVALENT formulas
+    # must not be handed the same region. Under binary64 these two collide.
+    assert space(parse("x > 1/3")) != space(parse("x > 0.3333333333333333"))
+
+
+def test_the_tableau_path_keeps_them_exact_too():
     from parse_graph import atom_to_pieces
-    with pytest.raises(UnsupportedFormula):
-        atom_to_pieces(">", "1/3")
+    assert atom_to_pieces(">", "1/3")[0].l == Fraction(1, 3)
+    assert atom_to_pieces(">", "0.1")[0].l == Fraction(1, 10)
 
 
 @pytest.mark.parametrize("constant,expected", [

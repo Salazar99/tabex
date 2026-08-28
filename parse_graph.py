@@ -27,17 +27,42 @@ def pretty_print_tree(node, indent=0):
     for child in node.children:
         pretty_print_tree(child, indent + 4)
         
+def _endpoint(value):
+    """An interval endpoint: an exact Fraction, or a float infinity.
+
+    Fraction and float compare exactly against each other in Python, so the
+    rest of the pipeline needs no special handling -- only construction does.
+    """
+    if isinstance(value, Fraction):
+        return value
+    if value in (float('inf'), float('-inf')):
+        return value
+    return Fraction(str(value)) if isinstance(value, (str, float)) else Fraction(value)
+
+
 class Interval:
     # Endpoints carry their own openness (`lo`/`ro`: True = OPEN at that end).
     # Without it "y < 0" and "y > 0" both become bounds touching at 0 and their
     # intersection is the non-empty point [0,0], so a contradictory branch --
     # which stlsat writes to the DOT before Z3 rejects it -- survives
     # standardize()'s rejected-branch filter as a spurious degenerate cell.
+    #
+    # A finite endpoint is an EXACT rational, not a float. Rounding "1/3" to
+    # binary64 would make the interval denote {x : x > float(1/3)} -- a
+    # different subset of R, since float(1/3) < 1/3 -- and, worse, would let two
+    # distinct endpoints collapse onto one breakpoint. A box endpoint that is
+    # not a breakpoint is exactly what the dichotomy lemma forbids, so the
+    # canonical form's proof depends on this being exact.
+    #
+    # Nothing downstream can reintroduce rounding: every use of `l`/`r` in the
+    # region pipeline compares or copies them, never combines them
+    # arithmetically, so the endpoints appearing anywhere are always a subset of
+    # those the atoms introduced. See FORMAL_PROOFS.md.
     __slots__ = ("l", "r", "lo", "ro")
 
     def __init__(self, l, r, lo=False, ro=False):
-        self.l = float(l)
-        self.r = float(r)
+        self.l = _endpoint(l)
+        self.r = _endpoint(r)
         # An infinite end is unreachable, so it is always open.
         self.lo = bool(lo) or self.l == float('-inf')
         self.ro = bool(ro) or self.r == float('inf')
@@ -317,17 +342,10 @@ def atom_to_pieces(op, val):
         raise UnsupportedFormula(
             f"unsupported comparison operator {op!r}; the fragment allows "
             f"{sorted(NEGATED_OP)}. See README's 'Supported fragment'.")
-    # Endpoints are binary64, so a constant that does not survive the round trip
-    # would denote a DIFFERENT set of reals than the formula does -- and two
-    # distinct rationals could collapse onto one region, breaking
-    # "S(phi) = S(theta) => phi == theta". Refuse instead.
-    rational = Fraction(str(val))
-    v = float(rational)
-    if Fraction(v) != rational:
-        raise UnsupportedFormula(
-            f"constant {val!r} is not exactly representable in binary64, so the "
-            f"region would denote a different set of reals than the formula does. "
-            f"See FORMAL_PROOFS.md §0.1.")
+    # Kept EXACT. Rounding here would make the interval denote a different set
+    # of reals than the atom does, and could collapse two distinct endpoints
+    # onto one breakpoint -- see Interval.
+    v = Fraction(str(val))
     if op == '>':
         return [Interval(v, float('inf'), lo=True)]
     if op == '>=':

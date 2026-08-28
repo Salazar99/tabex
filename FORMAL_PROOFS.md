@@ -11,7 +11,10 @@ Two theorems:
 - **Theorem B** — canonicalisation depends only on the region:
   `⋃P₁ = ⋃P₂ ⟹ canonicalize(P₁) = canonicalize(P₂)`.
 
-Together: `φ ≡ θ ⟺ canon(S(φ)) = canon(S(θ))`.
+Together: `φ ≡ θ ⟺ canonicalize(Ŝ(φ)) = canonicalize(Ŝ(θ))`, where `Ŝ(φ)` is
+φ's signal space *as a decomposition* (§1.5). Theorem B is what makes the choice
+of decomposition immaterial, and so what licenses writing this
+`canon(S(φ)) = canon(S(θ))`.
 
 ---
 
@@ -22,7 +25,7 @@ Together: `φ ≡ θ ⟺ canon(S(φ)) = canon(S(θ))`.
 Fix a finite variable set `V`. Formulas of the fragment:
 
 ```
-φ ::= v op c                     v ∈ V,  op ∈ {<, <=, >, >=, ==, !=},  c ∈ ℚ ∩ 𝔽
+φ ::= v op c                     v ∈ V,  op ∈ {<, <=, >, >=, ==, !=},  c ∈ ℚ
     | true | false
     | φ ∧ φ | φ ∨ φ
     | F[a,b] φ | G[a,b] φ | φ U[a,b] φ        a, b ∈ ℕ,  a ≤ b
@@ -36,15 +39,28 @@ negation case to get wrong.
 
 `vars(φ)` is the set of variables occurring in φ.
 
-**Constants (P0).** `𝔽` is the set of reals exactly representable in binary64.
-Interval endpoints are binary64, so a constant outside `𝔽` would make the region
-denote a *different* set of reals than the formula does, and two distinct
-rationals could collapse onto one region — which breaks Corollary A1's (⟸)
-direction. `atom_intervals` and `atom_to_pieces` therefore **raise**
-`UnsupportedFormula` on such a constant rather than round it: `1/2`, `1.5`, `-3`
-pass; `1/3` and integers past `2**53` do not. The restriction is liftable by
-carrying `Fraction` endpoints in `Interval`, at the cost of reaching `measure`,
-`truncate` and the Jaccard score — a change deliberately not made here.
+**Constants.** Constants are rationals, `c ∈ ℚ`, and interval endpoints are
+**exact rationals** (Python `Fraction`), never binary64. Rounding would be
+unsound twice over. It would make the region denote `{x : x op float(c)}`, a
+different subset of `ℝ` than the formula does, breaking Lemma 3. And it would
+let two distinct rationals — `1/3` and `0.3333333333333333` — collapse onto one
+endpoint, so a box endpoint need not be a breakpoint, which is exactly what
+Lemma 7's dichotomy forbids: Proposition 9 and the whole of Theorem B rest on
+it. There is therefore **no representability restriction**; `atom_intervals` and
+`atom_to_pieces` accept every rational. Infinities are the sole float endpoints,
+and they are never compared for exactness. What makes exactness *cheap* is
+Remark 3a.
+
+**Remark 3a (endpoint closure).** No stage of the region pipeline ever performs
+arithmetic on an endpoint: `intersect`, `is_empty`, `merge_pieces`, `_cut_piece`,
+`_axis_partition` and `_slab_of` only **compare** endpoints and **copy** them.
+Hence the set of endpoint values occurring anywhere in a computation is a subset
+of the values introduced by the atoms of the input formula. Exactness at the
+atoms (Lemma 3) is therefore inherited, unchanged, by every box in every
+intermediate and canonical form — which is what carries Lemma 3's exactness all
+the way to Theorem B. Arithmetic on endpoints happens in exactly one place,
+`measure`'s subtraction in the metric, which is downstream of both theorems and
+computed in `Fraction` before a single `float()` cast of the final ratio.
 
 The operator symbols are written exactly as the code spells them. An earlier
 draft wrote `=` and `≠` while the implementation keys on `==` and `!=`; that
@@ -71,25 +87,43 @@ stated for this clause, and §1.6 isolates exactly where the choice is used.
 ### 0.3 Horizon
 
 ```
-h(v op c) = 0        h(φ ∧ ψ) = h(φ ∨ ψ) = max(h(φ), h(ψ))
+h(v op c) = h(true) = h(false) = 0
+h(φ ∧ ψ) = h(φ ∨ ψ) = max(h(φ), h(ψ))
 h(F[a,b] φ) = h(G[a,b] φ) = b + h(φ)
 h(φ U[a,b] ψ) = b + max(h(φ), h(ψ))
 ```
 
-**Lemma 0 (locality).** *`w,t ⊨ φ` depends only on `w(s)` for `s ∈ [t, t+h(φ)]`.*
+`h` is total on the grammar of §0.1: every constructor has a clause, so Theorem
+A's side condition `t + h(φ) ≤ H` is defined for every formula.
 
-*Proof.* Induction on φ. Atom: only `s = t`. Boolean: the two branches need
+**Lemma 0 (locality).** *`w,t ⊨ φ` depends only on `w(s)(v)` for
+`s ∈ [t, t+h(φ)]` and `v ∈ vars(φ)`.*
+
+*Proof.* Induction on φ, on both indices simultaneously.
+
+*Time.* Atom and constants: only `s = t`. Boolean: the two branches need
 `[t, t+h(φ)]` and `[t, t+h(ψ)]`, both inside `[t, t+max]`. `F`/`G`: the body is
 evaluated at `t+u` with `u ≤ b`, needing `[t+u, t+u+h(φ)] ⊆ [t, t+b+h(φ)]`.
 `U`: the witness needs `[t+u, t+u+h(ψ)] ⊆ [t, t+b+h(ψ)]`; the invariant is
 evaluated at `s ∈ [t, t+u]`, needing `[s, s+h(φ)] ⊆ [t, t+b+h(φ)]`. Both lie in
-`[t, t+h(φ U ψ)]`. ∎
+`[t, t+h(φ U ψ)]`.
+
+*Variables.* `w,t ⊨ v op c` reads `w(t)(v)` and nothing else, and
+`vars(v op c) = {v}`; `true` and `false` read nothing. Every other clause is a
+Boolean combination of subformula judgements, and `vars` of a compound is the
+union of its subformulas' — so the hypothesis for each branch is a statement
+about a subset of `vars(φ)`. ∎
+
+The variable half is what makes a **larger** `V` harmless: coordinates outside
+`vars(φ)` are never read, so `≡_A` does not depend on how many spare variables
+`A` carries. It is used in §1.5.
 
 ### 0.4 The ambient grid
 
 Fix `H ∈ ℕ` and finite `V`. The **axis set** is `A = {0,…,H} × V`, and a signal
 restricted to `A` is a point of `ℝ^A`. Everything below is relative to a fixed
-`A`, and Theorem B's hypothesis **H1** is that all decompositions share it.
+`A`; §2 additionally requires the two decompositions being compared to share it,
+which §1.5 arranges.
 
 > **Precondition (P1).** `H ≥ h(φ)` and `V ⊇ vars(φ)`.
 >
@@ -102,7 +136,7 @@ restricted to `A` is a point of `ℝ^A`. Everything below is relative to a fixed
 
 ### 0.5 Intervals, boxes, regions
 
-An **interval** is `I = ⟨l, r, lo, ro⟩` with `l ≤ r ∈ ℝ ∪ {±∞}` and openness
+An **interval** is `I = ⟨l, r, lo, ro⟩` with `l, r ∈ ℝ ∪ {±∞}` and openness
 flags, denoting
 
 ```
@@ -120,6 +154,14 @@ A **box** is a partial map `β` from `A` to non-empty intervals, denoting
 
 An axis outside `dom β` is unconstrained. A **region** is a finite list of boxes
 `Ρ`, denoting `⟦Ρ⟧ = ⋃_{β∈Ρ} ⟦β⟧`. Note `⟦[]⟧ = ∅` and `⟦[{}]⟧ = ℝ^A`.
+
+**Totality convention.** Write `β_a` for `β(a)` when `a ∈ dom β` and for
+`(-∞,∞)` otherwise. Then `⟦β⟧ = ∏_{a∈A} ⟦β_a⟧` for *every* box, partial or not —
+the same set the display above defines. Under this convention every box is total
+on `A`, so §2 may speak of `β_a` unconditionally without assuming anything about
+`dom β`. Nothing below needs the boxes to be *literally* total; §2.1 records
+where the distinction does matter, which is in the data structure, not the
+mathematics.
 
 **Lemma 1 (interval algebra).** *`⟦I.intersect(J)⟧ = ⟦I⟧ ∩ ⟦J⟧`, and
 `I.intersect(J)` is `None` exactly when that set is empty.*
@@ -152,16 +194,16 @@ claim. ∎
 ### 1.1 Atoms
 
 **Lemma 3.** *`⟦atom_intervals(op, c)⟧ = { x ∈ ℝ : x op c }`, as a union of the
-returned intervals, for `c ∈ 𝔽`.*
+returned intervals, for every `c ∈ ℚ`.*
 
 *Proof.* By cases on `op`, comparing with §0.5's denotation:
 
 | op | returned | denotes |
 |---|---|---|
 | `>` | `(c, ∞)` | `x > c` |
-| `≥` | `[c, ∞)` | `x ≥ c` |
+| `>=` | `[c, ∞)` | `x >= c` |
 | `<` | `(-∞, c)` | `x < c` |
-| `≤` | `(-∞, c]` | `x ≤ c` |
+| `<=` | `(-∞, c]` | `x <= c` |
 | `==` | `[c, c]` | `x == c` |
 | `!=` | `(-∞, c) ∪ (c, ∞)` | `x != c` |
 
@@ -191,6 +233,8 @@ and regression-tested, but nothing in this section depends on it.
 `evaluate(φ, t)` is defined in `reference_semantics.py`; recalled here:
 
 ```
+evaluate(true, t)       = EVERYTHING = [ {} ]            -- one box, no constraint
+evaluate(false, t)      = NOTHING    = [ ]               -- no box at all
 evaluate(v op c, t)     = [ { (t,v) ↦ I } : I ∈ atom_to_pieces(op, c) ]
 evaluate(φ ∧ ψ, t)      = intersect(evaluate(φ,t), evaluate(ψ,t))
 evaluate(φ ∨ ψ, t)      = evaluate(φ,t) ++ evaluate(ψ,t)
@@ -207,6 +251,11 @@ evaluate(φ U[a,b] ψ, t) = ⧺_{u=a..b} ( evaluate(ψ,t+u) ⊓ ⋂_{s=t..t+u} e
 
 *Proof.* Structural induction on φ. There is no negation case: negation is not a
 constructor (§0.1).
+
+**`true` / `false`.** `evaluate(true,t) = [{}]`, a single box constraining no
+axis, so `⟦[{}]⟧ = ℝ^A = {w : w,t ⊨ true}` by §0.2. `evaluate(false,t) = []`, an
+empty union, so `⟦[]⟧ = ∅ = {w : w,t ⊨ false}`. Both are base cases; the
+induction now covers every constructor of the §0.1 grammar.
 
 **Atom `v op c`.** `evaluate` returns one box per interval of
 `atom_to_pieces(op,c)`, each constraining only `(t,v)`. By Lemma 3 the union of
@@ -269,15 +318,20 @@ closed, because the witness instant is included.
 
 ### 1.4 Negation
 
-`negate(·)` is defined structurally, and on `Until` by
+`negate(·)` is defined structurally, with `negate(true) = false` and
+`negate(false) = true`, and on `Until` by
 `negate(φ U ψ) = negate(expand(φ U ψ))`.
 
-**Lemma 6.** *`w,t ⊨ negate(φ)  ⟺  not (w,t ⊨ φ)`.*
+**Lemma 6.** *(1) `w,t ⊨ negate(φ)  ⟺  not (w,t ⊨ φ)`.
+(2) `h(negate(φ)) = h(φ)` and `vars(negate(φ)) = vars(φ)`.*
 
 *Proof.* Induction on the pair `(uk(φ), |φ|)` ordered lexicographically, where
 `uk(φ)` is the maximum nesting depth of `U` in φ and `|φ|` the number of nodes.
+For (1):
 
 - **Atom.** `negate(v op c) = v NEGATED_OP[op] c`; Lemma 4.
+- **`true` / `false`.** `negate(true) = false`, and `w,t ⊨ false` never holds
+  while `w,t ⊨ true` always does (§0.2); dually. Base cases.
 - **`φ ∧ ψ` / `φ ∨ ψ`.** `negate` returns `negate(φ) ∨ negate(ψ)` resp.
   `negate(φ) ∧ negate(ψ)`; De Morgan plus the hypothesis on the strictly
   smaller `φ, ψ` (`uk` does not increase, `|·|` strictly decreases).
@@ -288,11 +342,58 @@ closed, because the witness instant is included.
   Lemma 5, `w,t ⊨ φ U ψ ⟺ w,t ⊨ E`, so it suffices that
   `w,t ⊨ negate(E) ⟺ not (w,t ⊨ E)`. `E` is built from `∧`, `∨`, `G` and copies
   of `φ` and `ψ`, so `uk(E) = max(uk(φ), uk(ψ)) < uk(φ U ψ)` and the induction
-  hypothesis applies to `E`. ∎
+  hypothesis applies to `E`.
+
+For (2), on the same measure. Atoms and constants have `h = 0` on both sides and
+the same variable. `∧`/`∨` swap but `h` and `vars` are symmetric in the two
+branches. `F[a,b] ↦ G[a,b]` keeps `b` and recurses. For `U`, both sides pass
+through `E = ⋁_{u=a}^{b} ( G[0,u] φ ∧ G[u,u] ψ )`, and
+
+```
+h(E) = max_{u∈[a,b]} max(u + h(φ), u + h(ψ)) = b + max(h(φ), h(ψ)) = h(φ U[a,b] ψ)
+```
+
+with `vars(E) = vars(φ) ∪ vars(ψ) = vars(φ U ψ)`; the hypothesis then applies to
+`E`. ∎
+
+Clause (2) is what keeps (P1) meaningful across the rewrite: a formula and its
+negation need the *same* grid, so the `H` and `V` computed from one are correct
+for the other.
+
+**Lemma 6a (surface syntax).** *Let `nnf(·)` map the surface grammar — which
+additionally admits `¬φ` and `φ → ψ` — into §0.1's by*
+
+```
+nnf(¬φ)     = negate(nnf(φ))
+nnf(φ → ψ)  = negate(nnf(φ)) ∨ nnf(ψ)
+```
+
+*and homomorphically elsewhere. Then `w,t ⊨ nnf(φ) ⟺ w,t ⊨ φ`, and `nnf`
+preserves `h` and `vars`.*
+
+*Proof.* Induction on the surface formula. The homomorphic cases are immediate.
+`¬`: by the hypothesis `w,t ⊨ nnf(φ) ⟺ w,t ⊨ φ`, and by Lemma 6(1)
+`w,t ⊨ negate(nnf(φ)) ⟺ not (w,t ⊨ nnf(φ))`. `→`: `φ → ψ` holds iff `φ` fails or
+`ψ` holds, which is the disjunct pair by the same two facts. Preservation of `h`
+and `vars` is the hypothesis plus Lemma 6(2), noting `h(¬φ) = h(φ)` and
+`h(φ → ψ) = max(h(φ), h(ψ))` on the surface grammar. ∎
+
+This is what connects **what the user writes** to what Theorem A is about. §0.1's
+grammar has neither `¬` nor `→`; the parser emits `nnf(φ)`, and every result
+below is a statement about that. Without Lemma 6a, `φ ≡ θ` in Corollary B1 would
+silently be about a different pair of formulas than the ones typed.
 
 The measure matters: `expand` *increases* node count, so an induction on `|φ|`
 alone would not be well-founded. It strictly decreases `U`-nesting depth, which
 is what makes the recursion terminate — in the proof and in the code.
+
+**Where Lemma 6 is used.** Nowhere in Theorem A — which is the point. A formula
+written with `¬` is rewritten by `negate()` before it is ever evaluated, so
+`evaluate` has no negation case to get wrong; Lemma 6 is what says that
+rewriting preserves satisfaction, and hence that the evaluated formula denotes
+what the written one means. The saving is not cosmetic: complementing a region
+of `k` boxes over `d` axes costs `d**k` boxes, while complementing an atom is
+one application of Lemma 4.
 
 Unwinding, `negate(φ U[a,b] ψ) ≡ ⋀_{u=a}^{b} ( F[0,u] negate(φ) ∨ G[u,u] negate(ψ) )`,
 the expected dual: for every candidate witness `u`, either the invariant already
@@ -300,16 +401,25 @@ failed somewhere in `[t, t+u]` or `ψ` fails at `t+u`.
 
 ### 1.5 The signal space, and the biconditional
 
-`signal_space(φ, V, H)` pads every box of `evaluate(φ,0)` to total maps on `A`,
-filling absent axes with `(-∞,∞)`. Since `⟦(-∞,∞)⟧ = ℝ`, padding does not change
-the denotation, so
+Two objects must be kept apart, because `canonicalize` consumes one and
+Corollary A1 speaks about the other:
 
 ```
-S(φ)  :=  ⟦signal_space(φ, V, H)⟧  =  ⟦evaluate(φ,0)⟧  =  { w ∈ ℝ^A : w,0 ⊨ φ }
+Ŝ(φ)  :=  signal_space(φ, V, H)          a DECOMPOSITION — a list of boxes
+S(φ)  :=  ⟦Ŝ(φ)⟧  ⊆  ℝ^A                 a REGION — a set of signals
 ```
 
-by Theorem A. Padding is not cosmetic: it establishes hypothesis **H1** of
-Theorem B, which `canonicalize` requires (§2.1).
+`signal_space` pads every box of `evaluate(φ,0)` to a total map on `A`, filling
+absent axes with `(-∞,∞)`. Since `⟦(-∞,∞)⟧ = ℝ`, padding does not change the
+denotation, so
+
+```
+S(φ)  =  ⟦evaluate(φ,0)⟧  =  { w ∈ ℝ^A : w,0 ⊨ φ }
+```
+
+by Theorem A. Padding is not what makes §2 correct — §0.5's totality convention
+already does that — but it is what makes the *data structure* total, which
+`canonicalize` indexes into (§2.1).
 
 Write `φ ≡_A θ` for "`w,0 ⊨ φ` iff `w,0 ⊨ θ` for all `w ∈ ℝ^A`".
 
@@ -318,13 +428,24 @@ Write `φ ≡_A θ` for "`w,0 ⊨ φ` iff `w,0 ⊨ θ` for all `w ∈ ℝ^A`".
 *Proof.* `S(φ) = {w : w,0 ⊨ φ}` and `S(θ) = {w : w,0 ⊨ θ}`. Two subsets of
 `ℝ^A` defined by predicates are equal iff the predicates agree pointwise. ∎
 
-By Lemma 0, if `H ≥ max(h(φ), h(θ))` then `≡_A` coincides with equivalence over
-all signals: no signal outside the grid can distinguish them. So the corollary
-is the intended statement and not an artefact of truncation.
+**Corollary A2 (the grid loses nothing).** *Write `φ ≡ θ` for "`w,0 ⊨ φ` iff
+`w,0 ⊨ θ` for every signal `w : ℕ → V' → ℝ`, over every finite `V' ⊇ vars(φ) ∪
+vars(θ)`". If `H ≥ max(h(φ), h(θ))` and `V ⊇ vars(φ) ∪ vars(θ)`, then
+`φ ≡ θ ⟺ φ ≡_A θ`.*
+
+*Proof.* (⟹) is restriction. (⟸) Let `w` be any signal. By Lemma 0, `w,0 ⊨ φ`
+depends only on `w(s)(v)` for `s ≤ h(φ) ≤ H` and `v ∈ vars(φ) ⊆ V` — that is,
+only on `w|_A`. The same holds for θ. So `w,0 ⊨ φ ⟺ w|_A, 0 ⊨ φ ⟺ w|_A, 0 ⊨ θ ⟺
+w,0 ⊨ θ`. ∎
+
+Both halves of Lemma 0 are needed here: the time half licenses truncating at `H`,
+the variable half licenses `V` carrying axes neither formula mentions. Without
+Corollary A2 the development would only ever be about `≡_A`, which is a claim
+about a chosen grid rather than about the formulas.
 
 ### 1.6 What Theorem A rests on, and what runs
 
-Only §0.2, §0.5, (P0) and (P1) — no property of stlsat.
+Only §0.2, §0.5 and (P1) — no property of stlsat.
 
 This matters only because the proved path is the one that runs.
 `calc_similarity_from_formulas(...)` defaults to `via="definition"`, computing
@@ -335,9 +456,10 @@ says nothing about it, and `tests/test_reference_semantics.py` cross-checks it
 against the definition on every connective.
 
 The cross-check is only worth something because the two sides are **independent**.
-They were not: both called one `atom_to_pieces`, so the (P0) violation was
-invisible to every differential test in this repository — each side made the same
-mistake and agreed. `reference_semantics` now owns its atom layer.
+They were not: both called one `atom_to_pieces`, so its rounding of constants to
+binary64 was invisible to every differential test in this repository — each side
+made the same mistake and agreed. `reference_semantics` now owns its atom layer,
+and each side's exactness is tested separately.
 
 ---
 
@@ -345,13 +467,19 @@ mistake and agreed. `reference_semantics` now owns its atom layer.
 
 ### 2.1 Setting
 
-Fix the axis set `A`. A **decomposition** is a finite list `P` of boxes, each
-total on `A` (hypothesis **H1**), denoting the **region** `R = ⟦P⟧`.
+Fix the axis set `A`. A **decomposition** is a finite list `P` of boxes,
+denoting the **region** `R = ⟦P⟧`. Throughout, `β_a` is read via §0.5's totality
+convention, so every box constrains every axis.
 
-> **H1 is required and unchecked.** `_axis_partition` indexes
-> `cell.timeline[t][v]` for every axis, so a `P` whose paths carry different
-> axis sets raises `KeyError`. `standardize()` and `signal_space()` both pad, so
-> the pipeline satisfies H1; a caller building paths by hand must ensure it.
+> **Totality is a representation matter, not a hypothesis.** Nothing in §2 needs
+> the boxes to be literally total: `β_a = (-∞,∞)` contributes no finite endpoint
+> to `B_a`, Lemma 7 is vacuously satisfied by it, and Lemma 10's box-selection
+> argument reads `β_a` uniformly. The *implementation* is stricter —
+> `_axis_partition` indexes `cell.timeline[t][v]` directly, so a `P` whose paths
+> carry different axis sets raises `KeyError`. `standardize()` and
+> `signal_space()` both pad, so no pipeline path reaches it; a caller building
+> paths by hand must pad too. That is a precondition of the data structure, and
+> no result below rests on it.
 
 A slot may hold a *list* of intervals, read as their union. Such a box is a
 finite union of single-interval boxes obtained by distributing, and both
@@ -378,11 +506,24 @@ finite endpoints lie in `B_a`: either `⟦α⟧ ⊆ ⟦J⟧` or `⟦α⟧ ∩ �
 
 *Proof.* Suppose `x ∈ ⟦α⟧ ∩ ⟦J⟧`. If `α = [bᵢ,bᵢ]` then `⟦α⟧ = {x} ⊆ ⟦J⟧`.
 Otherwise `α` is an open interval `(p,q)` (with `p, q` consecutive elements of
-`B_a ∪ {±∞}`) containing no point of `B_a`. Take any `y ∈ ⟦α⟧`; the closed
-segment between `x` and `y` lies in `(p,q)` and so meets no endpoint of `J`.
-Since `J` is an interval containing `x` and its endpoints are in `B_a`, it
-cannot exclude `y` without having an endpoint strictly between them. Hence
-`y ∈ ⟦J⟧`, and `⟦α⟧ ⊆ ⟦J⟧`. ∎
+`B_a ∪ {±∞}`) containing no point of `B_a`. Take any `y ∈ ⟦α⟧` and suppose
+`y ∉ ⟦J⟧`; say `y > x`, the other case being symmetric. Let `ρ = sup ⟦J⟧`. Then
+`ρ ≤ y`: otherwise `x < y < ρ` would put `y` in the interior of `J`. And
+`ρ ≥ x` since `x ∈ ⟦J⟧`. So `ρ` is finite and `ρ ∈ [x,y] ⊆ (p,q)`, hence
+`ρ ∉ B_a` — but `ρ` is a finite endpoint of `J`, contradicting the hypothesis.
+(The two boundary cases are excluded by the same fact: `ρ = x` and `ρ = y` would
+each put a point of `B_a` inside `(p,q)`.) Hence `y ∈ ⟦J⟧`, and
+`⟦α⟧ ⊆ ⟦J⟧`. ∎
+
+**Corollary 7a (cover).** *Any interval `J` whose finite endpoints lie in `B_a`
+is the disjoint union of exactly the atoms it contains.*
+
+*Proof.* The atoms partition `ℝ`, so `⟦J⟧ = ⋃_α (⟦α⟧ ∩ ⟦J⟧)`. By Lemma 7 each
+term is `⟦α⟧` or `∅`. ∎
+
+Small, and used three times: it is what makes "cut `β` at the breakpoints" lose
+nothing (Proposition 9, Proposition 16) and it is the specification `_cut_piece`
+meets.
 
 ### 2.2 The fine arrangement
 
@@ -401,10 +542,10 @@ for every `β ∈ P`, then `⟦X⟧ ∩ R = ⋃_β (⟦X⟧ ∩ ⟦β⟧) = ∅`
 particular `fine(P)` depends only on `R` and `B(P)`, not otherwise on `P`.*
 
 *Proof.* (⊆) Each cell emitted is an atom-product obtained by cutting some
-`β ∈ P`, hence contained in `⟦β⟧ ⊆ R`. (⊇) Let `⟦X⟧ ⊆ R`. By Lemma 8,
-`⟦X⟧ ⊆ ⟦β⟧` for some `β`. `_fine_cells` cuts `β` axis-wise with `_cut_piece`,
-which yields every atom contained in `β_a`, and takes the product — so `X` is
-among the cells emitted for `β`. Deduplication by `cell_key` (which records
+`β ∈ P`, hence contained in `⟦β⟧ ⊆ R` — the cut loses nothing by Corollary 7a.
+(⊇) Let `⟦X⟧ ⊆ R`. By Lemma 8, `⟦X⟧ ⊆ ⟦β⟧` for some `β`. `_fine_cells` cuts `β`
+axis-wise with `_cut_piece`, which by Corollary 7a yields every atom contained in
+`β_a`, and takes the product — so `X` is among the cells emitted for `β`. Deduplication by `cell_key` (which records
 every axis's endpoints *and* openness) preserves the set. ∎
 
 ### 2.3 Cross-sections
@@ -418,16 +559,16 @@ R_a(α) = { y ∈ ℝ^{A∖{a}} : ⟦α⟧ × {y} ⊆ R }
 **Lemma 10 (constancy).** *`R_a(α)` is well defined, i.e. for `x, x' ∈ ⟦α⟧` the
 slices `{y : (x,y) ∈ R}` and `{y : (x',y) ∈ R}` coincide.*
 
-*Proof.* `(x,y) ∈ R` iff `y ∈ ⟦β⟧^{−a}` for some `β` with `x ∈ ⟦β_a⟧`. By
-Lemma 7, `x ∈ ⟦β_a⟧ ⟺ ⟦α⟧ ⊆ ⟦β_a⟧ ⟺ x' ∈ ⟦β_a⟧`. So the same set of boxes is
+*Proof.* Every `β` constrains axis `a` under §0.5's totality convention, and
+`(x,y) ∈ R` iff `y ∈ ⟦β⟧^{−a}` for some `β` with `x ∈ ⟦β_a⟧`. By Lemma 7, `x ∈ ⟦β_a⟧ ⟺ ⟦α⟧ ⊆ ⟦β_a⟧ ⟺ x' ∈ ⟦β_a⟧`. So the same set of boxes is
 selected for `x` and `x'`, giving the same slice. ∎
 
 This is the precise form of "a decomposition cannot hide a bend": `R` is
 constant across each atom, so every place `R` genuinely changes is a breakpoint
 of *every* decomposition.
 
-**Lemma 11 (fibres).** *Let `fibre(α) = { Y : Y an atom-product over `A∖{a}`,
-α × Y ∈ fine(P) }`. Then `fibre(α) = fibre(α') ⟺ R_a(α) = R_a(α')`.*
+**Lemma 11 (fibres).** *Let `fibre(α)` be the set of atom-products `Y` over
+`A∖{a}` with `α × Y ∈ fine(P)`. Then `fibre(α) = fibre(α') ⟺ R_a(α) = R_a(α')`.*
 
 *Proof.* By Proposition 9, `α × Y ∈ fine(P)` iff `⟦α × Y⟧ ⊆ R` iff
 `⟦Y⟧ ⊆ R_a(α)` (Lemma 10). So `fibre(α) = { Y : ⟦Y⟧ ⊆ R_a(α) }`.
@@ -441,7 +582,18 @@ Note the quantification: `fibre(α)` ranges over atom-products of the *other*
 axes, which depend on `B`; but Lemma 11 shows fibre **equality** is equivalent
 to a `B`-free condition. That is what makes the next step work.
 
-### 2.4 Refinement invariance
+**Corollary 11a (presence).** *An atom `α` of axis `a` occurs as the `a`-component
+of some cell of `fine(P)` iff `R_a(α) ≠ ∅`.*
+
+*Proof.* `α` occurs iff `fibre(α) ≠ ∅`. By the proof of Lemma 11,
+`R_a(α) = ⋃ { ⟦Y⟧ : Y ∈ fibre(α) }` and atom-products are non-empty, so the
+union is non-empty exactly when the index set is. ∎
+
+This is the statement "an absent atom is a genuine hole in `R`" that §2.4 and
+Propositions 13 and 15 lean on. It matters because it converts a fact about the
+computed set `fine(P)` into a fact about `R` alone.
+
+### 2.4 Runs, and refinement invariance
 
 `_axis_partition(fine, a)` sorts the atoms occurring on axis `a` in `fine` and
 merges adjacent ones that *touch* and have equal fibres, returning the maximal
@@ -454,24 +606,53 @@ runs.
 `(bᵢ,q)`. In both, one side is the closed point `[bᵢ,bᵢ]`. ∎
 
 So a run breaks only where fibres differ or where an atom is **absent** from
-`fine` — and an atom `α` is absent exactly when `R_a(α) = ∅`, i.e. `R` has a
-genuine hole there. Nothing merges across such a gap, since the surviving atoms
-on either side are then not adjacent.
+`fine` — and by Corollary 11a an atom is absent exactly when `R_a(α) = ∅`, i.e.
+`R` has a genuine hole there. Nothing merges across such a gap, since the
+surviving atoms on either side are then not adjacent.
+
+A run is thus a union of *consecutive* atoms, hence an interval of `ℝ`; and since
+the atoms partition `ℝ`, the atoms contained in a run are exactly those it was
+merged from.
+
+**Corollary 12a (uniform cross-section).** *All atoms of a run have the same
+cross-section.*
+
+*Proof.* A run is a maximal chain of pairwise merges, each of which requires
+equal fibres. By Lemma 11 each merge equates the two cross-sections; conclude by
+transitivity along the chain. ∎
+
+Small, but it is the step Lemma 14 actually needs: membership in a run is a
+statement about a *chain* of merges, and only transitivity turns that into a
+statement about any two of its atoms.
 
 **Proposition 13.** *`_axis_partition(fine(P), a)` depends only on `R`, not on
 `P` or `B(P)`.*
 
 *Proof.* By Lemma 11 the merge test is `R_a(α) = R_a(α')`, a condition on `R`
-alone; and by Lemma 10 the map `x ↦ {y : (x,y) ∈ R}` is constant on atoms. So
-the computed runs are exactly the maximal intervals of `ℝ` on which that map is
-constant and non-empty — a description mentioning only `R`.
+alone; by Corollary 11a an atom participates iff its cross-section is non-empty,
+again a condition on `R`; and by Lemma 10 the map `σ : x ↦ {y : (x,y) ∈ R}` is
+constant on atoms. So the computed runs are exactly the maximal intervals of `ℝ`
+on which `σ` is constant and non-empty — a description mentioning only `R`.
 
 Concretely, if `B ⊆ B'`: each `B`-atom is a disjoint union of consecutive
-`B'`-atoms, all with the same slice by Lemma 10, hence with equal fibres by
-Lemma 11, hence merged back by Lemma 12; and two adjacent `B`-atoms with equal
-slices remain adjacent with equal slices. The maximal runs, *as subsets of `ℝ`*,
-are therefore identical. Since `B_a(P₁) ∪ B_a(P₂)` refines both, the partitions
-computed from `P₁` and `P₂` agree. ∎
+`B'`-atoms, all with the same slice by Lemma 10 (so all present, or all absent,
+by Corollary 11a), hence with equal fibres by Lemma 11, hence merged back by
+Lemma 12; and two adjacent `B`-atoms with equal slices remain adjacent with equal
+slices. The maximal runs, *as subsets of `ℝ`*, are therefore identical. Since
+`B_a(P₁) ∪ B_a(P₂)` refines both, the partitions computed from `P₁` and `P₂`
+agree. ∎
+
+**Corollary 13a (as data).** *The runs of `P₁` and of `P₂` agree not only as
+subsets of `ℝ` but as records `⟨l, r, lo, ro⟩`.*
+
+*Proof.* A run is a non-empty interval, and a non-empty interval of `ℝ`
+determines `l = inf`, `r = sup` and the two openness flags (whether the infimum
+and supremum belong to it) uniquely. ∎
+
+Needed because Theorem B's conclusion is equality of *output data* — boxes
+compared through `cell_key`, which records endpoints and openness — while
+Proposition 13 concludes equality of sets. This is the only place the two notions
+must be reconciled.
 
 ### 2.5 The coarse grid
 
@@ -489,7 +670,7 @@ replaced by `γ_{a_i}`. We show `X_i ∈ fine(P)` by induction on `i`.
 
 `X₀ = X ∈ fine(P)`. For the step, `X_{i−1}` and `X_i` differ only on axis
 `a := a_i`, where `α := X_{i−1}(a)` and `γ := γ_a` lie in the same run `S_a`,
-so `R_a(α) = R_a(γ)` by Proposition 13's merge criterion. Let `Z` be the common
+so `R_a(α) = R_a(γ)` by Corollary 12a. Let `Z` be the common
 off-`a` part. From `X_{i−1} ∈ fine(P)` and Lemma 11, `⟦Z⟧ ⊆ R_a(α) = R_a(γ)`,
 hence `γ × Z ∈ fine(P)`, i.e. `X_i ∈ fine(P)`.
 
@@ -509,13 +690,17 @@ containing `X`'s atom on each axis. Hence `C` is in the output. ∎
 
 ### 2.6 Theorem B
 
-**Theorem B.** *Let `P₁, P₂` be decompositions over the same axis set `A`
-(H1) with `⟦P₁⟧ = ⟦P₂⟧ = R`. Then `canonicalize(P₁) = canonicalize(P₂)`.*
+**Theorem B.** *Let `P₁, P₂` be decompositions over the same axis set `A` with
+`⟦P₁⟧ = ⟦P₂⟧ = R`. Then `canonicalize(P₁) = canonicalize(P₂)`.*
 
-*Proof.* By Proposition 13 the per-axis partitions, hence the coarse grid,
-depend only on `R`. By Proposition 15 the output is the set of coarse boxes
-contained in `R` — again a function of `R` alone. Both decompositions therefore
-produce the same set. ∎
+*Proof.* By Proposition 13 the per-axis partitions, hence the coarse grid, depend
+only on `R`, and by Corollary 13a they agree as records and not merely as sets.
+By Proposition 15 the output is the set of coarse boxes contained in `R` — again
+a function of `R` alone. Both decompositions therefore produce the same set. ∎
+
+So `canonicalize` factors through the denotation: there is a well-defined
+`canon(R)` with `canon(⟦P⟧) = canonicalize(P)`. Every use of `canon` applied to a
+*region* below is licensed by this, and by nothing else.
 
 **Proposition 16 (losslessness).** *`⟦canonicalize(P)⟧ = R`.*
 
@@ -524,18 +709,40 @@ produce the same set. ∎
 (⊇) Let `p ∈ R`. The atom-products partition `ℝ^A` (§2.1), so `p` lies in
 exactly one, say `X`. Since `p ∈ R`, there is a `β ∈ P` with `p ∈ ⟦β⟧`; by
 Lemma 7 applied on each axis, `X`'s atom there is inside `β`'s interval (it
-meets it, at `p`), so `⟦X⟧ ⊆ ⟦β⟧ ⊆ R`. Hence `X ∈ fine(P)` by Proposition 9,
+meets it, at `p` — Corollary 7a says the atoms inside `β_a` exhaust it), so
+`⟦X⟧ ⊆ ⟦β⟧ ⊆ R`. Hence `X ∈ fine(P)` by Proposition 9,
 and `canonicalize` emits the coarse box `C ⊇ X ∋ p`. So `p ∈ ⟦canonicalize(P)⟧`. ∎
 
 This is the step Corollary B1's reverse direction needs, and it is worth
 isolating: without it, equal canonical forms would say nothing about the regions.
 
-**Corollary B1.** *Under (P1) and H1, `φ ≡_A θ ⟺ canon(S(φ)) = canon(S(θ))`.*
+**Corollary B1.** *Let `A = {0,…,H} × V` with `H ≥ max(h(φ), h(θ))` and
+`V ⊇ vars(φ) ∪ vars(θ)`, so that (P1) holds for both. Then*
 
-*Proof.* (⟹) By Corollary A1, `S(φ) = S(θ)`; apply Theorem B. (⟸) By
-Proposition 16 each canonical form denotes its own region, so
-`canon(S(φ)) = canon(S(θ))` gives `S(φ) = S(θ)`, and Corollary A1 gives
-`φ ≡_A θ`. ∎
+```
+φ ≡ θ   ⟺   φ ≡_A θ   ⟺   canonicalize(Ŝ(φ)) = canonicalize(Ŝ(θ))
+```
+
+*Proof.* The first `⟺` is Corollary A2. For the second: (⟹) By Corollary A1,
+`S(φ) = S(θ)`, i.e. `⟦Ŝ(φ)⟧ = ⟦Ŝ(θ)⟧`; apply Theorem B. (⟸) By Proposition 16
+each canonical form denotes its own region, so equality of the canonical forms
+gives `⟦Ŝ(φ)⟧ = ⟦Ŝ(θ)⟧`, that is `S(φ) = S(θ)`, and Corollary A1 concludes. ∎
+
+Note the arguments: `canonicalize` is applied to the **decompositions** `Ŝ(φ)`,
+`Ŝ(θ)` of §1.5, not to the regions `S(φ)`, `S(θ)`. Theorem B is precisely what
+makes the choice of decomposition immaterial, so the result may be written
+`canon(S(φ)) = canon(S(θ))` — but only after Theorem B, not before.
+
+A shared `A` is required, and is not implied by (P1) holding separately: the two
+formulas must be compared on **one** grid, or `≡_A` is not a relation between
+them. `calc_similarity_from_formulas()` takes `H = max(h(φ), h(θ))` and
+`V = vars(φ) ∪ vars(θ)` for exactly this reason.
+
+Combining with Lemma 6a: for surface formulas `φ, θ` written with `¬` and `→`,
+the pipeline compares `nnf(φ)` and `nnf(θ)`, and Lemma 6a gives
+`φ ≡ θ ⟺ nnf(φ) ≡ nnf(θ)` together with the equal horizons and variable sets
+that make one `A` serve both. The chain from typed input to equal canonical forms
+is then complete.
 
 ### 2.7 Minimality fails, necessarily
 
@@ -558,20 +765,24 @@ avoids by quantifying over a product grid rather than merging.
 
 | # | hypothesis | where used | checked? |
 |---|---|---|---|
-| P0 | constants lie in `ℚ ∩ 𝔽` (exact in binary64) | Lemma 3; Corollary A1 (⟸) | **yes** — `UnsupportedFormula` |
 | P1 | `H ≥ h(φ)` and `V ⊇ vars(φ)` | Theorem A, atom case | **yes** — `signal_space` raises |
-| H1 | all paths share the axis set `A` | Theorem B, §2.1 | **no** — `KeyError` if violated |
+| P2 | one shared `A` for the two formulas | Corollaries A1, A2, B1 | **yes** — `calc_similarity_from_formulas` |
 | — | atoms are `v op c`, operator in the six | Lemma 3 | **yes** — on both paths |
 | — | discrete, bounded time | Lemma 0, §0.4 | by construction |
 | — | `U` includes its witness (§0.2) | Theorem A, `U` case only | pinned by tests |
 
-Every hypothesis but H1 is now enforced rather than assumed, and each was
-enforced *because* it had been silently violated: P0 collapsed `1/3` onto
-`0.3333333333333333`; P1 answered a question about `x>0` when asked about
-`x>0 ∧ y>0`; the operator set fell through to `true` on a typo. H1 remains the
-one hypothesis a caller can break, and it raises `KeyError` rather than a clear
-error — `standardize()` and `signal_space()` both pad, so no pipeline path
-reaches it.
+Every hypothesis is now enforced rather than assumed, and each was enforced
+*because* it had been silently violated: P1 answered a question about `x>0` when
+asked about `x>0 ∧ y>0`; the operator set fell through to `true` on a typo. Two
+further hypotheses were *removed* rather than enforced. Endpoints used to round to
+binary64, collapsing `1/3` onto `0.3333333333333333`; exact rationals make the
+restriction unnecessary instead of merely checked. And the former **H1** — "all
+boxes are total on `A`" — is discharged by §0.5's totality convention, under
+which a missing axis simply reads `(-∞,∞)`; it survives only as a precondition of
+the *data structure* (§2.1), where violating it raises `KeyError`, and no result
+in §2 depends on it.
+
+Nothing in the development is now assumed without either a proof or a check.
 
 Theorem A assumes nothing about `standardize()` or stlsat, and since
 `calc_similarity_from_formulas` now defaults to the definition, the theorem

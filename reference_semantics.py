@@ -49,29 +49,18 @@ NEGATE = {">": "<=", "<=": ">", ">=": "<", "<": ">=", "==": "!=", "!=": "=="}
 OPERATORS = frozenset(NEGATE)
 
 
-def exact(constant):
-    """The constant as a float, or raise if that is lossy.
+def constant_value(constant):
+    """A constant as an EXACT rational.
 
-    The signal space compares against binary64 endpoints, so a constant that is
-    not exactly representable would denote a *different* set of reals than the
-    formula says. Two distinct rationals could then produce the same region,
-    which breaks `S(φ) = S(θ) ⟹ φ ≡ θ` (FORMAL_PROOFS Corollary A1). Rather
-    than silently answer a question nobody asked, refuse it.
-
-    `1/2`, `1.5`, `-3` and anything else with a finite binary expansion pass;
-    `1/3` and integers beyond 2**53 do not.
+    No rounding: an inexactly represented constant would make the atom denote a
+    different subset of the reals than the formula does, and could collapse two
+    distinct interval endpoints onto one breakpoint -- which the canonical
+    form's proof forbids. See FORMAL_PROOFS.md and `parse_graph.Interval`.
     """
     try:
-        rational = Fraction(str(constant))
+        return Fraction(str(constant))
     except (ValueError, ZeroDivisionError) as exc:
         raise UnsupportedFormula(f"not a constant: {constant!r}") from exc
-    approximation = float(rational)
-    if Fraction(approximation) != rational:
-        raise UnsupportedFormula(
-            f"constant {constant!r} is not exactly representable in binary64, so the "
-            f"region would denote a different set of reals than the formula does. "
-            f"See FORMAL_PROOFS.md §0.1.")
-    return approximation
 
 
 def atom_intervals(op, constant):
@@ -84,7 +73,7 @@ def atom_intervals(op, constant):
         raise UnsupportedFormula(
             f"unsupported comparison operator {op!r}; the fragment allows "
             f"{sorted(OPERATORS)}. See README's 'Supported fragment'.")
-    value = exact(constant)
+    value = constant_value(constant)
     if op == ">":
         return [Interval(value, INF, lo=True)]
     if op == ">=":
@@ -113,7 +102,7 @@ class Atom:
             raise UnsupportedFormula(
                 f"unsupported comparison operator {op!r}; the fragment allows "
                 f"{sorted(OPERATORS)}")
-        exact(constant)          # reject a non-representable constant at construction
+        constant_value(constant)   # reject a non-constant at construction
         self.variable, self.op, self.constant = variable, op, constant
 
     def negate(self):

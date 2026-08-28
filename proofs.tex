@@ -1,0 +1,731 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=3cm]{geometry}
+\usepackage{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\dom}{\operatorname{dom}}
+\newcommand{\sem}[1]{[\![#1]\!]}
+\newcommand{\fine}{\mathrm{fine}}
+\newcommand{\can}{\mathrm{canon}}
+\newcommand{\Sig}{\mathcal{S}}
+\newcommand{\Ax}{\mathcal{A}}
+% \bigsqcap is not standard (LaTeX ships \bigsqcup only); make one
+% from \sqcap as a large operator, so no extra package is required.
+\newcommand{\bigsqcap}{\mathop{\sqcap}\limits}
+
+\title{The canonical signal space of an STL formula}
+\author{TABEX}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We show that two equivalent formulas of a bounded, discrete fragment of Signal
+Temporal Logic have the same \emph{canonical signal space}, and conversely. The
+result factors into two independent theorems: the signal space of a formula is
+exactly its set of satisfying signals (Theorem~\ref{thm:A}), and the
+canonicalisation of a region of that space depends only on the region and not on
+how it was decomposed (Theorem~\ref{thm:B}).
+\end{abstract}
+
+\section{What is to be demonstrated}\label{sec:goal}
+
+Write $\Sig(\varphi)$ for the \emph{signal space} of $\varphi$ and $\can$ for
+canonicalisation. The goal is
+\[
+  \varphi \equiv \theta
+  \quad\Longleftrightarrow\quad
+  \can(\Sig(\varphi)) = \can(\Sig(\theta)),
+\]
+which factors as
+\[
+  \varphi \equiv \theta
+  \;\underset{\text{Thm.\ \ref{thm:A}}}{\Longleftrightarrow}\;
+  \Sig(\varphi) = \Sig(\theta)
+  \;\underset{\text{Thm.\ \ref{thm:B}}}{\Longrightarrow}\;
+  \can(\Sig(\varphi)) = \can(\Sig(\theta)).
+\]
+
+The second step is needed because a signal space arrives \emph{decomposed} into
+boxes, and the same region admits many decompositions; two equivalent formulas
+generally have different ones. Canonicalisation must therefore be shown to
+depend on the region alone.
+
+The first step is a theorem rather than a definition because $\Sig$ is defined
+\emph{denotationally}, by structural recursion on the formula
+(Section~\ref{sec:eval}). Had $\Sig$ instead been read off a proof search --- a
+tableau, say --- Theorem~\ref{thm:A} would additionally require that search to be
+sound and complete. Defining $\Sig$ directly reduces it to an induction with one
+case per connective.
+
+\section{Preliminaries}
+
+\subsection{Syntax}
+
+Fix a finite set $V$ of variables. Formulas are
+\[
+  \varphi ::= v \bowtie c \;\mid\; \mathrm{true} \;\mid\; \mathrm{false}
+  \;\mid\; \varphi \wedge \varphi \;\mid\; \varphi \vee \varphi
+  \;\mid\; F_{[a,b]}\varphi \;\mid\; G_{[a,b]}\varphi
+  \;\mid\; \varphi \, U_{[a,b]} \, \varphi
+\]
+with $v \in V$, $\bowtie \; \in \{<,\le,>,\ge,=,\ne\}$, $a \le b \in \N$, and
+$c \in \Q$. Write $\mathrm{vars}(\varphi)$ for the variables occurring in
+$\varphi$.
+
+One convention is a choice, not a consequence, and is flagged wherever used:
+\textbf{negation is not a constructor}. It is the operation $\lnot(\cdot)$ of
+Section~\ref{sec:neg}, mapping a formula to another formula of the same grammar.
+Every formula is therefore in negation normal form, and the evaluation of
+Section~\ref{sec:eval} has no negation case.
+
+\subsection{Satisfaction}
+
+A \emph{signal} is a map $w : \N \to V \to \R$. Satisfaction $w,t \models
+\varphi$ is defined as usual, with
+\begin{align*}
+  w,t \models v \bowtie c
+    &\iff w(t)(v) \bowtie c,\\
+  w,t \models F_{[a,b]}\varphi
+    &\iff \exists u \in [a,b].\; w,t{+}u \models \varphi,\\
+  w,t \models G_{[a,b]}\varphi
+    &\iff \forall u \in [a,b].\; w,t{+}u \models \varphi,\\
+  w,t \models \varphi \, U_{[a,b]} \, \psi
+    &\iff \exists u \in [a,b].\;
+       \bigl(w,t{+}u \models \psi \;\wedge\;
+             \forall s \in [t,\,t{+}u].\; w,s \models \varphi\bigr),
+\end{align*}
+and the evident clauses for $\mathrm{true}$, $\mathrm{false}$, $\wedge$, $\vee$.
+
+\begin{remark}[the until convention]\label{rem:until}
+The invariant is required on the \emph{closed} $[t, t{+}u]$, hence also at the
+witness. Textbook STL uses the half-open $[t, t{+}u)$. The two differ exactly
+there: $x{>}0 \; U_{[0,0]} \; y{>}3$ is $x{>}0 \wedge y{>}3$ here and $y{>}3$
+in the textbook, and in general $\varphi \, U \, \psi$ here is
+$\varphi \, U_{\text{textbook}} \, (\varphi \wedge \psi)$. Both readings are
+equally easy to prove correct below --- the case in
+Theorem~\ref{thm:A} has the same shape and only the range of the inner
+intersection changes.
+\end{remark}
+
+\subsection{Horizon and locality}
+
+Let $h(v \bowtie c) = h(\mathrm{true}) = h(\mathrm{false}) = 0$,
+$h(\varphi \wedge \psi) = h(\varphi \vee \psi) = \max(h(\varphi),h(\psi))$,
+$h(F_{[a,b]}\varphi) = h(G_{[a,b]}\varphi) = b + h(\varphi)$, and
+$h(\varphi\,U_{[a,b]}\,\psi) = b + \max(h(\varphi),h(\psi))$.
+
+\begin{lemma}[locality]\label{lem:local}
+$w,t \models \varphi$ depends only on $w(s)(v)$ for $s \in [t,\, t + h(\varphi)]$
+and $v \in \mathrm{vars}(\varphi)$.
+\end{lemma}
+
+\begin{proof}
+Induction on $\varphi$, on both indices at once.
+
+\emph{Time.} Atoms and constants use only $s = t$. The Boolean cases
+need $[t, t{+}h(\varphi)]$ and $[t, t{+}h(\psi)]$, both inside the maximum. For
+$F$ and $G$ the body is evaluated at $t{+}u$ with $u \le b$, needing
+$[t{+}u,\, t{+}u{+}h(\varphi)] \subseteq [t,\, t{+}b{+}h(\varphi)]$. For $U$ the
+witness needs $[t{+}u,\, t{+}u{+}h(\psi)]$ and the invariant, evaluated at
+$s \in [t, t{+}u]$, needs $[s,\, s{+}h(\varphi)]$; both lie in
+$[t,\, t{+}h(\varphi\,U\,\psi)]$.
+
+\emph{Variables.} An atom $v \bowtie c$ reads $w(t)(v)$ alone and has
+$\mathrm{vars} = \{v\}$; constants read nothing. Every other clause is a Boolean
+combination of subformula judgements, and $\mathrm{vars}$ of a compound is the
+union of its subformulas', so each hypothesis concerns a subset of
+$\mathrm{vars}(\varphi)$.
+\end{proof}
+
+Both halves are used below: the time half licenses truncating at $H$, the
+variable half licenses an ambient $V$ carrying axes the formula never mentions.
+
+\subsection{The ambient grid, boxes, regions}\label{sec:grid}
+
+Fix $H \in \N$ and finite $V$. The \emph{axis set} is $\Ax = \{0,\dots,H\}
+\times V$, and a signal restricted to $\Ax$ is a point of $\R^{\Ax}$.
+
+\begin{quote}
+\textbf{Precondition (P1).} $H \ge h(\varphi)$ and $V \supseteq
+\mathrm{vars}(\varphi)$.
+\end{quote}
+
+Both are needed: with $V \not\supseteq \mathrm{vars}(\varphi)$ the region would
+silently lose a variable's constraints and denote a \emph{different} formula,
+and with $H < h(\varphi)$ it would be truncated. By Lemma~\ref{lem:local}, if
+$H \ge \max(h(\varphi), h(\theta))$ then equivalence over $\R^{\Ax}$ coincides
+with equivalence over all signals, so restricting to the grid loses nothing.
+
+An \emph{interval} $I$ is a subset of $\R$ of the form $\{x : x \succ l \text{
+and } x \prec r\}$ with $l, r \in \R \cup \{\pm\infty\}$, where each of
+$\succ, \prec$ is strict or not independently; infinite endpoints are strict.
+$I$ is empty iff $l > r$, or $l = r$ with either end strict.
+
+A \emph{box} is a partial map $\beta$ from $\Ax$ to non-empty intervals,
+denoting
+\[
+  \sem{\beta} = \{ w \in \R^{\Ax} : \forall a \in \dom\beta.\; w(a) \in \beta(a) \};
+\]
+an axis outside $\dom\beta$ is unconstrained. A \emph{region} is a finite set
+$P$ of boxes, denoting $\sem{P} = \bigcup_{\beta \in P} \sem{\beta}$. Thus
+$\sem{\emptyset} = \emptyset$ and $\sem{\{\,\emptyset\,\}} = \R^{\Ax}$.
+
+Write $\beta_a$ for $\beta(a)$ when $a \in \dom\beta$ and for $(-\infty,\infty)$
+otherwise, so that $\sem{\beta} = \prod_{a \in \Ax} \beta_a$ for every box,
+partial or not. Under this convention every box may be treated as total on $\Ax$,
+and Section~\ref{sec:B} never needs to assume it.
+
+\begin{lemma}[box algebra]\label{lem:algebra}
+Regions are closed under union and intersection. Writing
+$(\beta \sqcap \beta')_a = \beta_a \cap \beta'_a$ and
+\[
+  P \sqcap P' = \{\, \beta \sqcap \beta' \;:\; \beta \in P,\; \beta' \in P',\;
+  \beta \sqcap \beta' \neq \emptyset \,\},
+\]
+one has $\sem{P \cup P'} = \sem{P} \cup \sem{P'}$ and
+$\sem{P \sqcap P'} = \sem{P} \cap \sem{P'}$.
+\end{lemma}
+
+\begin{proof}
+Union is immediate. For a single pair of boxes, membership in both is axis-wise
+membership in both intervals, which is membership in the axis-wise intersection;
+a product is empty exactly when some factor is. Distributing $\cap$ over $\cup$
+gives the general case.
+\end{proof}
+
+That intervals carry \emph{independent} endpoint strictness is what makes the
+next lemma exact, and it is used throughout: with closed-only intervals the
+complement of $[c,\infty)$ would have to be $(-\infty,c]$ and the two would
+share $c$.
+
+\section{Theorem A: the signal space is the semantics}
+
+\subsection{Atoms and negation}\label{sec:neg}
+
+\begin{lemma}[atoms]\label{lem:atom}
+For $c \in \Q$, the set $\{x \in \R : x \bowtie c\}$ is a union of at most two
+intervals: a single interval for $\bowtie \; \in \{<,\le,>,\ge\}$, the point
+$[c,c]$ for $=$, and the two strict half-lines $(-\infty,c) \cup (c,\infty)$
+for $\ne$. Strict comparisons give strict endpoints, and every endpoint is
+either $c$ or infinite.
+\end{lemma}
+
+\begin{proof}
+By cases; each is the definition of the comparison.
+\end{proof}
+
+Let $\overline{\bowtie}$ swap the pairs $(>,\le)$, $(\ge,<)$, $(=,\ne)$.
+
+\begin{lemma}[complementation]\label{lem:neg-op}
+$\overline{\;\cdot\;}$ is an involution, and $\{x : x \bowtie c\}$ and
+$\{x : x \mathrel{\overline{\bowtie}} c\}$ partition $\R$.
+\end{lemma}
+
+\begin{proof}
+Each listed pair is swapped, so the operation is an involution; and each pair of
+comparisons is complementary on $\R$.
+\end{proof}
+
+Define $\lnot(\cdot)$ on formulas by $\lnot(v \bowtie c) = v
+\mathrel{\overline{\bowtie}} c$, De Morgan on $\wedge,\vee$, the $F$/$G$
+duality, $\lnot\mathrm{true} = \mathrm{false}$ and conversely, and on $U$ by
+$\lnot(\varphi\,U\,\psi) = \lnot(\mathrm{exp}(\varphi\,U\,\psi))$ where
+$\mathrm{exp}$ is the expansion of Lemma~\ref{lem:expand}.
+
+\begin{lemma}[until is sugar]\label{lem:expand}
+$\displaystyle
+  w,t \models \varphi\,U_{[a,b]}\,\psi
+  \iff
+  w,t \models \bigvee_{u=a}^{b}
+      \bigl( G_{[0,u]}\varphi \;\wedge\; G_{[u,u]}\psi \bigr).
+$
+\end{lemma}
+
+\begin{proof}
+For fixed $u$: $w,t \models G_{[0,u]}\varphi$ says $w,s \models \varphi$ for all
+$s \in [t, t{+}u]$, and $w,t \models G_{[u,u]}\psi$ says $w,t{+}u \models \psi$.
+So the $u$-th disjunct holds exactly when $u$ witnesses the until clause;
+disjoining over $u \in [a,b]$ matches the existential. (The invariant window is
+closed, per Remark~\ref{rem:until}.)
+\end{proof}
+
+\begin{lemma}[negation]\label{lem:neg}
+$w,t \models \lnot\varphi \iff w,t \not\models \varphi$.
+\end{lemma}
+
+\begin{proof}
+Let $\mathrm{uk}(\varphi)$ be the maximum nesting depth of $U$ in $\varphi$ and
+$|\varphi|$ its size. Induct on $(\mathrm{uk}(\varphi), |\varphi|)$ ordered
+lexicographically.
+
+Atoms and constants are Lemma~\ref{lem:neg-op}. The Boolean cases are De
+Morgan and the $F$/$G$ cases are the duality of $\exists$ and $\forall$; in each
+the hypothesis is applied to strict subformulas, for which $\mathrm{uk}$ does
+not increase and $|\cdot|$ strictly decreases.
+
+For $\varphi\,U_{[a,b]}\,\psi$, let $E$ be its expansion. By
+Lemma~\ref{lem:expand} it suffices that $w,t \models \lnot E \iff w,t
+\not\models E$. Now $E$ is built from $\wedge$, $\vee$, $G$ and copies of
+$\varphi$ and $\psi$, so
+$\mathrm{uk}(E) = \max(\mathrm{uk}(\varphi), \mathrm{uk}(\psi)) <
+\mathrm{uk}(\varphi\,U\,\psi)$ and the hypothesis applies to $E$.
+\end{proof}
+
+The measure matters: $\mathrm{exp}$ \emph{increases} size, so an induction on
+$|\varphi|$ alone would not be well founded. It strictly decreases $U$-nesting
+depth, which is what makes the recursion terminate.
+
+Lemma~\ref{lem:neg} is what licenses the absence of a negation case in
+Theorem~\ref{thm:A}. A formula written with $\lnot$ is rewritten by
+$\lnot(\cdot)$ before evaluation; the lemma says that rewriting preserves
+satisfaction, so the evaluated formula denotes what the written one means. The
+saving is not cosmetic: complementing a region of $k$ boxes over $d$ axes costs
+$d^{\,k}$ boxes, whereas complementing an atom is one application of
+Lemma~\ref{lem:neg-op}.
+
+\begin{lemma}[surface syntax]\label{lem:nnf}
+Let the \emph{surface} grammar extend that of Section~\ref{sec:goal} by
+$\lnot\varphi$ and $\varphi \to \psi$, and let $\mathrm{nnf}(\cdot)$ map it into
+the grammar proper by
+\[
+  \mathrm{nnf}(\lnot\varphi) = \lnot\,\mathrm{nnf}(\varphi), \qquad
+  \mathrm{nnf}(\varphi \to \psi) = \lnot\,\mathrm{nnf}(\varphi) \vee
+  \mathrm{nnf}(\psi),
+\]
+and homomorphically elsewhere. Then $w,t \models \mathrm{nnf}(\varphi) \iff w,t
+\models \varphi$, and $\mathrm{nnf}$ preserves $h$ and $\mathrm{vars}$.
+\end{lemma}
+
+\begin{proof}
+Induction on the surface formula; the homomorphic cases are immediate. For
+$\lnot$, the hypothesis gives $w,t \models \mathrm{nnf}(\varphi) \iff w,t \models
+\varphi$ and Lemma~\ref{lem:neg} gives $w,t \models \lnot\,\mathrm{nnf}(\varphi)
+\iff w,t \not\models \mathrm{nnf}(\varphi)$. For $\to$, $\varphi \to \psi$ holds
+iff $\varphi$ fails or $\psi$ holds, which is the displayed disjunction by the
+same two facts. Preservation of $h$ and $\mathrm{vars}$ follows from the
+hypothesis together with $h(\lnot\varphi) = h(\varphi)$ and
+$\mathrm{vars}(\lnot\varphi) = \mathrm{vars}(\varphi)$, which hold since $\lnot$
+swaps $\wedge/\vee$ and $F/G$ without changing their bounds, and since both sides
+of the $U$ case pass through the expansion $E$ of Lemma~\ref{lem:expand}, for
+which $h(E) = b + \max(h(\varphi),h(\psi)) = h(\varphi\,U_{[a,b]}\,\psi)$.
+\end{proof}
+
+This is what connects what is written to what is proved: the grammar has neither
+$\lnot$ nor $\to$, surface formulas are read up to $\mathrm{nnf}$, and every
+result below is a statement about $\mathrm{nnf}(\varphi)$. Preservation of $h$
+and $\mathrm{vars}$ is what lets one grid serve a formula and its normal form
+alike.
+
+\subsection{Evaluation}\label{sec:eval}
+
+Define a region $\mathcal{E}(\varphi, t)$ by structural recursion:
+\begin{align*}
+  \mathcal{E}(v \bowtie c,\, t) &= \{\, \{(t,v) \mapsto I\} : I \text{ an interval of Lemma~\ref{lem:atom}} \,\},\\
+  \mathcal{E}(\mathrm{true},\, t) &= \{\,\emptyset\,\}, \qquad
+  \mathcal{E}(\mathrm{false},\, t) = \emptyset,\\
+  \mathcal{E}(\varphi \wedge \psi,\, t) &= \mathcal{E}(\varphi,t) \sqcap \mathcal{E}(\psi,t), \qquad
+  \mathcal{E}(\varphi \vee \psi,\, t) = \mathcal{E}(\varphi,t) \cup \mathcal{E}(\psi,t),\\
+  \mathcal{E}(F_{[a,b]}\varphi,\, t) &= \bigcup_{u=a}^{b} \mathcal{E}(\varphi,\, t{+}u), \qquad
+  \mathcal{E}(G_{[a,b]}\varphi,\, t) = \bigsqcap_{u=a}^{b} \mathcal{E}(\varphi,\, t{+}u),\\
+  \mathcal{E}(\varphi\,U_{[a,b]}\,\psi,\, t) &=
+     \bigcup_{u=a}^{b}\Bigl( \mathcal{E}(\psi,\, t{+}u) \;\sqcap
+       \bigsqcap_{s=t}^{t+u} \mathcal{E}(\varphi,\, s) \Bigr).
+\end{align*}
+
+\begin{theorem}\label{thm:A}
+Assume \textup{(P1)}. For every $\varphi$ and every $t$ with $t + h(\varphi) \le H$,
+\[
+  \sem{\mathcal{E}(\varphi, t)} = \{\, w \in \R^{\Ax} : w,t \models \varphi \,\}.
+\]
+\end{theorem}
+
+\begin{proof}
+Structural induction on $\varphi$. There is no negation case: negation is not a
+constructor.
+
+\emph{Atoms.} One box per interval of Lemma~\ref{lem:atom}, each constraining
+only $(t,v)$; the union of their denotations is $\{w : w(t)(v) \bowtie c\}$.
+(P1) guarantees $(t,v) \in \Ax$. Constants are immediate from
+$\sem{\{\emptyset\}} = \R^{\Ax}$ and $\sem{\emptyset} = \emptyset$.
+
+\emph{Boolean cases.} Lemma~\ref{lem:algebra} with the induction hypothesis.
+
+\emph{$F$ and $G$.} By Lemma~\ref{lem:algebra} and the hypothesis, the union
+over $u \in [a,b]$ denotes $\{w : \exists u.\ w,t{+}u \models \varphi\}$ and the
+intersection denotes $\{w : \forall u.\ w,t{+}u \models \varphi\}$; the empty
+union is $\emptyset$ and the empty intersection $\R^{\Ax}$, matching the units.
+Every instant used satisfies $t{+}u \le t + b \le t + h \le H$ by (P1).
+
+\emph{Until.} For fixed $u$ the term denotes, by Lemma~\ref{lem:algebra} and the
+hypothesis,
+\[
+  \{w : w,t{+}u \models \psi\} \;\cap\; \bigcap_{s \in [t,t+u]} \{w : w,s \models \varphi\},
+\]
+i.e.\ the signals for which $u$ witnesses the until clause. Taking the union
+over $u \in [a,b]$ gives exactly that clause.
+\end{proof}
+
+The until case is the \emph{only} place Remark~\ref{rem:until} is used:
+replacing the inner index range $[t, t{+}u]$ by $[t, t{+}u)$ proves the textbook
+variant instead, with no other change.
+
+\subsection{The signal space and the biconditional}
+
+$\mathcal{E}(\varphi,0)$ is a \emph{decomposition} --- a set of boxes --- and
+canonicalisation is defined on decompositions. Its denotation
+\[
+  \Sig(\varphi) = \sem{\mathcal{E}(\varphi, 0)} \subseteq \R^{\Ax}
+\]
+is a \emph{region}, a set of signals, and it is regions that
+Corollary~\ref{cor:A1} compares. The distinction is kept throughout: $\can$ is
+written with a decomposition as argument until Theorem~\ref{thm:B} licenses
+otherwise. Write $\varphi \equiv_{\Ax} \theta$ for ``$w,0 \models \varphi$ iff
+$w,0 \models \theta$, for all $w \in \R^{\Ax}$''.
+
+\begin{corollary}\label{cor:A1}
+Assume \textup{(P1)} for both formulas. Then $\varphi \equiv_{\Ax} \theta$ iff
+$\Sig(\varphi) = \Sig(\theta)$.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:A}, $\Sig(\varphi) = \{w : w,0 \models \varphi\}$ and
+likewise for $\theta$. Two subsets of $\R^{\Ax}$ defined by predicates are equal
+iff the predicates agree pointwise.
+\end{proof}
+
+\begin{corollary}[the grid loses nothing]\label{cor:A2}
+Write $\varphi \equiv \theta$ for equivalence at $0$ over \emph{all} signals. If
+$H \ge \max(h(\varphi),h(\theta))$ and $V \supseteq \mathrm{vars}(\varphi) \cup
+\mathrm{vars}(\theta)$, then $\varphi \equiv \theta$ iff $\varphi \equiv_{\Ax}
+\theta$.
+\end{corollary}
+
+\begin{proof}
+$(\Rightarrow)$ is restriction. $(\Leftarrow)$ Let $w$ be any signal. By
+Lemma~\ref{lem:local}, $w,0 \models \varphi$ depends only on $w(s)(v)$ for
+$s \le h(\varphi) \le H$ and $v \in \mathrm{vars}(\varphi) \subseteq V$ --- that
+is, only on $w|_{\Ax}$; likewise for $\theta$. So $w,0 \models \varphi$ iff
+$w|_{\Ax},0 \models \varphi$ iff $w|_{\Ax},0 \models \theta$ iff
+$w,0 \models \theta$.
+\end{proof}
+
+Both halves of Lemma~\ref{lem:local} are used: the time half to truncate at $H$,
+the variable half to allow $V$ to carry axes neither formula mentions. Without
+this corollary the development would be about a chosen grid rather than about the
+formulas.
+
+\section{Theorem B: canonicalisation depends only on the region}\label{sec:B}
+
+\subsection{Arrangements}
+
+A \emph{decomposition} is a finite set $P$ of boxes over a fixed axis set $\Ax$,
+read through the totality convention of Section~\ref{sec:grid}: a box that omits
+an axis constrains it by $(-\infty,\infty)$. Nothing below assumes the boxes are
+literally total --- $(-\infty,\infty)$ contributes no finite endpoint to $B_a$,
+Lemma~\ref{lem:dich} holds vacuously for it, and Lemma~\ref{lem:const} reads
+$\beta_a$ uniformly. Write $R = \sem{P}$. For $a \in \Ax$ let $B_a(P)$ be the
+finite endpoints on axis $a$ of the intervals of boxes of $P$. Writing
+$B_a = \{b_1 < \dots < b_k\}$, the \emph{atoms} of $a$ are
+\[
+  (-\infty,b_1),\; [b_1,b_1],\; (b_1,b_2),\; [b_2,b_2],\; \dots,\; [b_k,b_k],\; (b_k,\infty),
+\]
+and $(-\infty,\infty)$ when $B_a = \emptyset$. They are non-empty, pairwise
+disjoint and cover $\R$, hence \emph{partition} it. An \emph{atom-product} is
+$X = \prod_{a} \alpha_a$ with $\alpha_a$ an atom of $a$; atom-products partition
+$\R^{\Ax}$. Write $B(P) = (B_a(P))_{a \in \Ax}$ for the whole family, the
+\emph{arrangement} of $P$; the atoms, and hence the atom-products, depend on $P$
+only through it.
+
+Including the degenerate atoms $[b_i,b_i]$ is essential. An arrangement using
+only $(\dots,b_i)$ and $[b_i,\dots)$ refines a single box but not a union of
+boxes that disagree about whether $b_i$ itself belongs: for
+$x \ge 1 \wedge y > -1$ and $x > 1 \wedge y \ge -1$, Lemma~\ref{lem:dich} would
+fail, since $[1,\infty)$ neither lies inside $(1,\infty)$ nor is disjoint from
+it.
+
+\begin{lemma}[dichotomy]\label{lem:dich}
+Let $\alpha$ be an atom of axis $a$ and $J$ any interval whose finite endpoints
+lie in $B_a$. Then $\alpha \subseteq J$ or $\alpha \cap J = \emptyset$.
+\end{lemma}
+
+\begin{proof}
+Suppose $x \in \alpha \cap J$. If $\alpha = [b_i,b_i]$ then $\alpha = \{x\}
+\subseteq J$. Otherwise $\alpha$ is an open interval $(p,q)$ with $p,q$
+consecutive in $B_a \cup \{\pm\infty\}$, so $\alpha$ contains no point of $B_a$.
+Let $y \in \alpha$ and suppose $y \notin J$; say $y > x$, the other case being
+symmetric. Put $\rho = \sup J$. Then $\rho \le y$, since $x < y < \rho$ would
+place $y$ in the interior of $J$; and $\rho \ge x$ since $x \in J$. So $\rho$ is
+finite and lies in $[x,y] \subseteq \alpha$, whence $\rho \notin B_a$ ---
+contradicting that the endpoints of $J$ lie in $B_a$. (The boundary cases
+$\rho = x$ and $\rho = y$ are excluded by the same fact: each would put a point
+of $B_a$ inside $\alpha$.) So $\alpha \subseteq J$.
+\end{proof}
+
+\begin{definition}[fine cells]\label{def:fine}
+$\fine(P) = \{\, X : X \text{ an atom-product},\; X \subseteq R \,\}$.
+\end{definition}
+
+The definition mentions $P$ only through the arrangement $B(P)$ and through
+$R = \sem{P}$. That two decompositions of one region may nonetheless have
+different arrangements, and hence different fine cells, is exactly the difficulty
+Theorem~\ref{thm:B} must overcome.
+
+\subsection{Cross-sections}
+
+For $a \in \Ax$ and $x \in \R$ let
+\[
+  \sigma_a(x) = \{\, y \in \R^{\Ax \setminus \{a\}} : (x,y) \in R \,\}
+\]
+be the \emph{cross-section} of $R$ at $x$ along $a$. Thus $\alpha \times Z
+\subseteq R$ iff $Z \subseteq \sigma_a(x)$ for every $x \in \alpha$.
+
+\begin{lemma}[constancy]\label{lem:const}
+$\sigma_a$ is constant on each atom of axis $a$.
+\end{lemma}
+
+\begin{proof}
+By the totality convention every $\beta \in P$ constrains axis $a$, and
+$(x,y) \in R$ iff $y$ lies in the off-$a$ part of some $\beta$ with $x \in
+\beta_a$. Let $x, x'$ lie in one atom $\alpha$. By Lemma~\ref{lem:dich},
+$x \in \beta_a \iff \alpha \subseteq \beta_a \iff x' \in \beta_a$, so the same
+boxes are selected for $x$ and for $x'$, giving the same cross-section.
+\end{proof}
+
+This is the exact sense in which a decomposition cannot hide a feature of $R$:
+the region is constant across every atom, so wherever $R$ genuinely changes,
+\emph{every} decomposition has a breakpoint. It is the only place the
+arrangement and the region are related, and everything below rests on it.
+
+\subsection{Runs and the coarse grid}
+
+\begin{definition}[runs]\label{def:run}
+For $x \in \R$ with $\sigma_a(x) \neq \emptyset$, the \emph{run} of $x$ on axis
+$a$ is
+\[
+  S_a(x) = \bigcup \{\, I : I \text{ an interval},\; x \in I,\;
+  \sigma_a \text{ constant and non-empty on } I \,\}.
+\]
+\end{definition}
+
+Each $S_a(x)$ is again an interval on which $\sigma_a$ is constant and non-empty:
+all the united intervals contain $x$, so their union is an interval, and any of
+its points lies in one of them and so has cross-section $\sigma_a(x)$. Hence
+$S_a(x)$ is the largest such interval containing $x$. If $S_a(x)$ and $S_a(x')$
+meet then their union is an interval on which $\sigma_a$ is constant and
+non-empty and which contains both $x$ and $x'$, hence lies in each by
+maximality; so they are equal. The runs of axis $a$ are therefore pairwise
+disjoint and cover $\{x : \sigma_a(x) \neq \emptyset\}$. They depend on nothing
+but $R$.
+
+\begin{corollary}[runs are unions of atoms]\label{cor:runatom}
+Every run of axis $a$ is a union of atoms of $a$.
+\end{corollary}
+
+\begin{proof}
+Let $\alpha$ be an atom meeting a run $S$, say at $z$. By
+Lemma~\ref{lem:const}, $\sigma_a$ is constant on $\alpha$ with value
+$\sigma_a(z)$, which is the value on $S$ and is non-empty. Since $\alpha$ and $S$
+overlap, $\alpha \cup S$ is an interval on which $\sigma_a$ is constant and
+non-empty, so $\alpha \cup S \subseteq S_a(z) = S$ by maximality; that is,
+$\alpha \subseteq S$.
+\end{proof}
+
+The \emph{coarse grid} is the set of products $C = \prod_{a} S_a$ with each
+$S_a$ a run of $a$; these are the \emph{coarse boxes}. They are pairwise disjoint,
+and by Corollary~\ref{cor:runatom} each is a union of atom-products.
+
+For $X = \prod_a \alpha_a \in \fine(P)$ and each $a$, pick $x \in \alpha_a$ and a
+point $z$ of the remaining factors; then $(x,z) \in X \subseteq R$, so
+$\sigma_a(x) \neq \emptyset$ and $\alpha_a$ meets the run $S_a(x)$, hence lies
+inside it by Corollary~\ref{cor:runatom}. Runs being disjoint, that run is the
+unique one containing $\alpha_a$ and so does not depend on the choice of $x$;
+writing it $S_a$,
+\[
+  \mathrm{coarse}(X) = \prod_a S_a
+\]
+is a well-defined coarse box containing $X$.
+
+\begin{definition}[canonical form]\label{def:canon}
+$\can(P) = \{\, \mathrm{coarse}(X) : X \in \fine(P) \,\}$.
+\end{definition}
+
+\begin{lemma}[saturation]\label{lem:sat}
+If $X \in \fine(P)$ and $X \subseteq C$ for a coarse box $C$, then $C \subseteq R$.
+\end{lemma}
+
+\begin{proof}
+Write $X = \prod \alpha_a$ and $C = \prod S_a$; as both products are non-empty,
+$\alpha_a \subseteq S_a$ for each $a$. Let $Y = \prod \gamma_a$ be any
+atom-product with $\gamma_a \subseteq S_a$. Enumerate $\Ax = \{a_1,\dots,a_n\}$,
+put $X_0 = X$, and let $X_i$ be $X_{i-1}$ with its $a_i$-component replaced by
+$\gamma_{a_i}$. We show $X_i \in \fine(P)$ by induction on $i$.
+
+$X_0 \in \fine(P)$ by assumption. For the step write $a := a_i$, let $\alpha$ be
+the $a$-component of $X_{i-1}$ and $\gamma = \gamma_a$, and let $Z$ be the
+common product of the other components, so $X_{i-1} = \alpha \times Z$ and
+$X_i = \gamma \times Z$. Both $\alpha$ and $\gamma$ lie in the run $S_a$, on
+which $\sigma_a$ is constant with some value $\tau$. From $X_{i-1} \subseteq R$
+we get $Z \subseteq \sigma_a(x) = \tau$ for $x \in \alpha$; and for $x' \in
+\gamma$ we have $\sigma_a(x') = \tau \supseteq Z$, so $\gamma \times Z \subseteq
+R$. As $X_i$ is an atom-product, $X_i \in \fine(P)$.
+
+Hence $X_n = Y \in \fine(P)$, so $Y \subseteq R$. As $C$ is the union of such
+$Y$ by Corollary~\ref{cor:runatom}, $C \subseteq R$.
+\end{proof}
+
+\begin{proposition}\label{prop:charac}
+$\can(P) = \{\, C \text{ a coarse box} : C \subseteq R \,\}$.
+\end{proposition}
+
+\begin{proof}
+$(\subseteq)$ Each element is $\mathrm{coarse}(X)$ for some $X \in \fine(P)$, and
+$X \subseteq \mathrm{coarse}(X)$, so Lemma~\ref{lem:sat} applies.
+$(\supseteq)$ Let $C$ be a coarse box with $C \subseteq R$. Runs are non-empty,
+so $C$ is non-empty and, by Corollary~\ref{cor:runatom}, contains an
+atom-product $X$. Then $X \subseteq R$, so $X \in \fine(P)$, and
+$\mathrm{coarse}(X) = C$ because on each axis the run containing $X$'s atom is
+unique.
+\end{proof}
+
+\begin{theorem}\label{thm:B}
+Let $P_1, P_2$ be decompositions over the same axis set $\Ax$ with
+$\sem{P_1} = \sem{P_2} = R$. Then $\can(P_1) = \can(P_2)$.
+\end{theorem}
+
+\begin{proof}
+The runs of each axis are defined from $\sigma_a$, hence from $R$ alone, so
+$P_1$ and $P_2$ induce the same coarse grid. By Proposition~\ref{prop:charac}
+each canonical form is the set of coarse boxes contained in $R$, again a function
+of $R$ alone.
+\end{proof}
+
+The two decompositions may well have different arrangements, hence different
+atoms and different fine cells; what Proposition~\ref{prop:charac} shows is that
+this difference cancels. Thus $\can$ factors through the denotation: there is a
+well-defined $\can(R)$ with $\can(\sem{P}) = \can(P)$, and every application of
+$\can$ to a region rather than a decomposition is licensed by this and by
+nothing else.
+
+\begin{proposition}[losslessness]\label{prop:lossless}
+$\sem{\can(P)} = R$.
+\end{proposition}
+
+\begin{proof}
+$(\subseteq)$ Every element of $\can(P)$ lies in $R$ by
+Proposition~\ref{prop:charac}.
+$(\supseteq)$ Let $p \in R$. Atom-products partition $\R^{\Ax}$, so $p$ lies in
+exactly one, say $X$. Choose $\beta \in P$ with $p \in \beta$; by
+Lemma~\ref{lem:dich} on each axis, $X$'s atom there meets and hence lies inside
+$\beta$'s interval, so $X \subseteq \beta \subseteq R$. Then $X \in \fine(P)$,
+and $\mathrm{coarse}(X) \in \can(P)$ contains $X \ni p$.
+\end{proof}
+
+\begin{corollary}\label{cor:B1}
+Let $\Ax = \{0,\dots,H\} \times V$ with $H \ge \max(h(\varphi),h(\theta))$ and
+$V \supseteq \mathrm{vars}(\varphi) \cup \mathrm{vars}(\theta)$, so that
+\textup{(P1)} holds for both. Then
+\[
+  \varphi \equiv \theta
+  \iff \varphi \equiv_{\Ax} \theta
+  \iff \can(\mathcal{E}(\varphi,0)) = \can(\mathcal{E}(\theta,0)).
+\]
+\end{corollary}
+
+\begin{proof}
+The first equivalence is Corollary~\ref{cor:A2}. For the second:
+$(\Rightarrow)$ Corollary~\ref{cor:A1} gives $\Sig(\varphi) = \Sig(\theta)$;
+apply Theorem~\ref{thm:B}. $(\Leftarrow)$ By
+Proposition~\ref{prop:lossless} each canonical form denotes its own region, so
+equal canonical forms give $\Sig(\varphi) = \Sig(\theta)$, and
+Corollary~\ref{cor:A1} concludes.
+\end{proof}
+
+Canonicalisation is applied to the \emph{decompositions} $\mathcal{E}(\varphi,0)$
+and $\mathcal{E}(\theta,0)$, not to the regions; Theorem~\ref{thm:B} is exactly
+what permits the shorter $\can(\Sig(\varphi)) = \can(\Sig(\theta))$ of
+Section~\ref{sec:goal}, and permits it only after the fact. A single shared
+$\Ax$ is required and is not implied by (P1) holding separately for each formula:
+the two must be compared on one grid, or $\equiv_{\Ax}$ relates nothing.
+
+For formulas of the surface syntax, Lemma~\ref{lem:nnf} gives
+$\varphi \equiv \theta \iff \mathrm{nnf}(\varphi) \equiv \mathrm{nnf}(\theta)$
+together with the equal horizons and variable sets that let one $\Ax$ serve both,
+so the chain from the formula as written to equal canonical forms is complete.
+
+\section{Remarks}
+
+\begin{remark}[minimality is impossible, not merely absent]
+The canonical form is not the smallest cover of $R$ by boxes, and no canonical
+construction can be. Take
+$R = ([0,2]\times[0,1]) \cup ([0,1]\times[1,2])$. Its canonical form has three
+cells, whereas two distinct two-box covers exist:
+\[
+  [0,2]\times[0,1] \;\cup\; [0,1]\times(1,2]
+  \qquad\text{and}\qquad
+  [0,1]\times[0,2] \;\cup\; (1,2]\times[0,1].
+\]
+Both denote $R$, so a minimal cover is not unique and cannot be canonical. What
+avoids the choice is that the coarse grid is a \emph{product}: each axis is
+partitioned on its own, by a criterion depending only on $R$, and
+Lemma~\ref{lem:sat} then quantifies over the whole product at once. Any
+construction that instead coalesces cells in pairs must fix an order on the axes,
+and the two covers above are what the two orders give.
+\end{remark}
+
+\begin{lemma}[provenance of endpoints]\label{lem:prov}
+Let $\mathrm{con}(\varphi)$ be the set of constants occurring in the atoms of
+$\varphi$. Then every finite endpoint of every interval of every box of
+$\mathcal{E}(\varphi,t)$ lies in $\mathrm{con}(\varphi)$; consequently
+\[
+  \bigcup_{a \in \Ax} B_a(\mathcal{E}(\varphi,0)) \;\subseteq\;
+  \mathrm{con}(\varphi) \;\subseteq\; \Q .
+\]
+\end{lemma}
+
+\begin{proof}
+Induction on $\varphi$. For an atom the intervals are those of
+Lemma~\ref{lem:atom}, whose finite endpoints are the constant itself; the two
+constants contribute no interval at all. Union introduces no interval not already
+present in an argument, and $\sqcap$ replaces $\beta_a, \beta'_a$ by $\beta_a
+\cap \beta'_a$, whose endpoints are among those of the two (the larger left and
+the smaller right). So no clause introduces an endpoint absent from its
+arguments.
+\end{proof}
+
+Since the atoms of an axis are delimited by $B_a$ and, by
+Corollary~\ref{cor:runatom}, runs are unions of atoms, the endpoints of every
+coarse box are likewise drawn from $\mathrm{con}(\varphi) \cup \{\pm\infty\}$:
+the canonical form of a formula is bounded, syntactically, by the constants the
+formula mentions. The lemma is stated for its own interest and is used nowhere
+below.
+
+\begin{remark}[hypotheses]
+The results above use: \textup{(P1)} $H \ge h(\varphi)$ and $V \supseteq
+\mathrm{vars}(\varphi)$; that the two formulas compared share one grid $\Ax$;
+that atoms have the form $v \bowtie c$ with $c \in \Q$; that time is discrete and
+bounded; and the until convention of Remark~\ref{rem:until}. Totality of boxes is
+\emph{not} among them: Section~\ref{sec:grid}'s convention discharges it.
+Theorem~\ref{thm:A} assumes nothing beyond the recursion of
+Section~\ref{sec:eval}, and Theorem~\ref{thm:B} nothing beyond
+Definitions~\ref{def:fine}, \ref{def:run} and \ref{def:canon}.
+\end{remark}
+
+\end{document}

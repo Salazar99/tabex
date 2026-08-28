@@ -8,9 +8,15 @@ from similarity.stl_similarity import calc_similarity_from_formulas
 def _serialize_paths(paths):
     # [l, r, left_open, right_open] -- the openness has to be dumped too, or
     # "x>0" and "x>=0" serialize identically.
+    # Endpoints are exact rationals internally; JSON has no rational, so this
+    # dump is a lossy *snapshot* and not the semantics. Nothing reads it back.
+    def row(iv):
+        l, r, lo, ro = iv.to_tuple()
+        return [float(l), float(r), lo, ro]
+
     return [
         {
-            str(t): {var: sorted(list(iv.to_tuple()) for iv in ivs)
+            str(t): {var: sorted(row(iv) for iv in ivs)
                      for var, ivs in sorted(path.timeline[t].items())}
             for t in sorted(path.timeline.keys())
         }

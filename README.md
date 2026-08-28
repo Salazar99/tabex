@@ -57,6 +57,7 @@ tabex_home/
 ├── verify_semantics.py        # Randomised: extracted region == the formula's real semantics
 ├── verify_equivalence.py      # Randomised: equivalent formulas score G = 1
 ├── verify_canon.py            # Randomised: canon.py is lossless and canonical
+├── proofs.tex                 # The two theorems and their proofs, self-contained (LaTeX)
 ├── m_stlsat/                  # Vendored stlsat (fix-completeness) -- see m_stlsat/TABEX_FORK.md
 │   └── TABEX_FORK.md          # The one file TABEX modifies, and why
 ├── LICENSE                    # Project license
@@ -253,7 +254,9 @@ over; it is where the geometry stops working.
 [**PROOF.md**](./PROOF.md) works through why that box representation gives
 equivalent formulas the same canonical signal space — what is proved, what is
 only validated, and what a counterexample hunt over ~1,800 regions did and did
-not find.
+not find. [**FORMAL_PROOFS.md**](./FORMAL_PROOFS.md) is the mathematics with the
+implementation in view; [**proofs.tex**](./proofs.tex) is the same development
+written to stand on its own, for a reader who does not have the repository.
 
 ### Supported
 
@@ -266,11 +269,13 @@ atom     ::= variable op constant        op ∈ { <  <=  >  >=  ==  != }
 constant ::= integer | decimal | rational          e.g. 5, -2, 1.5, 3/2
 ```
 
-Constants must be **exactly representable in binary64**. `1/2`, `1.5` and `-3`
-are; `1/3` and integers past `2**53` are not, and are rejected rather than
-rounded — a rounded constant would make the region denote a different set of
-reals than the formula does, and could make two distinct formulas produce the
-same signal space. See [FORMAL_PROOFS.md §0.1](./FORMAL_PROOFS.md).
+Constants may be **any rational** — `1/3`, `0.1` and integers past `2**53`
+included. Interval endpoints are exact `Fraction`s, never binary64, because
+rounding a constant would make the region denote a different set of reals than
+the formula does, and could collapse two distinct endpoints onto one — which is
+what the canonical form's proof forbids. Arithmetic on endpoints happens only in
+the final Jaccard measure, which is computed exactly and cast to `float` once,
+at the end. See [FORMAL_PROOFS.md §0.1](./FORMAL_PROOFS.md).
 
 Temporal operators nest freely. Two rules here are surprising enough to be
 worth stating, and both are pinned by tests:

@@ -32,8 +32,8 @@ def test_interval_is_empty():
 
 
 def test_interval_repr_infinities():
-    assert repr(Interval(0, float("inf"))) == "[0.0, inf)"
-    assert repr(Interval(float("-inf"), 0)) == "(-inf, 0.0]"
+    assert repr(Interval(0, float("inf"))) == "[0, inf)"
+    assert repr(Interval(float("-inf"), 0)) == "(-inf, 0]"
 
 
 # --- endpoint openness ----------------------------------------------------
