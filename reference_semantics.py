@@ -465,6 +465,28 @@ def variables(formula):
     raise TypeError(f"not a formula node: {formula!r}")
 
 
+def constants(formula):
+    """`con(phi)`: every constant the formula compares a variable against.
+
+    Exact `Fraction`s, via `constant_value()` -- a rounded bound here would
+    understate the `D` window it is used to derive.
+
+    `true`/`false` contribute nothing: they denote the whole space and the empty
+    one, neither of which has a finite boundary.
+    """
+    if isinstance(formula, Constant):
+        return set()
+    if isinstance(formula, Atom):
+        return {constant_value(formula.constant)}
+    if isinstance(formula, (And, Or)):
+        return constants(formula.left) | constants(formula.right)
+    if isinstance(formula, (Eventually, Always)):
+        return constants(formula.body)
+    if isinstance(formula, Until):
+        return constants(formula.invariant) | constants(formula.witness)
+    raise TypeError(f"not a formula node: {formula!r}")
+
+
 def signal_space(formula, all_vars, horizon=None):
     """`evaluate()` lifted to the `list[Path]` the rest of the pipeline speaks.
 

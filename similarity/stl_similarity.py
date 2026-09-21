@@ -102,10 +102,52 @@ def _finite_bounds(volumes):
 
 
 def default_D(volumes, margin=1.0):
-    # Well-formedness (preliminaries.tex): D must exceed every finite bound
-    # occurring in either formula, so this is derived rather than guessed.
+    """A well-formed D read off the boxes, for callers holding no formula.
+
+    `tests/test_canon.py` and anything else that builds a volume by hand has no
+    formula to take con(phi) from, so the bound comes from the endpoints the
+    boxes actually carry. That is enough for *those* comparisons -- truncation
+    only has to preserve the overlap structure of the constraints being
+    compared, and every one of them has its endpoints in this set.
+
+    It is NOT the paper's bound. Canonicalisation can erase a constant, so this
+    can fall below max|con(phi) u con(theta)|: "(x<=100)||(x>=100)" is
+    equivalent to `true` and its canonical form carries no finite endpoint at
+    all. The formula path therefore uses `resolve_D` instead.
+    """
     bounds = list(_finite_bounds(volumes))
     return (max(bounds) if bounds else Fraction(0)) + Fraction(str(margin))
+
+
+def resolve_D(D, tree1, tree2):
+    """The D to compute with: validate a user's, or derive one.
+
+    Definition 2 makes D a user-specified parameter and requires
+
+        D > max{ |c| : c in con(phi) u con(theta) },
+
+    calling it "a correctness requirement, not just a convenience": too small a
+    D truncates two genuinely overlapping unbounded constraints into disjoint
+    ones, and the score silently changes. So a D below the bound is refused
+    rather than clamped -- clamping would report a score for a D the caller did
+    not ask for.
+    """
+    from reference_semantics import constants
+
+    bound = max((abs(c) for c in constants(tree1) | constants(tree2)),
+                default=Fraction(0))
+    if D is None:
+        return bound + 1
+    D = Fraction(D)
+    if D <= 0:
+        raise ValueError(f"D must be positive (Definition 2: D in R>0), got {D}")
+    if D <= bound:
+        raise ValueError(
+            f"D={D} is not well formed: Definition 2 requires D > "
+            f"max|con(phi) u con(theta)| = {bound}, so D must exceed {bound}. "
+            f"Truncating to [-{D},{D}] could turn overlapping constraints into "
+            f"disjoint ones and change the score.")
+    return D
 
 
 def path_similarity(path1, path2, all_vars, D):
@@ -246,13 +288,28 @@ def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
     recursion on the formula -- the route Theorem A is about. `via="tableau"`
     computes it from stlsat instead, which is faster on large formulas and is
     validated against the definition rather than trusted.
+
+    `D` is the domain of Definition 2, the user parameter the metric truncates
+    to. Omitted, it is derived as max|con(phi) u con(theta)| + 1; supplied below
+    that bound, it is refused (see `resolve_D`). This is the only layer holding
+    the formulas themselves, so it is the only one that can check the bound --
+    `compute_similarity` takes whatever D it is handed.
     """
+    from reference_semantics import parse
+
+    if via not in ("definition", "tableau"):
+        raise ValueError(f"via must be 'definition' or 'tableau', not {via!r}")
+    # Parsed for con(phi) alone, on both routes -- no evaluation, ~25us, and it
+    # keeps the two routes on one code path.
+    # ponytail: no fallback for a formula stlsat accepts but parse() rejects.
+    # Both routes document the same fragment; if that ever diverges it is a
+    # fragment bug to fix there, not a case to paper over with a looser D.
+    D = resolve_D(D, parse(formula1), parse(formula2))
+
     if via == "definition":
         paths1, paths2, all_vars = signal_spaces_from_definition(formula1, formula2)
-    elif via == "tableau":
-        paths1, paths2, all_vars = signal_spaces_from_tableau(formula1, formula2, tabex_root)
     else:
-        raise ValueError(f"via must be 'definition' or 'tableau', not {via!r}")
+        paths1, paths2, all_vars = signal_spaces_from_tableau(formula1, formula2, tabex_root)
     volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=all_vars)
     return compute_similarity(volume1, volume2, D=D)
 
@@ -262,7 +319,10 @@ if __name__ == "__main__":
     parser.add_argument("formula1")
     parser.add_argument("formula2")
     parser.add_argument("--tabex-root", help="Override $TABEX_ROOT / ~/tabex.")
-    parser.add_argument("--D", type=float, default=None, help="Truncation window; auto-derived if omitted.")
+    parser.add_argument("--D", type=Fraction, default=None,
+                        help="Domain D of Definition 2: the truncation window, exact "
+                             "(10, 10.5 and 21/2 all accepted). Must exceed every "
+                             "constant in either formula. Auto-derived if omitted.")
     parser.add_argument("--via", choices=("definition", "tableau"), default="definition",
                         help="Compute the signal space denotationally (default) or via stlsat's tableau.")
     cli_args = parser.parse_args()
