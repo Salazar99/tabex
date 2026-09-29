@@ -46,8 +46,9 @@ def test_l_shape_canonicalizes_identically_on_both_sides():
 
 def test_l_shape_scores_one_after_canonicalization_but_not_before():
     phi1, phi2 = l_shape_paths()
-    assert compute_similarity(build_volume_from_paths(L_SHAPE_1, phi1),
-                              build_volume_from_paths(L_SHAPE_2, phi2)) == 0.75
+    before = compute_similarity(build_volume_from_paths(L_SHAPE_1, phi1),
+                                build_volume_from_paths(L_SHAPE_2, phi2))
+    assert math.isclose(before, 0.75, abs_tol=1e-5)   # ε -> 0 limit; O(ε) off
     volume1, volume2 = build_aligned_volumes(L_SHAPE_1, phi1, L_SHAPE_2, phi2)
     assert compute_similarity(volume1, volume2) == 1.0
 

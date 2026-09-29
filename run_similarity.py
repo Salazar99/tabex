@@ -3,6 +3,7 @@ import json
 from fractions import Fraction
 
 from similarity.stl_similarity import (
+    EPS,
     calc_similarity_from_formulas,
     signal_spaces_from_definition,
     signal_spaces_from_tableau,
@@ -45,6 +46,8 @@ if __name__ == "__main__":
                              "max|constant| + 1 if omitted.")
     parser.add_argument("--via", choices=("definition", "tableau"), default="definition",
                         help="Compute the signal space denotationally (default) or via stlsat's tableau.")
+    parser.add_argument("--eps", type=Fraction, default=EPS,
+                        help="Precision ε of Definition 3 (endpoint mass), exact. Default 1/10^6.")
     args = parser.parse_args()
 
     if args.save_volumes:
@@ -63,5 +66,5 @@ if __name__ == "__main__":
 
     score = calc_similarity_from_formulas(args.formula1, args.formula2,
                                           tabex_root=args.tabex_root, D=args.D,
-                                          via=args.via)
+                                          via=args.via, eps=args.eps)
     print(f"Similarity score between formula {args.formula1!r} and formula {args.formula2!r} is: {score}")

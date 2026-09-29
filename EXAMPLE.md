@@ -328,8 +328,8 @@ calls per cell pair** here. The function runs five steps in order
 | 1 | both slots undefined → `1.0`; exactly one → `0.0` | **no** — canonicalisation left no `(-inf,inf)` slot |
 | 2 | truncate both to `[-D, D]`, via `intersect` so openness survives | always |
 | 3 | identical after truncation → `1.0` | **yes**, and it is the common case here |
-| 4 | `measure(meet) == 0` → `0.0`, without computing the join | **yes**, on axis `(t=1, x)` |
-| 5 | Jaccard `\|meet\| / \|join\|`, exact `Fraction`s, float only at the boundary | **no** — see [Part 2](#part-2--bounded-atoms-a-disjunction-and-four-paths), where it is the whole story |
+| 4 | meet empty → `0.0`, without computing the join | **yes**, on axis `(t=1, x)` |
+| 5 | ε-Jaccard `\|meet\|_ε / \|join\|_ε` (length + ε per endpoint contained, Definition 3), exact `Fraction`s, float only at the boundary | **no** — see [Part 2](#part-2--bounded-atoms-a-disjunction-and-four-paths), where it is the whole story |
 
 Worked on **φ0 vs θ0**:
 

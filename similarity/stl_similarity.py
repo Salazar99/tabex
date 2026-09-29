@@ -63,9 +63,27 @@ def truncate(pieces, D):
     return [clamped for iv in pieces if (clamped := iv.intersect(window)) is not None]
 
 
-def point_sim_d(pieces1, pieces2, D):
-    # Eq. PointSimD: truncate to the D-window first, then a single Jaccard
-    # formula covers every remaining case (no separate distance-decay case).
+#: Default precision ε of Definition 3. Exact, so scores stay exact rationals
+#: until the final float(); small enough that 4-decimal reports do not move.
+EPS = Fraction(1, 10**6)
+
+
+def finite_endpoints(pieces):
+    return {e for iv in pieces for e in (iv.l, iv.r) if abs(e) != float("inf")}
+
+
+def measure_eps(pieces, endpoints, eps):
+    # Definition 3: |A|_ε = λ(A) + ε·#(A ∩ E). Lebesgue measure alone cannot
+    # tell (0,D] from [0,D]; the ε term charges every endpoint A contains.
+    merged = merge_pieces(pieces)
+    hits = sum(1 for e in endpoints
+               if any(Interval(e, e).intersect(iv) is not None for iv in merged))
+    return measure(merged) + eps * hits
+
+
+def point_sim_d(pieces1, pieces2, D, eps=EPS):
+    # Eq. 5: truncate to the D-window first, then a single ε-Jaccard formula
+    # covers every remaining case (no separate distance-decay case).
     undef1, undef2 = is_undefined(pieces1), is_undefined(pieces2)
     if undef1 and undef2:
         return 1.0
@@ -75,18 +93,21 @@ def point_sim_d(pieces1, pieces2, D):
     t1, t2 = truncate(pieces1, D), truncate(pieces2, D)
     m1, m2 = merge_pieces(t1), merge_pieces(t2)
     if [iv.to_tuple() for iv in m1] == [iv.to_tuple() for iv in m2]:
-        # Eq. 5 case 1: ĉ1,D = ĉ2,D. Must be checked before the Jaccard case
-        # below, or two identical degenerate constraints (e.g. x==5, both
-        # truncate to a zero-length point) hit intersection==0 and wrongly
-        # score 0 instead of 1.
+        # Eq. 5 case 1: ĉ1,D = ĉ2,D.
         return 1.0
-    intersection = measure(intersect_pieces(t1, t2))
-    if intersection == 0:
+    meet = intersect_pieces(t1, t2)
+    if not meet:
+        # Eq. 5 case 2 tests emptiness, not measure: x>=5 vs x<=5 meet in the
+        # single point 5, which has ε-measure ε and so scores > 0.
         return 0.0
-    union = measure(union_pieces(t1, t2))
+    # E(c1,c2) comes from the constraints themselves, not their truncations:
+    # a ±D created by truncation is not an endpoint (Lemma 1's proof).
+    endpoints = finite_endpoints(pieces1) | finite_endpoints(pieces2)
+    union = measure_eps(union_pieces(t1, t2), endpoints, eps)
     # float() at the boundary: the ratio is exact, the score is reported as a
-    # float so callers and "== 1.0" comparisons behave as before.
-    return float(intersection / union) if union > 0 else 0.0
+    # float so callers and "== 1.0" comparisons behave as before. With ε > 0
+    # the union is never 0, even for degenerate constraints like [5,5].
+    return float(measure_eps(meet, endpoints, eps) / union)
 
 
 def _finite_bounds(volumes):
@@ -150,7 +171,7 @@ def resolve_D(D, tree1, tree2):
     return D
 
 
-def path_similarity(path1, path2, all_vars, D):
+def path_similarity(path1, path2, all_vars, D, eps=EPS):
     times = set(path1.timeline.keys()) | set(path2.timeline.keys())
     total = 0.0
     for t in times:
@@ -162,12 +183,12 @@ def path_similarity(path1, path2, all_vars, D):
             continue
         slot1, slot2 = path1.timeline[t], path2.timeline[t]
         for var in all_vars:
-            total += point_sim_d(slot1.get(var, UNDEFINED), slot2.get(var, UNDEFINED), D)
+            total += point_sim_d(slot1.get(var, UNDEFINED), slot2.get(var, UNDEFINED), D, eps)
     denom = len(times) * len(all_vars)
     return total / denom if denom else 1.0
 
 
-def one_way_similarity(volume1, volume2, all_vars, D):
+def one_way_similarity(volume1, volume2, all_vars, D, eps=EPS):
     # Eq. 7: both empty -> 1 (two unsatisfiable formulas are equivalent);
     # exactly one empty -> 0 (sat vs unsat is maximally dissimilar).
     if not volume1.volume and not volume2.volume:
@@ -175,18 +196,18 @@ def one_way_similarity(volume1, volume2, all_vars, D):
     if not volume1.volume or not volume2.volume:
         return 0.0
     total = sum(
-        max(path_similarity(path1, path2, all_vars, D) for path2 in volume2.volume)
+        max(path_similarity(path1, path2, all_vars, D, eps) for path2 in volume2.volume)
         for path1 in volume1.volume
     )
     return total / len(volume1.volume)
 
 
-def compute_similarity(volume1, volume2, D=None):
+def compute_similarity(volume1, volume2, D=None, eps=EPS):
     all_vars = sorted(set(volume1.vars) | set(volume2.vars))
     if D is None:
         D = default_D([volume1, volume2])
-    forward = one_way_similarity(volume1, volume2, all_vars, D)
-    backward = one_way_similarity(volume2, volume1, all_vars, D)
+    forward = one_way_similarity(volume1, volume2, all_vars, D, eps)
+    backward = one_way_similarity(volume2, volume1, all_vars, D, eps)
     return (forward + backward) / 2
 
 
@@ -281,7 +302,7 @@ def signal_spaces_from_tableau(formula1, formula2, tabex_root=None):
 
 
 def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
-                                  via="definition"):
+                                  via="definition", eps=EPS):
     """Similarity of two formula strings.
 
     `via="definition"` (the default) computes each signal space by structural
@@ -294,6 +315,8 @@ def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
     that bound, it is refused (see `resolve_D`). This is the only layer holding
     the formulas themselves, so it is the only one that can check the bound --
     `compute_similarity` takes whatever D it is handed.
+
+    `eps` is the precision ε of Definition 3; any ε > 0 is correct (Lemma 1).
     """
     from reference_semantics import parse
 
@@ -305,13 +328,16 @@ def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
     # Both routes document the same fragment; if that ever diverges it is a
     # fragment bug to fix there, not a case to paper over with a looser D.
     D = resolve_D(D, parse(formula1), parse(formula2))
+    eps = Fraction(eps)
+    if eps <= 0:
+        raise ValueError(f"eps must be positive (Definition 3: ε > 0), got {eps}")
 
     if via == "definition":
         paths1, paths2, all_vars = signal_spaces_from_definition(formula1, formula2)
     else:
         paths1, paths2, all_vars = signal_spaces_from_tableau(formula1, formula2, tabex_root)
     volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=all_vars)
-    return compute_similarity(volume1, volume2, D=D)
+    return compute_similarity(volume1, volume2, D=D, eps=eps)
 
 
 if __name__ == "__main__":
@@ -325,9 +351,11 @@ if __name__ == "__main__":
                              "constant in either formula. Auto-derived if omitted.")
     parser.add_argument("--via", choices=("definition", "tableau"), default="definition",
                         help="Compute the signal space denotationally (default) or via stlsat's tableau.")
+    parser.add_argument("--eps", type=Fraction, default=EPS,
+                        help="Precision ε of Definition 3 (endpoint mass), exact. Default 1/10^6.")
     cli_args = parser.parse_args()
 
     score = calc_similarity_from_formulas(cli_args.formula1, cli_args.formula2,
                                           tabex_root=cli_args.tabex_root, D=cli_args.D,
-                                          via=cli_args.via)
+                                          via=cli_args.via, eps=cli_args.eps)
     print(f"Similarity score between formula {cli_args.formula1!r} and formula {cli_args.formula2!r} is: {score}")

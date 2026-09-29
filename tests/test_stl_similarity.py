@@ -8,6 +8,7 @@ from parse_graph import Interval, Path, build_tree_from_dot, discover_all_variab
 from reference_semantics import parse
 from similarity.canon import canonicalize, cell_key
 from similarity.stl_similarity import (
+    EPS,
     build_aligned_volumes,
     build_volume_from_paths,
     calc_similarity_from_formulas,
@@ -36,8 +37,11 @@ def test_point_sim_d_matches_preliminaries_worked_example():
     # preliminaries.tex, Section AltPointSim: c1=[2,inf), c2=[5,inf).
     c1 = [Interval(2, math.inf)]
     c2 = [Interval(5, math.inf)]
-    assert math.isclose(point_sim_d(c1, c2, 100), 95 / 98)
-    assert math.isclose(point_sim_d(c1, c2, 10), 5 / 8)
+    # Paper's value is the ε -> 0 limit. With Definition 3, meet [5,D] holds
+    # endpoint 5 and join [2,D] holds 2 and 5.
+    assert point_sim_d(c1, c2, 100) == float((95 + EPS) / (98 + 2 * EPS))
+    assert point_sim_d(c1, c2, 10) == float((5 + EPS) / (8 + 2 * EPS))
+    assert math.isclose(point_sim_d(c1, c2, 100), 95 / 98, rel_tol=1e-6)
 
 
 def test_worked_example_matches_EXAMPLE_md():
@@ -104,18 +108,18 @@ def test_worked_example_part2_matches_EXAMPLE_md():
     assert (len(volume1.volume), len(volume2.volume)) == (16, 5)
 
     # The Jaccard branch itself, on the slab pair EXAMPLE.md derives by hand:
-    # meet (1,2) has length 1, join (0,5) has length 5.
+    # meet (1,2) has length 1, join (0,5) has length 5 and holds endpoints 1, 2.
     assert point_sim_d([Interval(0, 2, True, True)],
-                       [Interval(1, 5, True, True)], 7) == 1 / 5
+                       [Interval(1, 5, True, True)], 7) == float(1 / (5 + 2 * EPS))
 
     # A bounded slab pair is D-invariant -- it lies inside every legal window --
     # while the unbounded pairs in the same table drift towards 1 as D grows.
     # That contrast is the point of Part 2's "Why D matters" table.
     assert point_sim_d([Interval(0, 2, True, True)],
-                       [Interval(1, 5, True, True)], 100) == 1 / 5
+                       [Interval(1, 5, True, True)], 100) == float(1 / (5 + 2 * EPS))
 
     score = calc_similarity_from_formulas(phi, theta, D=D)
-    assert math.isclose(score, 0.4159375)         # NOT equal: 0.41593749999999996
+    assert math.isclose(score, 0.4159375, abs_tol=1e-5)   # ε -> 0 limit; ε shifts it by O(ε)
 
 
 def test_worked_example_part3_matches_EXAMPLE_md():
@@ -143,7 +147,7 @@ def test_worked_example_part3_matches_EXAMPLE_md():
     D = resolve_D(None, parse(phi), parse(theta))
     before = compute_similarity(build_volume_from_paths(phi, paths1, all_vars),
                                 build_volume_from_paths(theta, paths2, all_vars), D=D)
-    assert before == 0.75                         # box-to-box, no canonicalisation
+    assert math.isclose(before, 0.75, abs_tol=1e-5)   # box-to-box, no canonicalisation; O(ε) off
     assert calc_similarity_from_formulas(phi, theta, D=D) == 1.0
 
 
@@ -529,17 +533,18 @@ def test_derived_D_uses_con_not_the_canonical_endpoints():
 
 
 def test_point_sim_d_with_a_rational_D_is_exact():
-    # D = 21/2: intersection (5, 21/2] = 11/2, union (2, 21/2] = 17/2.
+    # D = 21/2: intersection [5, 21/2] = 11/2 + ε, union [2, 21/2] = 17/2 + 2ε.
     c1, c2 = [Interval(2, math.inf)], [Interval(5, math.inf)]
-    assert point_sim_d(c1, c2, Fraction(21, 2)) == float(Fraction(11, 17))
+    assert point_sim_d(c1, c2, Fraction(21, 2)) == float((Fraction(11, 2) + EPS) / (Fraction(17, 2) + 2 * EPS))
 
 
 def test_user_D_reaches_the_score():
     # The paper's own Section 5.2 worked example, end to end from formulas.
     from similarity.stl_similarity import calc_similarity_from_formulas
 
-    assert calc_similarity_from_formulas("x>2", "x>5", D=100) == 95 / 98
-    assert calc_similarity_from_formulas("x>2", "x>5", D=10) == 5 / 8
+    # Open ends: meet (5,D] holds no endpoint, join (2,D] holds 5.
+    assert calc_similarity_from_formulas("x>2", "x>5", D=100) == float(95 / (98 + EPS))
+    assert calc_similarity_from_formulas("x>2", "x>5", D=10) == float(5 / (8 + EPS))
 
 
 def test_ill_formed_user_D_is_refused_end_to_end():
@@ -547,3 +552,28 @@ def test_ill_formed_user_D_is_refused_end_to_end():
 
     with pytest.raises(ValueError, match="must exceed 5"):
         calc_similarity_from_formulas("x>2", "x>5", D=3)
+
+
+def test_endpoint_disagreement_is_not_scored_as_identity():
+    # Lemma 1: Point_sim_D = 1 iff c1 = c2. Plain Lebesgue Jaccard scores
+    # x>0 vs x>=0 as 1; Definition 3's ε term charges the endpoint 0.
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    score = calc_similarity_from_formulas("x>0", "x>=0", D=100)
+    assert score == float(100 / (100 + EPS)) and score < 1.0
+
+
+def test_point_meet_is_not_disjoint():
+    # Eq. 5 case 2 is emptiness, not zero measure: [5,inf) and (-inf,5] share 5.
+    assert point_sim_d([Interval(5, math.inf)], [Interval(-math.inf, 5)], 100) \
+        == float(EPS / (200 + EPS))
+    # A degenerate constraint inside a wider one scores ε/(λ(join)+ε), as §5.2 says.
+    assert point_sim_d([Interval(5, 5)], [Interval(0, 10)], 100) \
+        == float(EPS / (10 + 3 * EPS))
+
+
+def test_eps_must_be_positive():
+    from similarity.stl_similarity import calc_similarity_from_formulas
+
+    with pytest.raises(ValueError):
+        calc_similarity_from_formulas("x>0", "x>1", eps=0)

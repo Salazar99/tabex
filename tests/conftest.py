@@ -104,8 +104,8 @@ def _format_volume(volume):
     return shown
 
 
-def _recording_compute_similarity(volume1, volume2, D=None):
-    score = _unwrapped_compute_similarity(volume1, volume2, D=D)
+def _recording_compute_similarity(volume1, volume2, D=None, **kwargs):
+    score = _unwrapped_compute_similarity(volume1, volume2, D=D, **kwargs)
     # Format eagerly: build_aligned_volumes() mutates volume.volume in place,
     # so the cells have to be rendered while they are the ones just scored.
     SIMILARITY_LOG.append((
