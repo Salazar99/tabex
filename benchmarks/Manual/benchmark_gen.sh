@@ -16,13 +16,10 @@
 #  8. F[0,2](x>0 && y>0)  and F[0,2](x>0 || y>0)
 #  9. F[0,2](x<5)         and F[0,2](x>0)
 # 10. F[0,4](x>0)         and F[0,2](x>0)
-#
-# --via definition is the denotational path (the default): it needs no
-# cargo/z3, unlike --via tableau.
 
 cd "$(dirname "$0")" || exit 1
 ROOT="../.."
-RUN="python3 $ROOT/run_similarity.py --via definition"
+RUN="python3 $ROOT/run_similarity.py"
 
 rm -f results.txt
 

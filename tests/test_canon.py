@@ -1,8 +1,10 @@
 import math
 
+import pytest
+
 from conftest import REPO_ROOT  # noqa: F401  (adds repo root to sys.path)
-from parse_graph import Interval, Path
-from similarity.canon import canonicalize, cell_key
+from similarity.intervals import Interval, Path
+from similarity.canon import _canonicalize_reference, canonicalize, cell_key
 from similarity.stl_similarity import build_aligned_volumes, build_volume_from_paths, compute_similarity
 
 INF = math.inf
@@ -22,7 +24,7 @@ def l_shape_paths():
 
 
 # These tests build regions directly as Path/Interval boxes rather than going
-# through stlsat, so that they stay unit tests (no cargo/z3 needed). The names
+# through a formula, so each one pins exactly the region it means. The names
 # below are the STL each hand-built region corresponds to -- they are what the
 # end-of-run similarity report in conftest.py prints, so they have to say what
 # was actually compared.
@@ -143,7 +145,7 @@ def test_self_canonicalization_reproduces_the_same_box():
 
 
 # --------------------------------------------------------------------------
-# equivalent-but-differently-shaped tableaux
+# equivalent-but-differently-shaped decompositions
 # --------------------------------------------------------------------------
 
 def test_tautological_conjunct_at_a_later_instant_scores_one():
@@ -280,3 +282,58 @@ def test_canonical_form_does_not_depend_on_axis_order():
 
     assert len(canonicalize(l_shape)) == 3
     assert swap_axes(cell_set(canonicalize(transposed))) == cell_set(canonicalize(l_shape))
+
+
+# --------------------------------------------------------------------------
+# canonicalize() never builds the fine arrangement; _canonicalize_reference()
+# is the algorithm the proofs describe. They must return the same cells in
+# the same order -- order too, since the score sums floats over them.
+# --------------------------------------------------------------------------
+
+THETA1 = "(x>=0.2 && x<=0.4)"
+THETA2 = "(x>=0.2 && x<=0.44)"
+REFERENCE_FORMULAS = [
+    "F[0,2](x>0)", "G[0,2](x>0 || y>0)", "F[0,2](x>0 && y>0)", "F[0,2](x<5) && G[1,2](x>=5)",
+    "(x>0) U[0,2] (y<3)", "G[0,1](x>0) && F[0,1](y<3)", "F[0,1]((x>0 && x<2) || (x>4 && x<6))",
+    "(x<=100)||(x>=100)", "(x>=1 && y>-1) || (x>1 && y>=-1)", "G[0,2](x!=3) || F[1,2](y==2)",
+    f"F[0,4]{THETA1}", f"G[0,3] F[0,2]{THETA1}", f"G[0,4]{THETA1} && F[0,4]{THETA2}", "true", "false",
+]
+
+
+def _ordered_keys(cells):
+    return [cell_key(c) for c in cells]
+
+
+@pytest.mark.parametrize("formula", REFERENCE_FORMULAS)
+def test_canonicalize_matches_reference_on_formulas(formula):
+    from similarity.reference_semantics import parse, signal_space, variables
+
+    tree = parse(formula)
+    paths = signal_space(tree, sorted(variables(tree)))
+    assert _ordered_keys(canonicalize(paths)) == _ordered_keys(_canonicalize_reference(paths))
+
+
+def test_canonicalize_matches_reference_on_random_boxes():
+    import random
+
+    from verification.verify_canon import _paths_2d, _random_2d
+
+    random.seed(0)
+    for _ in range(2000):
+        paths = _paths_2d(_random_2d(0.45))
+        assert _ordered_keys(canonicalize(paths)) == _ordered_keys(_canonicalize_reference(paths))
+    for phi in l_shape_paths():
+        assert _ordered_keys(canonicalize(phi)) == _ordered_keys(_canonicalize_reference(phi))
+
+
+@pytest.mark.parametrize("formula", [f"G[0,20]{THETA1}", f"G[0,20]{THETA1} && F[0,20]{THETA2}"])
+def test_long_horizon_single_cell_is_fast(formula):
+    # The fine arrangement here is 3^21 cells; the canonical form is one.
+    import time
+
+    from similarity.reference_semantics import parse, signal_space
+
+    paths = signal_space(parse(formula), ["x"])
+    start = time.perf_counter()
+    assert len(canonicalize(paths)) == 1
+    assert time.perf_counter() - start < 1

@@ -64,7 +64,7 @@ Every part uses the same conventions:
 This part explains every stage; Parts 2 and 3 build on it.
 
 ```bash
-python3 plot_pipeline.py 'G[0,1](x>0) && F[0,1](y<3)' '(x>0) U[0,1] (y<3)' \
+python3 plotting/plot_pipeline.py 'G[0,1](x>0) && F[0,1](y<3)' '(x>0) U[0,1] (y<3)' \
         -o figures/example
 ```
 
@@ -157,11 +157,9 @@ w, t ⊨ φ U[a,b] ψ   ⟺   ∃ u ∈ [a,b] : w, t+u ⊨ ψ  ∧  ∀ v ∈ [t
 ```
 
 Note the closed `[t, t+u]`: **the invariant is required at the witness too.**
-Textbook STL uses the half-open `[t, t+u)`. This is a deliberate choice, argued
-in [PROOF.md](./PROOF.md) §2.4 and pinned by the test
-`test_until_includes_its_witness`; it is also what stlsat's tableau computes, so
-the differential cross-check needs no translation. The two dashed nodes in the
-figure are the two disjuncts:
+Textbook STL uses the half-open `[t, t+u)`. This is a deliberate choice, the
+paper's Remark 1, pinned by the test `test_until_includes_its_witness`. The two
+dashed nodes in the figure are the two disjuncts:
 
 | `u` | witness | invariant | box |
 |---|---|---|---|
@@ -179,10 +177,9 @@ signals φ rejects, and never the reverse.
 
 `signal_space()` lifts the box list to `list[Path]`, padding every path to the
 full `{0,1} × {x,y}` grid with `(-inf, inf)`. Both formulas are evaluated over
-the **joint** variable set and the **joint** horizon: `canonicalize()` requires
-all paths to share one ambient axis set (hypothesis H1 of
-[FORMAL_PROOFS.md](./FORMAL_PROOFS.md)) and raises on ragged input. Padding
-changes neither region.
+the **joint** variable set and the **joint** horizon, the common grid of the
+paper's Definition 1: two regions are only comparable over one axis set.
+Padding changes neither region.
 
 ![raw signal space](./figures/example/02_region_raw.png)
 
@@ -430,7 +427,7 @@ unconditionally, so that axis carries no information about their difference.
 ## Part 2 — bounded atoms, a disjunction, and four paths
 
 ```bash
-python3 plot_pipeline.py 'F[0,1]((x>0 && x<2) || (x>4 && x<6))' \
+python3 plotting/plot_pipeline.py 'F[0,1]((x>0 && x<2) || (x>4 && x<6))' \
         'F[0,1](x>1 && x<5)' -o figures/example-bounded
 ```
 
@@ -638,7 +635,7 @@ whole 16 × 5 matrix takes only six distinct values on its diagonal structure.
 ## Part 3 — two equivalent formulas, one canonical space
 
 ```bash
-python3 plot_pipeline.py \
+python3 plotting/plot_pipeline.py \
   '((x>=0 && x<=2) && (y>=0 && y<=1)) || ((x>=0 && x<=1) && (y>=1 && y<=2))' \
   '((x>=0 && x<=1) && (y>=0 && y<=2)) || ((x>=1 && x<=2) && (y>=0 && y<=1))' \
         -o figures/example-lshape
@@ -801,7 +798,7 @@ a stronger statement than a score of 1.
 | `true` | `(x<=0) \|\| (x>=0)` | coarsening erases the constant entirely |
 
 This list is illustrative, not exhaustive.
-[verify_equivalence.py](./verify_equivalence.py) randomises exactly this
+[verification/verify_equivalence.py](./verification/verify_equivalence.py) randomises exactly this
 property — generate a formula, apply an equivalence-preserving rewrite, require
 `G = 1` — over 120 trials by default.
 
@@ -824,7 +821,3 @@ property — generate a formula, apply an equivalence-preserving rewrite, requir
   illustrate a number the metric does not produce. The headline numbers are
   additionally pinned by the `test_worked_example_*` tests in
   [tests/test_stl_similarity.py](./tests/test_stl_similarity.py).
-* **The other route.** Everything above is the denotational path
-  (`--via definition`), the one [PROOF.md](./PROOF.md) Theorem A is about.
-  `--via tableau` derives the same region from stlsat's tableau instead and is
-  cross-checked against this one rather than trusted.

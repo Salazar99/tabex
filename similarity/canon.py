@@ -2,14 +2,13 @@
 
 `canonicalize(P(phi))` is *unary*: it depends only on the region
 S_phi = union of P(phi), never on the formula it is being compared against.
-Two tableaux that cut the same region into different boxes therefore
-canonicalize to the same object, which is what the L-shaped example of the
-paper needs -- without a joint grid, and without the `_own_constrained_axes` /
-`_globally_unconstrained_vars` gates a joint grid would force.
+Two decompositions that cut the same region into different boxes therefore
+canonicalize to the same object (Theorem 2 of the paper), which is what the
+L-shaped example needs -- no alignment step between the two formulas.
 
 Soundness (G(phi,theta) = 1 => phi == theta) rests on exactly one property of
 this module: canonicalisation is lossless, i.e. the union of the returned cells
-is the region it started from.
+is the region it started from (Proposition 2).
 
 Two invariants make that work, and both are easy to break:
 
@@ -29,13 +28,19 @@ Two invariants make that work, and both are easy to break:
    same cross-section. Those runs do not depend on any traversal order, so
    their product is a grid.
 
-Output has the same structure as standardize()'s: list[Path], each
+Output: list[Path], each
 Path.timeline = {t: {var: [Interval]}}, with exactly one interval per slot
 since a cell is a box.
 
-Pipeline, per formula: tableau -> standardize -> canonicalize -> trim.
+`canonicalize` computes this without materialising the fine arrangement
+(exponential in the axis count); `_canonicalize_reference` is the literal
+version of Definition 6, and the two are tested to agree.
+
+Pipeline, per formula: evaluate E -> canonicalize -> trim.
 """
-from parse_graph import Interval, Path, merge_pieces
+import itertools
+
+from similarity.intervals import Interval, Path, merge_pieces
 
 INF = float("inf")
 
@@ -148,7 +153,7 @@ def _axis_partition(cells, axis):
 
     A run may be collapsed because the region is prismatic across it: the
     cross-section does not change, so the split is an artifact of how this
-    particular tableau happened to branch. Two decompositions of one region
+    particular decomposition happened to cut it. Two decompositions of one region
     disagree on exactly such splits.
 
     Computed once, from the fine arrangement, independently per axis -- that is
@@ -184,12 +189,129 @@ def _slab_of(partition, iv):
     return iv
 
 
+#: Stands in for a projected-out axis, so a cross-section keeps its tuple shape.
+_STAR = frozenset({"*"})
+
+
+def _atom_boxes(paths, axes, breakpoints):
+    """Each path as a product: one frozenset of atom keys per axis.
+
+    The same arrangement atoms `_fine_cells` enumerates, without multiplying
+    them out. Atoms on an axis come from one arrangement, so two of them are
+    either identical or disjoint -- set operations on the keys are exact.
+    """
+    boxes = []
+    for path in paths:
+        box = tuple(
+            frozenset(atom.to_tuple()
+                      for piece in merge_pieces(path.timeline[t][var])
+                      for atom in _cut_piece(piece, breakpoints.get((t, var), ())))
+            for t, var in axes)
+        if all(box):     # an empty axis contributes no cell, as in _fine_cells
+            boxes.append(box)
+    return boxes
+
+
+def _covered(box, others):
+    """Is the product `box` inside the union `others`? Split-and-recurse.
+
+    ponytail: exponential in the worst case (it is a union-cover test); linear
+    on the G/F shapes formulas produce. Memoise on (box, others) if it bites.
+    """
+    meeting = [q for q in others if all(p & s for p, s in zip(box, q))]
+    if not meeting:
+        return False
+    if any(all(p <= s for p, s in zip(box, q)) for q in meeting):
+        return True
+    q = meeting[0]
+    i = next(i for i, (p, s) in enumerate(zip(box, q)) if not p <= s)
+    inside, outside = box[:i] + (box[i] & q[i],) + box[i + 1:], box[:i] + (box[i] - q[i],) + box[i + 1:]
+    return _covered(inside, meeting) and _covered(outside, meeting)
+
+
+def _same_region(boxes_a, boxes_b):
+    return all(_covered(b, boxes_b) for b in boxes_a) and \
+        all(_covered(b, boxes_a) for b in boxes_b)
+
+
+def _axis_partition_boxes(boxes, i):
+    """`_axis_partition` on axis `i`, read off the boxes instead of the fine cells.
+
+    An atom's fibre -- the set of fine cells projected from the cells above it
+    -- is a set of cells of the projected arrangement, which partition space;
+    so two fibres are equal iff the regions they cover are. That region is the
+    union of the projections of the boxes containing the atom, which can be
+    compared without enumerating a single cell.
+    """
+    holders = {}
+    for n, box in enumerate(boxes):
+        for key in box[i]:
+            holders.setdefault(key, []).append(n)
+
+    def fibre(key):
+        return [boxes[n][:i] + (_STAR,) + boxes[n][i + 1:] for n in holders[key]]
+
+    atoms = sorted(holders, key=lambda key: (key[0], key[2]))
+    current, partition = Interval(*atoms[0]), []
+    for prev, key in zip(atoms, atoms[1:]):
+        iv = Interval(*key)
+        touching = iv.l == current.r and not (iv.lo and current.ro)
+        if touching and (holders[prev] == holders[key]
+                         or _same_region(fibre(prev), fibre(key))):
+            current = Interval(current.l, iv.r, current.lo, iv.ro)
+        else:
+            partition.append(current)
+            current = iv
+    partition.append(current)
+    return partition
+
+
 def canonicalize(paths):
     """P(phi) -> the canonical cell list of the region it covers.
 
     Depends only on the union of `paths`, so two decompositions of the same
     region return the identical object. Lossless: the returned cells cover
     exactly that region, no more and no less.
+
+    Computes exactly `_canonicalize_reference` -- same cells, same order -- but
+    never builds the fine arrangement, which is exponential in the number of
+    axes even when the answer is one cell (`G[0,20] 0.2<=x<=0.4` cuts into
+    3^21 fine cells and coarsens back to 1). Partitions come from
+    `_axis_partition_boxes`; each path's cells are then its product over
+    per-axis slabs. The atom -> slab map is monotone, so walking that product
+    lexicographically meets the cells in the reference's first-seen order.
+    `tests/test_canon.py` checks the two agree.
+    """
+    if not paths:
+        return []
+    axes = sorted({(t, var) for path in paths
+                   for t, slot in path.timeline.items() for var in slot})
+    breakpoints = _breakpoints(paths)
+    boxes = _atom_boxes(paths, axes, breakpoints)
+    if not boxes:
+        return []
+    partitions = [_axis_partition_boxes(boxes, i) for i in range(len(axes))]
+    canonical = {}
+    for box in boxes:
+        slabs = []
+        for i, atoms in enumerate(box):
+            ordered = sorted(atoms, key=lambda key: (key[0], key[2]))
+            slabs.append(list(dict.fromkeys(
+                _slab_of(partitions[i], Interval(*key)).to_tuple() for key in ordered)))
+        for combo in itertools.product(*slabs):
+            timeline = {}
+            for (t, var), key in zip(axes, combo):
+                timeline.setdefault(t, {})[var] = [Interval(*key)]
+            cell = Path(timeline)
+            canonical.setdefault(cell_key(cell), cell)
+    return list(canonical.values())
+
+
+def _canonicalize_reference(paths):
+    """Definition 6 of the paper, literally: build the fine
+    arrangement, coarsen each axis, map every fine cell to its coarse cell.
+    Exponential in the axis count; kept as the specification `canonicalize`
+    is tested against.
     """
     if not paths:
         return []

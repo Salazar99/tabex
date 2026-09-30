@@ -6,7 +6,6 @@ from similarity.stl_similarity import (
     EPS,
     calc_similarity_from_formulas,
     signal_spaces_from_definition,
-    signal_spaces_from_tableau,
 )
 
 
@@ -36,35 +35,24 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save-volumes",
         action="store_true",
-        help="Save each formula's standardized signal space to a .json file.",
+        help="Save each formula's signal space to a .json file.",
     )
-    parser.add_argument("--tabex-root", help="Override $TABEX_ROOT / ~/tabex (--via tableau only).")
     parser.add_argument("--D", type=Fraction, default=None,
                         help="Domain D of Definition 2: the truncation window, read "
                              "exactly (10, 10.5 and 21/2 all accepted). Must exceed "
                              "every constant occurring in either formula. Derived as "
                              "max|constant| + 1 if omitted.")
-    parser.add_argument("--via", choices=("definition", "tableau"), default="definition",
-                        help="Compute the signal space denotationally (default) or via stlsat's tableau.")
     parser.add_argument("--eps", type=Fraction, default=EPS,
                         help="Precision ε of Definition 3 (endpoint mass), exact. Default 1/10^6.")
     args = parser.parse_args()
 
     if args.save_volumes:
-        # Built by the SAME route as the score below -- dumping a tableau region
-        # beside a denotational score would put two different computations of
-        # the signal space in one output.
-        if args.via == "definition":
-            paths1, paths2, _ = signal_spaces_from_definition(args.formula1, args.formula2)
-        else:
-            paths1, paths2, _ = signal_spaces_from_tableau(
-                args.formula1, args.formula2, tabex_root=args.tabex_root)
+        paths1, paths2, _ = signal_spaces_from_definition(args.formula1, args.formula2)
         with open(f"{args.formula1}_volume.json", "w") as f:
             json.dump(_serialize_paths(paths1), f, indent=2)
         with open(f"{args.formula2}_volume.json", "w") as f:
             json.dump(_serialize_paths(paths2), f, indent=2)
 
     score = calc_similarity_from_formulas(args.formula1, args.formula2,
-                                          tabex_root=args.tabex_root, D=args.D,
-                                          via=args.via, eps=args.eps)
+                                          D=args.D, eps=args.eps)
     print(f"Similarity score between formula {args.formula1!r} and formula {args.formula2!r} is: {score}")

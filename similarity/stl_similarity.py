@@ -1,9 +1,7 @@
-"""STL similarity metric, per preliminaries.tex.
+"""STL similarity metric, per Section 5 of the paper.
 
-Operates directly on parse_graph.py's signal space (list[Path], each
-Path.timeline: {t: {var: [Interval, ...]}}) instead of a separate JSON
-"bounds" format -- see similarity/stl_similarity.py.bk for the previous
-implementation, which consumed dotparser/input_creator.py's output.
+Operates on a formula's signal space as a list[Path], each
+Path.timeline: {t: {var: [Interval, ...]}}.
 """
 import argparse
 import sys
@@ -12,17 +10,7 @@ from pathlib import Path as FilePath
 
 sys.path.insert(0, str(FilePath(__file__).resolve().parent.parent))
 
-from parse_graph import (
-    Interval,
-    Path,
-    build_tree_from_dot,
-    collect_times,
-    discover_all_variables,
-    generate_signal_space_from_formula,
-    merge_pieces,
-    run_stlsat,
-    standardize,
-)
+from similarity.intervals import Interval, Path, merge_pieces
 from similarity.canon import canonicalize
 
 UNDEFINED = [Interval(float("-inf"), float("inf"))]
@@ -49,7 +37,7 @@ def union_pieces(a, b):
 
 
 def is_undefined(pieces):
-    # standardize() pads an unconstrained (t, var) slot with exactly this.
+    # signal_space() pads an unconstrained (t, var) slot with exactly this.
     return len(pieces) == 1 and pieces[0].l == float("-inf") and pieces[0].r == float("inf")
 
 
@@ -153,7 +141,7 @@ def resolve_D(D, tree1, tree2):
     rather than clamped -- clamping would report a score for a D the caller did
     not ask for.
     """
-    from reference_semantics import constants
+    from similarity.reference_semantics import constants
 
     bound = max((abs(c) for c in constants(tree1) | constants(tree2)),
                 default=Fraction(0))
@@ -246,7 +234,7 @@ def build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=None):
     #
     # canonicalize() (similarity/canon.py) depends only on the region a
     # formula's paths cover, never on the formula it is being compared
-    # against, so two tableaux that cut the same region into different boxes
+    # against, so two decompositions that cut the same region into different boxes
     # produce the identical cell list. That is what the L-shaped example
     # needs, and it is why no pairwise alignment step -- and none of the
     # axis-cutting gates it used to require -- appears here any more.
@@ -262,14 +250,13 @@ def build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=None):
 
 
 def signal_spaces_from_definition(formula1, formula2):
-    """Both regions straight from `reference_semantics`, over the joint grid.
+    """Both regions straight from `reference_semantics`, over the common grid.
 
-    This is the path with a proof behind it (FORMAL_PROOFS.md Theorem A). The
-    joint variable set and joint horizon put the two regions in the same ambient
-    space, which Path_sim's |T1 u T2| denominator needs and which is also
-    hypothesis H1 of Theorem B. Padding with [-inf, +inf] changes neither region.
+    The grid of Definition 1: joint variable set and joint horizon, which
+    Box_sim's |T1 u T2| * N_vars denominator needs and which satisfies (P1)
+    for both formulas. Padding with [-inf, +inf] changes neither region.
     """
-    from reference_semantics import parse, signal_space, variables
+    from similarity.reference_semantics import parse, signal_space, variables
 
     tree1, tree2 = parse(formula1), parse(formula2)
     all_vars = sorted(variables(tree1) | variables(tree2))
@@ -279,36 +266,8 @@ def signal_spaces_from_definition(formula1, formula2):
             all_vars)
 
 
-def signal_spaces_from_tableau(formula1, formula2, tabex_root=None):
-    """Both regions via stlsat's tableau -- the faster alternative.
-
-    Kept because the tableau scales to formulas the denotational evaluator
-    cannot, and because it is the only path that can read a hand-written .dot.
-    It is *cross-checked* against the definition rather than trusted; see
-    tests/test_reference_semantics.py.
-
-    stlsat's SAT verdict is not consulted: standardize() prunes the branches
-    stlsat left unexpanded, so an unsatisfiable formula extracts to no paths on
-    its own. Eq. 7 then handles empty-vs-empty (1) and empty-vs-nonempty (0).
-    """
-    dot1 = run_stlsat(formula1, tabex_root=tabex_root)
-    dot2 = run_stlsat(formula2, tabex_root=tabex_root)
-    tree1, tree2 = build_tree_from_dot(dot1), build_tree_from_dot(dot2)
-    all_vars = sorted(set(discover_all_variables(dot1)) | set(discover_all_variables(dot2)))
-    all_times = sorted(collect_times(tree1) | collect_times(tree2))
-    return (standardize(tree1, all_vars, all_times),
-            standardize(tree2, all_vars, all_times),
-            all_vars)
-
-
-def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
-                                  via="definition", eps=EPS):
-    """Similarity of two formula strings.
-
-    `via="definition"` (the default) computes each signal space by structural
-    recursion on the formula -- the route Theorem A is about. `via="tableau"`
-    computes it from stlsat instead, which is faster on large formulas and is
-    validated against the definition rather than trusted.
+def calc_similarity_from_formulas(formula1, formula2, D=None, eps=EPS):
+    """G(formula1, formula2): evaluate E -> canonicalize -> trim -> Eq. 8.
 
     `D` is the domain of Definition 2, the user parameter the metric truncates
     to. Omitted, it is derived as max|con(phi) u con(theta)| + 1; supplied below
@@ -316,46 +275,32 @@ def calc_similarity_from_formulas(formula1, formula2, tabex_root=None, D=None,
     the formulas themselves, so it is the only one that can check the bound --
     `compute_similarity` takes whatever D it is handed.
 
-    `eps` is the precision ε of Definition 3; any ε > 0 is correct (Lemma 1).
+    `eps` is the precision of Definition 3; any eps > 0 is correct (Lemma 1).
     """
-    from reference_semantics import parse
+    from similarity.reference_semantics import parse
 
-    if via not in ("definition", "tableau"):
-        raise ValueError(f"via must be 'definition' or 'tableau', not {via!r}")
-    # Parsed for con(phi) alone, on both routes -- no evaluation, ~25us, and it
-    # keeps the two routes on one code path.
-    # ponytail: no fallback for a formula stlsat accepts but parse() rejects.
-    # Both routes document the same fragment; if that ever diverges it is a
-    # fragment bug to fix there, not a case to paper over with a looser D.
     D = resolve_D(D, parse(formula1), parse(formula2))
     eps = Fraction(eps)
     if eps <= 0:
-        raise ValueError(f"eps must be positive (Definition 3: ε > 0), got {eps}")
+        raise ValueError(f"eps must be positive (Definition 3: eps > 0), got {eps}")
 
-    if via == "definition":
-        paths1, paths2, all_vars = signal_spaces_from_definition(formula1, formula2)
-    else:
-        paths1, paths2, all_vars = signal_spaces_from_tableau(formula1, formula2, tabex_root)
+    paths1, paths2, all_vars = signal_spaces_from_definition(formula1, formula2)
     volume1, volume2 = build_aligned_volumes(formula1, paths1, formula2, paths2, all_vars=all_vars)
     return compute_similarity(volume1, volume2, D=D, eps=eps)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compute STL formula similarity from parse_graph.py's signal space.")
+    parser = argparse.ArgumentParser(description="Compute the similarity G of two STL formulas.")
     parser.add_argument("formula1")
     parser.add_argument("formula2")
-    parser.add_argument("--tabex-root", help="Override $TABEX_ROOT / ~/tabex.")
     parser.add_argument("--D", type=Fraction, default=None,
                         help="Domain D of Definition 2: the truncation window, exact "
                              "(10, 10.5 and 21/2 all accepted). Must exceed every "
                              "constant in either formula. Auto-derived if omitted.")
-    parser.add_argument("--via", choices=("definition", "tableau"), default="definition",
-                        help="Compute the signal space denotationally (default) or via stlsat's tableau.")
     parser.add_argument("--eps", type=Fraction, default=EPS,
                         help="Precision ε of Definition 3 (endpoint mass), exact. Default 1/10^6.")
     cli_args = parser.parse_args()
 
     score = calc_similarity_from_formulas(cli_args.formula1, cli_args.formula2,
-                                          tabex_root=cli_args.tabex_root, D=cli_args.D,
-                                          via=cli_args.via, eps=cli_args.eps)
+                                          D=cli_args.D, eps=cli_args.eps)
     print(f"Similarity score between formula {cli_args.formula1!r} and formula {cli_args.formula2!r} is: {score}")

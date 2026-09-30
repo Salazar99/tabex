@@ -6,8 +6,8 @@ from similarity.stl_similarity import calc_similarity_from_formulas
 QUIT_WORDS = {"quit", "exit"}
 
 
-def run_comparison(formula1, formula2, tabex_root=None, D=None):
-    return calc_similarity_from_formulas(formula1, formula2, tabex_root=tabex_root, D=D)
+def run_comparison(formula1, formula2, D=None):
+    return calc_similarity_from_formulas(formula1, formula2, D=D)
 
 
 def main():
@@ -25,8 +25,6 @@ def main():
         try:
             score = run_comparison(formula1, formula2, D=Fraction(domain) if domain else None)
             print(f"Similarity score: {score:.4f}\n")
-        except RuntimeError as e:
-            print(f"stlsat error: {e}\n")
         except ValueError as e:
             # An ill-formed D, or a formula outside the fragment
             # (UnsupportedFormula subclasses ValueError). Report and keep the

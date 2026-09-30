@@ -1,5 +1,5 @@
-from plot_signal_space_3d import coverage, grid
-from reference_semantics import parse, signal_space, variables
+from plotting.plot_signal_space_3d import coverage, grid
+from similarity.reference_semantics import parse, signal_space, variables
 
 
 def test_bounded_eventually_gives_a_3x3x3_arrangement():
