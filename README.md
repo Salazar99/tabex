@@ -96,6 +96,7 @@ tabex_home/
 ├── run_similarity.py          # Runs the whole pipeline (CLI args)
 ├── similarity_check.py        # Interactive interface (prompts for formulas)
 ├── EXAMPLE.md                 # Three pairs through every stage, with figures
+├── EXPERIMENTS.md             # Status of the paper's experiments (RQ2–RQ5)
 ├── pytest.ini
 ├── LICENSE
 └── README.md
