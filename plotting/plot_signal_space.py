@@ -104,7 +104,7 @@ def plot(formula1, formula2, out, canonical=False, D=None):
     kind = "canonical cells" if canonical else "raw paths"
     score = calc_similarity_from_formulas(formula1, formula2, D=Fraction(D))
     fig.suptitle(f"{title}\n"
-                 f"signal space ({kind}), D = {D:g}, similarity = {score:.4f}",
+                 f"signal space ({kind}), D = {float(D):g}, similarity = {score:.4f}",
                  fontsize=9)
     fig.tight_layout()
     fig.savefig(out, dpi=150)

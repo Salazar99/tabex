@@ -1,0 +1,30 @@
+You are translating natural-language requirements of cyber-physical systems into Signal Temporal Logic (STL).
+
+Time is discrete: instants 0, 1, 2, ... ("time units"). Every signal is real-valued; its name is given in parentheses in the requirement. Temporal intervals [a,b] are closed, with non-negative integer bounds, and are relative to the instant at which the operator is evaluated. The whole formula is evaluated at instant 0.
+
+Write each formula in exactly this grammar and nothing else:
+
+  formula  ::= atom | true | false
+             | !formula | formula && formula | formula || formula | formula -> formula
+             | F[a,b] formula | G[a,b] formula | formula U[a,b] formula
+             | ( formula )
+  atom     ::= signal op constant        op is one of  <  <=  >  >=  ==  !=
+  constant ::= a decimal number, e.g. 5, -2, 15.4
+
+Constraints: every temporal operator must have a bounded interval [a,b]; an atom compares ONE signal with ONE constant (no "x > y", no arithmetic, no chained comparisons like 0 < x < 2 -- write x > 0 && x < 2 instead).
+
+Requirements:
+R1: The vehicle speed (speed) must stay below 120 at every time instant from 0 to 10.
+R2: During the first 10 time units the engine speed (rpm) must never reach 4750.
+R3: If the engine speed (rpm) stays below 3000 for the whole interval from 0 to 8, then the vehicle speed (speed) must stay below 35 from 0 to 4.
+R4: Whenever, during the first 5 time units, the temperature (temp) exceeds 80, the fan (fan) must be switched on, i.e. fan at least 1, within 3 time units.
+R5: Between time 2 and time 10, the air-fuel ratio (afr) must remain within 14.0 and 15.4.
+R6: At some point within the first 10 time units, the tank level (level) must reach at least 5.
+R7: The valve (valve) must stay closed, i.e. valve at most 0, until the pressure (pressure) exceeds 2, and this must happen within 6 time units.
+R8: During the first 10 time units, the battery voltage (v) must be at least 11 at least once in every window of 3 time units.
+R9: The position (pos) must stay between -1 and 1 for the first 5 time units, and afterwards between -0.5 and 0.5 up to time 10.
+R10: If the pressure (p) goes above 10 at any time in the first 5 time units, the alarm (alarm) must be raised, i.e. alarm at least 1, at that same instant and stay raised for the next 2 time units.
+R11: Within 4 time units, either the speed (speed) drops below 20 or the brake (brake) is applied, i.e. brake at least 0.5.
+R12: From time 0 to 10 the distance to the car in front (dist) must always be greater than 5, and whenever in that interval it falls below 10, the speed (speed) must drop below 30 within 2 time units.
+
+Answer with ONLY a JSON object mapping each requirement id to its formula string, e.g. {"R1": "...", "R2": "...", ...}. No explanation, no markdown fences.

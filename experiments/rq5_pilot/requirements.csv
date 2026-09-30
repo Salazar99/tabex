@@ -1,0 +1,13 @@
+id,requirement,reference
+R1,"The vehicle speed (speed) must stay below 120 at every time instant from 0 to 10.","G[0,10](speed<120)"
+R2,"During the first 10 time units the engine speed (rpm) must never reach 4750.","G[0,10](rpm<4750)"
+R3,"If the engine speed (rpm) stays below 3000 for the whole interval from 0 to 8, then the vehicle speed (speed) must stay below 35 from 0 to 4.","G[0,8](rpm<3000) -> G[0,4](speed<35)"
+R4,"Whenever, during the first 5 time units, the temperature (temp) exceeds 80, the fan (fan) must be switched on, i.e. fan at least 1, within 3 time units.","G[0,5](temp>80 -> F[0,3](fan>=1))"
+R5,"Between time 2 and time 10, the air-fuel ratio (afr) must remain within 14.0 and 15.4.","G[2,10](afr>=14 && afr<=15.4)"
+R6,"At some point within the first 10 time units, the tank level (level) must reach at least 5.","F[0,10](level>=5)"
+R7,"The valve (valve) must stay closed, i.e. valve at most 0, until the pressure (pressure) exceeds 2, and this must happen within 6 time units.","(valve<=0) U[0,6] (pressure>2)"
+R8,"During the first 10 time units, the battery voltage (v) must be at least 11 at least once in every window of 3 time units.","G[0,7] F[0,3](v>=11)"
+R9,"The position (pos) must stay between -1 and 1 for the first 5 time units, and afterwards between -0.5 and 0.5 up to time 10.","G[0,5](pos>=-1 && pos<=1) && G[6,10](pos>=-0.5 && pos<=0.5)"
+R10,"If the pressure (p) goes above 10 at any time in the first 5 time units, the alarm (alarm) must be raised, i.e. alarm at least 1, at that same instant and stay raised for the next 2 time units.","G[0,5](p>10 -> G[0,2](alarm>=1))"
+R11,"Within 4 time units, either the speed (speed) drops below 20 or the brake (brake) is applied, i.e. brake at least 0.5.","F[0,4](speed<20 || brake>=0.5)"
+R12,"From time 0 to 10 the distance to the car in front (dist) must always be greater than 5, and whenever in that interval it falls below 10, the speed (speed) must drop below 30 within 2 time units.","G[0,10](dist>5) && G[0,10](dist<10 -> F[0,2](speed<30))"

@@ -87,16 +87,26 @@ tabex_home/
 │   ├── verify_equivalence.py  # Randomised: equivalent formulas score G = 1
 │   └── verify_canon.py        # Randomised: canon.py is lossless and canonical
 ├── tabex_fast/
-│   └── engine.py              # Same score, computed on decision diagrams (scales to long horizons)
+│   ├── engine.py              # Same score, computed on decision diagrams (scales to long horizons)
+│   └── volume.py              # Ablation baseline: exact volume Jaccard of the two regions
 ├── madsen/
 │   ├── metrics.py             # Baseline: Madsen et al. (CDC 2018) PH and SD distances
 │   ├── compare.py             # TABEX vs Madsen on shared pairs
 │   └── results.md             # Output of compare.py
+├── experiments/               # The paper's RQ2–RQ5 (see EXPERIMENTS.md)
+│   ├── timing.py              # RQ2: time vs horizon and #variables
+│   ├── random_suite.py        # RQ2: generated equivalent pairs + graded mutations
+│   ├── volume_ablation.py     # G vs volume Jaccard
+│   ├── archcomp.py            # ARCH-COMP FALS requirements: fragment and scoreability
+│   ├── d_sensitivity.py       # RQ3: score vs the domain D
+│   ├── rq4/                   # RQ4: pruning Slam-mined candidates (vs STLSat)
+│   └── rq5_deepstl/           # RQ5: LLM formalisations of DeepSTL requirements (rq5_pilot/: first pilot)
 ├── tests/                     # Pytest suite
 ├── run_similarity.py          # Runs the whole pipeline (CLI args)
 ├── similarity_check.py        # Interactive interface (prompts for formulas)
 ├── EXAMPLE.md                 # Three pairs through every stage, with figures
 ├── EXPERIMENTS.md             # Status of the paper's experiments (RQ2–RQ5)
+├── RESULTS.md                 # Full results, setup of each experiment, discussion
 ├── pytest.ini
 ├── LICENSE
 └── README.md

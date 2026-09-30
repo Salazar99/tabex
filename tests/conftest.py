@@ -43,7 +43,7 @@ def _format_bound(value):
         return "inf"
     if value == float("-inf"):
         return "-inf"
-    return f"{value:g}"
+    return f"{float(value):g}"
 
 
 def _format_path(path):
