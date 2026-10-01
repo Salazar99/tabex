@@ -305,7 +305,10 @@ def regions(formula1, formula2):
 def similarity(formula1, formula2, D=None, eps=EPS):
     r1, r2, tree1, tree2 = regions(formula1, formula2)
     D = resolve_D(D, tree1, tree2)
-    return (one_way(r1, r2, D, Fraction(eps)) + one_way(r2, r1, D, Fraction(eps))) / 2
+    eps = Fraction(eps)
+    if eps <= 0:
+        raise ValueError(f"eps must be positive (Definition 3: eps > 0), got {eps}")
+    return (one_way(r1, r2, D, eps) + one_way(r2, r1, D, eps)) / 2
 
 
 if __name__ == "__main__":

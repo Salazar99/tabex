@@ -1,0 +1,499 @@
+\section{Methodology}\label{sec:method}
+
+\subsection{From the definitions to an implementation}\label{sec:method-overview}
+
+Sections~\ref{sec:SignalSpace} and~\ref{sec:MetricDefinition} define $G$ through three objects that are computed in turn:
+the decomposition $\Ev(\varphi,0)$, its canonical form, and the trimmed
+canonical decomposition $\Pc(\varphi)$, on which Eq.~\eqref{eq:OWSim} takes a
+mean of best matches. Read literally, these definitions are an algorithm, and
+we use that algorithm as the \emph{specification} of the metric. It is not how
+the metric is computed, because every one of the three objects can be
+exponential in the time bound~$T$. Let $\chi = (x \ge 0.2 \wedge x \le 0.4)$.
+Then $\Ev(\mathsf{G}_{[0,16]}\mathsf{F}_{[0,4]}\chi, 0)$ is built from $5^{17}$
+witness combinations, since every $\mathsf{G}$ instant chooses one of five
+$\mathsf{F}$ witnesses; even after identical boxes are merged, about
+$1.5\cdot10^{6}$ distinct boxes remain. And
+$\canon(\Ev(\mathsf{F}_{[0,20]}\chi,0))$ has $3^{21}-2^{21} \approx 10^{10}$
+canonical boxes. Eq.~\eqref{eq:OWSim} would then compare every canonical box of
+one formula with every canonical box of the other.
+
+The implementation computes the same number without building any of these
+objects. It proceeds in four stages, each run on one formula over the common
+grid of Definition~\ref{def:signalspace}:
+\[
+  \varphi
+  \;\xrightarrow{\ \ref{sec:method-diagram}\ }\; \Dg(\varphi)
+  \;\xrightarrow{\ \ref{sec:method-canon}\ }\; \Cg(\varphi)
+  \;\xrightarrow{\ \ref{sec:method-trim}\ }\; \bigl(\Cg_L(\varphi)\bigr)_{L=0}^{T+1}
+  \;\xrightarrow{\ \ref{sec:method-score}\ }\; \OWSim .
+\]
+The stages are these:
+\begin{enumerate}
+  \item The signal space $\Sig(\varphi)$ is stored as a hash-consed decision
+    diagram $\Dg(\varphi)$, built by the recursion $\Ev$ with a different
+    representation.
+  \item The runs of Definition~\ref{can:def:run} are read off $\Dg(\varphi)$, and
+    relabelling its edges by run gives a diagram $\Cg(\varphi)$ that accepts
+    exactly the canonical boxes.
+  \item Trimming becomes a partition of $\Cg(\varphi)$ by trimmed length~$L$.
+  \item $\OWSim$ is evaluated by a dynamic program that walks both canonical
+    diagrams one level at a time.
+\end{enumerate}
+The final stage is the only one that reads both formulas.
+Figure~\ref{fig:pipelines} summarises the four stages. For each one it gives
+what the stage replaces in the methodology and the result that proves the two
+compute the same object.
+Theorem~\ref{thm:compat} states that the result is $\OWSim_{\varphi\to\vartheta}$
+of Eq.~\eqref{eq:OWSim}, hence $G$ of Eq.~\eqref{eq:Global}. Everything proved
+in Sections~\ref{sec:SignalSpace}--\ref{sec:soundness} and Appendix~\ref{app:A} therefore holds of the computed score, and
+Section~\ref{sec:soundness} in particular.
+
+Three properties of the definitional pipeline carry over unchanged:
+\begin{itemize}
+  \item \textbf{Exact arithmetic.} Every breakpoint is a constant of the formula
+    (Lemma~\ref{can:lem:prov}), so atoms, runs and the truncated constraints of
+    Eq.~\eqref{eq:PointSimD} all have endpoints in~$\mathbb{Q}$.
+  \item \textbf{Negation never complements a region.} Negation is pushed to the
+    atoms before evaluation (Section~\ref{can:sec:neg}).
+  \item \textbf{No pairwise alignment.} The two formulas share nothing except
+    the grid (Section~\ref{sec:align}).
+\end{itemize}
+
+\paragraph{Notation.}
+Fix the common grid $\Ax = \{0,\dots,T\}\times V$ and list its $n = (T+1)|V|$
+axes in time-major order $a_1,\dots,a_n$, with a fixed order on $V$ inside each
+instant. We write $t_k$ for the instant of $a_k$. For a variable $v$ let
+$\con_v(\varphi)$ be the set of constants $c$ of the atoms $v \bowtie c$ of
+$\varphi$.
+
+\subsection{The signal space as a decision diagram}\label{sec:method-diagram}
+
+\paragraph{The fixed arrangement.}
+Put $B^*_{(t,v)} = \con_v(\varphi)$ for every instant~$t$. The atoms of axis
+$a_k$ over $B^*$ are $\alpha_{k,1},\dots,\alpha_{k,m_k}$ in increasing order,
+with $m_k = 2|B^*_{a_k}|+1$, as in Section~\ref{can:sec:arrange}. Unlike $B(\Ev(\varphi,0))$,
+this arrangement is known before anything is evaluated, and the diagram needs
+exactly that: one fixed alphabet per level.
+
+\begin{definition}[region diagram]\label{def:diagram}
+A \emph{node} of level $k\le n$ is a tuple of $m_k$ nodes of level $k+1$, its
+\emph{children}; $\nu[i]$ is the child along atom $\alpha_{k,i}$. Level $n+1$
+holds the two terminals $\rej$ and $\acc$. The \emph{language} $\Lang(\nu)$ of
+a node $\nu$ of level $k$ is the set of atom strings $(i_k,\dots,i_n)$ whose
+path from $\nu$ ends in~$\acc$, and a node $\nu$ of level~1 denotes
+\[
+  \sem{\nu} \;=\; \bigcup_{(i_1,\dots,i_n)\in\Lang(\nu)} \;\prod_{k=1}^{n}\alpha_{k,i_k}
+  \;\subseteq\; \mathbb{R}^{\Ax}.
+\]
+Nodes are only ever created by $\mk(k,\text{children})$, which returns the
+existing node when that tuple has been seen before (a unique table). We write
+$\rej_k$ and $\acc_k$ for the level-$k$ nodes all of whose children are
+$\rej_{k+1}$ and $\acc_{k+1}$, respectively.
+\end{definition}
+
+Every edge goes from level $k$ to level $k+1$, so each string of
+$\Lang(\nu)$ picks one atom on every axis, and $\sem{\nu}$ is a union of
+atom-products. Atom-products partition $\mathbb{R}^{\Ax}$, so distinct strings
+denote disjoint, non-empty products, and
+\begin{equation}\label{eq:lang-sem}
+  \sem{\nu}=\sem{\nu'} \iff \Lang(\nu)=\Lang(\nu').
+\end{equation}
+
+\begin{lemma}[canonicity]\label{lem:diag-canonical}
+Two nodes of the same level are equal iff their languages are equal. In
+particular $\rej_k$ is the only node of level $k$ with empty language.
+\end{lemma}
+
+\begin{proof}
+($\Rightarrow$) is trivial. ($\Leftarrow$) Induction on $n+1-k$. At level
+$n+1$ the terminals have languages $\emptyset$ and $\{()\}$. At level $k\le n$,
+$\Lang(\nu[i]) = \{ s : (i)\cdot s \in \Lang(\nu)\}$, so
+$\Lang(\nu)=\Lang(\nu')$ gives $\Lang(\nu[i])=\Lang(\nu'[i])$ for every~$i$.
+By the hypothesis the children are equal, so the tuples are equal, and the
+unique table returns one node for them.
+\end{proof}
+
+\paragraph{Boolean operations.}
+For $\circ\in\{\wedge,\vee\}$ and nodes $\nu,\nu'$ of level $k$,
+$\apply_\circ(\nu,\nu') = \mk\bigl(k, (\apply_\circ(\nu[i],\nu'[i]))_{i}\bigr)$,
+with $\apply_\wedge$ and $\apply_\vee$ acting on terminals as conjunction and
+disjunction, and results memoised on the pair. By induction on the level,
+$\Lang(\apply_\wedge(\nu,\nu')) = \Lang(\nu)\cap\Lang(\nu')$ and
+$\Lang(\apply_\vee(\nu,\nu')) = \Lang(\nu)\cup\Lang(\nu')$. So,
+by~\eqref{eq:lang-sem} and the partition, $\sem{\apply_\wedge(\nu,\nu')} =
+\sem{\nu}\cap\sem{\nu'}$ and $\sem{\apply_\vee(\nu,\nu')} =
+\sem{\nu}\cup\sem{\nu'}$. Unlike $\sqcap$ on decompositions, these operations
+do not multiply boxes: every node is shared by all the paths that reach it.
+
+\paragraph{Evaluation.}
+For $t + h(\varphi) \le T$ define the level-1 node $\Dg(\varphi,t)$ by the
+clauses of~$\Ev$ (Section~\ref{can:sec:eval}), with $\sqcap$ and $\cup$ replaced by
+$\apply_\wedge$ and $\apply_\vee$:
+\begin{align*}
+  \Dg(v\bowtie c,t) &= \text{the node accepting exactly the strings whose}\\
+  &\phantom{{}={}}\text{$(t,v)$-atom lies in } \{x : x\bowtie c\},\\
+  \Dg(\top,t) &= \acc_1,\qquad \Dg(\bot,t)=\rej_1,\qquad
+  \Dg(\varphi\wedge\psi,t) = \apply_\wedge\bigl(\Dg(\varphi,t),\Dg(\psi,t)\bigr),\\
+  \Dg(\varphi\vee\psi,t) &= \apply_\vee\bigl(\Dg(\varphi,t),\Dg(\psi,t)\bigr),\\
+  \Dg(\mathsf{F}_{[a,b]}\varphi,t) &= \textstyle\bigvee_{u=a}^{b}\Dg(\varphi,t+u),\qquad
+  \Dg(\mathsf{G}_{[a,b]}\varphi,t) = \textstyle\bigwedge_{u=a}^{b}\Dg(\varphi,t+u),\\
+  \Dg(\varphi\,\mathsf{U}_{[a,b]}\,\psi,t) &= \textstyle\bigvee_{u=a}^{b}
+     \Bigl(\Dg(\psi,t+u)\wedge\bigwedge_{s=t}^{t+u}\Dg(\varphi,s)\Bigr),
+\end{align*}
+where $\bigvee$ and $\bigwedge$ fold $\apply_\vee$ from $\rej_1$ and
+$\apply_\wedge$ from $\acc_1$. The recursion is memoised on
+(subformula, instant). $\Dg(\mathsf{G}_{[0,16]}\mathsf{F}_{[0,4]}\chi,0)$ therefore
+evaluates $\Dg(\chi,t)$ once per instant and never forms the $5^{17}$
+combinations. Write $\Dg(\varphi) = \Dg(\varphi,0)$.
+
+\begin{lemma}[the diagram denotes the signal space]\label{lem:diag-sem}
+Assume \textup{(P1)}. For every $\varphi$ and every $t$ with $t+h(\varphi)\le
+T$, $\sem{\Dg(\varphi,t)} = \sem{\Ev(\varphi,t)}$. In particular
+$\sem{\Dg(\varphi)} = \Sig(\varphi)$, and $\Sig(\varphi)$ is a union of
+$B^*$-atom-products.
+\end{lemma}
+
+\begin{proof}
+Structural induction, clause by clause against~$\Ev$.
+
+\emph{Atoms.} By Lemma~\ref{can:lem:atom}, $\{x : x\bowtie c\}$ is a union of
+intervals with finite endpoints in $\{c\}\subseteq B^*_{(t,v)}$. By
+Lemma~\ref{can:lem:dich} each $B^*$-atom of $(t,v)$ therefore lies inside that set
+or is disjoint from it. So $\sem{\Dg(v\bowtie c,t)} = \{w : w(t)(v)\bowtie c\}
+= \sem{\Ev(v\bowtie c,t)}$.
+
+\emph{Constants.} Immediate, since $\sem{\acc_1}=\mathbb{R}^{\Ax}$ and
+$\sem{\rej_1}=\emptyset$.
+
+\emph{Every other clause.} Each is a finite union or intersection of the
+arguments of the corresponding $\Ev$ clause, over the same instants. This
+includes the closed invariant window $s\in[t,t+u]$ of the until
+(Remark~\ref{can:rem:until}). By the paragraph on Boolean operations, $\apply_\vee$
+and $\apply_\wedge$ compute exactly that union and intersection, and
+Lemma~\ref{can:lem:algebra} says $\cup$ and $\sqcap$ do the same on
+decompositions. The two sides therefore agree by the induction hypothesis.
+
+The last claim holds because every $\sem{\nu}$ is a union of atom-products.
+\end{proof}
+
+\subsection{Canonicalisation on the diagram}\label{sec:method-canon}
+
+The canonical form (Definition~\ref{can:def:canon}) is defined over the arrangement
+$B(P)$ of the decomposition being canonicalised. The implementation works over
+$B^*$ instead, which is in general strictly finer: it cuts $x$ at every
+constant of $x$ on every instant, including instants where no box of
+$\Ev(\varphi,0)$ uses that constant. The first result shows that the canonical
+form does not depend on which arrangement is used, provided the region is a
+union of its atom-products.
+
+For an arrangement $B'$, write $\fine_{B'}(\Reg)$ for the set of
+$B'$-atom-products contained in~$\Reg$. Runs (Definition~\ref{can:def:run}) and
+coarse boxes depend on $\Reg$ alone, and $\coarse(X)$ is defined for
+$X\in\fine_{B'}(\Reg)$ exactly as in Section~\ref{can:sec:runs}.
+
+\begin{lemma}[arrangement independence]\label{lem:arr-indep}
+Let $\Reg\subseteq\mathbb{R}^{\Ax}$ be a union of $B'$-atom-products. Then
+\[
+  \{\coarse(X) : X\in\fine_{B'}(\Reg)\}
+  \;=\; \{C \text{ a coarse box} : \sem{C}\subseteq\Reg\}
+  \;=\; \canon(P)
+\]
+for every decomposition $P$ with $\sem{P}=\Reg$.
+\end{lemma}
+
+\begin{proof}
+The second equality is Proposition~\ref{can:prop:charac}, applied to $P$. For the
+first, we check that the proofs of Lemma~\ref{can:lem:const},
+Corollary~\ref{can:cor:runatom}, Lemma~\ref{can:lem:sat} and
+Proposition~\ref{can:prop:charac} use the arrangement only through the conclusion
+of Lemma~\ref{can:lem:const}. That conclusion also holds for $B'$-atoms:
+
+\emph{Lemma~\ref{can:lem:const} for $B'$.} Let $x,x'$ lie in one $B'$-atom $\alpha$
+of axis~$a$, and let $y\in\mathbb{R}^{\Ax\setminus\{a\}}$. The signals $(x,y)$
+and $(x',y)$ lie in the same $B'$-atom-product, because they differ only on
+$a$, where both lie in~$\alpha$. That product lies inside $\Reg$ or is disjoint
+from it, since $\Reg$ is a union of such products. Hence $(x,y)\in\Reg$ iff
+$(x',y)\in\Reg$, that is, $\kappa_a(x)=\kappa_a(x')$.
+
+With this in place, Corollary~\ref{can:cor:runatom} gives that every run is a union
+of $B'$-atoms. The argument before Definition~\ref{can:def:canon} then makes
+$\coarse(X)$ well defined for $X\in\fine_{B'}(\Reg)$. The proofs of
+Lemma~\ref{can:lem:sat} and Proposition~\ref{can:prop:charac} go through word for word,
+with $\fine_{B'}(\Reg)$ in place of $\fine(P)$, and give the first equality.
+\end{proof}
+
+By Lemma~\ref{lem:diag-sem}, $\Sig(\varphi)$ is a union of
+$B^*$-atom-products, and $\fine_{B^*}(\Sig(\varphi))$ is exactly the set of
+products named by the strings of $\Lang(\Dg(\varphi))$. It remains to compute
+the runs from the diagram. Let $R_k$ be the set of nodes of level $k$ reached
+from $\Dg(\varphi)$ by a path that avoids the nodes $\rej_j$. By
+Lemma~\ref{lem:diag-canonical}, these are the level-$k$ nodes reached by some
+prefix of an accepted string.
+
+\begin{lemma}[fibres from the diagram]\label{lem:fibre}
+Let $\Sig(\varphi)\neq\emptyset$, let $a=a_k$, and let $\alpha=\alpha_{k,i}$
+and $\alpha'=\alpha_{k,i'}$. Then
+\begin{enumerate}
+  \item $\kappa_a$ is non-empty on $\alpha$ iff $\nu[i]\neq\rej_{k+1}$ for some
+    $\nu\in R_k$;
+  \item $\kappa_a$ takes the same value on $\alpha$ and $\alpha'$ iff
+    $\nu[i]=\nu[i']$ for every $\nu\in R_k$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Pick $x\in\alpha$ and split $y\in\mathbb{R}^{\Ax\setminus\{a\}}$ into its part
+$y_<$ on $a_1,\dots,a_{k-1}$ and its part $y_>$ on $a_{k+1},\dots,a_n$. There
+is exactly one atom string $p$ of length $k-1$ whose product contains $y_<$, and
+exactly one string $s$ of length $n-k$ whose product contains $y_>$. Each node
+has one child per atom, so $p$ leads from the root to exactly one node $\nu_p$
+of level~$k$. Then $(x,y)\in\Sig(\varphi)$ iff $p\cdot(i)\cdot s$ is accepted,
+iff $s\in\Lang(\nu_p[i])$. Hence
+\[
+  \kappa_a(x) \;=\; \bigcup_{p} \;\sem{p}\times\sem{\nu_p[i]},
+\]
+where $\sem{p}$ and $\sem{\nu_p[i]}$ are the products and unions of products on
+the axes before and after~$a$. The sets $\sem{p}$ are non-empty and pairwise
+disjoint.
+
+Two such unions are therefore equal iff their terms are equal for every~$p$.
+By~\eqref{eq:lang-sem} and Lemma~\ref{lem:diag-canonical}, that holds iff
+$\nu_p[i]=\nu_p[i']$ for every~$p$. A prefix with $\nu_p=\rej_k$ has both
+children equal to $\rej_{k+1}$, so only $\nu_p\in R_k$ constrains anything,
+which gives~(2). Similarly, $\kappa_a(x)\neq\emptyset$ iff some term is
+non-empty, iff $\nu_p[i]\neq\rej_{k+1}$ for some $\nu_p\in R_k$, which
+gives~(1).
+\end{proof}
+
+By Lemma~\ref{lem:arr-indep}, the runs of axis $a_k$ are unions of
+$B^*$-atoms. So each run is a maximal block of \emph{consecutive} atoms on
+which $\kappa_a$ is non-empty and constant. By Lemma~\ref{lem:fibre}, such a
+block is a maximal block of consecutive atoms whose child tuples
+$(\nu[i])_{\nu\in R_k}$ are equal and not all~$\rej_{k+1}$. The implementation
+scans the atoms in order and extends the current run while this holds. When an
+atom with empty $\kappa_a$ is skipped, the next atom no longer touches the
+current run: two atoms open at the same breakpoint $b$ are separated by the
+missing $[b,b]$. So holes need no special case, exactly as in
+Section~\ref{can:sec:runs}.
+
+\begin{proposition}[canonical diagram]\label{prop:canon-diag}
+Let $S_{k,1},\dots,S_{k,r_k}$ be the runs of $a_k$, and let $f_k(j)$ be the
+index of the first atom of $S_{k,j}$. Define
+$\coarse(\rej_k)=\rej'_k$, $\coarse(\acc)=\acc$, and, for $\nu\in R_k$,
+\[
+  \coarse(\nu) = \mk'\bigl(k,\ (\coarse(\nu[f_k(j)]))_{j=1}^{r_k}\bigr),
+\]
+where $\mk'$ is the unique table of a second diagram whose level~$k$ has one
+edge per run of $a_k$. Let $\Cg(\varphi) = \coarse(\Dg(\varphi))$. Then the
+strings of $\Lang(\Cg(\varphi))$ are exactly the canonical boxes of
+$\canon(\Ev(\varphi,0))$, one string per canonical box.
+\end{proposition}
+
+\begin{proof}
+Follow a run string $(j_1,\dots,j_n)$ through $\Cg(\varphi)$. This retraces the
+path of the atom string $(f_1(j_1),\dots,f_n(j_n))$ through $\Dg(\varphi)$,
+and every node on that path is either some $\rej_k$ or lies in $R_k$. So the
+run string is accepted iff $X=\prod_k\alpha_{k,f_k(j_k)}$ lies in
+$\fine_{B^*}(\Sig(\varphi))$.
+
+Let $C$ be the coarse box $a_k\mapsto S_{k,j_k}$. If $X\in\fine_{B^*}$, then
+$\coarse(X)=C$, and $\sem{C}\subseteq\Sig(\varphi)$ by Lemma~\ref{can:lem:sat}.
+Conversely, if $\sem{C}\subseteq\Sig(\varphi)$, then
+$X\subseteq\sem{C}\subseteq\Sig(\varphi)$. So the accepted run strings are
+exactly the coarse boxes contained in $\Sig(\varphi)$. By
+Lemma~\ref{lem:arr-indep} and Lemma~\ref{lem:diag-sem}, these are
+$\canon(\Ev(\varphi,0))$. Distinct run strings name distinct coarse boxes.
+\end{proof}
+
+Proposition~\ref{prop:canon-diag} uses only Lemma~\ref{can:lem:sat}, not the choice
+of $f_k(j)$: by Lemma~\ref{lem:fibre}, any atom of the run has the same child
+under every node of $R_k$. $\Cg(\varphi)$ is again built with a unique table,
+so Lemma~\ref{lem:diag-canonical} and the operations $\apply_\wedge$ and
+$\apply_\vee$ apply to it. The number of canonical boxes, $|\Lang(\Cg(\varphi))|$,
+is computed by the memoised recursion $|\Lang(\nu)|=\sum_i|\Lang(\nu[i])|$,
+without listing the boxes. For $\mathsf{F}_{[0,20]}\chi$ this yields
+$3^{21}-2^{21}$.
+
+\subsection{Trimming as a partition by length}\label{sec:method-trim}
+
+A canonical box $C$ assigns a run $C_a$ to every axis. The constraint is
+$\mathtt{undef}$ exactly when $C_a=(-\infty,\infty)$, which is possible only
+when $(-\infty,\infty)$ is the sole run of~$a$. Trimming
+(Section~\ref{sec:align}) drops the trailing instants at which every
+variable is $\mathtt{undef}$, so the trimmed box has time domain
+$\{0,\dots,\len(C)-1\}$, where
+\[
+  \len(C) \;=\; \min\bigl\{L\in\{0,\dots,T+1\} : C_{(t,v)}=(-\infty,\infty)
+  \text{ for all } t\ge L,\ v\in V\bigr\}.
+\]
+For each $L$, let $M_L$ be the diagram over the run alphabet that accepts
+exactly the run strings with $\len=L$. It forces the $\mathtt{undef}$ run on
+every axis with $t\ge L$ and, if $L\ge1$, requires a run other than
+$\mathtt{undef}$ on some axis of instant $L-1$. $M_L$ has at most two nodes per
+level. Put $\Cg_L(\varphi)=\apply_\wedge(\Cg(\varphi),M_L)$.
+
+\begin{lemma}[trimming]\label{lem:trim}
+Trimming is injective on $\canon(\Ev(\varphi,0))$. The trimmed canonical
+decomposition $\Pc(\varphi)$ is therefore the disjoint union over
+$L\in\{0,\dots,T+1\}$ of the trimmed boxes of $\Lang(\Cg_L(\varphi))$, and
+each box of $\Lang(\Cg_L(\varphi))$ trims to time domain $\{0,\dots,L-1\}$.
+\end{lemma}
+
+\begin{proof}
+The last two claims follow from the construction of $M_L$ and
+Proposition~\ref{prop:canon-diag}. For injectivity, let $C\neq C'$ differ on
+axis $(t,v)$. If $t<\min(\len(C),\len(C'))$, both trimmed boxes keep that axis
+and differ on it. Otherwise, say $t\ge\len(C)$. Then $C_{(t,v)}=(-\infty,\infty)$,
+so $C'_{(t,v)}\neq(-\infty,\infty)$ and $\len(C')>t\ge\len(C)$. The trimmed
+boxes then have different time domains.
+\end{proof}
+
+In particular $|\Pc(\varphi)|=|\Lang(\Cg(\varphi))|$, the denominator of
+Eq.~\eqref{eq:OWSim}.
+
+\subsection{Scoring by dynamic programming}\label{sec:method-score}
+
+Both formulas are canonicalised over the same axes $a_1,\dots,a_n$, so their
+diagrams have the same levels, with different run alphabets. Let
+$S^{\varphi}_{k,i}$ and $S^{\vartheta}_{k,j}$ be the runs of $a_k$ for the two
+formulas. Point similarity depends only on the two constraints compared, so
+it is tabulated once per level:
+\[
+  \pi_k(i,j)=\PointSim\bigl(S^{\varphi}_{k,i},S^{\vartheta}_{k,j}\bigr),
+\]
+with the $D$-truncation and the endpoint set $E(c_1,c_2)$ of
+Definitions~\ref{def:Dimension} and~\ref{def:epsmeasure}. For canonical boxes
+$\beta_1=(i_1,\dots,i_n)$ of length $L_1$ and $\beta_2=(j_1,\dots,j_n)$ of
+length $L_2$, the trimmed time domains are $\{0,\dots,L_1-1\}$ and
+$\{0,\dots,L_2-1\}$, so Eq.~\eqref{eq:BoxSim} reads
+\begin{equation}\label{eq:boxsim-len}
+\begin{aligned}
+  \BoxSim(\beta_1,\beta_2) &= \frac{W_{L_1,L_2}(\beta_1,\beta_2)}{\max(L_1,L_2)\,|V|},\\
+  W_{L_1,L_2}(\beta_1,\beta_2) &= \sum_{k\,:\,t_k<\min(L_1,L_2)}\pi_k(i_k,j_k),
+\end{aligned}
+\end{equation}
+and $\BoxSim=1$ when $L_1=L_2=0$. The normalisation depends on $\beta_2$ only
+through $L_2$. The best match of $\beta_1$ is therefore the best, over lengths
+$L_2$ that occur in $\Pc(\vartheta)$, of the length-$L_2$ normalisation applied
+to
+\[
+  W^*_{L_2}(\beta_1)=\max_{\beta_2\in\Lang(\Cg_{L_2}(\vartheta))}W_{L_1,L_2}(\beta_1,\beta_2).
+\]
+
+\paragraph{The program.}
+Fix $L_1$. A \emph{state} after $k$ levels is a pair $(\mu, w)$:
+\begin{itemize}
+  \item $\mu$ is the node of $\Cg_{L_1}(\varphi)$ reached by a prefix
+    $(i_1,\dots,i_k)$ of a box of $\varphi$;
+  \item $w$ is a \emph{Viterbi vector}. It maps each pair $(L_2,\nu)$, with
+    $\nu\neq\rej_{k+1}$ a node of $\Cg_{L_2}(\vartheta)$ at level $k+1$, to the
+    largest partial sum $\sum_{k'\le k,\ t_{k'}<\min(L_1,L_2)}\pi_{k'}(i_{k'},j_{k'})$
+    over the prefixes $(j_1,\dots,j_k)$ that lead to~$\nu$.
+\end{itemize}
+The initial state is $\bigl(\Cg_{L_1}(\varphi), \{(L_2,\Cg_{L_2}(\vartheta))\mapsto 0\}_{L_2}\bigr)$.
+One step along atom $i$ of $\mu$, with $\mu[i]\neq\rej$, goes to
+$(\mu[i],w')$, where
+\begin{equation}\label{eq:viterbi}
+  w'(L_2,\nu') \;=\; \max_{\substack{(L_2,\nu)\in\mathrm{dom}\,w,\ j\,:\\ \nu[j]=\nu'}}
+  \Bigl(w(L_2,\nu) + [\,t_{k+1}<\min(L_1,L_2)\,]\;\pi_{k+1}(i,j)\Bigr).
+\end{equation}
+States are kept in a table with multiplicities, and two prefixes that reach the
+same state are merged by adding their counts. After $n$ levels, every
+surviving state has $\mu=\acc$, and its vector is defined on $(L_2,\acc)$ for
+each $L_2$ that occurs in $\Pc(\vartheta)$.
+
+\begin{theorem}[compatibility]\label{thm:compat}
+Let $D$ be well formed (Definition~\ref{def:Dimension}) and $\varepsilon>0$.
+Suppose $\Pc(\varphi)$ and $\Pc(\vartheta)$ are both non-empty. For every $L_1$,
+sum over the final states $(\acc,w)$, with multiplicity $c$, the quantity
+\[
+  c\cdot\max_{L_2}\ \begin{cases}1 & \text{if } L_1=L_2=0,\\[2pt]
+  \dfrac{w(L_2,\acc)}{\max(L_1,L_2)\,|V|} & \text{otherwise.}\end{cases}
+\]
+The sum of these totals over $L_1$, divided by $|\Lang(\Cg(\varphi))|$, equals
+$\OWSim_{\varphi\to\vartheta}$ of Eq.~\eqref{eq:OWSim}. The empty cases of
+Eq.~\eqref{eq:OWSim} are decided directly from $|\Lang(\Cg(\cdot))|$. Hence
+the score computed from the two one-way values by Eq.~\eqref{eq:Global} is
+$G(\varphi,\vartheta)$.
+\end{theorem}
+
+\begin{proof}
+There are three claims.
+
+\emph{(i) The Viterbi vector is exact.} Fix a prefix $(i_1,\dots,i_k)$ of a box
+of $\varphi$. We show by induction on $k$ that $w(L_2,\nu)$ is the stated
+maximum. For $k=0$ the empty prefix leads to the root with sum~$0$. For the
+step, each node has one child per atom, so a prefix of length $k+1$ leading to
+$\nu'$ is uniquely a prefix of length $k$ leading to some $\nu$, followed by an
+atom $j$ with $\nu[j]=\nu'$. Its partial sum is the sum of the shorter prefix
+plus the $(k+1)$-st term. The maximum over all such prefixes is therefore the
+maximum over $(\nu,j)$ of [the best sum at $\nu$] plus that term, which
+is~\eqref{eq:viterbi}. Prefixes leading to $\rej$ have no accepted completion
+(Lemma~\ref{lem:diag-canonical}) and can be dropped. At level $n$ the only
+node left is $\acc$, so $w(L_2,\acc)=W^*_{L_2}(\beta_1)$.
+
+\emph{(ii) Merging states is exact.} The successor of a state along atom $i$ at
+level $k+1$ is determined by $(\mu,w,i)$ alone, since the indicator
+in~\eqref{eq:viterbi} depends only on $k$, $L_1$ and $L_2$. Two prefixes that
+reach the same state therefore have the same successors, and in the end the
+same final vector. Adding their counts replaces a sum of equal terms by a
+product. So the total for $L_1$ equals
+\[
+  \sum_{\beta_1\in\Lang(\Cg_{L_1}(\varphi))}\;\max_{\beta_2\in\Pc(\vartheta)}\BoxSim(\beta_1,\beta_2)
+\]
+by~(i) and~\eqref{eq:boxsim-len}.
+
+\emph{(iii) Summing over lengths gives $\OWSim$.} As $L_1$ ranges over
+$\{0,\dots,T+1\}$, the languages $\Lang(\Cg_{L_1}(\varphi))$ partition
+$\Pc(\varphi)$ by Lemma~\ref{lem:trim}, so the sum over $L_1$ runs over all of $\Pc(\varphi)$.
+Also $|\Pc(\varphi)|=|\Lang(\Cg(\varphi))|$. This is the third case of
+Eq.~\eqref{eq:OWSim}. The first two cases hold because
+$\Pc(\cdot)=\emptyset$ iff $|\Lang(\Cg(\cdot))|=0$.
+\end{proof}
+
+\begin{corollary}\label{cor:compat}
+For every well-formed $D$ and every $\varepsilon>0$, the computed score equals
+$G(\varphi,\vartheta)$ of Eq.~\eqref{eq:Global}. In particular it equals~1 iff
+$\varphi\equiv\vartheta$ (Section~\ref{sec:soundness}).
+\end{corollary}
+
+\begin{remark}[what is exact, and what the implementation checks]\label{rem:impl}
+Breakpoints, runs and truncated constraints are exact rationals (for rational
+$D$ and $\varepsilon$), and each ratio $\pi_k(i,j)$ is computed exactly and
+then rounded once to floating point. The sums in~\eqref{eq:viterbi} and in
+Theorem~\ref{thm:compat} are accumulated in floating point, in a different
+order from a box-by-box evaluation of Eq.~\eqref{eq:OWSim}. The two therefore
+agree up to rounding, and Theorem~\ref{thm:compat} is a statement about exact
+arithmetic.
+
+The preconditions of the metric are enforced rather than assumed. A $D$ that is
+not well formed is refused, not clamped, because clamping would report a score
+for a $D$ the user did not ask for. $\varepsilon\le0$ is refused because
+Lemma~\ref{lem:pointsim-identity} needs $\varepsilon>0$: with $\varepsilon=0$,
+$x>0$ and $x\ge0$ would score~1.
+
+As an independent check, the implementation is compared against the literal
+pipeline $\Ev\to\canon\to$ trim $\to$ Eq.~\eqref{eq:OWSim} wherever the latter
+terminates. The comparison covers the number of canonical boxes, the score on
+fixed pairs, and the score on randomly generated pairs of formulas and their
+equivalent rewrites.
+\end{remark}
+
+\begin{remark}[cost]\label{rem:cost}
+Evaluation costs one $\apply$ per clause instance, each bounded by the product
+of the sizes of its arguments. Canonicalisation is linear in the size of
+$\Dg(\varphi)$. Scoring costs, per level, the number of distinct states times
+the size of their vectors. None of these quantities is bounded by the number of
+boxes or canonical boxes. On the families of Section~\ref{sec:results}
+they remain small: for instance, the pair
+$\mathsf{F}_{[0,20]}\chi$ and $\mathsf{G}_{[0,16]}\mathsf{F}_{[0,4]}\chi$ is scored
+without enumerating its $\approx10^{10}$ canonical boxes. We claim no
+polynomial bound, however: the number of distinct Viterbi vectors can grow
+with the horizon.
+\end{remark}
+
+\begin{remark}[reuse across comparisons]
+$\Cg(\varphi)$ depends only on $\varphi$ and the grid $(T,V)$, not on the other
+formula. When many formulas are compared pairwise over one grid, each diagram
+is built once, and only the dynamic program of this section is run per pair.
+\end{remark}

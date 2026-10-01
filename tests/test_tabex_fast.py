@@ -68,6 +68,11 @@ def test_random_pairs_match_reference():
             pytest.approx(calc_similarity_from_formulas(original, second), abs=1e-9)
 
 
+def test_eps_must_be_positive():
+    with pytest.raises(ValueError):
+        similarity("x>0", "x>1", eps=0)
+
+
 def test_madsen_example_at_full_horizon():
     # phi3 has ~1.05e10 canonical cells and phi6 ~3.5e9; the reference
     # pipeline cannot enumerate either.
