@@ -1,0 +1,10 @@
+case,context,candidates,kept_G>=0.5,kept_G>=0.6,kept_G>=0.7,kept_G>=0.8,kept_G>=0.85,kept_G>=0.9,kept_G>=0.95,kept_G>=0.99,kept_G>=1.0,kept_stlsat
+WaterTanks,TankEmptying_OpenValve,46,6,6,8,11,14,19,31,40,46,43
+Heater,threshold_heater_off,7,5,5,5,6,6,6,6,6,7,3
+Heater,threshold_heateron,5,2,3,3,3,3,4,5,5,5,3
+Gearbox,theta_increasing,83,4,4,5,5,6,6,9,12,83,81
+Gearbox,threshold_gear4,83,4,6,12,19,23,27,40,51,83,80
+ControlledPU,Transmission gear 4,165,9,11,20,32,45,64,93,138,165,156
+ControlledPU,speed increasing,185,6,14,21,28,39,52,78,136,185,185
+EngineTiming,EngineSpeed,6,3,3,3,3,3,3,5,5,6,6
+FuelControl,EngineSpeed,371,15,18,33,59,85,127,220,362,371,363

@@ -87,16 +87,30 @@ tabex_home/
 │   ├── verify_equivalence.py  # Randomised: equivalent formulas score G = 1
 │   └── verify_canon.py        # Randomised: canon.py is lossless and canonical
 ├── tabex_fast/
-│   └── engine.py              # Same score, computed on decision diagrams (scales to long horizons)
+│   ├── engine.py              # Same score, computed on decision diagrams (scales to long horizons)
+│   └── volume.py              # Ablation baseline: exact volume Jaccard of the two regions
 ├── madsen/
 │   ├── metrics.py             # Baseline: Madsen et al. (CDC 2018) PH and SD distances
 │   ├── compare.py             # TABEX vs Madsen on shared pairs
 │   └── results.md             # Output of compare.py
+├── stlkernel/
+│   └── metrics.py             # Baseline: STL kernel of Bortolussi et al. (TACAS 2022), the similarity behind stl2vec
+├── experiments/               # The paper's RQ2–RQ5 (see EXPERIMENTS.md)
+│   ├── timing.py              # RQ2: time vs horizon and #variables
+│   ├── random_suite.py        # RQ2: generated equivalent pairs + graded mutations
+│   ├── kernel_probe.py        # RQ2: the STL kernel on random_suite's pairs (see STL_KERNEL_REPORT.md)
+│   ├── volume_ablation.py     # G vs volume Jaccard
+│   ├── archcomp.py            # ARCH-COMP FALS requirements: fragment and scoreability
+│   ├── d_sensitivity.py       # RQ3: score vs the domain D
+│   ├── rq4/                   # RQ4: pruning Slam-mined candidates (vs STLSat)
+│   └── rq5_deepstl/           # RQ5: LLM formalisations of DeepSTL requirements (rq5_pilot/: first pilot)
 ├── tests/                     # Pytest suite
 ├── run_similarity.py          # Runs the whole pipeline (CLI args)
 ├── similarity_check.py        # Interactive interface (prompts for formulas)
 ├── EXAMPLE.md                 # Three pairs through every stage, with figures
 ├── EXPERIMENTS.md             # Status of the paper's experiments (RQ2–RQ5)
+├── RESULTS.md                 # Full results, setup of each experiment, discussion
+├── STL_KERNEL_REPORT.md       # The STL kernel / stl2vec comparison, in plain language
 ├── pytest.ini
 ├── LICENSE
 └── README.md
@@ -261,7 +275,7 @@ python -m tabex_fast.engine "F[0,20](x>=0.2 && x<=0.4)" "G[0,16] F[0,4](x>=0.2 &
 `tests/test_tabex_fast.py` checks it against the pipeline above (cell counts
 and scores, fixed and random pairs).
 
-### 6\. Baseline (`madsen/`)
+### 6\. Baselines (`madsen/`, `stlkernel/`)
 
 Madsen et al., *Metrics for Signal Temporal Logic Formulae* (CDC 2018): the
 Pompeiu-Hausdorff distance (their Theorem 2, as a MILP on scipy's HiGHS) and the
@@ -270,6 +284,16 @@ reproduces their Table I.
 
 ```bash
 python -m madsen.compare -o madsen/results.md
+```
+
+The STL kernel of Bortolussi et al. (TACAS 2022), which stl2vec (Saveri et al.
+2024) embeds, compares formulas by their robustness on random signals.
+`stlkernel/` reimplements it, and `kernel_probe.py` scores it on the pairs of
+`random_suite.py` without rerunning PH and SD. Setup and results are in
+[STL_KERNEL_REPORT.md](./STL_KERNEL_REPORT.md).
+
+```bash
+python experiments/kernel_probe.py   # experiments/results/kernel_probe.{csv,md}
 ```
 
 -----

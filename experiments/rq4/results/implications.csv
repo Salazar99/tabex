@@ -1,0 +1,3291 @@
+case,context,b,a,b_implies_a,seconds
+WaterTanks,TankEmptying_OpenValve,5,7,implied,0.963
+WaterTanks,TankEmptying_OpenValve,5,8,implied,1.014
+WaterTanks,TankEmptying_OpenValve,7,8,implied,16.031
+WaterTanks,TankEmptying_OpenValve,33,9,timeout,60.219
+WaterTanks,TankEmptying_OpenValve,11,9,timeout,60.242
+WaterTanks,TankEmptying_OpenValve,39,9,timeout,60.289
+WaterTanks,TankEmptying_OpenValve,21,11,timeout,60.294
+WaterTanks,TankEmptying_OpenValve,9,11,timeout,60.306
+WaterTanks,TankEmptying_OpenValve,23,10,timeout,60.317
+WaterTanks,TankEmptying_OpenValve,21,9,timeout,60.321
+WaterTanks,TankEmptying_OpenValve,17,10,timeout,60.328
+WaterTanks,TankEmptying_OpenValve,44,9,timeout,60.328
+WaterTanks,TankEmptying_OpenValve,36,10,timeout,60.328
+WaterTanks,TankEmptying_OpenValve,35,9,timeout,60.334
+WaterTanks,TankEmptying_OpenValve,28,9,timeout,60.339
+WaterTanks,TankEmptying_OpenValve,25,9,timeout,60.342
+WaterTanks,TankEmptying_OpenValve,28,11,timeout,60.345
+WaterTanks,TankEmptying_OpenValve,30,9,timeout,60.360
+WaterTanks,TankEmptying_OpenValve,25,11,timeout,60.360
+WaterTanks,TankEmptying_OpenValve,14,11,timeout,60.362
+WaterTanks,TankEmptying_OpenValve,14,9,timeout,60.370
+WaterTanks,TankEmptying_OpenValve,31,5,timeout,60.373
+WaterTanks,TankEmptying_OpenValve,19,9,timeout,60.372
+WaterTanks,TankEmptying_OpenValve,8,5,timeout,60.377
+WaterTanks,TankEmptying_OpenValve,19,11,timeout,60.376
+WaterTanks,TankEmptying_OpenValve,8,7,timeout,60.385
+WaterTanks,TankEmptying_OpenValve,30,11,timeout,60.380
+WaterTanks,TankEmptying_OpenValve,31,8,timeout,60.384
+WaterTanks,TankEmptying_OpenValve,31,7,timeout,60.385
+WaterTanks,TankEmptying_OpenValve,7,5,timeout,60.400
+WaterTanks,TankEmptying_OpenValve,33,11,timeout,60.097
+WaterTanks,TankEmptying_OpenValve,35,11,timeout,60.111
+WaterTanks,TankEmptying_OpenValve,39,11,timeout,60.093
+WaterTanks,TankEmptying_OpenValve,44,11,timeout,60.108
+WaterTanks,TankEmptying_OpenValve,15,12,timeout,60.109
+WaterTanks,TankEmptying_OpenValve,16,12,timeout,60.141
+WaterTanks,TankEmptying_OpenValve,22,12,timeout,60.167
+WaterTanks,TankEmptying_OpenValve,18,12,timeout,60.243
+WaterTanks,TankEmptying_OpenValve,24,12,timeout,60.249
+WaterTanks,TankEmptying_OpenValve,41,12,timeout,60.212
+WaterTanks,TankEmptying_OpenValve,42,12,timeout,60.215
+WaterTanks,TankEmptying_OpenValve,37,12,timeout,60.248
+WaterTanks,TankEmptying_OpenValve,29,12,timeout,60.281
+WaterTanks,TankEmptying_OpenValve,20,12,timeout,60.308
+WaterTanks,TankEmptying_OpenValve,32,12,timeout,60.283
+WaterTanks,TankEmptying_OpenValve,27,12,timeout,60.292
+WaterTanks,TankEmptying_OpenValve,26,12,timeout,60.297
+WaterTanks,TankEmptying_OpenValve,45,12,timeout,60.262
+WaterTanks,TankEmptying_OpenValve,46,12,timeout,60.264
+WaterTanks,TankEmptying_OpenValve,30,14,timeout,60.238
+WaterTanks,TankEmptying_OpenValve,34,12,timeout,60.299
+WaterTanks,TankEmptying_OpenValve,40,12,timeout,60.285
+WaterTanks,TankEmptying_OpenValve,43,12,timeout,60.279
+WaterTanks,TankEmptying_OpenValve,38,12,timeout,60.301
+WaterTanks,TankEmptying_OpenValve,19,14,timeout,60.266
+WaterTanks,TankEmptying_OpenValve,28,14,timeout,60.269
+WaterTanks,TankEmptying_OpenValve,9,14,timeout,60.282
+WaterTanks,TankEmptying_OpenValve,21,14,timeout,60.278
+WaterTanks,TankEmptying_OpenValve,11,14,timeout,60.286
+WaterTanks,TankEmptying_OpenValve,25,14,timeout,60.282
+WaterTanks,TankEmptying_OpenValve,33,14,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,35,14,timeout,60.095
+WaterTanks,TankEmptying_OpenValve,39,14,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,12,15,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,44,14,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,16,15,timeout,60.106
+WaterTanks,TankEmptying_OpenValve,18,15,timeout,60.135
+WaterTanks,TankEmptying_OpenValve,24,15,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,27,15,timeout,60.107
+WaterTanks,TankEmptying_OpenValve,26,15,timeout,60.152
+WaterTanks,TankEmptying_OpenValve,20,15,timeout,60.211
+WaterTanks,TankEmptying_OpenValve,22,15,timeout,60.197
+WaterTanks,TankEmptying_OpenValve,32,15,timeout,60.199
+WaterTanks,TankEmptying_OpenValve,42,15,timeout,60.189
+WaterTanks,TankEmptying_OpenValve,40,15,timeout,60.192
+WaterTanks,TankEmptying_OpenValve,41,15,timeout,60.226
+WaterTanks,TankEmptying_OpenValve,34,15,timeout,60.247
+WaterTanks,TankEmptying_OpenValve,29,15,timeout,60.259
+WaterTanks,TankEmptying_OpenValve,38,15,timeout,60.246
+WaterTanks,TankEmptying_OpenValve,37,15,timeout,60.258
+WaterTanks,TankEmptying_OpenValve,43,15,timeout,60.237
+WaterTanks,TankEmptying_OpenValve,45,15,timeout,60.242
+WaterTanks,TankEmptying_OpenValve,26,16,timeout,60.223
+WaterTanks,TankEmptying_OpenValve,46,15,timeout,60.245
+WaterTanks,TankEmptying_OpenValve,22,16,timeout,60.233
+WaterTanks,TankEmptying_OpenValve,18,16,timeout,60.246
+WaterTanks,TankEmptying_OpenValve,12,16,timeout,60.255
+WaterTanks,TankEmptying_OpenValve,15,16,timeout,60.257
+WaterTanks,TankEmptying_OpenValve,20,16,timeout,60.259
+WaterTanks,TankEmptying_OpenValve,24,16,timeout,60.263
+WaterTanks,TankEmptying_OpenValve,27,16,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,29,16,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,32,16,timeout,60.078
+WaterTanks,TankEmptying_OpenValve,34,16,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,37,16,timeout,60.088
+WaterTanks,TankEmptying_OpenValve,38,16,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,40,16,timeout,60.077
+WaterTanks,TankEmptying_OpenValve,41,16,timeout,60.078
+WaterTanks,TankEmptying_OpenValve,42,16,timeout,60.076
+WaterTanks,TankEmptying_OpenValve,43,16,timeout,60.067
+WaterTanks,TankEmptying_OpenValve,45,16,timeout,60.085
+WaterTanks,TankEmptying_OpenValve,46,16,timeout,60.084
+WaterTanks,TankEmptying_OpenValve,10,17,timeout,60.105
+WaterTanks,TankEmptying_OpenValve,23,17,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,36,17,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,15,18,timeout,60.172
+WaterTanks,TankEmptying_OpenValve,29,18,timeout,60.156
+WaterTanks,TankEmptying_OpenValve,16,18,timeout,60.187
+WaterTanks,TankEmptying_OpenValve,26,18,timeout,60.174
+WaterTanks,TankEmptying_OpenValve,38,18,timeout,60.165
+WaterTanks,TankEmptying_OpenValve,20,18,timeout,60.202
+WaterTanks,TankEmptying_OpenValve,40,18,timeout,60.168
+WaterTanks,TankEmptying_OpenValve,34,18,timeout,60.194
+WaterTanks,TankEmptying_OpenValve,41,18,timeout,60.175
+WaterTanks,TankEmptying_OpenValve,37,18,timeout,60.199
+WaterTanks,TankEmptying_OpenValve,22,18,timeout,60.227
+WaterTanks,TankEmptying_OpenValve,32,18,timeout,60.221
+WaterTanks,TankEmptying_OpenValve,24,18,timeout,60.235
+WaterTanks,TankEmptying_OpenValve,27,18,timeout,60.227
+WaterTanks,TankEmptying_OpenValve,12,18,timeout,60.263
+WaterTanks,TankEmptying_OpenValve,43,18,timeout,60.073
+WaterTanks,TankEmptying_OpenValve,42,18,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,45,18,timeout,60.068
+WaterTanks,TankEmptying_OpenValve,46,18,timeout,60.062
+WaterTanks,TankEmptying_OpenValve,9,19,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,11,19,timeout,60.084
+WaterTanks,TankEmptying_OpenValve,14,19,timeout,60.066
+WaterTanks,TankEmptying_OpenValve,21,19,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,28,19,timeout,60.073
+WaterTanks,TankEmptying_OpenValve,25,19,timeout,60.108
+WaterTanks,TankEmptying_OpenValve,30,19,timeout,60.076
+WaterTanks,TankEmptying_OpenValve,33,19,timeout,60.066
+WaterTanks,TankEmptying_OpenValve,35,19,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,39,19,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,44,19,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,12,20,timeout,60.105
+WaterTanks,TankEmptying_OpenValve,24,20,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,16,20,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,22,20,timeout,60.130
+WaterTanks,TankEmptying_OpenValve,15,20,timeout,60.170
+WaterTanks,TankEmptying_OpenValve,18,20,timeout,60.158
+WaterTanks,TankEmptying_OpenValve,26,20,timeout,60.155
+WaterTanks,TankEmptying_OpenValve,32,20,timeout,60.157
+WaterTanks,TankEmptying_OpenValve,29,20,timeout,60.158
+WaterTanks,TankEmptying_OpenValve,38,20,timeout,60.145
+WaterTanks,TankEmptying_OpenValve,40,20,timeout,60.145
+WaterTanks,TankEmptying_OpenValve,27,20,timeout,60.166
+WaterTanks,TankEmptying_OpenValve,34,20,timeout,60.170
+WaterTanks,TankEmptying_OpenValve,41,20,timeout,60.155
+WaterTanks,TankEmptying_OpenValve,37,20,timeout,60.169
+WaterTanks,TankEmptying_OpenValve,42,20,timeout,60.062
+WaterTanks,TankEmptying_OpenValve,43,20,timeout,60.088
+WaterTanks,TankEmptying_OpenValve,45,20,timeout,60.057
+WaterTanks,TankEmptying_OpenValve,46,20,timeout,60.058
+WaterTanks,TankEmptying_OpenValve,9,21,timeout,60.065
+WaterTanks,TankEmptying_OpenValve,11,21,timeout,60.094
+WaterTanks,TankEmptying_OpenValve,14,21,timeout,60.095
+WaterTanks,TankEmptying_OpenValve,19,21,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,25,21,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,33,21,timeout,60.072
+WaterTanks,TankEmptying_OpenValve,28,21,timeout,60.130
+WaterTanks,TankEmptying_OpenValve,30,21,timeout,60.118
+WaterTanks,TankEmptying_OpenValve,39,21,timeout,60.064
+WaterTanks,TankEmptying_OpenValve,35,21,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,44,21,timeout,60.094
+WaterTanks,TankEmptying_OpenValve,12,22,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,15,22,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,16,22,timeout,60.108
+WaterTanks,TankEmptying_OpenValve,26,22,timeout,60.078
+WaterTanks,TankEmptying_OpenValve,18,22,timeout,60.124
+WaterTanks,TankEmptying_OpenValve,24,22,timeout,60.126
+WaterTanks,TankEmptying_OpenValve,20,22,timeout,60.133
+WaterTanks,TankEmptying_OpenValve,34,22,timeout,60.137
+WaterTanks,TankEmptying_OpenValve,37,22,timeout,60.153
+WaterTanks,TankEmptying_OpenValve,27,22,timeout,60.157
+WaterTanks,TankEmptying_OpenValve,32,22,timeout,60.158
+WaterTanks,TankEmptying_OpenValve,29,22,timeout,60.162
+WaterTanks,TankEmptying_OpenValve,41,22,timeout,60.140
+WaterTanks,TankEmptying_OpenValve,40,22,timeout,60.154
+WaterTanks,TankEmptying_OpenValve,38,22,timeout,60.160
+WaterTanks,TankEmptying_OpenValve,42,22,timeout,60.090
+WaterTanks,TankEmptying_OpenValve,43,22,timeout,60.066
+WaterTanks,TankEmptying_OpenValve,45,22,timeout,60.055
+WaterTanks,TankEmptying_OpenValve,46,22,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,10,23,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,17,23,timeout,60.115
+WaterTanks,TankEmptying_OpenValve,36,23,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,12,24,timeout,60.084
+WaterTanks,TankEmptying_OpenValve,15,24,timeout,60.085
+WaterTanks,TankEmptying_OpenValve,16,24,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,20,24,timeout,60.081
+WaterTanks,TankEmptying_OpenValve,18,24,timeout,60.116
+WaterTanks,TankEmptying_OpenValve,22,24,timeout,60.118
+WaterTanks,TankEmptying_OpenValve,27,24,timeout,60.114
+WaterTanks,TankEmptying_OpenValve,26,24,timeout,60.124
+WaterTanks,TankEmptying_OpenValve,29,24,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,32,24,timeout,60.076
+WaterTanks,TankEmptying_OpenValve,34,24,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,37,24,timeout,60.086
+WaterTanks,TankEmptying_OpenValve,38,24,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,41,24,timeout,60.091
+WaterTanks,TankEmptying_OpenValve,40,24,timeout,60.108
+WaterTanks,TankEmptying_OpenValve,42,24,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,9,25,timeout,60.094
+WaterTanks,TankEmptying_OpenValve,45,24,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,11,25,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,46,24,timeout,60.114
+WaterTanks,TankEmptying_OpenValve,43,24,timeout,60.131
+WaterTanks,TankEmptying_OpenValve,19,25,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,14,25,timeout,60.122
+WaterTanks,TankEmptying_OpenValve,21,25,timeout,60.069
+WaterTanks,TankEmptying_OpenValve,28,25,timeout,60.122
+WaterTanks,TankEmptying_OpenValve,30,25,timeout,60.094
+WaterTanks,TankEmptying_OpenValve,33,25,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,35,25,timeout,60.075
+WaterTanks,TankEmptying_OpenValve,39,25,timeout,60.088
+WaterTanks,TankEmptying_OpenValve,44,25,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,12,26,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,15,26,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,18,26,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,16,26,timeout,60.132
+WaterTanks,TankEmptying_OpenValve,22,26,timeout,60.075
+WaterTanks,TankEmptying_OpenValve,20,26,timeout,60.135
+WaterTanks,TankEmptying_OpenValve,27,26,timeout,60.114
+WaterTanks,TankEmptying_OpenValve,24,26,timeout,60.127
+WaterTanks,TankEmptying_OpenValve,29,26,timeout,60.133
+WaterTanks,TankEmptying_OpenValve,32,26,timeout,60.084
+WaterTanks,TankEmptying_OpenValve,34,26,timeout,60.107
+WaterTanks,TankEmptying_OpenValve,37,26,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,38,26,timeout,60.103
+WaterTanks,TankEmptying_OpenValve,40,26,timeout,60.099
+WaterTanks,TankEmptying_OpenValve,41,26,timeout,60.094
+WaterTanks,TankEmptying_OpenValve,42,26,timeout,60.086
+WaterTanks,TankEmptying_OpenValve,43,26,timeout,60.081
+WaterTanks,TankEmptying_OpenValve,45,26,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,12,27,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,46,26,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,15,27,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,16,27,timeout,60.150
+WaterTanks,TankEmptying_OpenValve,18,27,timeout,60.154
+WaterTanks,TankEmptying_OpenValve,20,27,timeout,60.141
+WaterTanks,TankEmptying_OpenValve,22,27,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,24,27,timeout,60.084
+WaterTanks,TankEmptying_OpenValve,26,27,timeout,60.099
+WaterTanks,TankEmptying_OpenValve,29,27,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,32,27,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,34,27,timeout,60.125
+WaterTanks,TankEmptying_OpenValve,37,27,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,40,27,timeout,60.091
+WaterTanks,TankEmptying_OpenValve,38,27,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,41,27,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,42,27,timeout,60.077
+WaterTanks,TankEmptying_OpenValve,43,27,timeout,60.092
+WaterTanks,TankEmptying_OpenValve,45,27,timeout,60.089
+WaterTanks,TankEmptying_OpenValve,46,27,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,9,28,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,11,28,timeout,60.106
+WaterTanks,TankEmptying_OpenValve,14,28,timeout,60.068
+WaterTanks,TankEmptying_OpenValve,19,28,timeout,60.072
+WaterTanks,TankEmptying_OpenValve,21,28,timeout,60.078
+WaterTanks,TankEmptying_OpenValve,30,28,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,33,28,timeout,60.113
+WaterTanks,TankEmptying_OpenValve,25,28,timeout,60.147
+WaterTanks,TankEmptying_OpenValve,35,28,timeout,60.111
+WaterTanks,TankEmptying_OpenValve,44,28,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,12,29,timeout,60.113
+WaterTanks,TankEmptying_OpenValve,39,28,timeout,60.148
+WaterTanks,TankEmptying_OpenValve,15,29,timeout,60.131
+WaterTanks,TankEmptying_OpenValve,16,29,timeout,60.090
+WaterTanks,TankEmptying_OpenValve,18,29,timeout,60.093
+WaterTanks,TankEmptying_OpenValve,20,29,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,22,29,timeout,60.077
+WaterTanks,TankEmptying_OpenValve,5,31,implied,1.023
+WaterTanks,TankEmptying_OpenValve,24,29,timeout,60.087
+WaterTanks,TankEmptying_OpenValve,7,31,implied,16.676
+WaterTanks,TankEmptying_OpenValve,8,31,implied,21.648
+WaterTanks,TankEmptying_OpenValve,26,29,timeout,60.061
+WaterTanks,TankEmptying_OpenValve,27,29,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,32,29,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,34,29,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,37,29,timeout,60.073
+WaterTanks,TankEmptying_OpenValve,38,29,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,41,29,timeout,60.103
+WaterTanks,TankEmptying_OpenValve,40,29,timeout,60.113
+WaterTanks,TankEmptying_OpenValve,43,29,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,42,29,timeout,60.123
+WaterTanks,TankEmptying_OpenValve,46,29,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,45,29,timeout,60.084
+WaterTanks,TankEmptying_OpenValve,9,30,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,14,30,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,11,30,timeout,60.089
+WaterTanks,TankEmptying_OpenValve,19,30,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,21,30,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,25,30,timeout,60.062
+WaterTanks,TankEmptying_OpenValve,28,30,timeout,60.105
+WaterTanks,TankEmptying_OpenValve,33,30,timeout,60.089
+WaterTanks,TankEmptying_OpenValve,35,30,timeout,60.077
+WaterTanks,TankEmptying_OpenValve,39,30,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,44,30,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,12,32,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,15,32,timeout,60.094
+WaterTanks,TankEmptying_OpenValve,16,32,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,18,32,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,20,32,timeout,60.073
+WaterTanks,TankEmptying_OpenValve,22,32,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,24,32,timeout,60.061
+WaterTanks,TankEmptying_OpenValve,26,32,timeout,60.092
+WaterTanks,TankEmptying_OpenValve,27,32,timeout,60.087
+WaterTanks,TankEmptying_OpenValve,29,32,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,34,32,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,37,32,timeout,60.118
+WaterTanks,TankEmptying_OpenValve,38,32,timeout,60.105
+WaterTanks,TankEmptying_OpenValve,41,32,timeout,60.093
+WaterTanks,TankEmptying_OpenValve,40,32,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,43,32,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,42,32,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,45,32,timeout,60.077
+WaterTanks,TankEmptying_OpenValve,46,32,timeout,60.069
+WaterTanks,TankEmptying_OpenValve,9,33,timeout,60.069
+WaterTanks,TankEmptying_OpenValve,14,33,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,11,33,timeout,60.131
+WaterTanks,TankEmptying_OpenValve,19,33,timeout,60.137
+WaterTanks,TankEmptying_OpenValve,21,33,timeout,60.142
+WaterTanks,TankEmptying_OpenValve,25,33,timeout,60.128
+WaterTanks,TankEmptying_OpenValve,28,33,timeout,60.117
+WaterTanks,TankEmptying_OpenValve,35,33,timeout,60.131
+WaterTanks,TankEmptying_OpenValve,39,33,timeout,60.134
+WaterTanks,TankEmptying_OpenValve,44,33,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,30,33,timeout,60.176
+WaterTanks,TankEmptying_OpenValve,12,34,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,16,34,timeout,60.109
+WaterTanks,TankEmptying_OpenValve,15,34,timeout,60.134
+WaterTanks,TankEmptying_OpenValve,18,34,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,20,34,timeout,60.093
+WaterTanks,TankEmptying_OpenValve,22,34,timeout,60.060
+WaterTanks,TankEmptying_OpenValve,24,34,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,26,34,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,27,34,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,29,34,timeout,60.106
+WaterTanks,TankEmptying_OpenValve,32,34,timeout,60.109
+WaterTanks,TankEmptying_OpenValve,37,34,timeout,60.124
+WaterTanks,TankEmptying_OpenValve,38,34,timeout,60.129
+WaterTanks,TankEmptying_OpenValve,40,34,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,43,34,timeout,60.095
+WaterTanks,TankEmptying_OpenValve,42,34,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,41,34,timeout,60.120
+WaterTanks,TankEmptying_OpenValve,46,34,timeout,60.077
+WaterTanks,TankEmptying_OpenValve,45,34,timeout,60.086
+WaterTanks,TankEmptying_OpenValve,9,35,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,11,35,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,14,35,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,19,35,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,25,35,timeout,60.089
+WaterTanks,TankEmptying_OpenValve,21,35,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,30,35,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,28,35,timeout,60.115
+WaterTanks,TankEmptying_OpenValve,39,35,timeout,60.114
+WaterTanks,TankEmptying_OpenValve,33,35,timeout,60.133
+WaterTanks,TankEmptying_OpenValve,44,35,timeout,60.137
+WaterTanks,TankEmptying_OpenValve,10,36,timeout,60.081
+WaterTanks,TankEmptying_OpenValve,17,36,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,23,36,timeout,60.090
+WaterTanks,TankEmptying_OpenValve,12,37,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,15,37,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,16,37,timeout,60.097
+WaterTanks,TankEmptying_OpenValve,18,37,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,20,37,timeout,60.092
+WaterTanks,TankEmptying_OpenValve,22,37,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,24,37,timeout,60.115
+WaterTanks,TankEmptying_OpenValve,26,37,timeout,60.138
+WaterTanks,TankEmptying_OpenValve,27,37,timeout,60.109
+WaterTanks,TankEmptying_OpenValve,32,37,timeout,60.133
+WaterTanks,TankEmptying_OpenValve,41,37,timeout,60.140
+WaterTanks,TankEmptying_OpenValve,29,37,timeout,60.195
+WaterTanks,TankEmptying_OpenValve,40,37,timeout,60.170
+WaterTanks,TankEmptying_OpenValve,42,37,timeout,60.168
+WaterTanks,TankEmptying_OpenValve,34,37,timeout,60.203
+WaterTanks,TankEmptying_OpenValve,38,37,timeout,60.208
+WaterTanks,TankEmptying_OpenValve,43,37,timeout,60.135
+WaterTanks,TankEmptying_OpenValve,45,37,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,46,37,timeout,60.123
+WaterTanks,TankEmptying_OpenValve,12,38,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,16,38,timeout,60.115
+WaterTanks,TankEmptying_OpenValve,15,38,timeout,60.142
+WaterTanks,TankEmptying_OpenValve,18,38,timeout,60.095
+WaterTanks,TankEmptying_OpenValve,20,38,timeout,60.126
+WaterTanks,TankEmptying_OpenValve,22,38,timeout,60.124
+WaterTanks,TankEmptying_OpenValve,26,38,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,24,38,timeout,60.138
+WaterTanks,TankEmptying_OpenValve,27,38,timeout,60.120
+WaterTanks,TankEmptying_OpenValve,29,38,timeout,60.110
+WaterTanks,TankEmptying_OpenValve,32,38,timeout,60.114
+WaterTanks,TankEmptying_OpenValve,34,38,timeout,60.086
+WaterTanks,TankEmptying_OpenValve,37,38,timeout,60.118
+WaterTanks,TankEmptying_OpenValve,40,38,timeout,60.091
+WaterTanks,TankEmptying_OpenValve,41,38,timeout,60.090
+WaterTanks,TankEmptying_OpenValve,42,38,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,43,38,timeout,60.097
+WaterTanks,TankEmptying_OpenValve,45,38,timeout,60.109
+WaterTanks,TankEmptying_OpenValve,46,38,timeout,60.108
+WaterTanks,TankEmptying_OpenValve,9,39,timeout,60.113
+WaterTanks,TankEmptying_OpenValve,11,39,timeout,60.129
+WaterTanks,TankEmptying_OpenValve,14,39,timeout,60.093
+WaterTanks,TankEmptying_OpenValve,19,39,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,21,39,timeout,60.125
+WaterTanks,TankEmptying_OpenValve,28,39,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,25,39,timeout,60.138
+WaterTanks,TankEmptying_OpenValve,30,39,timeout,60.158
+WaterTanks,TankEmptying_OpenValve,33,39,timeout,60.137
+WaterTanks,TankEmptying_OpenValve,35,39,timeout,60.113
+WaterTanks,TankEmptying_OpenValve,12,40,timeout,60.085
+WaterTanks,TankEmptying_OpenValve,44,39,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,15,40,timeout,60.074
+WaterTanks,TankEmptying_OpenValve,16,40,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,18,40,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,20,40,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,24,40,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,22,40,timeout,60.124
+WaterTanks,TankEmptying_OpenValve,27,40,timeout,60.103
+WaterTanks,TankEmptying_OpenValve,26,40,timeout,60.132
+WaterTanks,TankEmptying_OpenValve,29,40,timeout,60.118
+WaterTanks,TankEmptying_OpenValve,32,40,timeout,60.112
+WaterTanks,TankEmptying_OpenValve,34,40,timeout,60.107
+WaterTanks,TankEmptying_OpenValve,37,40,timeout,60.061
+WaterTanks,TankEmptying_OpenValve,38,40,timeout,60.081
+WaterTanks,TankEmptying_OpenValve,41,40,timeout,60.067
+WaterTanks,TankEmptying_OpenValve,42,40,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,43,40,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,45,40,timeout,60.092
+WaterTanks,TankEmptying_OpenValve,46,40,timeout,60.078
+WaterTanks,TankEmptying_OpenValve,12,41,timeout,60.114
+WaterTanks,TankEmptying_OpenValve,15,41,timeout,60.133
+WaterTanks,TankEmptying_OpenValve,20,41,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,18,41,timeout,60.134
+WaterTanks,TankEmptying_OpenValve,16,41,timeout,60.162
+WaterTanks,TankEmptying_OpenValve,24,41,timeout,60.086
+WaterTanks,TankEmptying_OpenValve,22,41,timeout,60.149
+WaterTanks,TankEmptying_OpenValve,26,41,timeout,60.133
+WaterTanks,TankEmptying_OpenValve,27,41,timeout,60.139
+WaterTanks,TankEmptying_OpenValve,32,41,timeout,60.087
+WaterTanks,TankEmptying_OpenValve,29,41,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,37,41,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,34,41,timeout,60.142
+WaterTanks,TankEmptying_OpenValve,40,41,timeout,60.106
+WaterTanks,TankEmptying_OpenValve,42,41,timeout,60.107
+WaterTanks,TankEmptying_OpenValve,38,41,timeout,60.169
+WaterTanks,TankEmptying_OpenValve,43,41,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,46,41,timeout,60.106
+WaterTanks,TankEmptying_OpenValve,12,42,timeout,60.105
+WaterTanks,TankEmptying_OpenValve,45,41,timeout,60.132
+WaterTanks,TankEmptying_OpenValve,16,42,timeout,60.092
+WaterTanks,TankEmptying_OpenValve,15,42,timeout,60.106
+WaterTanks,TankEmptying_OpenValve,18,42,timeout,60.069
+WaterTanks,TankEmptying_OpenValve,20,42,timeout,60.058
+WaterTanks,TankEmptying_OpenValve,22,42,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,24,42,timeout,60.066
+WaterTanks,TankEmptying_OpenValve,26,42,timeout,60.091
+WaterTanks,TankEmptying_OpenValve,27,42,timeout,60.064
+WaterTanks,TankEmptying_OpenValve,29,42,timeout,60.085
+WaterTanks,TankEmptying_OpenValve,32,42,timeout,60.086
+WaterTanks,TankEmptying_OpenValve,34,42,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,37,42,timeout,60.089
+WaterTanks,TankEmptying_OpenValve,40,42,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,41,42,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,43,42,timeout,60.099
+WaterTanks,TankEmptying_OpenValve,38,42,timeout,60.127
+WaterTanks,TankEmptying_OpenValve,45,42,timeout,60.108
+WaterTanks,TankEmptying_OpenValve,46,42,timeout,60.079
+WaterTanks,TankEmptying_OpenValve,12,43,timeout,60.134
+WaterTanks,TankEmptying_OpenValve,15,43,timeout,60.125
+WaterTanks,TankEmptying_OpenValve,16,43,timeout,60.152
+WaterTanks,TankEmptying_OpenValve,18,43,timeout,60.128
+WaterTanks,TankEmptying_OpenValve,22,43,timeout,60.116
+WaterTanks,TankEmptying_OpenValve,20,43,timeout,60.164
+WaterTanks,TankEmptying_OpenValve,24,43,timeout,60.111
+WaterTanks,TankEmptying_OpenValve,26,43,timeout,60.134
+WaterTanks,TankEmptying_OpenValve,29,43,timeout,60.126
+WaterTanks,TankEmptying_OpenValve,27,43,timeout,60.137
+WaterTanks,TankEmptying_OpenValve,34,43,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,32,43,timeout,60.158
+WaterTanks,TankEmptying_OpenValve,38,43,timeout,60.138
+WaterTanks,TankEmptying_OpenValve,37,43,timeout,60.152
+WaterTanks,TankEmptying_OpenValve,40,43,timeout,60.128
+WaterTanks,TankEmptying_OpenValve,41,43,timeout,60.090
+WaterTanks,TankEmptying_OpenValve,42,43,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,45,43,timeout,60.085
+WaterTanks,TankEmptying_OpenValve,46,43,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,9,44,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,11,44,timeout,60.097
+WaterTanks,TankEmptying_OpenValve,14,44,timeout,60.131
+WaterTanks,TankEmptying_OpenValve,19,44,timeout,60.104
+WaterTanks,TankEmptying_OpenValve,21,44,timeout,60.095
+WaterTanks,TankEmptying_OpenValve,25,44,timeout,60.083
+WaterTanks,TankEmptying_OpenValve,30,44,timeout,60.085
+WaterTanks,TankEmptying_OpenValve,28,44,timeout,60.119
+WaterTanks,TankEmptying_OpenValve,33,44,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,35,44,timeout,60.090
+WaterTanks,TankEmptying_OpenValve,39,44,timeout,60.136
+WaterTanks,TankEmptying_OpenValve,12,45,timeout,60.081
+WaterTanks,TankEmptying_OpenValve,15,45,timeout,60.070
+WaterTanks,TankEmptying_OpenValve,16,45,timeout,60.080
+WaterTanks,TankEmptying_OpenValve,18,45,timeout,60.075
+WaterTanks,TankEmptying_OpenValve,20,45,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,22,45,timeout,60.092
+WaterTanks,TankEmptying_OpenValve,24,45,timeout,60.105
+WaterTanks,TankEmptying_OpenValve,26,45,timeout,60.117
+WaterTanks,TankEmptying_OpenValve,27,45,timeout,60.087
+WaterTanks,TankEmptying_OpenValve,29,45,timeout,60.089
+WaterTanks,TankEmptying_OpenValve,32,45,timeout,60.096
+WaterTanks,TankEmptying_OpenValve,34,45,timeout,60.071
+WaterTanks,TankEmptying_OpenValve,38,45,timeout,60.082
+WaterTanks,TankEmptying_OpenValve,37,45,timeout,60.101
+WaterTanks,TankEmptying_OpenValve,40,45,timeout,60.066
+Heater,threshold_heater_off,4,5,implied,1.019
+WaterTanks,TankEmptying_OpenValve,41,45,timeout,60.087
+Heater,threshold_heater_off,4,6,implied,0.953
+WaterTanks,TankEmptying_OpenValve,42,45,timeout,60.069
+WaterTanks,TankEmptying_OpenValve,43,45,timeout,60.067
+Heater,threshold_heater_off,4,7,implied,0.957
+Heater,threshold_heater_off,2,3,implied,25.078
+Heater,threshold_heater_off,5,6,implied,15.690
+Heater,threshold_heater_off,5,7,implied,15.499
+Heater,threshold_heater_off,6,7,implied,18.095
+WaterTanks,TankEmptying_OpenValve,46,45,timeout,60.103
+WaterTanks,TankEmptying_OpenValve,12,46,timeout,60.107
+WaterTanks,TankEmptying_OpenValve,15,46,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,16,46,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,18,46,timeout,60.100
+WaterTanks,TankEmptying_OpenValve,20,46,timeout,60.098
+WaterTanks,TankEmptying_OpenValve,24,46,timeout,60.102
+WaterTanks,TankEmptying_OpenValve,22,46,timeout,60.161
+WaterTanks,TankEmptying_OpenValve,26,46,timeout,60.136
+WaterTanks,TankEmptying_OpenValve,27,46,timeout,60.141
+WaterTanks,TankEmptying_OpenValve,29,46,timeout,60.151
+WaterTanks,TankEmptying_OpenValve,32,46,timeout,60.116
+WaterTanks,TankEmptying_OpenValve,34,46,timeout,60.131
+WaterTanks,TankEmptying_OpenValve,37,46,timeout,60.147
+WaterTanks,TankEmptying_OpenValve,38,46,timeout,60.129
+WaterTanks,TankEmptying_OpenValve,40,46,timeout,60.111
+WaterTanks,TankEmptying_OpenValve,41,46,timeout,60.120
+WaterTanks,TankEmptying_OpenValve,42,46,timeout,60.121
+WaterTanks,TankEmptying_OpenValve,43,46,timeout,60.115
+WaterTanks,TankEmptying_OpenValve,45,46,timeout,60.084
+Heater,threshold_heater_off,3,2,timeout,60.129
+Heater,threshold_heater_off,6,4,timeout,60.153
+Heater,threshold_heater_off,7,4,timeout,60.135
+Heater,threshold_heater_off,5,4,timeout,60.195
+Gearbox,theta_increasing,76,77,implied,1.041
+Heater,threshold_heater_off,6,5,timeout,60.111
+Heater,threshold_heater_off,7,5,timeout,60.111
+Heater,threshold_heater_off,7,6,timeout,60.102
+Heater,threshold_heateron,2,3,implied,17.299
+Gearbox,theta_increasing,78,79,implied,17.666
+Heater,threshold_heateron,1,3,implied,21.940
+Heater,threshold_heateron,4,5,implied,21.652
+Heater,threshold_heateron,2,1,timeout,60.095
+Heater,threshold_heateron,3,1,timeout,60.106
+Heater,threshold_heateron,1,2,timeout,60.073
+Heater,threshold_heateron,3,2,timeout,60.100
+Heater,threshold_heateron,5,4,timeout,60.105
+Gearbox,theta_increasing,74,68,timeout,60.079
+Gearbox,theta_increasing,75,69,timeout,60.067
+Gearbox,theta_increasing,68,74,timeout,60.114
+Gearbox,theta_increasing,69,75,timeout,60.109
+Gearbox,theta_increasing,77,76,timeout,60.145
+Gearbox,theta_increasing,79,78,timeout,60.129
+Gearbox,theta_increasing,80,81,timeout,60.090
+Gearbox,theta_increasing,81,80,timeout,60.122
+Gearbox,threshold_gear4,51,2,timeout,60.119
+Gearbox,threshold_gear4,8,4,timeout,60.075
+Gearbox,threshold_gear4,67,3,timeout,60.125
+Gearbox,threshold_gear4,34,4,timeout,60.096
+Gearbox,threshold_gear4,19,5,timeout,60.087
+Gearbox,threshold_gear4,13,6,timeout,60.063
+Gearbox,threshold_gear4,27,6,timeout,60.068
+Gearbox,threshold_gear4,39,6,timeout,60.069
+Gearbox,threshold_gear4,12,7,timeout,60.072
+Gearbox,threshold_gear4,15,7,timeout,60.066
+Gearbox,threshold_gear4,23,7,timeout,60.059
+Gearbox,threshold_gear4,4,8,timeout,60.059
+Gearbox,threshold_gear4,34,8,timeout,60.069
+Gearbox,threshold_gear4,20,10,timeout,60.087
+Gearbox,threshold_gear4,68,10,timeout,60.121
+Gearbox,threshold_gear4,60,11,timeout,60.123
+Gearbox,threshold_gear4,7,12,timeout,60.068
+Gearbox,threshold_gear4,15,12,timeout,60.060
+Gearbox,threshold_gear4,25,26,implied,16.167
+Gearbox,threshold_gear4,23,12,timeout,60.068
+Gearbox,threshold_gear4,6,13,timeout,60.056
+Gearbox,threshold_gear4,27,13,timeout,60.085
+Gearbox,threshold_gear4,39,13,timeout,60.071
+Gearbox,threshold_gear4,24,14,timeout,60.083
+Gearbox,threshold_gear4,45,14,timeout,60.100
+Gearbox,threshold_gear4,7,15,timeout,60.069
+Gearbox,threshold_gear4,57,14,timeout,60.118
+Gearbox,threshold_gear4,12,15,timeout,60.064
+Gearbox,threshold_gear4,23,15,timeout,60.080
+Gearbox,threshold_gear4,31,17,timeout,60.079
+Gearbox,threshold_gear4,71,17,timeout,60.088
+Gearbox,threshold_gear4,55,16,timeout,60.132
+Gearbox,threshold_gear4,5,19,timeout,60.115
+Gearbox,threshold_gear4,10,20,timeout,60.103
+Gearbox,threshold_gear4,68,20,timeout,60.150
+Gearbox,threshold_gear4,77,22,timeout,60.145
+Gearbox,threshold_gear4,7,23,timeout,60.075
+Gearbox,threshold_gear4,12,23,timeout,60.075
+Gearbox,threshold_gear4,15,23,timeout,60.079
+Gearbox,threshold_gear4,14,24,timeout,60.066
+Gearbox,threshold_gear4,45,24,timeout,60.093
+Gearbox,threshold_gear4,57,24,timeout,60.116
+Gearbox,threshold_gear4,26,25,timeout,60.112
+Gearbox,threshold_gear4,25,41,implied,11.196
+Gearbox,threshold_gear4,25,36,implied,16.295
+Gearbox,threshold_gear4,36,25,timeout,60.116
+Gearbox,threshold_gear4,41,25,timeout,60.101
+Gearbox,threshold_gear4,36,26,timeout,60.102
+Gearbox,threshold_gear4,41,26,timeout,60.103
+Gearbox,threshold_gear4,26,36,implied,21.599
+Gearbox,threshold_gear4,6,27,timeout,60.068
+Gearbox,threshold_gear4,13,27,timeout,60.056
+Gearbox,threshold_gear4,26,41,implied,21.778
+Gearbox,threshold_gear4,36,41,implied,21.702
+Gearbox,threshold_gear4,39,27,timeout,60.058
+Gearbox,threshold_gear4,37,28,timeout,60.056
+Gearbox,threshold_gear4,40,29,timeout,60.064
+Gearbox,threshold_gear4,58,29,timeout,60.075
+Gearbox,threshold_gear4,72,29,timeout,60.062
+Gearbox,threshold_gear4,35,30,timeout,60.067
+Gearbox,threshold_gear4,17,31,timeout,60.084
+Gearbox,threshold_gear4,71,31,timeout,60.072
+Gearbox,threshold_gear4,4,34,timeout,60.076
+Gearbox,threshold_gear4,8,34,timeout,60.069
+Gearbox,threshold_gear4,30,35,timeout,60.067
+Gearbox,threshold_gear4,28,37,timeout,60.075
+Gearbox,threshold_gear4,41,36,timeout,60.112
+Gearbox,threshold_gear4,6,39,timeout,60.077
+Gearbox,threshold_gear4,70,38,timeout,60.136
+Gearbox,threshold_gear4,66,38,timeout,60.146
+Gearbox,threshold_gear4,13,39,timeout,60.072
+Gearbox,threshold_gear4,27,39,timeout,60.068
+Gearbox,threshold_gear4,29,40,timeout,60.066
+Gearbox,threshold_gear4,58,40,timeout,60.085
+Gearbox,threshold_gear4,72,40,timeout,60.098
+Gearbox,threshold_gear4,59,42,timeout,60.062
+Gearbox,threshold_gear4,53,43,timeout,60.099
+Gearbox,threshold_gear4,54,43,timeout,60.063
+Gearbox,threshold_gear4,73,43,timeout,60.059
+Gearbox,threshold_gear4,46,44,timeout,60.117
+Gearbox,threshold_gear4,56,44,timeout,60.061
+Gearbox,threshold_gear4,64,44,timeout,60.091
+Gearbox,threshold_gear4,75,44,timeout,60.065
+Gearbox,threshold_gear4,79,44,timeout,60.067
+Gearbox,threshold_gear4,80,44,timeout,60.068
+Gearbox,threshold_gear4,82,44,timeout,60.060
+Gearbox,threshold_gear4,14,45,timeout,60.081
+Gearbox,threshold_gear4,24,45,timeout,60.072
+Gearbox,threshold_gear4,57,45,timeout,60.062
+Gearbox,threshold_gear4,44,46,timeout,60.091
+Gearbox,threshold_gear4,64,46,timeout,60.081
+Gearbox,threshold_gear4,56,46,timeout,60.104
+Gearbox,threshold_gear4,75,46,timeout,60.069
+Gearbox,threshold_gear4,79,46,timeout,60.068
+Gearbox,threshold_gear4,80,46,timeout,60.065
+Gearbox,threshold_gear4,82,46,timeout,60.077
+Gearbox,threshold_gear4,62,47,timeout,60.069
+Gearbox,threshold_gear4,65,48,timeout,60.108
+Gearbox,threshold_gear4,81,49,timeout,60.097
+Gearbox,threshold_gear4,69,49,timeout,60.118
+Gearbox,threshold_gear4,2,51,timeout,60.093
+Gearbox,threshold_gear4,43,53,timeout,60.093
+Gearbox,threshold_gear4,76,49,timeout,60.134
+Gearbox,threshold_gear4,54,53,timeout,60.062
+Gearbox,threshold_gear4,73,53,timeout,60.072
+Gearbox,threshold_gear4,43,54,timeout,60.062
+Gearbox,threshold_gear4,53,54,timeout,60.091
+Gearbox,threshold_gear4,73,54,timeout,60.101
+Gearbox,threshold_gear4,16,55,timeout,60.063
+Gearbox,threshold_gear4,44,56,timeout,60.083
+Gearbox,threshold_gear4,46,56,timeout,60.109
+Gearbox,threshold_gear4,64,56,timeout,60.097
+Gearbox,threshold_gear4,75,56,timeout,60.075
+Gearbox,threshold_gear4,79,56,timeout,60.088
+Gearbox,threshold_gear4,80,56,timeout,60.112
+Gearbox,threshold_gear4,82,56,timeout,60.066
+Gearbox,threshold_gear4,14,57,timeout,60.088
+Gearbox,threshold_gear4,24,57,timeout,60.101
+Gearbox,threshold_gear4,45,57,timeout,60.062
+Gearbox,threshold_gear4,29,58,timeout,60.066
+Gearbox,threshold_gear4,40,58,timeout,60.066
+Gearbox,threshold_gear4,72,58,timeout,60.066
+Gearbox,threshold_gear4,42,59,timeout,60.065
+Gearbox,threshold_gear4,11,60,timeout,60.107
+Gearbox,threshold_gear4,47,62,timeout,60.067
+Gearbox,threshold_gear4,78,63,timeout,60.118
+Gearbox,threshold_gear4,74,63,timeout,60.153
+Gearbox,threshold_gear4,83,63,timeout,60.125
+Gearbox,threshold_gear4,46,64,timeout,60.081
+Gearbox,threshold_gear4,75,64,timeout,60.088
+Gearbox,threshold_gear4,44,64,timeout,60.128
+Gearbox,threshold_gear4,79,64,timeout,60.106
+Gearbox,threshold_gear4,56,64,timeout,60.158
+Gearbox,threshold_gear4,80,64,timeout,60.091
+Gearbox,threshold_gear4,82,64,timeout,60.066
+Gearbox,threshold_gear4,48,65,timeout,60.072
+Gearbox,threshold_gear4,38,66,timeout,60.099
+Gearbox,threshold_gear4,70,66,timeout,60.126
+Gearbox,threshold_gear4,3,67,timeout,60.123
+Gearbox,threshold_gear4,10,68,timeout,60.096
+Gearbox,threshold_gear4,20,68,timeout,60.082
+Gearbox,threshold_gear4,49,69,timeout,60.112
+Gearbox,threshold_gear4,76,69,timeout,60.068
+Gearbox,threshold_gear4,81,69,timeout,60.065
+Gearbox,threshold_gear4,38,70,timeout,60.097
+Gearbox,threshold_gear4,66,70,timeout,60.102
+Gearbox,threshold_gear4,17,71,timeout,60.073
+Gearbox,threshold_gear4,31,71,timeout,60.067
+Gearbox,threshold_gear4,29,72,timeout,60.067
+Gearbox,threshold_gear4,40,72,timeout,60.085
+Gearbox,threshold_gear4,58,72,timeout,60.064
+Gearbox,threshold_gear4,43,73,timeout,60.079
+Gearbox,threshold_gear4,53,73,timeout,60.081
+Gearbox,threshold_gear4,54,73,timeout,60.097
+Gearbox,threshold_gear4,63,74,timeout,60.152
+Gearbox,threshold_gear4,78,74,timeout,60.103
+Gearbox,threshold_gear4,83,74,timeout,60.116
+Gearbox,threshold_gear4,44,75,timeout,60.089
+Gearbox,threshold_gear4,46,75,timeout,60.094
+Gearbox,threshold_gear4,56,75,timeout,60.092
+Gearbox,threshold_gear4,79,75,timeout,60.074
+Gearbox,threshold_gear4,80,75,timeout,60.078
+Gearbox,threshold_gear4,64,75,timeout,60.125
+Gearbox,threshold_gear4,82,75,timeout,60.064
+Gearbox,threshold_gear4,49,76,timeout,60.064
+Gearbox,threshold_gear4,69,76,timeout,60.100
+Gearbox,threshold_gear4,81,76,timeout,60.064
+Gearbox,threshold_gear4,63,78,timeout,60.107
+Gearbox,threshold_gear4,22,77,timeout,60.124
+Gearbox,threshold_gear4,74,78,timeout,60.108
+Gearbox,threshold_gear4,83,78,timeout,60.084
+Gearbox,threshold_gear4,44,79,timeout,60.106
+Gearbox,threshold_gear4,46,79,timeout,60.065
+Gearbox,threshold_gear4,56,79,timeout,60.089
+Gearbox,threshold_gear4,64,79,timeout,60.090
+Gearbox,threshold_gear4,75,79,timeout,60.057
+Gearbox,threshold_gear4,80,79,timeout,60.081
+Gearbox,threshold_gear4,82,79,timeout,60.071
+Gearbox,threshold_gear4,44,80,timeout,60.065
+Gearbox,threshold_gear4,46,80,timeout,60.089
+Gearbox,threshold_gear4,56,80,timeout,60.061
+Gearbox,threshold_gear4,64,80,timeout,60.084
+Gearbox,threshold_gear4,75,80,timeout,60.103
+Gearbox,threshold_gear4,79,80,timeout,60.103
+Gearbox,threshold_gear4,82,80,timeout,60.080
+Gearbox,threshold_gear4,49,81,timeout,60.076
+Gearbox,threshold_gear4,69,81,timeout,60.090
+Gearbox,threshold_gear4,76,81,timeout,60.086
+Gearbox,threshold_gear4,44,82,timeout,60.088
+Gearbox,threshold_gear4,46,82,timeout,60.086
+Gearbox,threshold_gear4,56,82,timeout,60.089
+Gearbox,threshold_gear4,64,82,timeout,60.075
+Gearbox,threshold_gear4,75,82,timeout,60.104
+Gearbox,threshold_gear4,79,82,timeout,60.099
+Gearbox,threshold_gear4,80,82,timeout,60.066
+Gearbox,threshold_gear4,63,83,timeout,60.088
+Gearbox,threshold_gear4,74,83,timeout,60.100
+Gearbox,threshold_gear4,78,83,timeout,60.088
+ControlledPU,Transmission gear 4,3,1,timeout,60.080
+ControlledPU,Transmission gear 4,4,1,timeout,60.076
+ControlledPU,Transmission gear 4,5,1,timeout,60.091
+ControlledPU,Transmission gear 4,28,1,timeout,60.089
+ControlledPU,Transmission gear 4,29,1,timeout,60.070
+ControlledPU,Transmission gear 4,35,1,timeout,60.094
+ControlledPU,Transmission gear 4,44,1,timeout,60.092
+ControlledPU,Transmission gear 4,49,2,timeout,60.071
+ControlledPU,Transmission gear 4,68,2,timeout,60.070
+ControlledPU,Transmission gear 4,1,3,timeout,60.076
+ControlledPU,Transmission gear 4,4,3,timeout,60.070
+ControlledPU,Transmission gear 4,5,3,timeout,60.070
+ControlledPU,Transmission gear 4,28,3,timeout,60.105
+ControlledPU,Transmission gear 4,29,3,timeout,60.105
+ControlledPU,Transmission gear 4,35,3,timeout,60.110
+ControlledPU,Transmission gear 4,44,3,timeout,60.107
+ControlledPU,Transmission gear 4,1,4,timeout,60.072
+ControlledPU,Transmission gear 4,3,4,timeout,60.075
+ControlledPU,Transmission gear 4,5,4,timeout,60.071
+ControlledPU,Transmission gear 4,28,4,timeout,60.113
+ControlledPU,Transmission gear 4,35,4,timeout,60.102
+ControlledPU,Transmission gear 4,44,4,timeout,60.095
+ControlledPU,Transmission gear 4,29,4,timeout,60.143
+ControlledPU,Transmission gear 4,1,5,timeout,60.092
+ControlledPU,Transmission gear 4,3,5,timeout,60.080
+ControlledPU,Transmission gear 4,4,5,timeout,60.068
+ControlledPU,Transmission gear 4,28,5,timeout,60.094
+ControlledPU,Transmission gear 4,29,5,timeout,60.096
+ControlledPU,Transmission gear 4,35,5,timeout,60.096
+ControlledPU,Transmission gear 4,104,6,timeout,60.070
+ControlledPU,Transmission gear 4,44,5,timeout,60.110
+ControlledPU,Transmission gear 4,8,7,timeout,60.077
+ControlledPU,Transmission gear 4,9,7,timeout,60.093
+ControlledPU,Transmission gear 4,10,7,timeout,60.072
+ControlledPU,Transmission gear 4,102,7,timeout,60.083
+ControlledPU,Transmission gear 4,114,7,timeout,60.066
+ControlledPU,Transmission gear 4,120,7,timeout,60.088
+ControlledPU,Transmission gear 4,122,7,timeout,60.067
+ControlledPU,Transmission gear 4,124,7,timeout,60.108
+ControlledPU,Transmission gear 4,134,7,timeout,60.096
+ControlledPU,Transmission gear 4,155,7,timeout,60.068
+ControlledPU,Transmission gear 4,156,7,timeout,60.069
+ControlledPU,Transmission gear 4,7,8,timeout,60.070
+ControlledPU,Transmission gear 4,9,8,timeout,60.104
+ControlledPU,Transmission gear 4,10,8,timeout,60.101
+ControlledPU,Transmission gear 4,114,8,timeout,60.070
+ControlledPU,Transmission gear 4,102,8,timeout,60.084
+ControlledPU,Transmission gear 4,120,8,timeout,60.102
+ControlledPU,Transmission gear 4,122,8,timeout,60.076
+ControlledPU,Transmission gear 4,124,8,timeout,60.113
+ControlledPU,Transmission gear 4,134,8,timeout,60.109
+ControlledPU,Transmission gear 4,7,9,timeout,60.092
+ControlledPU,Transmission gear 4,155,8,timeout,60.117
+ControlledPU,Transmission gear 4,8,9,timeout,60.083
+ControlledPU,Transmission gear 4,156,8,timeout,60.113
+ControlledPU,Transmission gear 4,10,9,timeout,60.098
+ControlledPU,Transmission gear 4,102,9,timeout,60.070
+ControlledPU,Transmission gear 4,114,9,timeout,60.088
+ControlledPU,Transmission gear 4,120,9,timeout,60.095
+ControlledPU,Transmission gear 4,122,9,timeout,60.090
+ControlledPU,Transmission gear 4,124,9,timeout,60.099
+ControlledPU,Transmission gear 4,134,9,timeout,60.070
+ControlledPU,Transmission gear 4,155,9,timeout,60.091
+ControlledPU,Transmission gear 4,156,9,timeout,60.085
+ControlledPU,Transmission gear 4,7,10,timeout,60.061
+ControlledPU,Transmission gear 4,8,10,timeout,60.061
+ControlledPU,Transmission gear 4,9,10,timeout,60.066
+ControlledPU,Transmission gear 4,102,10,timeout,60.065
+ControlledPU,Transmission gear 4,114,10,timeout,60.087
+ControlledPU,Transmission gear 4,120,10,timeout,60.098
+ControlledPU,Transmission gear 4,122,10,timeout,60.097
+ControlledPU,Transmission gear 4,124,10,timeout,60.097
+ControlledPU,Transmission gear 4,134,10,timeout,60.100
+ControlledPU,Transmission gear 4,155,10,timeout,60.103
+ControlledPU,Transmission gear 4,156,10,timeout,60.117
+ControlledPU,Transmission gear 4,13,11,timeout,60.077
+ControlledPU,Transmission gear 4,14,11,timeout,60.104
+ControlledPU,Transmission gear 4,15,11,timeout,60.096
+ControlledPU,Transmission gear 4,67,11,timeout,60.088
+ControlledPU,Transmission gear 4,89,11,timeout,60.114
+ControlledPU,Transmission gear 4,101,12,timeout,60.108
+ControlledPU,Transmission gear 4,11,13,timeout,60.101
+ControlledPU,Transmission gear 4,74,11,timeout,60.138
+ControlledPU,Transmission gear 4,14,13,timeout,60.133
+ControlledPU,Transmission gear 4,75,11,timeout,60.165
+ControlledPU,Transmission gear 4,15,13,timeout,60.099
+ControlledPU,Transmission gear 4,67,13,timeout,60.071
+ControlledPU,Transmission gear 4,74,13,timeout,60.092
+ControlledPU,Transmission gear 4,75,13,timeout,60.105
+ControlledPU,Transmission gear 4,89,13,timeout,60.093
+ControlledPU,Transmission gear 4,11,14,timeout,60.070
+ControlledPU,Transmission gear 4,13,14,timeout,60.069
+ControlledPU,Transmission gear 4,15,14,timeout,60.084
+ControlledPU,Transmission gear 4,67,14,timeout,60.093
+ControlledPU,Transmission gear 4,74,14,timeout,60.068
+ControlledPU,Transmission gear 4,75,14,timeout,60.088
+ControlledPU,Transmission gear 4,89,14,timeout,60.066
+ControlledPU,Transmission gear 4,11,15,timeout,60.067
+ControlledPU,Transmission gear 4,13,15,timeout,60.071
+ControlledPU,Transmission gear 4,14,15,timeout,60.070
+ControlledPU,Transmission gear 4,67,15,timeout,60.093
+ControlledPU,Transmission gear 4,74,15,timeout,60.105
+ControlledPU,Transmission gear 4,75,15,timeout,60.105
+ControlledPU,Transmission gear 4,89,15,timeout,60.108
+ControlledPU,Transmission gear 4,20,17,timeout,60.070
+ControlledPU,Transmission gear 4,22,17,timeout,60.084
+ControlledPU,Transmission gear 4,24,17,timeout,60.069
+ControlledPU,Transmission gear 4,53,17,timeout,60.064
+ControlledPU,Transmission gear 4,57,17,timeout,60.085
+ControlledPU,Transmission gear 4,63,17,timeout,60.098
+ControlledPU,Transmission gear 4,73,17,timeout,60.103
+ControlledPU,Transmission gear 4,80,17,timeout,60.101
+ControlledPU,Transmission gear 4,59,17,timeout,60.112
+ControlledPU,Transmission gear 4,90,17,timeout,60.088
+ControlledPU,Transmission gear 4,87,17,timeout,60.135
+ControlledPU,Transmission gear 4,19,18,timeout,60.052
+ControlledPU,Transmission gear 4,23,18,timeout,60.056
+ControlledPU,Transmission gear 4,25,18,timeout,60.044
+ControlledPU,Transmission gear 4,30,18,timeout,60.049
+ControlledPU,Transmission gear 4,38,18,timeout,60.057
+ControlledPU,Transmission gear 4,40,18,timeout,60.060
+ControlledPU,Transmission gear 4,45,18,timeout,60.060
+ControlledPU,Transmission gear 4,72,18,timeout,60.056
+ControlledPU,Transmission gear 4,83,18,timeout,60.059
+ControlledPU,Transmission gear 4,86,18,timeout,60.055
+ControlledPU,Transmission gear 4,91,18,timeout,60.061
+ControlledPU,Transmission gear 4,18,19,timeout,60.054
+ControlledPU,Transmission gear 4,23,19,timeout,60.058
+ControlledPU,Transmission gear 4,25,19,timeout,60.059
+ControlledPU,Transmission gear 4,30,19,timeout,60.051
+ControlledPU,Transmission gear 4,38,19,timeout,60.052
+ControlledPU,Transmission gear 4,40,19,timeout,60.054
+ControlledPU,Transmission gear 4,45,19,timeout,60.053
+ControlledPU,Transmission gear 4,72,19,timeout,60.061
+ControlledPU,Transmission gear 4,83,19,timeout,60.060
+ControlledPU,Transmission gear 4,86,19,timeout,60.053
+ControlledPU,Transmission gear 4,91,19,timeout,60.054
+ControlledPU,Transmission gear 4,17,20,timeout,60.064
+ControlledPU,Transmission gear 4,22,20,timeout,60.070
+ControlledPU,Transmission gear 4,24,20,timeout,60.095
+ControlledPU,Transmission gear 4,59,20,timeout,60.092
+ControlledPU,Transmission gear 4,57,20,timeout,60.114
+ControlledPU,Transmission gear 4,53,20,timeout,60.141
+ControlledPU,Transmission gear 4,73,20,timeout,60.086
+ControlledPU,Transmission gear 4,63,20,timeout,60.142
+ControlledPU,Transmission gear 4,80,20,timeout,60.104
+ControlledPU,Transmission gear 4,87,20,timeout,60.098
+ControlledPU,Transmission gear 4,90,20,timeout,60.068
+ControlledPU,Transmission gear 4,85,21,timeout,60.069
+ControlledPU,Transmission gear 4,127,21,timeout,60.069
+ControlledPU,Transmission gear 4,17,22,timeout,60.060
+ControlledPU,Transmission gear 4,20,22,timeout,60.069
+ControlledPU,Transmission gear 4,24,22,timeout,60.061
+ControlledPU,Transmission gear 4,53,22,timeout,60.098
+ControlledPU,Transmission gear 4,57,22,timeout,60.075
+ControlledPU,Transmission gear 4,59,22,timeout,60.130
+ControlledPU,Transmission gear 4,63,22,timeout,60.137
+ControlledPU,Transmission gear 4,73,22,timeout,60.069
+ControlledPU,Transmission gear 4,80,22,timeout,60.099
+ControlledPU,Transmission gear 4,87,22,timeout,60.101
+ControlledPU,Transmission gear 4,90,22,timeout,60.069
+ControlledPU,Transmission gear 4,18,23,timeout,60.065
+ControlledPU,Transmission gear 4,19,23,timeout,60.058
+ControlledPU,Transmission gear 4,25,23,timeout,60.052
+ControlledPU,Transmission gear 4,30,23,timeout,60.072
+ControlledPU,Transmission gear 4,38,23,timeout,60.058
+ControlledPU,Transmission gear 4,40,23,timeout,60.062
+ControlledPU,Transmission gear 4,45,23,timeout,60.054
+ControlledPU,Transmission gear 4,72,23,timeout,60.062
+ControlledPU,Transmission gear 4,86,23,timeout,60.060
+ControlledPU,Transmission gear 4,83,23,timeout,60.077
+ControlledPU,Transmission gear 4,91,23,timeout,60.063
+ControlledPU,Transmission gear 4,17,24,timeout,60.113
+ControlledPU,Transmission gear 4,22,24,timeout,60.118
+ControlledPU,Transmission gear 4,20,24,timeout,60.147
+ControlledPU,Transmission gear 4,53,24,timeout,60.127
+ControlledPU,Transmission gear 4,57,24,timeout,60.112
+ControlledPU,Transmission gear 4,59,24,timeout,60.107
+ControlledPU,Transmission gear 4,63,24,timeout,60.133
+ControlledPU,Transmission gear 4,73,24,timeout,60.109
+ControlledPU,Transmission gear 4,80,24,timeout,60.124
+ControlledPU,Transmission gear 4,87,24,timeout,60.125
+ControlledPU,Transmission gear 4,90,24,timeout,60.120
+ControlledPU,Transmission gear 4,18,25,timeout,60.077
+ControlledPU,Transmission gear 4,19,25,timeout,60.079
+ControlledPU,Transmission gear 4,23,25,timeout,60.089
+ControlledPU,Transmission gear 4,30,25,timeout,60.091
+ControlledPU,Transmission gear 4,38,25,timeout,60.064
+ControlledPU,Transmission gear 4,40,25,timeout,60.108
+ControlledPU,Transmission gear 4,45,25,timeout,60.132
+ControlledPU,Transmission gear 4,72,25,timeout,60.124
+ControlledPU,Transmission gear 4,83,25,timeout,60.127
+ControlledPU,Transmission gear 4,86,25,timeout,60.079
+ControlledPU,Transmission gear 4,36,26,timeout,60.100
+ControlledPU,Transmission gear 4,91,25,timeout,60.151
+ControlledPU,Transmission gear 4,32,26,timeout,60.152
+ControlledPU,Transmission gear 4,46,26,timeout,60.130
+ControlledPU,Transmission gear 4,31,27,timeout,60.158
+ControlledPU,Transmission gear 4,34,27,timeout,60.116
+ControlledPU,Transmission gear 4,43,27,timeout,60.075
+ControlledPU,Transmission gear 4,1,28,timeout,60.097
+ControlledPU,Transmission gear 4,3,28,timeout,60.111
+ControlledPU,Transmission gear 4,4,28,timeout,60.108
+ControlledPU,Transmission gear 4,5,28,timeout,60.095
+ControlledPU,Transmission gear 4,29,28,timeout,60.137
+ControlledPU,Transmission gear 4,35,28,timeout,60.139
+ControlledPU,Transmission gear 4,44,28,timeout,60.120
+ControlledPU,Transmission gear 4,1,29,timeout,60.101
+ControlledPU,Transmission gear 4,3,29,timeout,60.120
+ControlledPU,Transmission gear 4,5,29,timeout,60.089
+ControlledPU,Transmission gear 4,4,29,timeout,60.125
+ControlledPU,Transmission gear 4,28,29,timeout,60.100
+ControlledPU,Transmission gear 4,35,29,timeout,60.102
+ControlledPU,Transmission gear 4,44,29,timeout,60.130
+ControlledPU,Transmission gear 4,18,30,timeout,60.073
+ControlledPU,Transmission gear 4,19,30,timeout,60.073
+ControlledPU,Transmission gear 4,23,30,timeout,60.068
+ControlledPU,Transmission gear 4,25,30,timeout,60.067
+ControlledPU,Transmission gear 4,38,30,timeout,60.069
+ControlledPU,Transmission gear 4,40,30,timeout,60.060
+ControlledPU,Transmission gear 4,45,30,timeout,60.066
+ControlledPU,Transmission gear 4,72,30,timeout,60.076
+ControlledPU,Transmission gear 4,83,30,timeout,60.076
+ControlledPU,Transmission gear 4,86,30,timeout,60.077
+ControlledPU,Transmission gear 4,91,30,timeout,60.077
+ControlledPU,Transmission gear 4,27,31,timeout,60.079
+ControlledPU,Transmission gear 4,34,31,timeout,60.130
+ControlledPU,Transmission gear 4,26,32,timeout,60.081
+ControlledPU,Transmission gear 4,43,31,timeout,60.141
+ControlledPU,Transmission gear 4,46,32,timeout,60.098
+ControlledPU,Transmission gear 4,78,33,timeout,60.093
+ControlledPU,Transmission gear 4,36,32,timeout,60.172
+ControlledPU,Transmission gear 4,27,34,timeout,60.081
+ControlledPU,Transmission gear 4,79,33,timeout,60.106
+ControlledPU,Transmission gear 4,31,34,timeout,60.075
+ControlledPU,Transmission gear 4,43,34,timeout,60.114
+ControlledPU,Transmission gear 4,1,35,timeout,60.134
+ControlledPU,Transmission gear 4,3,35,timeout,60.122
+ControlledPU,Transmission gear 4,4,35,timeout,60.105
+ControlledPU,Transmission gear 4,5,35,timeout,60.086
+ControlledPU,Transmission gear 4,28,35,timeout,60.123
+ControlledPU,Transmission gear 4,29,35,timeout,60.067
+ControlledPU,Transmission gear 4,44,35,timeout,60.100
+ControlledPU,Transmission gear 4,26,36,timeout,60.073
+ControlledPU,Transmission gear 4,32,36,timeout,60.083
+ControlledPU,Transmission gear 4,46,36,timeout,60.130
+ControlledPU,Transmission gear 4,39,37,timeout,60.085
+ControlledPU,Transmission gear 4,41,37,timeout,60.075
+ControlledPU,Transmission gear 4,47,37,timeout,60.084
+ControlledPU,Transmission gear 4,54,37,timeout,60.075
+ControlledPU,Transmission gear 4,58,37,timeout,60.078
+ControlledPU,Transmission gear 4,61,37,timeout,60.082
+ControlledPU,Transmission gear 4,66,37,timeout,60.087
+ControlledPU,Transmission gear 4,18,38,timeout,60.070
+ControlledPU,Transmission gear 4,19,38,timeout,60.070
+ControlledPU,Transmission gear 4,23,38,timeout,60.070
+ControlledPU,Transmission gear 4,25,38,timeout,60.071
+ControlledPU,Transmission gear 4,30,38,timeout,60.077
+ControlledPU,Transmission gear 4,40,38,timeout,60.077
+ControlledPU,Transmission gear 4,45,38,timeout,60.077
+ControlledPU,Transmission gear 4,72,38,timeout,60.077
+ControlledPU,Transmission gear 4,83,38,timeout,60.075
+ControlledPU,Transmission gear 4,91,38,timeout,60.067
+ControlledPU,Transmission gear 4,86,38,timeout,60.082
+ControlledPU,Transmission gear 4,37,39,timeout,60.069
+ControlledPU,Transmission gear 4,41,39,timeout,60.080
+ControlledPU,Transmission gear 4,47,39,timeout,60.078
+ControlledPU,Transmission gear 4,54,39,timeout,60.081
+ControlledPU,Transmission gear 4,58,39,timeout,60.075
+ControlledPU,Transmission gear 4,61,39,timeout,60.075
+ControlledPU,Transmission gear 4,66,39,timeout,60.086
+ControlledPU,Transmission gear 4,18,40,timeout,60.084
+ControlledPU,Transmission gear 4,19,40,timeout,60.083
+ControlledPU,Transmission gear 4,23,40,timeout,60.078
+ControlledPU,Transmission gear 4,25,40,timeout,60.077
+ControlledPU,Transmission gear 4,30,40,timeout,60.064
+ControlledPU,Transmission gear 4,38,40,timeout,60.072
+ControlledPU,Transmission gear 4,45,40,timeout,60.082
+ControlledPU,Transmission gear 4,72,40,timeout,60.067
+ControlledPU,Transmission gear 4,83,40,timeout,60.062
+ControlledPU,Transmission gear 4,86,40,timeout,60.062
+ControlledPU,Transmission gear 4,91,40,timeout,60.071
+ControlledPU,Transmission gear 4,37,41,timeout,60.068
+ControlledPU,Transmission gear 4,39,41,timeout,60.081
+ControlledPU,Transmission gear 4,47,41,timeout,60.074
+ControlledPU,Transmission gear 4,54,41,timeout,60.070
+ControlledPU,Transmission gear 4,58,41,timeout,60.059
+ControlledPU,Transmission gear 4,61,41,timeout,60.084
+ControlledPU,Transmission gear 4,66,41,timeout,60.077
+ControlledPU,Transmission gear 4,62,42,timeout,60.063
+ControlledPU,Transmission gear 4,27,43,timeout,60.064
+ControlledPU,Transmission gear 4,31,43,timeout,60.071
+ControlledPU,Transmission gear 4,34,43,timeout,60.073
+ControlledPU,Transmission gear 4,1,44,timeout,60.126
+ControlledPU,Transmission gear 4,3,44,timeout,60.111
+ControlledPU,Transmission gear 4,4,44,timeout,60.113
+ControlledPU,Transmission gear 4,5,44,timeout,60.085
+ControlledPU,Transmission gear 4,28,44,timeout,60.091
+ControlledPU,Transmission gear 4,29,44,timeout,60.094
+ControlledPU,Transmission gear 4,35,44,timeout,60.087
+ControlledPU,Transmission gear 4,18,45,timeout,60.076
+ControlledPU,Transmission gear 4,19,45,timeout,60.082
+ControlledPU,Transmission gear 4,23,45,timeout,60.132
+ControlledPU,Transmission gear 4,25,45,timeout,60.119
+ControlledPU,Transmission gear 4,30,45,timeout,60.087
+ControlledPU,Transmission gear 4,38,45,timeout,60.111
+ControlledPU,Transmission gear 4,40,45,timeout,60.134
+ControlledPU,Transmission gear 4,72,45,timeout,60.133
+ControlledPU,Transmission gear 4,83,45,timeout,60.104
+ControlledPU,Transmission gear 4,86,45,timeout,60.115
+ControlledPU,Transmission gear 4,91,45,timeout,60.108
+ControlledPU,Transmission gear 4,26,46,timeout,60.083
+ControlledPU,Transmission gear 4,32,46,timeout,60.082
+ControlledPU,Transmission gear 4,36,46,timeout,60.086
+ControlledPU,Transmission gear 4,37,47,timeout,60.082
+ControlledPU,Transmission gear 4,39,47,timeout,60.078
+ControlledPU,Transmission gear 4,41,47,timeout,60.074
+ControlledPU,Transmission gear 4,54,47,timeout,60.085
+ControlledPU,Transmission gear 4,58,47,timeout,60.079
+ControlledPU,Transmission gear 4,61,47,timeout,60.089
+ControlledPU,Transmission gear 4,66,47,timeout,60.085
+ControlledPU,Transmission gear 4,52,48,timeout,60.138
+ControlledPU,Transmission gear 4,55,48,timeout,60.118
+ControlledPU,Transmission gear 4,2,49,timeout,60.084
+ControlledPU,Transmission gear 4,64,48,timeout,60.118
+ControlledPU,Transmission gear 4,71,50,timeout,60.119
+ControlledPU,Transmission gear 4,68,49,timeout,60.144
+ControlledPU,Transmission gear 4,115,50,timeout,60.128
+ControlledPU,Transmission gear 4,56,51,timeout,60.074
+ControlledPU,Transmission gear 4,60,51,timeout,60.078
+ControlledPU,Transmission gear 4,65,51,timeout,60.074
+ControlledPU,Transmission gear 4,48,52,timeout,60.081
+ControlledPU,Transmission gear 4,55,52,timeout,60.149
+ControlledPU,Transmission gear 4,64,52,timeout,60.111
+ControlledPU,Transmission gear 4,17,53,timeout,60.073
+ControlledPU,Transmission gear 4,20,53,timeout,60.069
+ControlledPU,Transmission gear 4,22,53,timeout,60.073
+ControlledPU,Transmission gear 4,24,53,timeout,60.075
+ControlledPU,Transmission gear 4,57,53,timeout,60.079
+ControlledPU,Transmission gear 4,59,53,timeout,60.077
+ControlledPU,Transmission gear 4,63,53,timeout,60.069
+ControlledPU,Transmission gear 4,73,53,timeout,60.074
+ControlledPU,Transmission gear 4,80,53,timeout,60.076
+ControlledPU,Transmission gear 4,87,53,timeout,60.076
+ControlledPU,Transmission gear 4,90,53,timeout,60.090
+ControlledPU,Transmission gear 4,37,54,timeout,60.084
+ControlledPU,Transmission gear 4,39,54,timeout,60.069
+ControlledPU,Transmission gear 4,41,54,timeout,60.067
+ControlledPU,Transmission gear 4,47,54,timeout,60.067
+ControlledPU,Transmission gear 4,58,54,timeout,60.073
+ControlledPU,Transmission gear 4,61,54,timeout,60.081
+ControlledPU,Transmission gear 4,66,54,timeout,60.071
+ControlledPU,Transmission gear 4,48,55,timeout,60.081
+ControlledPU,Transmission gear 4,52,55,timeout,60.083
+ControlledPU,Transmission gear 4,64,55,timeout,60.099
+ControlledPU,Transmission gear 4,51,56,timeout,60.074
+ControlledPU,Transmission gear 4,60,56,timeout,60.092
+ControlledPU,Transmission gear 4,65,56,timeout,60.061
+ControlledPU,Transmission gear 4,17,57,timeout,60.059
+ControlledPU,Transmission gear 4,20,57,timeout,60.077
+ControlledPU,Transmission gear 4,22,57,timeout,60.078
+ControlledPU,Transmission gear 4,24,57,timeout,60.073
+ControlledPU,Transmission gear 4,53,57,timeout,60.071
+ControlledPU,Transmission gear 4,59,57,timeout,60.071
+ControlledPU,Transmission gear 4,63,57,timeout,60.061
+ControlledPU,Transmission gear 4,73,57,timeout,60.078
+ControlledPU,Transmission gear 4,80,57,timeout,60.078
+ControlledPU,Transmission gear 4,87,57,timeout,60.140
+ControlledPU,Transmission gear 4,90,57,timeout,60.081
+ControlledPU,Transmission gear 4,37,58,timeout,60.078
+ControlledPU,Transmission gear 4,39,58,timeout,60.060
+ControlledPU,Transmission gear 4,41,58,timeout,60.092
+ControlledPU,Transmission gear 4,47,58,timeout,60.080
+ControlledPU,Transmission gear 4,54,58,timeout,60.090
+ControlledPU,Transmission gear 4,61,58,timeout,60.091
+ControlledPU,Transmission gear 4,66,58,timeout,60.084
+ControlledPU,Transmission gear 4,17,59,timeout,60.067
+ControlledPU,Transmission gear 4,20,59,timeout,60.070
+ControlledPU,Transmission gear 4,22,59,timeout,60.072
+ControlledPU,Transmission gear 4,24,59,timeout,60.076
+ControlledPU,Transmission gear 4,53,59,timeout,60.076
+ControlledPU,Transmission gear 4,57,59,timeout,60.070
+ControlledPU,Transmission gear 4,63,59,timeout,60.078
+ControlledPU,Transmission gear 4,73,59,timeout,60.100
+ControlledPU,Transmission gear 4,80,59,timeout,60.110
+ControlledPU,Transmission gear 4,90,59,timeout,60.077
+ControlledPU,Transmission gear 4,87,59,timeout,60.144
+ControlledPU,Transmission gear 4,51,60,timeout,60.057
+ControlledPU,Transmission gear 4,56,60,timeout,60.071
+ControlledPU,Transmission gear 4,65,60,timeout,60.066
+ControlledPU,Transmission gear 4,37,61,timeout,60.078
+ControlledPU,Transmission gear 4,39,61,timeout,60.067
+ControlledPU,Transmission gear 4,41,61,timeout,60.074
+ControlledPU,Transmission gear 4,47,61,timeout,60.066
+ControlledPU,Transmission gear 4,54,61,timeout,60.061
+ControlledPU,Transmission gear 4,58,61,timeout,60.078
+ControlledPU,Transmission gear 4,66,61,timeout,60.065
+ControlledPU,Transmission gear 4,42,62,timeout,60.062
+ControlledPU,Transmission gear 4,17,63,timeout,60.090
+ControlledPU,Transmission gear 4,20,63,timeout,60.074
+ControlledPU,Transmission gear 4,22,63,timeout,60.072
+ControlledPU,Transmission gear 4,53,63,timeout,60.084
+ControlledPU,Transmission gear 4,24,63,timeout,60.094
+ControlledPU,Transmission gear 4,57,63,timeout,60.091
+ControlledPU,Transmission gear 4,59,63,timeout,60.089
+ControlledPU,Transmission gear 4,73,63,timeout,60.134
+ControlledPU,Transmission gear 4,80,63,timeout,60.127
+ControlledPU,Transmission gear 4,87,63,timeout,60.127
+ControlledPU,Transmission gear 4,90,63,timeout,60.156
+ControlledPU,Transmission gear 4,48,64,timeout,60.066
+ControlledPU,Transmission gear 4,52,64,timeout,60.070
+ControlledPU,Transmission gear 4,55,64,timeout,60.065
+ControlledPU,Transmission gear 4,51,65,timeout,60.102
+ControlledPU,Transmission gear 4,56,65,timeout,60.103
+ControlledPU,Transmission gear 4,60,65,timeout,60.077
+ControlledPU,Transmission gear 4,37,66,timeout,60.067
+ControlledPU,Transmission gear 4,39,66,timeout,60.068
+ControlledPU,Transmission gear 4,41,66,timeout,60.066
+ControlledPU,Transmission gear 4,47,66,timeout,60.071
+ControlledPU,Transmission gear 4,54,66,timeout,60.075
+ControlledPU,Transmission gear 4,58,66,timeout,60.065
+ControlledPU,Transmission gear 4,61,66,timeout,60.063
+ControlledPU,Transmission gear 4,11,67,timeout,60.111
+ControlledPU,Transmission gear 4,13,67,timeout,60.122
+ControlledPU,Transmission gear 4,14,67,timeout,60.058
+ControlledPU,Transmission gear 4,15,67,timeout,60.129
+ControlledPU,Transmission gear 4,74,67,timeout,60.132
+ControlledPU,Transmission gear 4,75,67,timeout,60.102
+ControlledPU,Transmission gear 4,89,67,timeout,60.142
+ControlledPU,Transmission gear 4,2,68,timeout,60.070
+ControlledPU,Transmission gear 4,49,68,timeout,60.133
+ControlledPU,Transmission gear 4,116,69,timeout,60.068
+ControlledPU,Transmission gear 4,77,70,timeout,60.107
+ControlledPU,Transmission gear 4,81,70,timeout,60.070
+ControlledPU,Transmission gear 4,93,70,timeout,60.108
+ControlledPU,Transmission gear 4,115,71,timeout,60.108
+ControlledPU,Transmission gear 4,50,71,timeout,60.143
+ControlledPU,Transmission gear 4,18,72,timeout,60.093
+ControlledPU,Transmission gear 4,19,72,timeout,60.067
+ControlledPU,Transmission gear 4,23,72,timeout,60.068
+ControlledPU,Transmission gear 4,25,72,timeout,60.070
+ControlledPU,Transmission gear 4,30,72,timeout,60.075
+ControlledPU,Transmission gear 4,38,72,timeout,60.071
+ControlledPU,Transmission gear 4,40,72,timeout,60.071
+ControlledPU,Transmission gear 4,45,72,timeout,60.078
+ControlledPU,Transmission gear 4,83,72,timeout,60.081
+ControlledPU,Transmission gear 4,86,72,timeout,60.076
+ControlledPU,Transmission gear 4,91,72,timeout,60.134
+ControlledPU,Transmission gear 4,17,73,timeout,60.080
+ControlledPU,Transmission gear 4,20,73,timeout,60.074
+ControlledPU,Transmission gear 4,22,73,timeout,60.075
+ControlledPU,Transmission gear 4,24,73,timeout,60.068
+ControlledPU,Transmission gear 4,53,73,timeout,60.121
+ControlledPU,Transmission gear 4,57,73,timeout,60.123
+ControlledPU,Transmission gear 4,59,73,timeout,60.074
+ControlledPU,Transmission gear 4,63,73,timeout,60.070
+ControlledPU,Transmission gear 4,80,73,timeout,60.076
+ControlledPU,Transmission gear 4,87,73,timeout,60.071
+ControlledPU,Transmission gear 4,90,73,timeout,60.115
+ControlledPU,Transmission gear 4,11,74,timeout,60.137
+ControlledPU,Transmission gear 4,13,74,timeout,60.137
+ControlledPU,Transmission gear 4,14,74,timeout,60.084
+ControlledPU,Transmission gear 4,15,74,timeout,60.141
+ControlledPU,Transmission gear 4,67,74,timeout,60.070
+ControlledPU,Transmission gear 4,75,74,timeout,60.177
+ControlledPU,Transmission gear 4,89,74,timeout,60.143
+ControlledPU,Transmission gear 4,11,75,timeout,60.146
+ControlledPU,Transmission gear 4,13,75,timeout,60.138
+ControlledPU,Transmission gear 4,14,75,timeout,60.141
+ControlledPU,Transmission gear 4,15,75,timeout,60.092
+ControlledPU,Transmission gear 4,67,75,timeout,60.088
+ControlledPU,Transmission gear 4,74,75,timeout,60.086
+ControlledPU,Transmission gear 4,89,75,timeout,60.146
+ControlledPU,Transmission gear 4,84,76,timeout,60.079
+ControlledPU,Transmission gear 4,88,76,timeout,60.077
+ControlledPU,Transmission gear 4,92,76,timeout,60.075
+ControlledPU,Transmission gear 4,70,77,timeout,60.077
+ControlledPU,Transmission gear 4,81,77,timeout,60.125
+ControlledPU,Transmission gear 4,93,77,timeout,60.085
+ControlledPU,Transmission gear 4,33,78,timeout,60.085
+ControlledPU,Transmission gear 4,79,78,timeout,60.082
+ControlledPU,Transmission gear 4,33,79,timeout,60.073
+ControlledPU,Transmission gear 4,78,79,timeout,60.065
+ControlledPU,Transmission gear 4,17,80,timeout,60.096
+ControlledPU,Transmission gear 4,20,80,timeout,60.074
+ControlledPU,Transmission gear 4,22,80,timeout,60.071
+ControlledPU,Transmission gear 4,24,80,timeout,60.074
+ControlledPU,Transmission gear 4,53,80,timeout,60.113
+ControlledPU,Transmission gear 4,57,80,timeout,60.101
+ControlledPU,Transmission gear 4,59,80,timeout,60.081
+ControlledPU,Transmission gear 4,63,80,timeout,60.078
+ControlledPU,Transmission gear 4,73,80,timeout,60.068
+ControlledPU,Transmission gear 4,87,80,timeout,60.082
+ControlledPU,Transmission gear 4,90,80,timeout,60.069
+ControlledPU,Transmission gear 4,70,81,timeout,60.078
+ControlledPU,Transmission gear 4,77,81,timeout,60.066
+ControlledPU,Transmission gear 4,93,81,timeout,60.105
+ControlledPU,Transmission gear 4,18,83,timeout,60.078
+ControlledPU,Transmission gear 4,19,83,timeout,60.112
+ControlledPU,Transmission gear 4,23,83,timeout,60.077
+ControlledPU,Transmission gear 4,25,83,timeout,60.078
+ControlledPU,Transmission gear 4,30,83,timeout,60.071
+ControlledPU,Transmission gear 4,45,83,timeout,60.090
+ControlledPU,Transmission gear 4,40,83,timeout,60.100
+ControlledPU,Transmission gear 4,38,83,timeout,60.106
+ControlledPU,Transmission gear 4,72,83,timeout,60.070
+ControlledPU,Transmission gear 4,86,83,timeout,60.093
+ControlledPU,Transmission gear 4,91,83,timeout,60.146
+ControlledPU,Transmission gear 4,76,84,timeout,60.073
+ControlledPU,Transmission gear 4,88,84,timeout,60.068
+ControlledPU,Transmission gear 4,92,84,timeout,60.064
+ControlledPU,Transmission gear 4,21,85,timeout,60.069
+ControlledPU,Transmission gear 4,127,85,timeout,60.063
+ControlledPU,Transmission gear 4,19,86,timeout,60.086
+ControlledPU,Transmission gear 4,18,86,timeout,60.092
+ControlledPU,Transmission gear 4,23,86,timeout,60.110
+ControlledPU,Transmission gear 4,25,86,timeout,60.067
+ControlledPU,Transmission gear 4,30,86,timeout,60.108
+ControlledPU,Transmission gear 4,38,86,timeout,60.111
+ControlledPU,Transmission gear 4,40,86,timeout,60.103
+ControlledPU,Transmission gear 4,45,86,timeout,60.070
+ControlledPU,Transmission gear 4,72,86,timeout,60.073
+ControlledPU,Transmission gear 4,83,86,timeout,60.101
+ControlledPU,Transmission gear 4,91,86,timeout,60.068
+ControlledPU,Transmission gear 4,17,87,timeout,60.107
+ControlledPU,Transmission gear 4,20,87,timeout,60.109
+ControlledPU,Transmission gear 4,22,87,timeout,60.097
+ControlledPU,Transmission gear 4,24,87,timeout,60.071
+ControlledPU,Transmission gear 4,57,87,timeout,60.102
+ControlledPU,Transmission gear 4,53,87,timeout,60.122
+ControlledPU,Transmission gear 4,59,87,timeout,60.121
+ControlledPU,Transmission gear 4,63,87,timeout,60.082
+ControlledPU,Transmission gear 4,73,87,timeout,60.072
+ControlledPU,Transmission gear 4,80,87,timeout,60.075
+ControlledPU,Transmission gear 4,90,87,timeout,60.118
+ControlledPU,Transmission gear 4,76,88,timeout,60.062
+ControlledPU,Transmission gear 4,84,88,timeout,60.063
+ControlledPU,Transmission gear 4,92,88,timeout,60.061
+ControlledPU,Transmission gear 4,11,89,timeout,60.057
+ControlledPU,Transmission gear 4,13,89,timeout,60.066
+ControlledPU,Transmission gear 4,14,89,timeout,60.071
+ControlledPU,Transmission gear 4,15,89,timeout,60.080
+ControlledPU,Transmission gear 4,67,89,timeout,60.056
+ControlledPU,Transmission gear 4,74,89,timeout,60.064
+ControlledPU,Transmission gear 4,75,89,timeout,60.074
+ControlledPU,Transmission gear 4,17,90,timeout,60.097
+ControlledPU,Transmission gear 4,20,90,timeout,60.118
+ControlledPU,Transmission gear 4,22,90,timeout,60.106
+ControlledPU,Transmission gear 4,73,90,implied,55.612
+ControlledPU,Transmission gear 4,80,90,implied,56.015
+ControlledPU,Transmission gear 4,87,90,implied,57.818
+ControlledPU,Transmission gear 4,24,90,timeout,60.100
+ControlledPU,Transmission gear 4,53,90,timeout,60.122
+ControlledPU,Transmission gear 4,57,90,timeout,60.125
+ControlledPU,Transmission gear 4,59,90,timeout,60.128
+ControlledPU,Transmission gear 4,63,90,timeout,60.106
+ControlledPU,Transmission gear 4,18,91,timeout,60.107
+ControlledPU,Transmission gear 4,19,91,timeout,60.104
+ControlledPU,Transmission gear 4,23,91,timeout,60.124
+ControlledPU,Transmission gear 4,25,91,timeout,60.128
+ControlledPU,Transmission gear 4,38,91,timeout,60.101
+ControlledPU,Transmission gear 4,30,91,timeout,60.136
+ControlledPU,Transmission gear 4,40,91,timeout,60.114
+ControlledPU,Transmission gear 4,45,91,timeout,60.134
+ControlledPU,Transmission gear 4,72,91,timeout,60.149
+ControlledPU,Transmission gear 4,83,91,timeout,60.151
+ControlledPU,Transmission gear 4,86,91,timeout,60.145
+ControlledPU,Transmission gear 4,76,92,timeout,60.096
+ControlledPU,Transmission gear 4,84,92,timeout,60.101
+ControlledPU,Transmission gear 4,88,92,timeout,60.068
+ControlledPU,Transmission gear 4,70,93,timeout,60.070
+ControlledPU,Transmission gear 4,77,93,timeout,60.064
+ControlledPU,Transmission gear 4,81,93,timeout,60.061
+ControlledPU,Transmission gear 4,105,94,timeout,60.137
+ControlledPU,Transmission gear 4,110,94,timeout,60.151
+ControlledPU,Transmission gear 4,148,94,timeout,60.122
+ControlledPU,Transmission gear 4,106,95,timeout,60.167
+ControlledPU,Transmission gear 4,108,95,timeout,60.132
+ControlledPU,Transmission gear 4,95,106,implied,22.498
+ControlledPU,Transmission gear 4,94,105,implied,36.915
+ControlledPU,Transmission gear 4,146,95,timeout,60.127
+ControlledPU,Transmission gear 4,107,96,timeout,60.140
+ControlledPU,Transmission gear 4,118,96,timeout,60.149
+ControlledPU,Transmission gear 4,147,96,timeout,60.136
+ControlledPU,Transmission gear 4,113,97,timeout,60.116
+ControlledPU,Transmission gear 4,121,97,timeout,60.124
+ControlledPU,Transmission gear 4,152,97,timeout,60.106
+ControlledPU,Transmission gear 4,12,101,timeout,60.071
+ControlledPU,Transmission gear 4,7,102,timeout,60.074
+ControlledPU,Transmission gear 4,8,102,timeout,60.067
+ControlledPU,Transmission gear 4,9,102,timeout,60.069
+ControlledPU,Transmission gear 4,10,102,timeout,60.073
+ControlledPU,Transmission gear 4,114,102,timeout,60.077
+ControlledPU,Transmission gear 4,120,102,timeout,60.121
+ControlledPU,Transmission gear 4,122,102,timeout,60.106
+ControlledPU,Transmission gear 4,124,102,timeout,60.126
+ControlledPU,Transmission gear 4,134,102,timeout,60.101
+ControlledPU,Transmission gear 4,155,102,timeout,60.109
+ControlledPU,Transmission gear 4,156,102,timeout,60.108
+ControlledPU,Transmission gear 4,95,108,implied,20.993
+ControlledPU,Transmission gear 4,106,108,implied,28.921
+ControlledPU,Transmission gear 4,6,104,timeout,60.069
+ControlledPU,Transmission gear 4,110,105,timeout,60.144
+ControlledPU,Transmission gear 4,148,105,timeout,60.139
+ControlledPU,Transmission gear 4,108,106,timeout,60.263
+ControlledPU,Transmission gear 4,94,110,implied,36.732
+ControlledPU,Transmission gear 4,146,106,timeout,60.148
+ControlledPU,Transmission gear 4,96,107,timeout,60.134
+ControlledPU,Transmission gear 4,118,107,timeout,60.120
+ControlledPU,Transmission gear 4,147,107,timeout,60.176
+ControlledPU,Transmission gear 4,105,110,implied,48.830
+ControlledPU,Transmission gear 4,146,108,timeout,60.155
+ControlledPU,Transmission gear 4,148,110,timeout,60.167
+ControlledPU,Transmission gear 4,130,111,timeout,60.263
+ControlledPU,Transmission gear 4,135,111,timeout,60.143
+ControlledPU,Transmission gear 4,158,111,timeout,60.075
+ControlledPU,Transmission gear 4,123,112,timeout,60.184
+ControlledPU,Transmission gear 4,126,112,timeout,60.152
+ControlledPU,Transmission gear 4,136,112,timeout,60.116
+ControlledPU,Transmission gear 4,138,112,timeout,60.116
+ControlledPU,Transmission gear 4,139,112,timeout,60.094
+ControlledPU,Transmission gear 4,144,112,timeout,60.119
+ControlledPU,Transmission gear 4,145,112,timeout,60.117
+ControlledPU,Transmission gear 4,151,112,timeout,60.069
+ControlledPU,Transmission gear 4,153,112,timeout,60.157
+ControlledPU,Transmission gear 4,157,112,timeout,60.149
+ControlledPU,Transmission gear 4,162,112,timeout,60.113
+ControlledPU,Transmission gear 4,97,113,timeout,60.123
+ControlledPU,Transmission gear 4,121,113,timeout,60.266
+ControlledPU,Transmission gear 4,152,113,timeout,60.155
+ControlledPU,Transmission gear 4,7,114,timeout,60.089
+ControlledPU,Transmission gear 4,8,114,timeout,60.061
+ControlledPU,Transmission gear 4,9,114,timeout,60.079
+ControlledPU,Transmission gear 4,10,114,timeout,60.058
+ControlledPU,Transmission gear 4,102,114,timeout,60.107
+ControlledPU,Transmission gear 4,120,114,timeout,60.153
+ControlledPU,Transmission gear 4,124,114,timeout,60.122
+ControlledPU,Transmission gear 4,122,114,timeout,60.157
+ControlledPU,Transmission gear 4,134,114,timeout,60.114
+ControlledPU,Transmission gear 4,155,114,timeout,60.119
+ControlledPU,Transmission gear 4,156,114,timeout,60.082
+ControlledPU,Transmission gear 4,50,115,timeout,60.107
+ControlledPU,Transmission gear 4,71,115,timeout,60.072
+ControlledPU,Transmission gear 4,69,116,timeout,60.099
+ControlledPU,Transmission gear 4,125,117,timeout,60.070
+ControlledPU,Transmission gear 4,129,117,timeout,60.126
+ControlledPU,Transmission gear 4,131,117,timeout,60.108
+ControlledPU,Transmission gear 4,132,117,timeout,60.060
+ControlledPU,Transmission gear 4,137,117,timeout,60.087
+ControlledPU,Transmission gear 4,140,117,timeout,60.071
+ControlledPU,Transmission gear 4,141,117,timeout,60.070
+ControlledPU,Transmission gear 4,143,117,timeout,60.066
+ControlledPU,Transmission gear 4,150,117,timeout,60.074
+ControlledPU,Transmission gear 4,159,117,timeout,60.070
+ControlledPU,Transmission gear 4,160,117,timeout,60.111
+ControlledPU,Transmission gear 4,163,117,timeout,60.073
+ControlledPU,Transmission gear 4,161,117,timeout,60.073
+ControlledPU,Transmission gear 4,164,117,timeout,60.203
+ControlledPU,Transmission gear 4,165,117,timeout,60.113
+ControlledPU,Transmission gear 4,96,118,timeout,60.144
+ControlledPU,Transmission gear 4,107,118,timeout,60.067
+ControlledPU,Transmission gear 4,147,118,timeout,60.168
+ControlledPU,Transmission gear 4,149,119,timeout,60.118
+ControlledPU,Transmission gear 4,7,120,timeout,60.115
+ControlledPU,Transmission gear 4,8,120,timeout,60.131
+ControlledPU,Transmission gear 4,9,120,timeout,60.116
+ControlledPU,Transmission gear 4,10,120,timeout,60.075
+ControlledPU,Transmission gear 4,102,120,timeout,60.082
+ControlledPU,Transmission gear 4,114,120,timeout,60.075
+ControlledPU,Transmission gear 4,122,120,timeout,60.093
+ControlledPU,Transmission gear 4,124,120,timeout,60.153
+ControlledPU,Transmission gear 4,134,120,timeout,60.134
+ControlledPU,Transmission gear 4,155,120,timeout,60.091
+ControlledPU,Transmission gear 4,156,120,timeout,60.079
+ControlledPU,Transmission gear 4,97,121,timeout,60.078
+ControlledPU,Transmission gear 4,113,121,timeout,60.070
+ControlledPU,Transmission gear 4,7,122,timeout,60.080
+ControlledPU,Transmission gear 4,152,121,timeout,60.147
+ControlledPU,Transmission gear 4,8,122,timeout,60.081
+ControlledPU,Transmission gear 4,9,122,timeout,60.080
+ControlledPU,Transmission gear 4,10,122,timeout,60.078
+ControlledPU,Transmission gear 4,102,122,timeout,60.086
+ControlledPU,Transmission gear 4,114,122,timeout,60.079
+ControlledPU,Transmission gear 4,120,122,timeout,60.087
+ControlledPU,Transmission gear 4,155,122,timeout,60.134
+ControlledPU,Transmission gear 4,134,122,timeout,60.170
+ControlledPU,Transmission gear 4,124,122,timeout,60.172
+ControlledPU,Transmission gear 4,156,122,timeout,60.083
+ControlledPU,Transmission gear 4,112,123,timeout,60.072
+ControlledPU,Transmission gear 4,126,123,timeout,60.072
+ControlledPU,Transmission gear 4,136,123,timeout,60.068
+ControlledPU,Transmission gear 4,138,123,timeout,60.135
+ControlledPU,Transmission gear 4,139,123,timeout,60.086
+ControlledPU,Transmission gear 4,144,123,timeout,60.093
+ControlledPU,Transmission gear 4,145,123,timeout,60.125
+ControlledPU,Transmission gear 4,151,123,timeout,60.088
+ControlledPU,Transmission gear 4,153,123,timeout,60.097
+ControlledPU,Transmission gear 4,157,123,timeout,60.077
+ControlledPU,Transmission gear 4,162,123,timeout,60.076
+ControlledPU,Transmission gear 4,7,124,timeout,60.087
+ControlledPU,Transmission gear 4,8,124,timeout,60.110
+ControlledPU,Transmission gear 4,9,124,timeout,60.104
+ControlledPU,Transmission gear 4,10,124,timeout,60.081
+ControlledPU,Transmission gear 4,102,124,timeout,60.105
+ControlledPU,Transmission gear 4,114,124,timeout,60.095
+ControlledPU,Transmission gear 4,120,124,timeout,60.085
+ControlledPU,Transmission gear 4,122,124,timeout,60.091
+ControlledPU,Transmission gear 4,134,124,timeout,60.088
+ControlledPU,Transmission gear 4,155,124,timeout,60.090
+ControlledPU,Transmission gear 4,156,124,timeout,60.093
+ControlledPU,Transmission gear 4,117,125,timeout,60.076
+ControlledPU,Transmission gear 4,129,125,timeout,60.087
+ControlledPU,Transmission gear 4,131,125,timeout,60.119
+ControlledPU,Transmission gear 4,132,125,timeout,60.109
+ControlledPU,Transmission gear 4,137,125,timeout,60.094
+ControlledPU,Transmission gear 4,140,125,timeout,60.097
+ControlledPU,Transmission gear 4,141,125,timeout,60.099
+ControlledPU,Transmission gear 4,143,125,timeout,60.089
+ControlledPU,Transmission gear 4,150,125,timeout,60.094
+ControlledPU,Transmission gear 4,159,125,timeout,60.088
+ControlledPU,Transmission gear 4,160,125,timeout,60.080
+ControlledPU,Transmission gear 4,161,125,timeout,60.121
+ControlledPU,Transmission gear 4,163,125,timeout,60.096
+ControlledPU,Transmission gear 4,164,125,timeout,60.098
+ControlledPU,Transmission gear 4,165,125,timeout,60.124
+ControlledPU,Transmission gear 4,112,126,timeout,60.088
+ControlledPU,Transmission gear 4,123,126,timeout,60.101
+ControlledPU,Transmission gear 4,136,126,timeout,60.092
+ControlledPU,Transmission gear 4,138,126,timeout,60.082
+ControlledPU,Transmission gear 4,139,126,timeout,60.094
+ControlledPU,Transmission gear 4,144,126,timeout,60.078
+ControlledPU,Transmission gear 4,145,126,timeout,60.063
+ControlledPU,Transmission gear 4,151,126,timeout,60.059
+ControlledPU,Transmission gear 4,153,126,timeout,60.066
+ControlledPU,Transmission gear 4,157,126,timeout,60.072
+ControlledPU,Transmission gear 4,162,126,timeout,60.066
+ControlledPU,Transmission gear 4,21,127,timeout,60.077
+ControlledPU,Transmission gear 4,85,127,timeout,60.103
+ControlledPU,Transmission gear 4,133,128,timeout,60.069
+ControlledPU,Transmission gear 4,142,128,timeout,60.069
+ControlledPU,Transmission gear 4,154,128,timeout,60.070
+ControlledPU,Transmission gear 4,117,129,timeout,60.073
+ControlledPU,Transmission gear 4,125,129,timeout,60.093
+ControlledPU,Transmission gear 4,131,129,timeout,60.102
+ControlledPU,Transmission gear 4,132,129,timeout,60.087
+ControlledPU,Transmission gear 4,140,129,timeout,60.092
+ControlledPU,Transmission gear 4,137,129,timeout,60.096
+ControlledPU,Transmission gear 4,141,129,timeout,60.074
+ControlledPU,Transmission gear 4,143,129,timeout,60.069
+ControlledPU,Transmission gear 4,150,129,timeout,60.066
+ControlledPU,Transmission gear 4,159,129,timeout,60.073
+ControlledPU,Transmission gear 4,160,129,timeout,60.067
+ControlledPU,Transmission gear 4,161,129,timeout,60.071
+ControlledPU,Transmission gear 4,163,129,timeout,60.085
+ControlledPU,Transmission gear 4,164,129,timeout,60.092
+ControlledPU,Transmission gear 4,165,129,timeout,60.075
+ControlledPU,Transmission gear 4,111,130,timeout,60.087
+ControlledPU,Transmission gear 4,135,130,timeout,60.119
+ControlledPU,Transmission gear 4,158,130,timeout,60.110
+ControlledPU,Transmission gear 4,117,131,timeout,60.078
+ControlledPU,Transmission gear 4,125,131,timeout,60.070
+ControlledPU,Transmission gear 4,129,131,timeout,60.077
+ControlledPU,Transmission gear 4,132,131,timeout,60.097
+ControlledPU,Transmission gear 4,137,131,timeout,60.100
+ControlledPU,Transmission gear 4,140,131,timeout,60.087
+ControlledPU,Transmission gear 4,141,131,timeout,60.073
+ControlledPU,Transmission gear 4,143,131,timeout,60.108
+ControlledPU,Transmission gear 4,150,131,timeout,60.104
+ControlledPU,Transmission gear 4,159,131,timeout,60.076
+ControlledPU,Transmission gear 4,160,131,timeout,60.072
+ControlledPU,Transmission gear 4,161,131,timeout,60.084
+ControlledPU,Transmission gear 4,163,131,timeout,60.101
+ControlledPU,Transmission gear 4,164,131,timeout,60.076
+ControlledPU,Transmission gear 4,165,131,timeout,60.102
+ControlledPU,Transmission gear 4,117,132,timeout,60.071
+ControlledPU,Transmission gear 4,125,132,timeout,60.095
+ControlledPU,Transmission gear 4,129,132,timeout,60.115
+ControlledPU,Transmission gear 4,131,132,timeout,60.093
+ControlledPU,Transmission gear 4,137,132,timeout,60.074
+ControlledPU,Transmission gear 4,140,132,timeout,60.067
+ControlledPU,Transmission gear 4,141,132,timeout,60.068
+ControlledPU,Transmission gear 4,143,132,timeout,60.093
+ControlledPU,Transmission gear 4,150,132,timeout,60.082
+ControlledPU,Transmission gear 4,159,132,timeout,60.085
+ControlledPU,Transmission gear 4,160,132,timeout,60.086
+ControlledPU,Transmission gear 4,161,132,timeout,60.081
+ControlledPU,Transmission gear 4,163,132,timeout,60.086
+ControlledPU,Transmission gear 4,164,132,timeout,60.093
+ControlledPU,Transmission gear 4,165,132,timeout,60.091
+ControlledPU,Transmission gear 4,128,133,timeout,60.078
+ControlledPU,Transmission gear 4,142,133,timeout,60.083
+ControlledPU,Transmission gear 4,154,133,timeout,60.079
+ControlledPU,Transmission gear 4,7,134,timeout,60.129
+ControlledPU,Transmission gear 4,8,134,timeout,60.126
+ControlledPU,Transmission gear 4,9,134,timeout,60.080
+ControlledPU,Transmission gear 4,10,134,timeout,60.110
+ControlledPU,Transmission gear 4,102,134,timeout,60.085
+ControlledPU,Transmission gear 4,114,134,timeout,60.068
+ControlledPU,Transmission gear 4,120,134,timeout,60.082
+ControlledPU,Transmission gear 4,122,134,timeout,60.077
+ControlledPU,Transmission gear 4,124,134,timeout,60.082
+ControlledPU,Transmission gear 4,156,134,timeout,60.083
+ControlledPU,Transmission gear 4,155,134,timeout,60.135
+ControlledPU,Transmission gear 4,111,135,timeout,60.136
+ControlledPU,Transmission gear 4,130,135,timeout,60.145
+ControlledPU,Transmission gear 4,112,136,timeout,60.079
+ControlledPU,Transmission gear 4,158,135,timeout,60.147
+ControlledPU,Transmission gear 4,123,136,timeout,60.074
+ControlledPU,Transmission gear 4,126,136,timeout,60.085
+ControlledPU,Transmission gear 4,138,136,timeout,60.079
+ControlledPU,Transmission gear 4,139,136,timeout,60.134
+ControlledPU,Transmission gear 4,144,136,timeout,60.146
+ControlledPU,Transmission gear 4,145,136,timeout,60.087
+ControlledPU,Transmission gear 4,151,136,timeout,60.081
+ControlledPU,Transmission gear 4,153,136,timeout,60.078
+ControlledPU,Transmission gear 4,157,136,timeout,60.075
+ControlledPU,Transmission gear 4,162,136,timeout,60.088
+ControlledPU,Transmission gear 4,117,137,timeout,60.092
+ControlledPU,Transmission gear 4,125,137,timeout,60.130
+ControlledPU,Transmission gear 4,129,137,timeout,60.079
+ControlledPU,Transmission gear 4,131,137,timeout,60.135
+ControlledPU,Transmission gear 4,132,137,timeout,60.084
+ControlledPU,Transmission gear 4,140,137,timeout,60.130
+ControlledPU,Transmission gear 4,141,137,timeout,60.136
+ControlledPU,Transmission gear 4,143,137,timeout,60.089
+ControlledPU,Transmission gear 4,150,137,timeout,60.095
+ControlledPU,Transmission gear 4,159,137,timeout,60.085
+ControlledPU,Transmission gear 4,160,137,timeout,60.083
+ControlledPU,Transmission gear 4,161,137,timeout,60.085
+ControlledPU,Transmission gear 4,163,137,timeout,60.087
+ControlledPU,Transmission gear 4,164,137,timeout,60.073
+ControlledPU,Transmission gear 4,165,137,timeout,60.085
+ControlledPU,Transmission gear 4,112,138,timeout,60.080
+ControlledPU,Transmission gear 4,123,138,timeout,60.140
+ControlledPU,Transmission gear 4,126,138,timeout,60.077
+ControlledPU,Transmission gear 4,136,138,timeout,60.084
+ControlledPU,Transmission gear 4,139,138,timeout,60.148
+ControlledPU,Transmission gear 4,144,138,timeout,60.079
+ControlledPU,Transmission gear 4,145,138,timeout,60.082
+ControlledPU,Transmission gear 4,151,138,timeout,60.078
+ControlledPU,Transmission gear 4,153,138,timeout,60.078
+ControlledPU,Transmission gear 4,157,138,timeout,60.075
+ControlledPU,Transmission gear 4,162,138,timeout,60.072
+ControlledPU,Transmission gear 4,112,139,timeout,60.081
+ControlledPU,Transmission gear 4,123,139,timeout,60.082
+ControlledPU,Transmission gear 4,126,139,timeout,60.177
+ControlledPU,Transmission gear 4,136,139,timeout,60.094
+ControlledPU,Transmission gear 4,138,139,timeout,60.092
+ControlledPU,Transmission gear 4,144,139,timeout,60.128
+ControlledPU,Transmission gear 4,145,139,timeout,60.090
+ControlledPU,Transmission gear 4,151,139,timeout,60.127
+ControlledPU,Transmission gear 4,153,139,timeout,60.088
+ControlledPU,Transmission gear 4,157,139,timeout,60.082
+ControlledPU,Transmission gear 4,162,139,timeout,60.091
+ControlledPU,Transmission gear 4,117,140,timeout,60.086
+ControlledPU,Transmission gear 4,125,140,timeout,60.097
+ControlledPU,Transmission gear 4,129,140,timeout,60.082
+ControlledPU,Transmission gear 4,131,140,timeout,60.092
+ControlledPU,Transmission gear 4,132,140,timeout,60.083
+ControlledPU,Transmission gear 4,137,140,timeout,60.072
+ControlledPU,Transmission gear 4,141,140,timeout,60.081
+ControlledPU,Transmission gear 4,143,140,timeout,60.087
+ControlledPU,Transmission gear 4,150,140,timeout,60.090
+ControlledPU,Transmission gear 4,159,140,timeout,60.131
+ControlledPU,Transmission gear 4,160,140,timeout,60.085
+ControlledPU,Transmission gear 4,161,140,timeout,60.086
+ControlledPU,Transmission gear 4,163,140,timeout,60.082
+ControlledPU,Transmission gear 4,164,140,timeout,60.085
+ControlledPU,Transmission gear 4,165,140,timeout,60.082
+ControlledPU,Transmission gear 4,117,141,timeout,60.084
+ControlledPU,Transmission gear 4,125,141,timeout,60.082
+ControlledPU,Transmission gear 4,129,141,timeout,60.119
+ControlledPU,Transmission gear 4,132,141,timeout,60.079
+ControlledPU,Transmission gear 4,131,141,timeout,60.134
+ControlledPU,Transmission gear 4,137,141,timeout,60.075
+ControlledPU,Transmission gear 4,140,141,timeout,60.130
+ControlledPU,Transmission gear 4,143,141,timeout,60.091
+ControlledPU,Transmission gear 4,150,141,timeout,60.083
+ControlledPU,Transmission gear 4,160,141,timeout,60.088
+ControlledPU,Transmission gear 4,159,141,timeout,60.131
+ControlledPU,Transmission gear 4,161,141,timeout,60.084
+ControlledPU,Transmission gear 4,163,141,timeout,60.091
+ControlledPU,Transmission gear 4,164,141,timeout,60.127
+ControlledPU,Transmission gear 4,165,141,timeout,60.125
+ControlledPU,Transmission gear 4,128,142,timeout,60.085
+ControlledPU,Transmission gear 4,133,142,timeout,60.085
+ControlledPU,Transmission gear 4,154,142,timeout,60.085
+ControlledPU,Transmission gear 4,117,143,timeout,60.095
+ControlledPU,Transmission gear 4,125,143,timeout,60.088
+ControlledPU,Transmission gear 4,129,143,timeout,60.088
+ControlledPU,Transmission gear 4,131,143,timeout,60.082
+ControlledPU,Transmission gear 4,132,143,timeout,60.085
+ControlledPU,Transmission gear 4,137,143,timeout,60.145
+ControlledPU,Transmission gear 4,140,143,timeout,60.134
+ControlledPU,Transmission gear 4,141,143,timeout,60.079
+ControlledPU,Transmission gear 4,150,143,timeout,60.084
+ControlledPU,Transmission gear 4,159,143,timeout,60.084
+ControlledPU,Transmission gear 4,160,143,timeout,60.087
+ControlledPU,Transmission gear 4,161,143,timeout,60.088
+ControlledPU,Transmission gear 4,163,143,timeout,60.079
+ControlledPU,Transmission gear 4,164,143,timeout,60.088
+ControlledPU,Transmission gear 4,165,143,timeout,60.077
+ControlledPU,Transmission gear 4,112,144,timeout,60.092
+ControlledPU,Transmission gear 4,123,144,timeout,60.146
+ControlledPU,Transmission gear 4,95,146,implied,22.359
+ControlledPU,Transmission gear 4,108,146,implied,28.253
+ControlledPU,Transmission gear 4,106,146,implied,28.521
+ControlledPU,Transmission gear 4,126,144,timeout,60.077
+ControlledPU,Transmission gear 4,136,144,timeout,60.104
+ControlledPU,Transmission gear 4,138,144,timeout,60.079
+ControlledPU,Transmission gear 4,139,144,timeout,60.156
+ControlledPU,Transmission gear 4,151,144,timeout,60.079
+ControlledPU,Transmission gear 4,145,144,timeout,60.091
+ControlledPU,Transmission gear 4,119,149,implied,21.194
+ControlledPU,Transmission gear 4,153,144,timeout,60.086
+ControlledPU,Transmission gear 4,94,148,implied,36.959
+ControlledPU,Transmission gear 4,157,144,timeout,60.082
+ControlledPU,Transmission gear 4,162,144,timeout,60.078
+ControlledPU,Transmission gear 4,112,145,timeout,60.139
+ControlledPU,Transmission gear 4,123,145,timeout,60.148
+ControlledPU,Transmission gear 4,126,145,timeout,60.093
+ControlledPU,Transmission gear 4,136,145,timeout,60.075
+ControlledPU,Transmission gear 4,138,145,timeout,60.136
+ControlledPU,Transmission gear 4,139,145,timeout,60.151
+ControlledPU,Transmission gear 4,144,145,timeout,60.159
+ControlledPU,Transmission gear 4,151,145,timeout,60.081
+ControlledPU,Transmission gear 4,153,145,timeout,60.084
+ControlledPU,Transmission gear 4,157,145,timeout,60.081
+ControlledPU,Transmission gear 4,162,145,timeout,60.082
+ControlledPU,Transmission gear 4,96,147,timeout,60.140
+ControlledPU,Transmission gear 4,107,147,timeout,60.120
+ControlledPU,Transmission gear 4,118,147,timeout,60.086
+ControlledPU,Transmission gear 4,105,148,implied,48.298
+ControlledPU,Transmission gear 4,110,148,implied,46.529
+ControlledPU,Transmission gear 4,117,150,timeout,60.090
+ControlledPU,Transmission gear 4,125,150,timeout,60.090
+ControlledPU,Transmission gear 4,129,150,timeout,60.126
+ControlledPU,Transmission gear 4,131,150,timeout,60.079
+ControlledPU,Transmission gear 4,132,150,timeout,60.084
+ControlledPU,Transmission gear 4,137,150,timeout,60.075
+ControlledPU,Transmission gear 4,140,150,timeout,60.078
+ControlledPU,Transmission gear 4,143,150,timeout,60.088
+ControlledPU,Transmission gear 4,141,150,timeout,60.132
+ControlledPU,Transmission gear 4,159,150,timeout,60.091
+ControlledPU,Transmission gear 4,160,150,timeout,60.086
+ControlledPU,Transmission gear 4,161,150,timeout,60.079
+ControlledPU,Transmission gear 4,163,150,timeout,60.083
+ControlledPU,Transmission gear 4,112,151,implied,55.327
+ControlledPU,Transmission gear 4,123,151,implied,55.752
+ControlledPU,Transmission gear 4,139,151,implied,56.233
+ControlledPU,Transmission gear 4,164,150,timeout,60.085
+ControlledPU,Transmission gear 4,165,150,timeout,60.085
+ControlledPU,Transmission gear 4,126,151,timeout,60.151
+ControlledPU,Transmission gear 4,136,151,timeout,60.151
+ControlledPU,Transmission gear 4,138,151,timeout,60.141
+ControlledPU,Transmission gear 4,144,151,timeout,60.140
+ControlledPU,Transmission gear 4,145,151,timeout,60.090
+ControlledPU,Transmission gear 4,153,151,timeout,60.136
+ControlledPU,Transmission gear 4,157,151,timeout,60.145
+ControlledPU,Transmission gear 4,162,151,timeout,60.135
+ControlledPU,Transmission gear 4,97,152,timeout,60.078
+ControlledPU,Transmission gear 4,113,152,timeout,60.075
+ControlledPU,Transmission gear 4,121,152,timeout,60.075
+ControlledPU,Transmission gear 4,112,153,timeout,60.130
+ControlledPU,Transmission gear 4,123,153,timeout,60.134
+ControlledPU,Transmission gear 4,126,153,timeout,60.127
+ControlledPU,Transmission gear 4,136,153,timeout,60.081
+ControlledPU,Transmission gear 4,138,153,timeout,60.133
+ControlledPU,Transmission gear 4,139,153,timeout,60.154
+ControlledPU,Transmission gear 4,144,153,timeout,60.156
+ControlledPU,Transmission gear 4,145,153,timeout,60.087
+ControlledPU,Transmission gear 4,151,153,timeout,60.082
+ControlledPU,Transmission gear 4,157,153,timeout,60.101
+ControlledPU,Transmission gear 4,162,153,timeout,60.084
+ControlledPU,Transmission gear 4,128,154,timeout,60.081
+ControlledPU,Transmission gear 4,133,154,timeout,60.078
+ControlledPU,Transmission gear 4,142,154,timeout,60.083
+ControlledPU,Transmission gear 4,7,155,timeout,60.133
+ControlledPU,Transmission gear 4,8,155,timeout,60.085
+ControlledPU,Transmission gear 4,9,155,timeout,60.132
+ControlledPU,Transmission gear 4,10,155,timeout,60.085
+ControlledPU,Transmission gear 4,102,155,timeout,60.081
+ControlledPU,Transmission gear 4,114,155,timeout,60.121
+ControlledPU,Transmission gear 4,120,155,timeout,60.082
+ControlledPU,Transmission gear 4,122,155,timeout,60.080
+ControlledPU,Transmission gear 4,124,155,timeout,60.084
+ControlledPU,Transmission gear 4,134,155,timeout,60.075
+ControlledPU,Transmission gear 4,156,155,timeout,60.074
+ControlledPU,Transmission gear 4,7,156,timeout,60.126
+ControlledPU,Transmission gear 4,8,156,timeout,60.084
+ControlledPU,Transmission gear 4,9,156,timeout,60.089
+ControlledPU,Transmission gear 4,10,156,timeout,60.082
+ControlledPU,Transmission gear 4,102,156,timeout,60.078
+ControlledPU,Transmission gear 4,114,156,timeout,60.094
+ControlledPU,Transmission gear 4,120,156,timeout,60.090
+ControlledPU,Transmission gear 4,122,156,timeout,60.080
+ControlledPU,Transmission gear 4,124,156,timeout,60.084
+ControlledPU,Transmission gear 4,134,156,timeout,60.079
+ControlledPU,Transmission gear 4,155,156,timeout,60.115
+ControlledPU,Transmission gear 4,112,157,timeout,60.170
+ControlledPU,Transmission gear 4,123,157,timeout,60.149
+ControlledPU,Transmission gear 4,126,157,timeout,60.146
+ControlledPU,Transmission gear 4,136,157,timeout,60.146
+ControlledPU,Transmission gear 4,138,157,timeout,60.148
+ControlledPU,Transmission gear 4,139,157,timeout,60.131
+ControlledPU,Transmission gear 4,144,157,timeout,60.143
+ControlledPU,Transmission gear 4,145,157,timeout,60.087
+ControlledPU,Transmission gear 4,151,157,timeout,60.185
+ControlledPU,Transmission gear 4,153,157,timeout,60.091
+ControlledPU,Transmission gear 4,162,157,timeout,60.127
+ControlledPU,Transmission gear 4,111,158,timeout,60.082
+ControlledPU,Transmission gear 4,130,158,timeout,60.126
+ControlledPU,Transmission gear 4,135,158,timeout,60.127
+ControlledPU,Transmission gear 4,117,159,timeout,60.075
+ControlledPU,Transmission gear 4,125,159,timeout,60.074
+ControlledPU,Transmission gear 4,129,159,timeout,60.081
+ControlledPU,Transmission gear 4,131,159,timeout,60.082
+ControlledPU,Transmission gear 4,132,159,timeout,60.081
+ControlledPU,Transmission gear 4,137,159,timeout,60.090
+ControlledPU,Transmission gear 4,140,159,timeout,60.092
+ControlledPU,Transmission gear 4,141,159,timeout,60.089
+ControlledPU,Transmission gear 4,143,159,timeout,60.074
+ControlledPU,Transmission gear 4,150,159,timeout,60.083
+ControlledPU,Transmission gear 4,160,159,timeout,60.107
+ControlledPU,Transmission gear 4,161,159,timeout,60.143
+ControlledPU,Transmission gear 4,163,159,timeout,60.091
+ControlledPU,Transmission gear 4,164,159,timeout,60.085
+ControlledPU,Transmission gear 4,165,159,timeout,60.136
+ControlledPU,Transmission gear 4,117,160,timeout,60.128
+ControlledPU,Transmission gear 4,125,160,timeout,60.090
+ControlledPU,Transmission gear 4,129,160,timeout,60.101
+ControlledPU,Transmission gear 4,131,160,timeout,60.097
+ControlledPU,Transmission gear 4,132,160,timeout,60.112
+ControlledPU,Transmission gear 4,137,160,timeout,60.089
+ControlledPU,Transmission gear 4,140,160,timeout,60.134
+ControlledPU,Transmission gear 4,141,160,timeout,60.096
+ControlledPU,Transmission gear 4,143,160,timeout,60.098
+ControlledPU,Transmission gear 4,150,160,timeout,60.079
+ControlledPU,Transmission gear 4,159,160,timeout,60.080
+ControlledPU,Transmission gear 4,161,160,timeout,60.085
+ControlledPU,Transmission gear 4,163,160,timeout,60.079
+ControlledPU,Transmission gear 4,164,160,timeout,60.084
+ControlledPU,Transmission gear 4,165,160,timeout,60.089
+ControlledPU,Transmission gear 4,117,161,timeout,60.088
+ControlledPU,Transmission gear 4,125,161,timeout,60.081
+ControlledPU,Transmission gear 4,129,161,timeout,60.086
+ControlledPU,Transmission gear 4,131,161,timeout,60.083
+ControlledPU,Transmission gear 4,132,161,timeout,60.134
+ControlledPU,Transmission gear 4,137,161,timeout,60.079
+ControlledPU,Transmission gear 4,140,161,timeout,60.090
+ControlledPU,Transmission gear 4,141,161,timeout,60.132
+ControlledPU,Transmission gear 4,143,161,timeout,60.085
+ControlledPU,Transmission gear 4,150,161,timeout,60.082
+ControlledPU,Transmission gear 4,159,161,timeout,60.087
+ControlledPU,Transmission gear 4,160,161,timeout,60.086
+ControlledPU,Transmission gear 4,163,161,timeout,60.082
+ControlledPU,Transmission gear 4,164,161,timeout,60.087
+ControlledPU,Transmission gear 4,165,161,timeout,60.090
+ControlledPU,Transmission gear 4,112,162,timeout,60.141
+ControlledPU,Transmission gear 4,123,162,timeout,60.139
+ControlledPU,Transmission gear 4,126,162,timeout,60.170
+ControlledPU,Transmission gear 4,136,162,timeout,60.093
+ControlledPU,Transmission gear 4,138,162,timeout,60.121
+ControlledPU,Transmission gear 4,139,162,timeout,60.157
+ControlledPU,Transmission gear 4,144,162,timeout,60.160
+ControlledPU,Transmission gear 4,145,162,timeout,60.092
+ControlledPU,Transmission gear 4,151,162,timeout,60.138
+ControlledPU,Transmission gear 4,153,162,timeout,60.137
+ControlledPU,Transmission gear 4,157,162,timeout,60.162
+ControlledPU,Transmission gear 4,117,163,timeout,60.078
+ControlledPU,Transmission gear 4,125,163,timeout,60.086
+ControlledPU,Transmission gear 4,129,163,timeout,60.074
+ControlledPU,Transmission gear 4,132,163,timeout,60.089
+ControlledPU,Transmission gear 4,131,163,timeout,60.134
+ControlledPU,Transmission gear 4,137,163,timeout,60.083
+ControlledPU,Transmission gear 4,140,163,timeout,60.079
+ControlledPU,Transmission gear 4,141,163,timeout,60.087
+ControlledPU,Transmission gear 4,143,163,timeout,60.128
+ControlledPU,Transmission gear 4,150,163,timeout,60.081
+ControlledPU,Transmission gear 4,159,163,timeout,60.093
+ControlledPU,Transmission gear 4,160,163,timeout,60.086
+ControlledPU,Transmission gear 4,161,163,timeout,60.082
+ControlledPU,Transmission gear 4,164,163,timeout,60.087
+ControlledPU,Transmission gear 4,165,163,timeout,60.087
+ControlledPU,Transmission gear 4,117,164,timeout,60.086
+ControlledPU,Transmission gear 4,125,164,timeout,60.087
+ControlledPU,Transmission gear 4,129,164,timeout,60.085
+ControlledPU,Transmission gear 4,131,164,timeout,60.144
+ControlledPU,Transmission gear 4,132,164,timeout,60.084
+ControlledPU,Transmission gear 4,137,164,timeout,60.097
+ControlledPU,Transmission gear 4,140,164,timeout,60.074
+ControlledPU,Transmission gear 4,141,164,timeout,60.081
+ControlledPU,Transmission gear 4,143,164,timeout,60.082
+ControlledPU,Transmission gear 4,150,164,timeout,60.084
+ControlledPU,Transmission gear 4,159,164,timeout,60.094
+ControlledPU,Transmission gear 4,160,164,timeout,60.082
+ControlledPU,Transmission gear 4,161,164,timeout,60.080
+ControlledPU,Transmission gear 4,163,164,timeout,60.083
+ControlledPU,Transmission gear 4,165,164,timeout,60.089
+ControlledPU,Transmission gear 4,117,165,timeout,60.086
+ControlledPU,Transmission gear 4,125,165,timeout,60.086
+ControlledPU,Transmission gear 4,129,165,timeout,60.132
+ControlledPU,Transmission gear 4,131,165,timeout,60.081
+ControlledPU,Transmission gear 4,132,165,timeout,60.134
+ControlledPU,Transmission gear 4,137,165,timeout,60.143
+ControlledPU,Transmission gear 4,140,165,timeout,60.088
+ControlledPU,Transmission gear 4,141,165,timeout,60.089
+ControlledPU,Transmission gear 4,143,165,timeout,60.137
+ControlledPU,Transmission gear 4,150,165,timeout,60.083
+ControlledPU,Transmission gear 4,159,165,timeout,60.083
+ControlledPU,Transmission gear 4,160,165,timeout,60.078
+ControlledPU,Transmission gear 4,161,165,timeout,60.085
+ControlledPU,Transmission gear 4,163,165,timeout,60.087
+ControlledPU,Transmission gear 4,164,165,timeout,60.136
+ControlledPU,speed increasing,5,3,timeout,60.152
+ControlledPU,speed increasing,6,3,timeout,60.168
+ControlledPU,speed increasing,9,3,timeout,60.183
+ControlledPU,speed increasing,14,3,timeout,60.132
+ControlledPU,speed increasing,15,3,timeout,60.179
+ControlledPU,speed increasing,18,3,timeout,60.172
+ControlledPU,speed increasing,19,3,timeout,60.158
+ControlledPU,speed increasing,20,3,timeout,60.148
+ControlledPU,speed increasing,22,3,timeout,60.132
+ControlledPU,speed increasing,23,3,timeout,60.176
+ControlledPU,speed increasing,24,3,timeout,60.160
+ControlledPU,speed increasing,12,4,timeout,60.152
+ControlledPU,speed increasing,13,4,timeout,60.169
+ControlledPU,speed increasing,21,4,timeout,60.158
+ControlledPU,speed increasing,3,5,timeout,60.173
+ControlledPU,speed increasing,6,5,timeout,60.171
+ControlledPU,speed increasing,9,5,timeout,60.180
+ControlledPU,speed increasing,14,5,timeout,60.182
+ControlledPU,speed increasing,15,5,timeout,60.169
+ControlledPU,speed increasing,18,5,timeout,60.184
+ControlledPU,speed increasing,19,5,timeout,60.180
+ControlledPU,speed increasing,20,5,timeout,60.193
+ControlledPU,speed increasing,22,5,timeout,60.166
+ControlledPU,speed increasing,23,5,timeout,60.173
+ControlledPU,speed increasing,24,5,timeout,60.183
+ControlledPU,speed increasing,3,6,timeout,60.164
+ControlledPU,speed increasing,5,6,timeout,60.159
+ControlledPU,speed increasing,9,6,timeout,60.186
+ControlledPU,speed increasing,14,6,timeout,60.095
+ControlledPU,speed increasing,15,6,timeout,60.156
+ControlledPU,speed increasing,18,6,timeout,60.177
+ControlledPU,speed increasing,19,6,timeout,60.150
+ControlledPU,speed increasing,20,6,timeout,60.136
+ControlledPU,speed increasing,22,6,timeout,60.152
+ControlledPU,speed increasing,23,6,timeout,60.167
+ControlledPU,speed increasing,24,6,timeout,60.153
+ControlledPU,speed increasing,10,7,timeout,60.218
+ControlledPU,speed increasing,11,8,timeout,60.237
+ControlledPU,speed increasing,27,8,timeout,60.213
+ControlledPU,speed increasing,3,9,timeout,60.178
+ControlledPU,speed increasing,5,9,timeout,60.156
+ControlledPU,speed increasing,6,9,timeout,60.179
+ControlledPU,speed increasing,14,9,timeout,60.152
+ControlledPU,speed increasing,15,9,timeout,60.180
+ControlledPU,speed increasing,18,9,timeout,60.137
+ControlledPU,speed increasing,19,9,timeout,60.153
+ControlledPU,speed increasing,20,9,timeout,60.156
+ControlledPU,speed increasing,22,9,timeout,60.143
+ControlledPU,speed increasing,23,9,timeout,60.161
+ControlledPU,speed increasing,24,9,timeout,60.172
+ControlledPU,speed increasing,7,10,timeout,60.221
+ControlledPU,speed increasing,8,11,timeout,60.268
+ControlledPU,speed increasing,27,11,timeout,60.268
+ControlledPU,speed increasing,4,12,timeout,60.158
+ControlledPU,speed increasing,13,12,timeout,60.147
+ControlledPU,speed increasing,21,12,timeout,60.164
+ControlledPU,speed increasing,4,13,timeout,60.196
+ControlledPU,speed increasing,12,13,timeout,60.148
+ControlledPU,speed increasing,21,13,timeout,60.145
+ControlledPU,speed increasing,3,14,timeout,60.166
+ControlledPU,speed increasing,5,14,timeout,60.222
+ControlledPU,speed increasing,6,14,timeout,60.133
+ControlledPU,speed increasing,9,14,timeout,60.206
+ControlledPU,speed increasing,15,14,timeout,60.181
+ControlledPU,speed increasing,18,14,timeout,60.175
+ControlledPU,speed increasing,19,14,timeout,60.149
+ControlledPU,speed increasing,20,14,timeout,60.230
+ControlledPU,speed increasing,22,14,timeout,60.227
+ControlledPU,speed increasing,23,14,timeout,60.191
+ControlledPU,speed increasing,24,14,timeout,60.172
+ControlledPU,speed increasing,3,15,timeout,60.161
+ControlledPU,speed increasing,5,15,timeout,60.166
+ControlledPU,speed increasing,6,15,timeout,60.174
+ControlledPU,speed increasing,9,15,timeout,60.184
+ControlledPU,speed increasing,14,15,timeout,60.165
+ControlledPU,speed increasing,18,15,timeout,60.152
+ControlledPU,speed increasing,19,15,timeout,60.155
+ControlledPU,speed increasing,20,15,timeout,60.150
+ControlledPU,speed increasing,22,15,timeout,60.148
+ControlledPU,speed increasing,23,15,timeout,60.182
+ControlledPU,speed increasing,24,15,timeout,60.097
+ControlledPU,speed increasing,26,16,timeout,60.236
+ControlledPU,speed increasing,3,18,timeout,60.168
+ControlledPU,speed increasing,5,18,timeout,60.183
+ControlledPU,speed increasing,6,18,timeout,60.172
+ControlledPU,speed increasing,9,18,timeout,60.152
+ControlledPU,speed increasing,14,18,timeout,60.150
+ControlledPU,speed increasing,15,18,timeout,60.155
+ControlledPU,speed increasing,19,18,timeout,60.185
+ControlledPU,speed increasing,20,18,timeout,60.139
+ControlledPU,speed increasing,22,18,timeout,60.094
+ControlledPU,speed increasing,23,18,timeout,60.169
+ControlledPU,speed increasing,24,18,timeout,60.178
+ControlledPU,speed increasing,3,19,timeout,60.156
+ControlledPU,speed increasing,5,19,timeout,60.199
+ControlledPU,speed increasing,6,19,timeout,60.156
+ControlledPU,speed increasing,9,19,timeout,60.101
+ControlledPU,speed increasing,14,19,timeout,60.118
+ControlledPU,speed increasing,15,19,timeout,60.155
+ControlledPU,speed increasing,18,19,timeout,60.203
+ControlledPU,speed increasing,20,19,timeout,60.146
+ControlledPU,speed increasing,22,19,timeout,60.156
+ControlledPU,speed increasing,23,19,timeout,60.168
+ControlledPU,speed increasing,24,19,timeout,60.154
+ControlledPU,speed increasing,3,20,timeout,60.192
+ControlledPU,speed increasing,5,20,timeout,60.177
+ControlledPU,speed increasing,6,20,timeout,60.165
+ControlledPU,speed increasing,9,20,timeout,60.179
+ControlledPU,speed increasing,14,20,timeout,60.256
+ControlledPU,speed increasing,15,20,timeout,60.180
+ControlledPU,speed increasing,18,20,timeout,60.155
+ControlledPU,speed increasing,19,20,timeout,60.121
+ControlledPU,speed increasing,22,20,timeout,60.177
+ControlledPU,speed increasing,23,20,timeout,60.161
+ControlledPU,speed increasing,24,20,timeout,60.180
+ControlledPU,speed increasing,4,21,timeout,60.177
+ControlledPU,speed increasing,12,21,timeout,60.171
+ControlledPU,speed increasing,13,21,timeout,60.153
+ControlledPU,speed increasing,3,22,timeout,60.166
+ControlledPU,speed increasing,5,22,timeout,60.194
+ControlledPU,speed increasing,6,22,timeout,60.159
+ControlledPU,speed increasing,9,22,timeout,60.127
+ControlledPU,speed increasing,14,22,timeout,60.216
+ControlledPU,speed increasing,15,22,timeout,60.131
+ControlledPU,speed increasing,18,22,timeout,60.126
+ControlledPU,speed increasing,19,22,timeout,60.185
+ControlledPU,speed increasing,20,22,timeout,60.166
+ControlledPU,speed increasing,23,22,timeout,60.157
+ControlledPU,speed increasing,24,22,timeout,60.138
+ControlledPU,speed increasing,3,23,timeout,60.134
+ControlledPU,speed increasing,5,23,timeout,60.152
+ControlledPU,speed increasing,6,23,timeout,60.133
+ControlledPU,speed increasing,9,23,timeout,60.122
+ControlledPU,speed increasing,14,23,timeout,60.149
+ControlledPU,speed increasing,15,23,timeout,60.131
+ControlledPU,speed increasing,18,23,timeout,60.125
+ControlledPU,speed increasing,19,23,timeout,60.134
+ControlledPU,speed increasing,20,23,timeout,60.125
+ControlledPU,speed increasing,22,23,timeout,60.103
+ControlledPU,speed increasing,24,23,timeout,60.126
+ControlledPU,speed increasing,3,24,timeout,60.081
+ControlledPU,speed increasing,6,24,timeout,60.142
+ControlledPU,speed increasing,5,24,timeout,60.204
+ControlledPU,speed increasing,9,24,timeout,60.118
+ControlledPU,speed increasing,14,24,timeout,60.133
+ControlledPU,speed increasing,15,24,timeout,60.128
+ControlledPU,speed increasing,18,24,timeout,60.152
+ControlledPU,speed increasing,19,24,timeout,60.131
+ControlledPU,speed increasing,20,24,timeout,60.117
+ControlledPU,speed increasing,22,24,timeout,60.125
+ControlledPU,speed increasing,23,24,timeout,60.154
+ControlledPU,speed increasing,16,26,timeout,60.224
+ControlledPU,speed increasing,8,27,timeout,60.181
+ControlledPU,speed increasing,11,27,timeout,60.207
+ControlledPU,speed increasing,36,30,timeout,60.218
+ControlledPU,speed increasing,35,32,timeout,60.197
+ControlledPU,speed increasing,32,35,timeout,60.213
+ControlledPU,speed increasing,40,39,timeout,60.124
+ControlledPU,speed increasing,30,36,timeout,60.233
+ControlledPU,speed increasing,44,39,timeout,60.140
+ControlledPU,speed increasing,45,39,timeout,60.121
+ControlledPU,speed increasing,76,39,timeout,60.119
+ControlledPU,speed increasing,77,39,timeout,60.115
+ControlledPU,speed increasing,39,40,timeout,60.173
+ControlledPU,speed increasing,44,40,timeout,60.172
+ControlledPU,speed increasing,45,40,timeout,60.126
+ControlledPU,speed increasing,76,40,timeout,60.143
+ControlledPU,speed increasing,77,40,timeout,60.121
+ControlledPU,speed increasing,42,41,timeout,60.083
+ControlledPU,speed increasing,47,41,timeout,60.180
+ControlledPU,speed increasing,48,41,timeout,60.138
+ControlledPU,speed increasing,49,41,timeout,60.123
+ControlledPU,speed increasing,112,41,timeout,60.162
+ControlledPU,speed increasing,115,41,timeout,60.178
+ControlledPU,speed increasing,41,42,timeout,60.109
+ControlledPU,speed increasing,47,42,timeout,60.113
+ControlledPU,speed increasing,48,42,timeout,60.106
+ControlledPU,speed increasing,49,42,timeout,60.157
+ControlledPU,speed increasing,112,42,timeout,60.137
+ControlledPU,speed increasing,115,42,timeout,60.102
+ControlledPU,speed increasing,39,44,timeout,60.139
+ControlledPU,speed increasing,40,44,timeout,60.085
+ControlledPU,speed increasing,45,44,timeout,60.136
+ControlledPU,speed increasing,76,44,timeout,60.078
+ControlledPU,speed increasing,77,44,timeout,60.150
+ControlledPU,speed increasing,39,45,timeout,60.119
+ControlledPU,speed increasing,40,45,timeout,60.082
+ControlledPU,speed increasing,44,45,timeout,60.142
+ControlledPU,speed increasing,76,45,timeout,60.145
+ControlledPU,speed increasing,77,45,timeout,60.130
+ControlledPU,speed increasing,116,46,timeout,60.214
+ControlledPU,speed increasing,41,47,timeout,60.204
+ControlledPU,speed increasing,42,47,timeout,60.137
+ControlledPU,speed increasing,48,47,timeout,60.125
+ControlledPU,speed increasing,49,47,timeout,60.126
+ControlledPU,speed increasing,112,47,timeout,60.127
+ControlledPU,speed increasing,115,47,timeout,60.126
+ControlledPU,speed increasing,41,48,timeout,60.136
+ControlledPU,speed increasing,42,48,timeout,60.115
+ControlledPU,speed increasing,47,48,timeout,60.111
+ControlledPU,speed increasing,49,48,timeout,60.148
+ControlledPU,speed increasing,112,48,timeout,60.122
+ControlledPU,speed increasing,115,48,timeout,60.125
+ControlledPU,speed increasing,41,49,timeout,60.111
+ControlledPU,speed increasing,42,49,timeout,60.174
+ControlledPU,speed increasing,47,49,timeout,60.116
+ControlledPU,speed increasing,48,49,timeout,60.107
+ControlledPU,speed increasing,112,49,timeout,60.132
+ControlledPU,speed increasing,115,49,timeout,60.124
+ControlledPU,speed increasing,83,50,timeout,60.127
+ControlledPU,speed increasing,131,50,timeout,60.086
+ControlledPU,speed increasing,164,50,timeout,60.123
+ControlledPU,speed increasing,81,51,timeout,60.138
+ControlledPU,speed increasing,120,51,timeout,60.103
+ControlledPU,speed increasing,165,51,timeout,60.179
+ControlledPU,speed increasing,78,52,timeout,60.197
+ControlledPU,speed increasing,85,53,timeout,60.197
+ControlledPU,speed increasing,84,54,timeout,60.185
+ControlledPU,speed increasing,80,55,timeout,60.152
+ControlledPU,speed increasing,61,57,timeout,60.162
+ControlledPU,speed increasing,86,57,timeout,60.168
+ControlledPU,speed increasing,91,57,timeout,60.159
+ControlledPU,speed increasing,105,57,timeout,60.149
+ControlledPU,speed increasing,125,57,timeout,60.154
+ControlledPU,speed increasing,137,57,timeout,60.169
+ControlledPU,speed increasing,163,57,timeout,60.168
+ControlledPU,speed increasing,145,60,timeout,60.148
+ControlledPU,speed increasing,185,60,timeout,60.166
+ControlledPU,speed increasing,57,61,timeout,60.130
+ControlledPU,speed increasing,86,61,timeout,60.163
+ControlledPU,speed increasing,91,61,timeout,60.131
+ControlledPU,speed increasing,105,61,timeout,60.150
+ControlledPU,speed increasing,125,61,timeout,60.161
+ControlledPU,speed increasing,137,61,timeout,60.176
+ControlledPU,speed increasing,163,61,timeout,60.188
+ControlledPU,speed increasing,65,62,timeout,60.164
+ControlledPU,speed increasing,87,62,timeout,60.186
+ControlledPU,speed increasing,90,62,timeout,60.176
+ControlledPU,speed increasing,93,62,timeout,60.158
+ControlledPU,speed increasing,148,62,timeout,60.147
+ControlledPU,speed increasing,149,62,timeout,60.116
+ControlledPU,speed increasing,162,62,timeout,60.149
+ControlledPU,speed increasing,101,63,timeout,60.188
+ControlledPU,speed increasing,62,65,timeout,60.159
+ControlledPU,speed increasing,87,65,timeout,60.162
+ControlledPU,speed increasing,90,65,timeout,60.170
+ControlledPU,speed increasing,93,65,timeout,60.189
+ControlledPU,speed increasing,148,65,timeout,60.256
+ControlledPU,speed increasing,149,65,timeout,60.279
+ControlledPU,speed increasing,162,65,timeout,60.142
+ControlledPU,speed increasing,124,68,timeout,60.140
+ControlledPU,speed increasing,182,68,timeout,60.101
+ControlledPU,speed increasing,74,69,timeout,60.148
+ControlledPU,speed increasing,96,69,timeout,60.157
+ControlledPU,speed increasing,97,69,timeout,60.162
+ControlledPU,speed increasing,98,69,timeout,60.165
+ControlledPU,speed increasing,129,69,timeout,60.153
+ControlledPU,speed increasing,130,69,timeout,60.147
+ControlledPU,speed increasing,155,69,timeout,60.138
+ControlledPU,speed increasing,92,70,timeout,60.136
+ControlledPU,speed increasing,73,70,timeout,60.163
+ControlledPU,speed increasing,94,70,timeout,60.168
+ControlledPU,speed increasing,95,70,timeout,60.177
+ControlledPU,speed increasing,142,70,timeout,60.158
+ControlledPU,speed increasing,143,70,timeout,60.153
+ControlledPU,speed increasing,161,70,timeout,60.160
+ControlledPU,speed increasing,70,73,timeout,60.139
+ControlledPU,speed increasing,92,73,timeout,60.185
+ControlledPU,speed increasing,94,73,timeout,60.156
+ControlledPU,speed increasing,95,73,timeout,60.151
+ControlledPU,speed increasing,142,73,timeout,60.147
+ControlledPU,speed increasing,143,73,timeout,60.145
+ControlledPU,speed increasing,161,73,timeout,60.142
+ControlledPU,speed increasing,69,74,timeout,60.178
+ControlledPU,speed increasing,96,74,timeout,60.156
+ControlledPU,speed increasing,97,74,timeout,60.164
+ControlledPU,speed increasing,98,74,timeout,60.105
+ControlledPU,speed increasing,129,74,timeout,60.183
+ControlledPU,speed increasing,130,74,timeout,60.156
+ControlledPU,speed increasing,155,74,timeout,60.178
+ControlledPU,speed increasing,39,76,timeout,60.162
+ControlledPU,speed increasing,40,76,timeout,60.242
+ControlledPU,speed increasing,44,76,timeout,60.179
+ControlledPU,speed increasing,45,76,timeout,60.259
+ControlledPU,speed increasing,77,76,timeout,60.176
+ControlledPU,speed increasing,39,77,timeout,60.207
+ControlledPU,speed increasing,40,77,timeout,60.167
+ControlledPU,speed increasing,44,77,timeout,60.181
+ControlledPU,speed increasing,45,77,timeout,60.195
+ControlledPU,speed increasing,76,77,timeout,60.135
+ControlledPU,speed increasing,52,78,timeout,60.192
+ControlledPU,speed increasing,55,80,timeout,60.167
+ControlledPU,speed increasing,51,81,timeout,60.176
+ControlledPU,speed increasing,120,81,timeout,60.154
+ControlledPU,speed increasing,165,81,timeout,60.148
+ControlledPU,speed increasing,50,83,timeout,60.207
+ControlledPU,speed increasing,131,83,timeout,60.162
+ControlledPU,speed increasing,164,83,timeout,60.162
+ControlledPU,speed increasing,54,84,timeout,60.157
+ControlledPU,speed increasing,53,85,timeout,60.213
+ControlledPU,speed increasing,57,86,timeout,60.179
+ControlledPU,speed increasing,61,86,timeout,60.190
+ControlledPU,speed increasing,91,86,timeout,60.162
+ControlledPU,speed increasing,105,86,timeout,60.145
+ControlledPU,speed increasing,125,86,timeout,60.179
+ControlledPU,speed increasing,137,86,timeout,60.200
+ControlledPU,speed increasing,163,86,timeout,60.198
+ControlledPU,speed increasing,62,87,timeout,60.179
+ControlledPU,speed increasing,65,87,timeout,60.166
+ControlledPU,speed increasing,90,87,timeout,60.158
+ControlledPU,speed increasing,93,87,timeout,60.209
+ControlledPU,speed increasing,148,87,timeout,60.141
+ControlledPU,speed increasing,149,87,timeout,60.164
+ControlledPU,speed increasing,162,87,timeout,60.154
+ControlledPU,speed increasing,138,88,timeout,60.180
+ControlledPU,speed increasing,62,90,timeout,60.166
+ControlledPU,speed increasing,65,90,timeout,60.133
+ControlledPU,speed increasing,87,90,timeout,60.164
+ControlledPU,speed increasing,93,90,timeout,60.171
+ControlledPU,speed increasing,148,90,timeout,60.209
+ControlledPU,speed increasing,149,90,timeout,60.143
+ControlledPU,speed increasing,162,90,timeout,60.188
+ControlledPU,speed increasing,57,91,timeout,60.195
+ControlledPU,speed increasing,61,91,timeout,60.159
+ControlledPU,speed increasing,86,91,timeout,60.165
+ControlledPU,speed increasing,105,91,timeout,60.188
+ControlledPU,speed increasing,125,91,timeout,60.165
+ControlledPU,speed increasing,137,91,timeout,60.134
+ControlledPU,speed increasing,163,91,timeout,60.156
+ControlledPU,speed increasing,70,92,timeout,60.157
+ControlledPU,speed increasing,73,92,timeout,60.202
+ControlledPU,speed increasing,94,92,timeout,60.173
+ControlledPU,speed increasing,95,92,timeout,60.180
+ControlledPU,speed increasing,142,92,timeout,60.155
+ControlledPU,speed increasing,143,92,timeout,60.162
+ControlledPU,speed increasing,161,92,timeout,60.156
+ControlledPU,speed increasing,62,93,timeout,60.176
+ControlledPU,speed increasing,87,93,timeout,60.166
+ControlledPU,speed increasing,65,93,timeout,60.206
+ControlledPU,speed increasing,90,93,timeout,60.173
+ControlledPU,speed increasing,148,93,timeout,60.191
+ControlledPU,speed increasing,149,93,timeout,60.174
+ControlledPU,speed increasing,162,93,timeout,60.178
+ControlledPU,speed increasing,70,94,timeout,60.155
+ControlledPU,speed increasing,73,94,timeout,60.180
+ControlledPU,speed increasing,92,94,timeout,60.167
+ControlledPU,speed increasing,95,94,timeout,60.171
+ControlledPU,speed increasing,142,94,timeout,60.168
+ControlledPU,speed increasing,143,94,timeout,60.153
+ControlledPU,speed increasing,161,94,timeout,60.186
+ControlledPU,speed increasing,70,95,timeout,60.229
+ControlledPU,speed increasing,73,95,timeout,60.166
+ControlledPU,speed increasing,92,95,timeout,60.193
+ControlledPU,speed increasing,94,95,timeout,60.141
+ControlledPU,speed increasing,142,95,timeout,60.146
+ControlledPU,speed increasing,143,95,timeout,60.179
+ControlledPU,speed increasing,161,95,timeout,60.173
+ControlledPU,speed increasing,69,96,timeout,60.176
+ControlledPU,speed increasing,74,96,timeout,60.190
+ControlledPU,speed increasing,97,96,timeout,60.155
+ControlledPU,speed increasing,98,96,timeout,60.160
+ControlledPU,speed increasing,129,96,timeout,60.176
+ControlledPU,speed increasing,130,96,timeout,60.167
+ControlledPU,speed increasing,155,96,timeout,60.159
+ControlledPU,speed increasing,69,97,timeout,60.182
+ControlledPU,speed increasing,74,97,timeout,60.166
+ControlledPU,speed increasing,96,97,timeout,60.189
+ControlledPU,speed increasing,129,97,timeout,60.173
+ControlledPU,speed increasing,98,97,timeout,60.196
+ControlledPU,speed increasing,130,97,timeout,60.175
+ControlledPU,speed increasing,155,97,timeout,60.162
+ControlledPU,speed increasing,69,98,timeout,60.165
+ControlledPU,speed increasing,74,98,timeout,60.236
+ControlledPU,speed increasing,96,98,timeout,60.132
+ControlledPU,speed increasing,97,98,timeout,60.172
+ControlledPU,speed increasing,129,98,timeout,60.186
+ControlledPU,speed increasing,130,98,timeout,60.170
+ControlledPU,speed increasing,155,98,timeout,60.185
+ControlledPU,speed increasing,172,99,timeout,60.187
+ControlledPU,speed increasing,175,100,timeout,60.190
+ControlledPU,speed increasing,63,101,timeout,60.215
+ControlledPU,speed increasing,57,105,timeout,60.175
+ControlledPU,speed increasing,61,105,timeout,60.143
+ControlledPU,speed increasing,86,105,timeout,60.208
+ControlledPU,speed increasing,91,105,timeout,60.155
+ControlledPU,speed increasing,125,105,timeout,60.132
+ControlledPU,speed increasing,137,105,timeout,60.176
+ControlledPU,speed increasing,163,105,timeout,60.148
+ControlledPU,speed increasing,122,107,timeout,60.170
+ControlledPU,speed increasing,41,112,timeout,60.178
+ControlledPU,speed increasing,42,112,timeout,60.172
+ControlledPU,speed increasing,47,112,timeout,60.191
+ControlledPU,speed increasing,48,112,timeout,60.184
+ControlledPU,speed increasing,49,112,timeout,60.196
+ControlledPU,speed increasing,115,112,timeout,60.207
+ControlledPU,speed increasing,41,115,timeout,60.209
+ControlledPU,speed increasing,42,115,timeout,60.163
+ControlledPU,speed increasing,47,115,timeout,60.173
+ControlledPU,speed increasing,48,115,timeout,60.169
+ControlledPU,speed increasing,49,115,timeout,60.159
+ControlledPU,speed increasing,112,115,timeout,60.163
+ControlledPU,speed increasing,46,116,timeout,60.284
+ControlledPU,speed increasing,51,120,timeout,60.174
+ControlledPU,speed increasing,81,120,timeout,60.171
+ControlledPU,speed increasing,165,120,timeout,60.196
+ControlledPU,speed increasing,107,122,timeout,60.173
+ControlledPU,speed increasing,68,124,timeout,60.153
+ControlledPU,speed increasing,182,124,timeout,60.183
+ControlledPU,speed increasing,57,125,timeout,60.268
+ControlledPU,speed increasing,61,125,timeout,60.166
+ControlledPU,speed increasing,86,125,timeout,60.164
+ControlledPU,speed increasing,91,125,timeout,60.172
+ControlledPU,speed increasing,105,125,timeout,60.187
+ControlledPU,speed increasing,137,125,timeout,60.167
+ControlledPU,speed increasing,163,125,timeout,60.153
+ControlledPU,speed increasing,69,129,timeout,60.162
+ControlledPU,speed increasing,74,129,timeout,60.157
+ControlledPU,speed increasing,96,129,timeout,60.165
+ControlledPU,speed increasing,97,129,timeout,60.160
+ControlledPU,speed increasing,98,129,timeout,60.180
+ControlledPU,speed increasing,130,129,timeout,60.190
+ControlledPU,speed increasing,155,129,timeout,60.228
+ControlledPU,speed increasing,69,130,timeout,60.159
+ControlledPU,speed increasing,74,130,timeout,60.279
+ControlledPU,speed increasing,96,130,timeout,60.231
+ControlledPU,speed increasing,98,130,timeout,60.140
+ControlledPU,speed increasing,97,130,timeout,60.260
+ControlledPU,speed increasing,155,130,timeout,60.208
+ControlledPU,speed increasing,129,130,timeout,60.407
+ControlledPU,speed increasing,50,131,timeout,60.331
+ControlledPU,speed increasing,83,131,timeout,60.192
+ControlledPU,speed increasing,164,131,timeout,60.254
+ControlledPU,speed increasing,57,137,timeout,60.148
+ControlledPU,speed increasing,61,137,timeout,60.140
+ControlledPU,speed increasing,86,137,timeout,60.234
+ControlledPU,speed increasing,91,137,timeout,60.145
+ControlledPU,speed increasing,105,137,timeout,60.277
+ControlledPU,speed increasing,125,137,timeout,60.313
+ControlledPU,speed increasing,88,138,timeout,60.198
+ControlledPU,speed increasing,163,137,timeout,60.330
+ControlledPU,speed increasing,70,142,timeout,60.334
+ControlledPU,speed increasing,73,142,timeout,60.141
+ControlledPU,speed increasing,92,142,timeout,60.209
+ControlledPU,speed increasing,94,142,timeout,60.213
+ControlledPU,speed increasing,95,142,timeout,60.263
+ControlledPU,speed increasing,161,142,timeout,60.313
+ControlledPU,speed increasing,143,142,timeout,60.375
+ControlledPU,speed increasing,70,143,timeout,60.169
+ControlledPU,speed increasing,73,143,timeout,60.180
+ControlledPU,speed increasing,92,143,timeout,60.149
+ControlledPU,speed increasing,94,143,timeout,60.238
+ControlledPU,speed increasing,95,143,timeout,60.274
+ControlledPU,speed increasing,142,143,timeout,60.169
+ControlledPU,speed increasing,161,143,timeout,60.260
+ControlledPU,speed increasing,60,145,timeout,60.115
+ControlledPU,speed increasing,62,148,timeout,60.156
+ControlledPU,speed increasing,185,145,timeout,60.243
+ControlledPU,speed increasing,65,148,timeout,60.240
+ControlledPU,speed increasing,87,148,timeout,60.170
+ControlledPU,speed increasing,90,148,timeout,60.227
+ControlledPU,speed increasing,93,148,timeout,60.243
+ControlledPU,speed increasing,149,148,timeout,60.187
+ControlledPU,speed increasing,162,148,timeout,60.212
+ControlledPU,speed increasing,62,149,timeout,60.199
+ControlledPU,speed increasing,65,149,timeout,60.226
+ControlledPU,speed increasing,87,149,timeout,60.122
+ControlledPU,speed increasing,90,149,timeout,60.266
+ControlledPU,speed increasing,93,149,timeout,60.208
+ControlledPU,speed increasing,162,149,timeout,60.171
+ControlledPU,speed increasing,148,149,timeout,60.252
+ControlledPU,speed increasing,69,155,timeout,60.148
+ControlledPU,speed increasing,177,153,timeout,60.237
+ControlledPU,speed increasing,74,155,timeout,60.359
+ControlledPU,speed increasing,96,155,timeout,60.310
+ControlledPU,speed increasing,97,155,timeout,60.295
+ControlledPU,speed increasing,98,155,timeout,60.265
+ControlledPU,speed increasing,129,155,timeout,60.418
+ControlledPU,speed increasing,130,155,timeout,60.138
+ControlledPU,speed increasing,70,161,timeout,60.250
+ControlledPU,speed increasing,73,161,timeout,60.246
+ControlledPU,speed increasing,92,161,timeout,60.334
+ControlledPU,speed increasing,94,161,timeout,60.259
+ControlledPU,speed increasing,95,161,timeout,60.270
+ControlledPU,speed increasing,142,161,timeout,60.205
+ControlledPU,speed increasing,143,161,timeout,60.429
+ControlledPU,speed increasing,62,162,timeout,60.162
+ControlledPU,speed increasing,65,162,timeout,60.254
+ControlledPU,speed increasing,90,162,timeout,60.154
+ControlledPU,speed increasing,87,162,timeout,60.405
+ControlledPU,speed increasing,93,162,timeout,60.300
+ControlledPU,speed increasing,148,162,timeout,60.352
+ControlledPU,speed increasing,149,162,timeout,60.292
+ControlledPU,speed increasing,57,163,timeout,60.258
+ControlledPU,speed increasing,61,163,timeout,60.271
+ControlledPU,speed increasing,86,163,timeout,60.166
+ControlledPU,speed increasing,91,163,timeout,60.152
+ControlledPU,speed increasing,105,163,timeout,60.272
+ControlledPU,speed increasing,125,163,timeout,60.201
+ControlledPU,speed increasing,137,163,timeout,60.280
+ControlledPU,speed increasing,50,164,timeout,60.389
+ControlledPU,speed increasing,83,164,timeout,60.289
+ControlledPU,speed increasing,131,164,timeout,60.282
+ControlledPU,speed increasing,120,165,timeout,60.244
+ControlledPU,speed increasing,51,165,timeout,60.359
+ControlledPU,speed increasing,81,165,timeout,60.400
+ControlledPU,speed increasing,181,169,timeout,60.388
+ControlledPU,speed increasing,180,171,timeout,60.341
+ControlledPU,speed increasing,99,172,timeout,60.201
+ControlledPU,speed increasing,100,175,timeout,60.127
+FuelControl,EngineSpeed,18,15,implied,0.096
+FuelControl,EngineSpeed,21,15,implied,0.108
+FuelControl,EngineSpeed,29,15,implied,0.084
+FuelControl,EngineSpeed,42,15,implied,0.111
+FuelControl,EngineSpeed,70,15,implied,0.118
+ControlledPU,speed increasing,153,177,timeout,60.234
+ControlledPU,speed increasing,171,180,timeout,60.133
+ControlledPU,speed increasing,169,181,timeout,60.223
+ControlledPU,speed increasing,68,182,timeout,60.127
+ControlledPU,speed increasing,124,182,timeout,60.319
+ControlledPU,speed increasing,60,185,timeout,60.180
+FuelControl,EngineSpeed,14,9,timeout,60.066
+ControlledPU,speed increasing,145,185,timeout,60.344
+FuelControl,EngineSpeed,22,9,timeout,60.057
+FuelControl,EngineSpeed,47,11,timeout,60.111
+FuelControl,EngineSpeed,17,13,timeout,60.082
+FuelControl,EngineSpeed,20,13,timeout,60.191
+FuelControl,EngineSpeed,27,13,timeout,60.143
+FuelControl,EngineSpeed,30,13,timeout,60.104
+FuelControl,EngineSpeed,34,13,timeout,60.116
+FuelControl,EngineSpeed,37,13,timeout,60.149
+FuelControl,EngineSpeed,38,13,timeout,60.171
+FuelControl,EngineSpeed,15,18,implied,0.100
+FuelControl,EngineSpeed,21,18,implied,0.096
+FuelControl,EngineSpeed,29,18,implied,0.061
+FuelControl,EngineSpeed,42,18,implied,0.097
+FuelControl,EngineSpeed,70,18,implied,0.054
+FuelControl,EngineSpeed,39,13,timeout,60.082
+FuelControl,EngineSpeed,48,13,timeout,60.083
+FuelControl,EngineSpeed,49,13,timeout,60.068
+FuelControl,EngineSpeed,50,13,timeout,60.158
+FuelControl,EngineSpeed,59,13,timeout,60.102
+FuelControl,EngineSpeed,60,13,timeout,60.087
+FuelControl,EngineSpeed,69,13,timeout,60.081
+FuelControl,EngineSpeed,75,13,timeout,60.071
+FuelControl,EngineSpeed,68,13,timeout,60.156
+FuelControl,EngineSpeed,78,13,timeout,60.113
+FuelControl,EngineSpeed,9,14,timeout,60.108
+FuelControl,EngineSpeed,22,14,timeout,60.047
+FuelControl,EngineSpeed,13,17,timeout,60.084
+FuelControl,EngineSpeed,20,17,timeout,60.111
+FuelControl,EngineSpeed,27,17,timeout,60.064
+FuelControl,EngineSpeed,30,17,timeout,60.123
+FuelControl,EngineSpeed,34,17,timeout,60.094
+FuelControl,EngineSpeed,15,21,implied,0.048
+FuelControl,EngineSpeed,18,21,implied,0.098
+FuelControl,EngineSpeed,29,21,implied,0.104
+FuelControl,EngineSpeed,42,21,implied,0.099
+FuelControl,EngineSpeed,70,21,implied,0.101
+FuelControl,EngineSpeed,37,17,timeout,60.133
+FuelControl,EngineSpeed,38,17,timeout,60.120
+FuelControl,EngineSpeed,39,17,timeout,60.055
+FuelControl,EngineSpeed,48,17,timeout,60.117
+FuelControl,EngineSpeed,49,17,timeout,60.103
+FuelControl,EngineSpeed,50,17,timeout,60.049
+FuelControl,EngineSpeed,59,17,timeout,60.174
+FuelControl,EngineSpeed,60,17,timeout,60.098
+FuelControl,EngineSpeed,68,17,timeout,60.113
+FuelControl,EngineSpeed,69,17,timeout,60.093
+FuelControl,EngineSpeed,75,17,timeout,60.094
+FuelControl,EngineSpeed,78,17,timeout,60.104
+FuelControl,EngineSpeed,13,20,timeout,60.129
+FuelControl,EngineSpeed,17,20,timeout,60.064
+FuelControl,EngineSpeed,27,20,timeout,60.061
+FuelControl,EngineSpeed,30,20,timeout,60.054
+FuelControl,EngineSpeed,38,20,timeout,60.088
+FuelControl,EngineSpeed,34,20,timeout,60.129
+FuelControl,EngineSpeed,37,20,timeout,60.118
+FuelControl,EngineSpeed,39,20,timeout,60.099
+FuelControl,EngineSpeed,48,20,timeout,60.093
+FuelControl,EngineSpeed,49,20,timeout,60.107
+FuelControl,EngineSpeed,50,20,timeout,60.054
+FuelControl,EngineSpeed,59,20,timeout,60.069
+FuelControl,EngineSpeed,60,20,timeout,60.101
+FuelControl,EngineSpeed,68,20,timeout,60.110
+FuelControl,EngineSpeed,69,20,timeout,60.157
+FuelControl,EngineSpeed,75,20,timeout,60.165
+FuelControl,EngineSpeed,15,29,implied,0.073
+FuelControl,EngineSpeed,18,29,implied,0.096
+FuelControl,EngineSpeed,21,29,implied,0.097
+FuelControl,EngineSpeed,42,29,implied,0.098
+FuelControl,EngineSpeed,70,29,implied,0.076
+FuelControl,EngineSpeed,78,20,timeout,60.067
+FuelControl,EngineSpeed,9,22,timeout,60.077
+FuelControl,EngineSpeed,14,22,timeout,60.074
+FuelControl,EngineSpeed,43,25,timeout,60.073
+FuelControl,EngineSpeed,54,25,timeout,60.075
+FuelControl,EngineSpeed,55,25,timeout,60.211
+FuelControl,EngineSpeed,66,25,timeout,60.116
+FuelControl,EngineSpeed,74,25,timeout,60.128
+FuelControl,EngineSpeed,46,26,timeout,60.118
+FuelControl,EngineSpeed,67,26,timeout,60.163
+FuelControl,EngineSpeed,13,27,timeout,60.107
+FuelControl,EngineSpeed,17,27,timeout,60.206
+FuelControl,EngineSpeed,20,27,timeout,60.110
+FuelControl,EngineSpeed,30,27,timeout,60.066
+FuelControl,EngineSpeed,34,27,timeout,60.139
+FuelControl,EngineSpeed,37,27,timeout,60.117
+FuelControl,EngineSpeed,38,27,timeout,60.127
+FuelControl,EngineSpeed,39,27,timeout,60.051
+FuelControl,EngineSpeed,50,27,timeout,60.066
+FuelControl,EngineSpeed,49,27,timeout,60.131
+FuelControl,EngineSpeed,48,27,timeout,60.173
+FuelControl,EngineSpeed,59,27,timeout,60.115
+FuelControl,EngineSpeed,68,27,timeout,60.101
+FuelControl,EngineSpeed,60,27,timeout,60.124
+FuelControl,EngineSpeed,69,27,timeout,60.132
+FuelControl,EngineSpeed,75,27,timeout,60.166
+FuelControl,EngineSpeed,78,27,timeout,60.062
+FuelControl,EngineSpeed,44,28,timeout,60.099
+FuelControl,EngineSpeed,65,28,timeout,60.113
+FuelControl,EngineSpeed,13,30,timeout,60.092
+FuelControl,EngineSpeed,17,30,timeout,60.069
+FuelControl,EngineSpeed,20,30,timeout,60.068
+FuelControl,EngineSpeed,27,30,timeout,60.102
+FuelControl,EngineSpeed,34,30,timeout,60.098
+FuelControl,EngineSpeed,37,30,timeout,60.160
+FuelControl,EngineSpeed,38,30,timeout,60.201
+FuelControl,EngineSpeed,39,30,timeout,60.123
+FuelControl,EngineSpeed,48,30,timeout,60.169
+FuelControl,EngineSpeed,49,30,timeout,60.071
+FuelControl,EngineSpeed,50,30,timeout,60.104
+FuelControl,EngineSpeed,59,30,timeout,60.115
+FuelControl,EngineSpeed,60,30,timeout,60.098
+FuelControl,EngineSpeed,68,30,timeout,60.160
+FuelControl,EngineSpeed,69,30,timeout,60.072
+FuelControl,EngineSpeed,75,30,timeout,60.073
+FuelControl,EngineSpeed,78,30,timeout,60.070
+FuelControl,EngineSpeed,45,33,timeout,60.181
+FuelControl,EngineSpeed,13,34,timeout,60.073
+FuelControl,EngineSpeed,20,34,timeout,60.144
+FuelControl,EngineSpeed,27,34,timeout,60.158
+FuelControl,EngineSpeed,17,34,timeout,60.236
+FuelControl,EngineSpeed,30,34,timeout,60.160
+FuelControl,EngineSpeed,38,34,timeout,60.144
+FuelControl,EngineSpeed,37,34,timeout,60.150
+FuelControl,EngineSpeed,39,34,timeout,60.172
+FuelControl,EngineSpeed,48,34,timeout,60.219
+FuelControl,EngineSpeed,49,34,timeout,60.154
+FuelControl,EngineSpeed,50,34,timeout,60.159
+FuelControl,EngineSpeed,59,34,timeout,60.070
+FuelControl,EngineSpeed,60,34,timeout,60.132
+FuelControl,EngineSpeed,68,34,timeout,60.080
+FuelControl,EngineSpeed,69,34,timeout,60.107
+FuelControl,EngineSpeed,75,34,timeout,60.153
+FuelControl,EngineSpeed,78,34,timeout,60.138
+FuelControl,EngineSpeed,40,36,timeout,60.075
+FuelControl,EngineSpeed,13,37,timeout,60.065
+FuelControl,EngineSpeed,17,37,timeout,60.131
+FuelControl,EngineSpeed,20,37,timeout,60.206
+FuelControl,EngineSpeed,27,37,timeout,60.127
+FuelControl,EngineSpeed,30,37,timeout,60.212
+FuelControl,EngineSpeed,34,37,timeout,60.205
+FuelControl,EngineSpeed,38,37,timeout,60.178
+FuelControl,EngineSpeed,39,37,timeout,60.150
+FuelControl,EngineSpeed,48,37,timeout,60.101
+FuelControl,EngineSpeed,49,37,timeout,60.076
+FuelControl,EngineSpeed,50,37,timeout,60.131
+FuelControl,EngineSpeed,59,37,timeout,60.207
+FuelControl,EngineSpeed,60,37,timeout,60.080
+FuelControl,EngineSpeed,68,37,timeout,60.070
+FuelControl,EngineSpeed,69,37,timeout,60.071
+FuelControl,EngineSpeed,75,37,timeout,60.173
+FuelControl,EngineSpeed,17,38,timeout,60.088
+FuelControl,EngineSpeed,78,37,timeout,60.134
+FuelControl,EngineSpeed,13,38,timeout,60.126
+FuelControl,EngineSpeed,20,38,timeout,60.140
+FuelControl,EngineSpeed,27,38,timeout,60.109
+FuelControl,EngineSpeed,30,38,timeout,60.083
+FuelControl,EngineSpeed,34,38,timeout,60.107
+FuelControl,EngineSpeed,52,41,implied,0.078
+FuelControl,EngineSpeed,15,42,implied,0.094
+FuelControl,EngineSpeed,18,42,implied,0.099
+FuelControl,EngineSpeed,21,42,implied,0.095
+FuelControl,EngineSpeed,29,42,implied,0.097
+FuelControl,EngineSpeed,70,42,implied,0.090
+FuelControl,EngineSpeed,37,38,timeout,60.069
+FuelControl,EngineSpeed,39,38,timeout,60.126
+FuelControl,EngineSpeed,48,38,timeout,60.072
+FuelControl,EngineSpeed,49,38,timeout,60.101
+FuelControl,EngineSpeed,50,38,timeout,60.139
+FuelControl,EngineSpeed,59,38,timeout,60.149
+FuelControl,EngineSpeed,60,38,timeout,60.105
+FuelControl,EngineSpeed,68,38,timeout,60.126
+FuelControl,EngineSpeed,69,38,timeout,60.112
+FuelControl,EngineSpeed,75,38,timeout,60.068
+FuelControl,EngineSpeed,78,38,timeout,60.069
+FuelControl,EngineSpeed,13,39,timeout,60.104
+FuelControl,EngineSpeed,17,39,timeout,60.169
+FuelControl,EngineSpeed,20,39,timeout,60.071
+FuelControl,EngineSpeed,27,39,timeout,60.069
+FuelControl,EngineSpeed,30,39,timeout,60.070
+FuelControl,EngineSpeed,34,39,timeout,60.107
+FuelControl,EngineSpeed,37,39,timeout,60.111
+FuelControl,EngineSpeed,38,39,timeout,60.083
+FuelControl,EngineSpeed,48,39,timeout,60.081
+FuelControl,EngineSpeed,50,39,timeout,60.063
+FuelControl,EngineSpeed,49,39,timeout,60.177
+FuelControl,EngineSpeed,59,39,timeout,60.161
+FuelControl,EngineSpeed,60,39,timeout,60.064
+FuelControl,EngineSpeed,68,39,timeout,60.145
+FuelControl,EngineSpeed,69,39,timeout,60.131
+FuelControl,EngineSpeed,75,39,timeout,60.079
+FuelControl,EngineSpeed,78,39,timeout,60.152
+FuelControl,EngineSpeed,36,40,timeout,60.078
+FuelControl,EngineSpeed,25,43,timeout,60.112
+FuelControl,EngineSpeed,54,43,timeout,60.144
+FuelControl,EngineSpeed,55,43,timeout,60.078
+FuelControl,EngineSpeed,66,43,timeout,60.192
+FuelControl,EngineSpeed,74,43,timeout,60.193
+FuelControl,EngineSpeed,28,44,timeout,60.137
+FuelControl,EngineSpeed,65,44,timeout,60.122
+FuelControl,EngineSpeed,33,45,timeout,60.084
+FuelControl,EngineSpeed,26,46,timeout,60.130
+FuelControl,EngineSpeed,67,46,timeout,60.145
+FuelControl,EngineSpeed,11,47,timeout,60.166
+FuelControl,EngineSpeed,13,48,timeout,60.077
+FuelControl,EngineSpeed,17,48,timeout,60.129
+FuelControl,EngineSpeed,20,48,timeout,60.226
+FuelControl,EngineSpeed,27,48,timeout,60.143
+FuelControl,EngineSpeed,30,48,timeout,60.114
+FuelControl,EngineSpeed,34,48,timeout,60.119
+FuelControl,EngineSpeed,37,48,timeout,60.070
+FuelControl,EngineSpeed,38,48,timeout,60.072
+FuelControl,EngineSpeed,39,48,timeout,60.130
+FuelControl,EngineSpeed,49,48,timeout,60.068
+FuelControl,EngineSpeed,50,48,timeout,60.097
+FuelControl,EngineSpeed,59,48,timeout,60.068
+FuelControl,EngineSpeed,60,48,timeout,60.140
+FuelControl,EngineSpeed,68,48,timeout,60.142
+FuelControl,EngineSpeed,69,48,timeout,60.078
+FuelControl,EngineSpeed,75,48,timeout,60.084
+FuelControl,EngineSpeed,78,48,timeout,60.129
+FuelControl,EngineSpeed,13,49,timeout,60.240
+FuelControl,EngineSpeed,17,49,timeout,60.120
+FuelControl,EngineSpeed,20,49,timeout,60.111
+FuelControl,EngineSpeed,27,49,timeout,60.069
+FuelControl,EngineSpeed,30,49,timeout,60.168
+FuelControl,EngineSpeed,41,52,implied,0.098
+FuelControl,EngineSpeed,34,49,timeout,60.075
+FuelControl,EngineSpeed,37,49,timeout,60.079
+FuelControl,EngineSpeed,38,49,timeout,60.116
+FuelControl,EngineSpeed,39,49,timeout,60.074
+FuelControl,EngineSpeed,48,49,timeout,60.114
+FuelControl,EngineSpeed,50,49,timeout,60.084
+FuelControl,EngineSpeed,59,49,timeout,60.108
+FuelControl,EngineSpeed,60,49,timeout,60.118
+FuelControl,EngineSpeed,68,49,timeout,60.072
+FuelControl,EngineSpeed,69,49,timeout,60.130
+FuelControl,EngineSpeed,75,49,timeout,60.259
+FuelControl,EngineSpeed,78,49,timeout,60.098
+FuelControl,EngineSpeed,13,50,timeout,60.137
+FuelControl,EngineSpeed,17,50,timeout,60.149
+FuelControl,EngineSpeed,20,50,timeout,60.114
+FuelControl,EngineSpeed,27,50,timeout,60.147
+FuelControl,EngineSpeed,34,50,timeout,60.067
+FuelControl,EngineSpeed,30,50,timeout,60.148
+FuelControl,EngineSpeed,37,50,timeout,60.137
+FuelControl,EngineSpeed,38,50,timeout,60.127
+FuelControl,EngineSpeed,39,50,timeout,60.182
+FuelControl,EngineSpeed,48,50,timeout,60.146
+FuelControl,EngineSpeed,49,50,timeout,60.139
+FuelControl,EngineSpeed,59,50,timeout,60.188
+FuelControl,EngineSpeed,60,50,timeout,60.140
+FuelControl,EngineSpeed,68,50,timeout,60.107
+FuelControl,EngineSpeed,69,50,timeout,60.117
+FuelControl,EngineSpeed,75,50,timeout,60.072
+FuelControl,EngineSpeed,78,50,timeout,60.105
+FuelControl,EngineSpeed,25,54,timeout,60.299
+FuelControl,EngineSpeed,43,54,timeout,60.072
+FuelControl,EngineSpeed,55,54,timeout,60.172
+FuelControl,EngineSpeed,66,54,timeout,60.128
+FuelControl,EngineSpeed,74,54,timeout,60.129
+FuelControl,EngineSpeed,25,55,timeout,60.075
+FuelControl,EngineSpeed,43,55,timeout,60.136
+FuelControl,EngineSpeed,54,55,timeout,60.140
+FuelControl,EngineSpeed,66,55,timeout,60.123
+FuelControl,EngineSpeed,74,55,timeout,60.199
+FuelControl,EngineSpeed,64,56,timeout,60.178
+FuelControl,EngineSpeed,13,59,timeout,60.148
+FuelControl,EngineSpeed,17,59,timeout,60.174
+FuelControl,EngineSpeed,20,59,timeout,60.102
+FuelControl,EngineSpeed,27,59,timeout,60.108
+FuelControl,EngineSpeed,30,59,timeout,60.070
+FuelControl,EngineSpeed,72,61,implied,0.053
+FuelControl,EngineSpeed,34,59,timeout,60.137
+FuelControl,EngineSpeed,79,63,implied,0.108
+FuelControl,EngineSpeed,37,59,timeout,60.246
+FuelControl,EngineSpeed,38,59,timeout,60.247
+FuelControl,EngineSpeed,39,59,timeout,60.133
+FuelControl,EngineSpeed,48,59,timeout,60.118
+FuelControl,EngineSpeed,49,59,timeout,60.132
+FuelControl,EngineSpeed,50,59,timeout,60.117
+FuelControl,EngineSpeed,60,59,timeout,60.159
+FuelControl,EngineSpeed,68,59,timeout,60.141
+FuelControl,EngineSpeed,69,59,timeout,60.130
+FuelControl,EngineSpeed,75,59,timeout,60.140
+FuelControl,EngineSpeed,78,59,timeout,60.072
+FuelControl,EngineSpeed,13,60,timeout,60.139
+FuelControl,EngineSpeed,17,60,timeout,60.080
+FuelControl,EngineSpeed,20,60,timeout,60.164
+FuelControl,EngineSpeed,27,60,timeout,60.120
+FuelControl,EngineSpeed,30,60,timeout,60.076
+FuelControl,EngineSpeed,34,60,timeout,60.127
+FuelControl,EngineSpeed,37,60,timeout,60.158
+FuelControl,EngineSpeed,38,60,timeout,60.082
+FuelControl,EngineSpeed,39,60,timeout,60.061
+FuelControl,EngineSpeed,48,60,timeout,60.124
+FuelControl,EngineSpeed,49,60,timeout,60.162
+FuelControl,EngineSpeed,50,60,timeout,60.120
+FuelControl,EngineSpeed,59,60,timeout,60.147
+FuelControl,EngineSpeed,68,60,timeout,60.148
+FuelControl,EngineSpeed,69,60,timeout,60.124
+FuelControl,EngineSpeed,75,60,timeout,60.184
+FuelControl,EngineSpeed,78,60,timeout,60.131
+FuelControl,EngineSpeed,73,62,timeout,60.131
+FuelControl,EngineSpeed,56,64,timeout,60.361
+FuelControl,EngineSpeed,28,65,timeout,60.172
+FuelControl,EngineSpeed,44,65,timeout,60.245
+FuelControl,EngineSpeed,25,66,timeout,60.258
+FuelControl,EngineSpeed,43,66,timeout,60.306
+FuelControl,EngineSpeed,54,66,timeout,60.296
+FuelControl,EngineSpeed,26,67,timeout,60.156
+FuelControl,EngineSpeed,74,66,timeout,60.223
+FuelControl,EngineSpeed,55,66,timeout,60.303
+FuelControl,EngineSpeed,46,67,timeout,60.104
+FuelControl,EngineSpeed,13,68,timeout,60.086
+FuelControl,EngineSpeed,17,68,timeout,60.103
+FuelControl,EngineSpeed,20,68,timeout,60.126
+FuelControl,EngineSpeed,27,68,timeout,60.124
+FuelControl,EngineSpeed,30,68,timeout,60.167
+FuelControl,EngineSpeed,15,70,implied,0.136
+FuelControl,EngineSpeed,18,70,implied,0.092
+FuelControl,EngineSpeed,21,70,implied,0.077
+FuelControl,EngineSpeed,29,70,implied,0.067
+FuelControl,EngineSpeed,42,70,implied,0.068
+FuelControl,EngineSpeed,61,72,implied,0.098
+FuelControl,EngineSpeed,34,68,timeout,60.171
+FuelControl,EngineSpeed,37,68,timeout,60.086
+FuelControl,EngineSpeed,38,68,timeout,60.176
+FuelControl,EngineSpeed,39,68,timeout,60.066
+FuelControl,EngineSpeed,48,68,timeout,60.074
+FuelControl,EngineSpeed,49,68,timeout,60.123
+FuelControl,EngineSpeed,50,68,timeout,60.121
+FuelControl,EngineSpeed,59,68,timeout,60.187
+FuelControl,EngineSpeed,60,68,timeout,60.105
+FuelControl,EngineSpeed,69,68,timeout,60.145
+FuelControl,EngineSpeed,75,68,timeout,60.192
+FuelControl,EngineSpeed,78,68,timeout,60.285
+FuelControl,EngineSpeed,13,69,timeout,60.121
+FuelControl,EngineSpeed,17,69,timeout,60.166
+FuelControl,EngineSpeed,20,69,timeout,60.072
+FuelControl,EngineSpeed,27,69,timeout,60.091
+FuelControl,EngineSpeed,30,69,timeout,60.081
+FuelControl,EngineSpeed,34,69,timeout,60.178
+FuelControl,EngineSpeed,37,69,timeout,60.200
+FuelControl,EngineSpeed,38,69,timeout,60.127
+FuelControl,EngineSpeed,39,69,timeout,60.078
+FuelControl,EngineSpeed,50,69,timeout,60.085
+FuelControl,EngineSpeed,49,69,timeout,60.101
+FuelControl,EngineSpeed,48,69,timeout,60.150
+FuelControl,EngineSpeed,59,69,timeout,60.076
+FuelControl,EngineSpeed,60,69,timeout,60.072
+FuelControl,EngineSpeed,68,69,timeout,60.197
+FuelControl,EngineSpeed,75,69,timeout,60.112
+FuelControl,EngineSpeed,78,69,timeout,60.077
+FuelControl,EngineSpeed,62,73,timeout,60.174
+FuelControl,EngineSpeed,25,74,timeout,60.140
+FuelControl,EngineSpeed,43,74,timeout,60.152
+FuelControl,EngineSpeed,54,74,timeout,60.264
+FuelControl,EngineSpeed,55,74,timeout,60.156
+FuelControl,EngineSpeed,66,74,timeout,60.215
+FuelControl,EngineSpeed,13,75,timeout,60.287
+FuelControl,EngineSpeed,17,75,timeout,60.288
+FuelControl,EngineSpeed,20,75,timeout,60.155
+FuelControl,EngineSpeed,27,75,timeout,60.283
+FuelControl,EngineSpeed,30,75,timeout,60.086
+FuelControl,EngineSpeed,63,79,implied,0.093
+FuelControl,EngineSpeed,34,75,timeout,60.106
+FuelControl,EngineSpeed,37,75,timeout,60.289
+FuelControl,EngineSpeed,38,75,timeout,60.110
+FuelControl,EngineSpeed,39,75,timeout,60.130
+FuelControl,EngineSpeed,48,75,timeout,60.101
+FuelControl,EngineSpeed,49,75,timeout,60.072
+FuelControl,EngineSpeed,50,75,timeout,60.075
+FuelControl,EngineSpeed,59,75,timeout,60.203
+FuelControl,EngineSpeed,60,75,timeout,60.220
+FuelControl,EngineSpeed,68,75,timeout,60.289
+FuelControl,EngineSpeed,69,75,timeout,60.130
+FuelControl,EngineSpeed,78,75,timeout,60.149
+FuelControl,EngineSpeed,17,78,timeout,60.119
+FuelControl,EngineSpeed,13,78,timeout,60.157
+FuelControl,EngineSpeed,20,78,timeout,60.186
+FuelControl,EngineSpeed,27,78,timeout,60.221
+FuelControl,EngineSpeed,30,78,timeout,60.114
+FuelControl,EngineSpeed,34,78,timeout,60.095
+FuelControl,EngineSpeed,37,78,timeout,60.258
+FuelControl,EngineSpeed,38,78,timeout,60.085
+FuelControl,EngineSpeed,39,78,timeout,60.137
+FuelControl,EngineSpeed,48,78,timeout,60.201
+FuelControl,EngineSpeed,49,78,timeout,60.082
+FuelControl,EngineSpeed,50,78,timeout,60.135
+FuelControl,EngineSpeed,59,78,timeout,60.189
+FuelControl,EngineSpeed,60,78,timeout,60.237
+FuelControl,EngineSpeed,68,78,timeout,60.082
+FuelControl,EngineSpeed,69,78,timeout,60.216
+FuelControl,EngineSpeed,75,78,timeout,60.341
+FuelControl,EngineSpeed,90,82,timeout,60.044
+FuelControl,EngineSpeed,111,82,timeout,60.078
+FuelControl,EngineSpeed,139,82,timeout,60.098
+FuelControl,EngineSpeed,93,84,timeout,60.080
+FuelControl,EngineSpeed,118,84,timeout,60.094
+FuelControl,EngineSpeed,149,88,timeout,60.147
+FuelControl,EngineSpeed,157,88,timeout,60.152
+FuelControl,EngineSpeed,92,89,timeout,60.056
+FuelControl,EngineSpeed,96,89,timeout,60.205
+FuelControl,EngineSpeed,101,89,timeout,60.090
+FuelControl,EngineSpeed,102,89,timeout,60.090
+FuelControl,EngineSpeed,103,89,timeout,60.167
+FuelControl,EngineSpeed,116,89,timeout,60.067
+FuelControl,EngineSpeed,115,89,timeout,60.088
+FuelControl,EngineSpeed,114,89,timeout,60.101
+FuelControl,EngineSpeed,127,89,timeout,60.066
+FuelControl,EngineSpeed,128,89,timeout,60.094
+FuelControl,EngineSpeed,136,89,timeout,60.128
+FuelControl,EngineSpeed,137,89,timeout,60.112
+FuelControl,EngineSpeed,138,89,timeout,60.047
+FuelControl,EngineSpeed,150,89,timeout,60.113
+FuelControl,EngineSpeed,160,89,timeout,60.094
+FuelControl,EngineSpeed,82,90,timeout,60.117
+FuelControl,EngineSpeed,111,90,timeout,60.102
+FuelControl,EngineSpeed,139,90,timeout,60.072
+FuelControl,EngineSpeed,104,91,timeout,60.074
+FuelControl,EngineSpeed,119,91,timeout,60.054
+FuelControl,EngineSpeed,141,91,timeout,60.084
+FuelControl,EngineSpeed,89,92,timeout,60.206
+FuelControl,EngineSpeed,96,92,timeout,60.084
+FuelControl,EngineSpeed,101,92,timeout,60.066
+FuelControl,EngineSpeed,102,92,timeout,60.151
+FuelControl,EngineSpeed,103,92,timeout,60.079
+FuelControl,EngineSpeed,114,92,timeout,60.062
+FuelControl,EngineSpeed,115,92,timeout,60.054
+FuelControl,EngineSpeed,116,92,timeout,60.089
+FuelControl,EngineSpeed,127,92,timeout,60.215
+FuelControl,EngineSpeed,128,92,timeout,60.062
+FuelControl,EngineSpeed,136,92,timeout,60.097
+FuelControl,EngineSpeed,137,92,timeout,60.076
+FuelControl,EngineSpeed,138,92,timeout,60.133
+FuelControl,EngineSpeed,150,92,timeout,60.195
+FuelControl,EngineSpeed,84,93,timeout,60.063
+FuelControl,EngineSpeed,118,93,timeout,60.057
+FuelControl,EngineSpeed,160,92,timeout,60.108
+FuelControl,EngineSpeed,117,94,timeout,60.071
+FuelControl,EngineSpeed,131,94,timeout,60.121
+FuelControl,EngineSpeed,152,94,timeout,60.132
+FuelControl,EngineSpeed,89,96,timeout,60.102
+FuelControl,EngineSpeed,92,96,timeout,60.110
+FuelControl,EngineSpeed,101,96,timeout,60.065
+FuelControl,EngineSpeed,102,96,timeout,60.058
+FuelControl,EngineSpeed,103,96,timeout,60.100
+FuelControl,EngineSpeed,114,96,timeout,60.113
+FuelControl,EngineSpeed,115,96,timeout,60.092
+FuelControl,EngineSpeed,116,96,timeout,60.102
+FuelControl,EngineSpeed,127,96,timeout,60.058
+FuelControl,EngineSpeed,128,96,timeout,60.113
+FuelControl,EngineSpeed,136,96,timeout,60.107
+FuelControl,EngineSpeed,137,96,timeout,60.116
+FuelControl,EngineSpeed,138,96,timeout,60.143
+FuelControl,EngineSpeed,150,96,timeout,60.058
+FuelControl,EngineSpeed,160,96,timeout,60.055
+FuelControl,EngineSpeed,107,97,timeout,60.093
+FuelControl,EngineSpeed,130,97,timeout,60.103
+FuelControl,EngineSpeed,129,98,timeout,60.053
+FuelControl,EngineSpeed,145,100,timeout,60.222
+FuelControl,EngineSpeed,155,100,timeout,60.089
+FuelControl,EngineSpeed,164,100,timeout,60.203
+FuelControl,EngineSpeed,165,100,timeout,60.137
+FuelControl,EngineSpeed,89,101,timeout,60.114
+FuelControl,EngineSpeed,92,101,timeout,60.083
+FuelControl,EngineSpeed,96,101,timeout,60.129
+FuelControl,EngineSpeed,102,101,timeout,60.131
+FuelControl,EngineSpeed,103,101,timeout,60.109
+FuelControl,EngineSpeed,114,101,timeout,60.159
+FuelControl,EngineSpeed,115,101,timeout,60.140
+FuelControl,EngineSpeed,116,101,timeout,60.160
+FuelControl,EngineSpeed,127,101,timeout,60.125
+FuelControl,EngineSpeed,128,101,timeout,60.109
+FuelControl,EngineSpeed,136,101,timeout,60.127
+FuelControl,EngineSpeed,137,101,timeout,60.166
+FuelControl,EngineSpeed,138,101,timeout,60.125
+FuelControl,EngineSpeed,150,101,timeout,60.077
+FuelControl,EngineSpeed,160,101,timeout,60.072
+FuelControl,EngineSpeed,89,102,timeout,60.063
+FuelControl,EngineSpeed,92,102,timeout,60.118
+FuelControl,EngineSpeed,96,102,timeout,60.162
+FuelControl,EngineSpeed,101,102,timeout,60.138
+FuelControl,EngineSpeed,103,102,timeout,60.093
+FuelControl,EngineSpeed,114,102,timeout,60.162
+FuelControl,EngineSpeed,115,102,timeout,60.160
+FuelControl,EngineSpeed,116,102,timeout,60.090
+FuelControl,EngineSpeed,127,102,timeout,60.175
+FuelControl,EngineSpeed,128,102,timeout,60.112
+FuelControl,EngineSpeed,136,102,timeout,60.112
+FuelControl,EngineSpeed,137,102,timeout,60.111
+FuelControl,EngineSpeed,138,102,timeout,60.099
+FuelControl,EngineSpeed,150,102,timeout,60.121
+FuelControl,EngineSpeed,160,102,timeout,60.167
+FuelControl,EngineSpeed,89,103,timeout,60.091
+FuelControl,EngineSpeed,101,103,timeout,60.075
+FuelControl,EngineSpeed,102,103,timeout,60.112
+FuelControl,EngineSpeed,96,103,timeout,60.203
+FuelControl,EngineSpeed,92,103,timeout,60.270
+FuelControl,EngineSpeed,114,103,timeout,60.079
+FuelControl,EngineSpeed,115,103,timeout,60.170
+FuelControl,EngineSpeed,116,103,timeout,60.085
+FuelControl,EngineSpeed,127,103,timeout,60.131
+FuelControl,EngineSpeed,128,103,timeout,60.065
+FuelControl,EngineSpeed,136,103,timeout,60.123
+FuelControl,EngineSpeed,137,103,timeout,60.107
+FuelControl,EngineSpeed,138,103,timeout,60.154
+FuelControl,EngineSpeed,150,103,timeout,60.174
+FuelControl,EngineSpeed,160,103,timeout,60.064
+FuelControl,EngineSpeed,91,104,timeout,60.119
+FuelControl,EngineSpeed,119,104,timeout,60.121
+FuelControl,EngineSpeed,141,104,timeout,60.183
+FuelControl,EngineSpeed,147,105,timeout,60.243
+FuelControl,EngineSpeed,167,105,timeout,60.176
+FuelControl,EngineSpeed,123,106,timeout,60.138
+FuelControl,EngineSpeed,140,106,timeout,60.060
+FuelControl,EngineSpeed,153,106,timeout,60.120
+FuelControl,EngineSpeed,97,107,timeout,60.089
+FuelControl,EngineSpeed,130,107,timeout,60.148
+FuelControl,EngineSpeed,109,108,timeout,60.096
+FuelControl,EngineSpeed,108,109,timeout,60.090
+FuelControl,EngineSpeed,143,110,timeout,60.114
+FuelControl,EngineSpeed,82,111,timeout,60.082
+FuelControl,EngineSpeed,90,111,timeout,60.144
+FuelControl,EngineSpeed,139,111,timeout,60.139
+FuelControl,EngineSpeed,148,112,timeout,60.093
+FuelControl,EngineSpeed,168,112,timeout,60.087
+FuelControl,EngineSpeed,161,113,timeout,60.117
+FuelControl,EngineSpeed,89,114,timeout,60.110
+FuelControl,EngineSpeed,92,114,timeout,60.226
+FuelControl,EngineSpeed,96,114,timeout,60.127
+FuelControl,EngineSpeed,101,114,timeout,60.112
+FuelControl,EngineSpeed,102,114,timeout,60.108
+FuelControl,EngineSpeed,103,114,timeout,60.142
+FuelControl,EngineSpeed,115,114,timeout,60.077
+FuelControl,EngineSpeed,116,114,timeout,60.094
+FuelControl,EngineSpeed,127,114,timeout,60.127
+FuelControl,EngineSpeed,128,114,timeout,60.071
+FuelControl,EngineSpeed,136,114,timeout,60.204
+FuelControl,EngineSpeed,137,114,timeout,60.145
+FuelControl,EngineSpeed,138,114,timeout,60.081
+FuelControl,EngineSpeed,150,114,timeout,60.065
+FuelControl,EngineSpeed,160,114,timeout,60.141
+FuelControl,EngineSpeed,89,115,timeout,60.132
+FuelControl,EngineSpeed,92,115,timeout,60.104
+FuelControl,EngineSpeed,96,115,timeout,60.082
+FuelControl,EngineSpeed,101,115,timeout,60.187
+FuelControl,EngineSpeed,102,115,timeout,60.073
+FuelControl,EngineSpeed,103,115,timeout,60.141
+FuelControl,EngineSpeed,114,115,timeout,60.138
+FuelControl,EngineSpeed,116,115,timeout,60.176
+FuelControl,EngineSpeed,127,115,timeout,60.168
+FuelControl,EngineSpeed,128,115,timeout,60.192
+FuelControl,EngineSpeed,137,115,timeout,60.071
+FuelControl,EngineSpeed,136,115,timeout,60.196
+FuelControl,EngineSpeed,138,115,timeout,60.126
+FuelControl,EngineSpeed,150,115,timeout,60.126
+FuelControl,EngineSpeed,89,116,timeout,60.117
+FuelControl,EngineSpeed,160,115,timeout,60.131
+FuelControl,EngineSpeed,92,116,timeout,60.168
+FuelControl,EngineSpeed,96,116,timeout,60.082
+FuelControl,EngineSpeed,101,116,timeout,60.070
+FuelControl,EngineSpeed,102,116,timeout,60.131
+FuelControl,EngineSpeed,103,116,timeout,60.164
+FuelControl,EngineSpeed,114,116,timeout,60.070
+FuelControl,EngineSpeed,115,116,timeout,60.113
+FuelControl,EngineSpeed,127,116,timeout,60.133
+FuelControl,EngineSpeed,128,116,timeout,60.203
+FuelControl,EngineSpeed,136,116,timeout,60.077
+FuelControl,EngineSpeed,137,116,timeout,60.130
+FuelControl,EngineSpeed,138,116,timeout,60.134
+FuelControl,EngineSpeed,150,116,timeout,60.149
+FuelControl,EngineSpeed,160,116,timeout,60.077
+FuelControl,EngineSpeed,94,117,timeout,60.148
+FuelControl,EngineSpeed,131,117,timeout,60.149
+FuelControl,EngineSpeed,152,117,timeout,60.267
+FuelControl,EngineSpeed,84,118,timeout,60.124
+FuelControl,EngineSpeed,93,118,timeout,60.076
+FuelControl,EngineSpeed,91,119,timeout,60.161
+FuelControl,EngineSpeed,104,119,timeout,60.136
+FuelControl,EngineSpeed,141,119,timeout,60.147
+FuelControl,EngineSpeed,134,120,timeout,60.086
+FuelControl,EngineSpeed,133,121,timeout,60.316
+FuelControl,EngineSpeed,106,123,timeout,60.108
+FuelControl,EngineSpeed,140,123,timeout,60.110
+FuelControl,EngineSpeed,153,123,timeout,60.135
+FuelControl,EngineSpeed,89,127,timeout,60.131
+FuelControl,EngineSpeed,96,127,timeout,60.135
+FuelControl,EngineSpeed,92,127,timeout,60.191
+FuelControl,EngineSpeed,101,127,timeout,60.132
+FuelControl,EngineSpeed,102,127,timeout,60.072
+FuelControl,EngineSpeed,103,127,timeout,60.064
+FuelControl,EngineSpeed,114,127,timeout,60.177
+FuelControl,EngineSpeed,115,127,timeout,60.151
+FuelControl,EngineSpeed,116,127,timeout,60.131
+FuelControl,EngineSpeed,128,127,timeout,60.076
+FuelControl,EngineSpeed,136,127,timeout,60.153
+FuelControl,EngineSpeed,137,127,timeout,60.189
+FuelControl,EngineSpeed,138,127,timeout,60.163
+FuelControl,EngineSpeed,150,127,timeout,60.149
+FuelControl,EngineSpeed,160,127,timeout,60.177
+FuelControl,EngineSpeed,89,128,timeout,60.159
+FuelControl,EngineSpeed,92,128,timeout,60.126
+FuelControl,EngineSpeed,96,128,timeout,60.138
+FuelControl,EngineSpeed,101,128,timeout,60.072
+FuelControl,EngineSpeed,102,128,timeout,60.194
+FuelControl,EngineSpeed,103,128,timeout,60.126
+FuelControl,EngineSpeed,114,128,timeout,60.154
+FuelControl,EngineSpeed,115,128,timeout,60.106
+FuelControl,EngineSpeed,116,128,timeout,60.083
+FuelControl,EngineSpeed,127,128,timeout,60.207
+FuelControl,EngineSpeed,136,128,timeout,60.135
+FuelControl,EngineSpeed,137,128,timeout,60.249
+FuelControl,EngineSpeed,150,128,timeout,60.083
+FuelControl,EngineSpeed,138,128,timeout,60.201
+FuelControl,EngineSpeed,160,128,timeout,60.069
+FuelControl,EngineSpeed,98,129,timeout,60.144
+FuelControl,EngineSpeed,97,130,timeout,60.150
+FuelControl,EngineSpeed,107,130,timeout,60.132
+FuelControl,EngineSpeed,94,131,timeout,60.142
+FuelControl,EngineSpeed,117,131,timeout,60.136
+FuelControl,EngineSpeed,152,131,timeout,60.184
+FuelControl,EngineSpeed,142,132,timeout,60.096
+FuelControl,EngineSpeed,121,133,timeout,60.151
+FuelControl,EngineSpeed,120,134,timeout,60.068
+FuelControl,EngineSpeed,89,136,timeout,60.125
+FuelControl,EngineSpeed,92,136,timeout,60.173
+FuelControl,EngineSpeed,96,136,timeout,60.122
+FuelControl,EngineSpeed,101,136,timeout,60.074
+FuelControl,EngineSpeed,102,136,timeout,60.148
+FuelControl,EngineSpeed,103,136,timeout,60.225
+FuelControl,EngineSpeed,114,136,timeout,60.189
+FuelControl,EngineSpeed,115,136,timeout,60.132
+FuelControl,EngineSpeed,116,136,timeout,60.129
+FuelControl,EngineSpeed,127,136,timeout,60.116
+FuelControl,EngineSpeed,128,136,timeout,60.137
+FuelControl,EngineSpeed,137,136,timeout,60.197
+FuelControl,EngineSpeed,138,136,timeout,60.127
+FuelControl,EngineSpeed,150,136,timeout,60.155
+FuelControl,EngineSpeed,160,136,timeout,60.154
+FuelControl,EngineSpeed,89,137,timeout,60.084
+FuelControl,EngineSpeed,92,137,timeout,60.070
+FuelControl,EngineSpeed,96,137,timeout,60.142
+FuelControl,EngineSpeed,101,137,timeout,60.153
+FuelControl,EngineSpeed,102,137,timeout,60.128
+FuelControl,EngineSpeed,103,137,timeout,60.082
+FuelControl,EngineSpeed,114,137,timeout,60.126
+FuelControl,EngineSpeed,115,137,timeout,60.162
+FuelControl,EngineSpeed,116,137,timeout,60.147
+FuelControl,EngineSpeed,127,137,timeout,60.124
+FuelControl,EngineSpeed,128,137,timeout,60.134
+FuelControl,EngineSpeed,136,137,timeout,60.130
+FuelControl,EngineSpeed,138,137,timeout,60.136
+FuelControl,EngineSpeed,150,137,timeout,60.078
+FuelControl,EngineSpeed,160,137,timeout,60.119
+FuelControl,EngineSpeed,89,138,timeout,60.123
+FuelControl,EngineSpeed,92,138,timeout,60.238
+FuelControl,EngineSpeed,96,138,timeout,60.180
+FuelControl,EngineSpeed,101,138,timeout,60.170
+FuelControl,EngineSpeed,102,138,timeout,60.119
+FuelControl,EngineSpeed,103,138,timeout,60.123
+FuelControl,EngineSpeed,114,138,timeout,60.147
+FuelControl,EngineSpeed,115,138,timeout,60.120
+FuelControl,EngineSpeed,116,138,timeout,60.153
+FuelControl,EngineSpeed,127,138,timeout,60.072
+FuelControl,EngineSpeed,128,138,timeout,60.133
+FuelControl,EngineSpeed,136,138,timeout,60.142
+FuelControl,EngineSpeed,137,138,timeout,60.124
+FuelControl,EngineSpeed,150,138,timeout,60.112
+FuelControl,EngineSpeed,160,138,timeout,60.070
+FuelControl,EngineSpeed,82,139,timeout,60.129
+FuelControl,EngineSpeed,90,139,timeout,60.132
+FuelControl,EngineSpeed,123,140,timeout,60.081
+FuelControl,EngineSpeed,106,140,timeout,60.138
+FuelControl,EngineSpeed,153,140,timeout,60.130
+FuelControl,EngineSpeed,111,139,timeout,60.189
+FuelControl,EngineSpeed,91,141,timeout,60.126
+FuelControl,EngineSpeed,119,141,timeout,60.118
+FuelControl,EngineSpeed,104,141,timeout,60.158
+FuelControl,EngineSpeed,132,142,timeout,60.111
+FuelControl,EngineSpeed,110,143,timeout,60.142
+FuelControl,EngineSpeed,100,145,timeout,60.139
+FuelControl,EngineSpeed,155,145,timeout,60.157
+FuelControl,EngineSpeed,164,145,timeout,60.119
+FuelControl,EngineSpeed,165,145,timeout,60.082
+FuelControl,EngineSpeed,156,146,timeout,60.187
+FuelControl,EngineSpeed,166,146,timeout,60.170
+FuelControl,EngineSpeed,105,147,timeout,60.220
+FuelControl,EngineSpeed,167,147,timeout,60.066
+FuelControl,EngineSpeed,112,148,timeout,60.071
+FuelControl,EngineSpeed,168,148,timeout,60.166
+FuelControl,EngineSpeed,88,149,timeout,60.165
+FuelControl,EngineSpeed,157,149,timeout,60.162
+FuelControl,EngineSpeed,89,150,timeout,60.134
+FuelControl,EngineSpeed,92,150,timeout,60.082
+FuelControl,EngineSpeed,96,150,timeout,60.161
+FuelControl,EngineSpeed,101,150,timeout,60.211
+FuelControl,EngineSpeed,102,150,timeout,60.134
+FuelControl,EngineSpeed,103,150,timeout,60.099
+FuelControl,EngineSpeed,114,150,timeout,60.113
+FuelControl,EngineSpeed,115,150,timeout,60.132
+FuelControl,EngineSpeed,116,150,timeout,60.069
+FuelControl,EngineSpeed,127,150,timeout,60.153
+FuelControl,EngineSpeed,136,150,timeout,60.101
+FuelControl,EngineSpeed,128,150,timeout,60.135
+FuelControl,EngineSpeed,137,150,timeout,60.117
+FuelControl,EngineSpeed,138,150,timeout,60.167
+FuelControl,EngineSpeed,160,150,timeout,60.077
+FuelControl,EngineSpeed,94,152,timeout,60.325
+FuelControl,EngineSpeed,117,152,timeout,60.198
+FuelControl,EngineSpeed,131,152,timeout,60.160
+FuelControl,EngineSpeed,106,153,timeout,60.154
+FuelControl,EngineSpeed,123,153,timeout,60.075
+FuelControl,EngineSpeed,145,155,timeout,60.245
+FuelControl,EngineSpeed,100,155,timeout,60.269
+FuelControl,EngineSpeed,103,160,timeout,60.278
+FuelControl,EngineSpeed,140,153,timeout,60.307
+FuelControl,EngineSpeed,136,160,timeout,60.288
+FuelControl,EngineSpeed,100,165,timeout,60.302
+FuelControl,EngineSpeed,155,164,timeout,60.326
+FuelControl,EngineSpeed,164,155,timeout,60.352
+FuelControl,EngineSpeed,115,160,timeout,60.354
+FuelControl,EngineSpeed,116,160,timeout,60.379
+FuelControl,EngineSpeed,92,160,timeout,60.411
+FuelControl,EngineSpeed,145,164,timeout,60.391
+FuelControl,EngineSpeed,102,160,timeout,60.430
+FuelControl,EngineSpeed,100,164,timeout,60.422
+FuelControl,EngineSpeed,89,160,timeout,60.444
+FuelControl,EngineSpeed,137,160,timeout,60.432
+FuelControl,EngineSpeed,128,160,timeout,60.421
+FuelControl,EngineSpeed,114,160,timeout,60.427
+FuelControl,EngineSpeed,113,161,timeout,60.432
+FuelControl,EngineSpeed,88,157,timeout,60.458
+FuelControl,EngineSpeed,127,160,timeout,60.432
+FuelControl,EngineSpeed,150,160,timeout,60.435
+FuelControl,EngineSpeed,138,160,timeout,60.446
+FuelControl,EngineSpeed,101,160,timeout,60.449
+FuelControl,EngineSpeed,165,155,timeout,60.485
+FuelControl,EngineSpeed,96,160,timeout,60.472
+FuelControl,EngineSpeed,149,157,timeout,60.493
+FuelControl,EngineSpeed,146,156,timeout,60.502
+FuelControl,EngineSpeed,165,164,timeout,60.470
+FuelControl,EngineSpeed,166,156,timeout,60.549
+FuelControl,EngineSpeed,155,165,timeout,60.195
+FuelControl,EngineSpeed,164,165,timeout,60.170
+FuelControl,EngineSpeed,145,165,timeout,60.245
+FuelControl,EngineSpeed,148,168,timeout,60.175
+FuelControl,EngineSpeed,147,167,timeout,60.257
+FuelControl,EngineSpeed,112,168,timeout,60.258
+FuelControl,EngineSpeed,203,196,timeout,60.140
+FuelControl,EngineSpeed,105,167,timeout,60.303
+FuelControl,EngineSpeed,189,187,timeout,60.188
+FuelControl,EngineSpeed,212,199,timeout,60.132
+FuelControl,EngineSpeed,236,199,timeout,60.103
+FuelControl,EngineSpeed,173,175,timeout,60.269
+FuelControl,EngineSpeed,206,196,timeout,60.236
+FuelControl,EngineSpeed,191,188,timeout,60.282
+FuelControl,EngineSpeed,176,180,timeout,60.292
+FuelControl,EngineSpeed,146,166,timeout,60.459
+FuelControl,EngineSpeed,222,196,timeout,60.271
+FuelControl,EngineSpeed,175,173,timeout,60.350
+FuelControl,EngineSpeed,175,174,timeout,60.336
+FuelControl,EngineSpeed,180,176,timeout,60.327
+FuelControl,EngineSpeed,193,192,timeout,60.340
+FuelControl,EngineSpeed,187,189,timeout,60.358
+FuelControl,EngineSpeed,174,175,timeout,60.372
+FuelControl,EngineSpeed,188,191,timeout,60.351
+FuelControl,EngineSpeed,174,173,timeout,60.414
+FuelControl,EngineSpeed,197,194,timeout,60.372
+FuelControl,EngineSpeed,173,174,timeout,60.436
+FuelControl,EngineSpeed,156,166,timeout,60.560
+FuelControl,EngineSpeed,192,193,timeout,60.417
+FuelControl,EngineSpeed,194,197,timeout,60.523
+FuelControl,EngineSpeed,256,199,timeout,60.102
+FuelControl,EngineSpeed,209,200,timeout,60.137
+FuelControl,EngineSpeed,244,200,timeout,60.139
+FuelControl,EngineSpeed,225,201,timeout,60.118
+FuelControl,EngineSpeed,260,200,timeout,60.176
+FuelControl,EngineSpeed,206,203,timeout,60.082
+FuelControl,EngineSpeed,196,203,timeout,60.114
+FuelControl,EngineSpeed,240,201,timeout,60.162
+FuelControl,EngineSpeed,274,200,timeout,60.185
+FuelControl,EngineSpeed,255,201,timeout,60.151
+FuelControl,EngineSpeed,222,203,timeout,60.134
+FuelControl,EngineSpeed,269,201,timeout,60.238
+FuelControl,EngineSpeed,235,204,timeout,60.140
+FuelControl,EngineSpeed,249,205,timeout,60.143
+FuelControl,EngineSpeed,213,204,timeout,60.187
+FuelControl,EngineSpeed,224,205,timeout,60.162
+FuelControl,EngineSpeed,222,206,timeout,60.149
+FuelControl,EngineSpeed,214,208,timeout,60.116
+FuelControl,EngineSpeed,274,209,timeout,60.096
+FuelControl,EngineSpeed,196,206,timeout,60.180
+FuelControl,EngineSpeed,199,212,timeout,60.097
+FuelControl,EngineSpeed,216,207,timeout,60.211
+FuelControl,EngineSpeed,254,211,timeout,60.127
+FuelControl,EngineSpeed,203,206,timeout,60.240
+FuelControl,EngineSpeed,252,210,timeout,60.162
+FuelControl,EngineSpeed,244,209,timeout,60.209
+FuelControl,EngineSpeed,227,208,timeout,60.213
+FuelControl,EngineSpeed,200,209,timeout,60.223
+FuelControl,EngineSpeed,260,209,timeout,60.259
+FuelControl,EngineSpeed,236,212,timeout,60.107
+FuelControl,EngineSpeed,256,212,timeout,60.136
+FuelControl,EngineSpeed,235,213,timeout,60.115
+FuelControl,EngineSpeed,204,213,timeout,60.145
+FuelControl,EngineSpeed,238,215,timeout,60.099
+FuelControl,EngineSpeed,227,214,timeout,60.116
+FuelControl,EngineSpeed,208,214,timeout,60.144
+FuelControl,EngineSpeed,242,218,timeout,60.105
+FuelControl,EngineSpeed,226,217,timeout,60.142
+FuelControl,EngineSpeed,228,218,timeout,60.146
+FuelControl,EngineSpeed,207,216,timeout,60.206
+FuelControl,EngineSpeed,206,222,timeout,60.080
+FuelControl,EngineSpeed,249,224,timeout,60.083
+FuelControl,EngineSpeed,196,222,timeout,60.162
+FuelControl,EngineSpeed,205,224,timeout,60.141
+FuelControl,EngineSpeed,240,225,timeout,60.129
+FuelControl,EngineSpeed,217,226,timeout,60.086
+FuelControl,EngineSpeed,239,223,timeout,60.185
+FuelControl,EngineSpeed,203,222,timeout,60.252
+FuelControl,EngineSpeed,255,225,timeout,60.194
+FuelControl,EngineSpeed,242,228,timeout,60.119
+FuelControl,EngineSpeed,269,225,timeout,60.202
+FuelControl,EngineSpeed,201,225,timeout,60.261
+FuelControl,EngineSpeed,270,234,timeout,60.114
+FuelControl,EngineSpeed,214,227,timeout,60.206
+FuelControl,EngineSpeed,253,229,timeout,60.168
+FuelControl,EngineSpeed,268,233,timeout,60.155
+FuelControl,EngineSpeed,267,229,timeout,60.187
+FuelControl,EngineSpeed,218,228,timeout,60.219
+FuelControl,EngineSpeed,208,227,timeout,60.245
+FuelControl,EngineSpeed,204,235,timeout,60.123
+FuelControl,EngineSpeed,213,235,timeout,60.105
+FuelControl,EngineSpeed,199,236,timeout,60.087
+FuelControl,EngineSpeed,212,236,timeout,60.113
+FuelControl,EngineSpeed,264,237,timeout,60.071
+FuelControl,EngineSpeed,223,239,timeout,60.069
+FuelControl,EngineSpeed,256,236,timeout,60.151
+FuelControl,EngineSpeed,215,238,timeout,60.118
+FuelControl,EngineSpeed,225,240,timeout,60.126
+FuelControl,EngineSpeed,269,240,timeout,60.140
+FuelControl,EngineSpeed,201,240,timeout,60.191
+FuelControl,EngineSpeed,218,242,timeout,60.115
+FuelControl,EngineSpeed,251,241,timeout,60.140
+FuelControl,EngineSpeed,255,240,timeout,60.194
+FuelControl,EngineSpeed,209,244,timeout,60.073
+FuelControl,EngineSpeed,200,244,timeout,60.095
+FuelControl,EngineSpeed,261,243,timeout,60.153
+FuelControl,EngineSpeed,228,242,timeout,60.160
+FuelControl,EngineSpeed,205,249,timeout,60.114
+FuelControl,EngineSpeed,260,244,timeout,60.125
+FuelControl,EngineSpeed,210,252,timeout,60.079
+FuelControl,EngineSpeed,274,244,timeout,60.142
+FuelControl,EngineSpeed,241,251,timeout,60.102
+FuelControl,EngineSpeed,229,253,timeout,60.117
+FuelControl,EngineSpeed,201,255,timeout,60.136
+FuelControl,EngineSpeed,225,255,timeout,60.146
+FuelControl,EngineSpeed,224,249,timeout,60.225
+FuelControl,EngineSpeed,267,253,timeout,60.171
+FuelControl,EngineSpeed,211,254,timeout,60.178
+FuelControl,EngineSpeed,269,255,timeout,60.143
+FuelControl,EngineSpeed,240,255,timeout,60.216
+FuelControl,EngineSpeed,199,256,timeout,60.106
+FuelControl,EngineSpeed,212,256,timeout,60.184
+FuelControl,EngineSpeed,259,257,timeout,60.089
+FuelControl,EngineSpeed,236,256,timeout,60.172
+FuelControl,EngineSpeed,257,259,timeout,60.085
+FuelControl,EngineSpeed,200,260,timeout,60.077
+FuelControl,EngineSpeed,209,260,timeout,60.081
+FuelControl,EngineSpeed,274,260,timeout,60.088
+FuelControl,EngineSpeed,244,260,timeout,60.173
+FuelControl,EngineSpeed,253,267,timeout,60.084
+FuelControl,EngineSpeed,237,264,timeout,60.151
+FuelControl,EngineSpeed,201,269,timeout,60.122
+FuelControl,EngineSpeed,233,268,timeout,60.146
+FuelControl,EngineSpeed,243,261,timeout,60.195
+FuelControl,EngineSpeed,225,269,timeout,60.128
+FuelControl,EngineSpeed,229,267,timeout,60.224
+FuelControl,EngineSpeed,234,270,timeout,60.107
+FuelControl,EngineSpeed,271,272,timeout,60.118
+FuelControl,EngineSpeed,272,271,timeout,60.128
+FuelControl,EngineSpeed,255,269,timeout,60.179
+FuelControl,EngineSpeed,240,269,timeout,60.222
+FuelControl,EngineSpeed,200,274,timeout,60.176
+FuelControl,EngineSpeed,209,274,timeout,60.194
+FuelControl,EngineSpeed,260,274,timeout,60.168
+FuelControl,EngineSpeed,244,274,timeout,60.219

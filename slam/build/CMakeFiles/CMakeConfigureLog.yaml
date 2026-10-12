@@ -1,0 +1,3565 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/home/magister/.local/bin/uname"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/uname"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/uname"
+      - "/home/magister/.cargo/bin/uname"
+      - "/usr/local/sbin/uname"
+      - "/usr/local/bin/uname"
+      - "/usr/sbin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineSystem.cmake:212 (message)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      The system is: Linux - 6.6.87.2-microsoft-standard-WSL2 - x86_64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/home/magister/.local/bin/gmake"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/gmake"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/gmake"
+      - "/home/magister/.cargo/bin/gmake"
+      - "/usr/local/sbin/gmake"
+      - "/usr/local/bin/gmake"
+      - "/usr/sbin/gmake"
+    found: "/usr/bin/gmake"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompiler.cmake:73 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:69 (_cmake_find_compiler)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER"
+    description: "CXX compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "c++"
+      - "CC"
+      - "g++"
+      - "aCC"
+      - "cl"
+      - "bcc"
+      - "xlC"
+      - "icpx"
+      - "icx"
+      - "clang++"
+    candidate_directories:
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/home/magister/.local/bin/c++"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/c++"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/c++"
+      - "/home/magister/.cargo/bin/c++"
+      - "/usr/local/sbin/c++"
+      - "/usr/local/bin/c++"
+      - "/usr/sbin/c++"
+    found: "/usr/bin/c++"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/usr/local/share/cmake-4.3/Modules/"
+    found: "/usr/local/share/cmake-4.3/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /usr/bin/c++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+      
+      The CXX compiler identification is GNU, found in:
+        /home/magister/tabex/slam/build/CMakeFiles/4.3.2/CompilerIdCXX/a.out
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_AR"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/ar"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_RANLIB"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_STRIP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "strip"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/strip"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_LINKER"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ld"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/ld"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_NM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "nm"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/nm"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "objdump"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/objdump"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJCOPY"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "objcopy"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/objcopy"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "readelf"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/readelf"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "dlltool"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/usr/bin/dlltool"
+      - "/home/magister/.local/bin/dlltool"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/dlltool"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/dlltool"
+      - "/home/magister/.cargo/bin/dlltool"
+      - "/usr/local/sbin/dlltool"
+      - "/usr/local/bin/dlltool"
+      - "/usr/sbin/dlltool"
+      - "/sbin/dlltool"
+      - "/bin/dlltool"
+      - "/usr/games/dlltool"
+      - "/usr/local/games/dlltool"
+      - "/usr/lib/wsl/lib/dlltool"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/dlltool"
+      - "/mnt/c/WINDOWS/system32/dlltool"
+      - "/mnt/c/WINDOWS/dlltool"
+      - "/mnt/c/WINDOWS/System32/Wbem/dlltool"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/dlltool"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/dlltool"
+      - "/mnt/c/Program Files/dotnet/dlltool"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/dlltool"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/dlltool"
+      - "/mnt/c/Program Files/Git/cmd/dlltool"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/dlltool"
+      - "/mnt/c/Program Files/Calibre2/dlltool"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/dlltool"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/dlltool"
+      - "/mnt/c/Users/danni/.dotnet/tools/dlltool"
+      - "/snap/bin/dlltool"
+      - "/home/magister/modeltech/bin/dlltool"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/dlltool"
+      - "/home/magister/harm/build/dlltool"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/dlltool"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "addr2line"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    found: "/usr/bin/addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "tapi"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/usr/bin/tapi"
+      - "/home/magister/.local/bin/tapi"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/tapi"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/tapi"
+      - "/home/magister/.cargo/bin/tapi"
+      - "/usr/local/sbin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/usr/sbin/tapi"
+      - "/sbin/tapi"
+      - "/bin/tapi"
+      - "/usr/games/tapi"
+      - "/usr/local/games/tapi"
+      - "/usr/lib/wsl/lib/tapi"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/tapi"
+      - "/mnt/c/WINDOWS/system32/tapi"
+      - "/mnt/c/WINDOWS/tapi"
+      - "/mnt/c/WINDOWS/System32/Wbem/tapi"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/tapi"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/tapi"
+      - "/mnt/c/Program Files/dotnet/tapi"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/tapi"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/tapi"
+      - "/mnt/c/Program Files/Git/cmd/tapi"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/tapi"
+      - "/mnt/c/Program Files/Calibre2/tapi"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/tapi"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/tapi"
+      - "/mnt/c/Users/danni/.dotnet/tools/tapi"
+      - "/snap/bin/tapi"
+      - "/home/magister/modeltech/bin/tapi"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/tapi"
+      - "/home/magister/harm/build/tapi"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcc-ar-13.3"
+      - "gcc-ar-13"
+      - "gcc-ar13"
+      - "gcc-ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/usr/bin/gcc-ar-13.3"
+      - "/home/magister/.local/bin/gcc-ar-13.3"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/gcc-ar-13.3"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/gcc-ar-13.3"
+      - "/home/magister/.cargo/bin/gcc-ar-13.3"
+      - "/usr/local/sbin/gcc-ar-13.3"
+      - "/usr/local/bin/gcc-ar-13.3"
+      - "/usr/sbin/gcc-ar-13.3"
+      - "/sbin/gcc-ar-13.3"
+      - "/bin/gcc-ar-13.3"
+      - "/usr/games/gcc-ar-13.3"
+      - "/usr/local/games/gcc-ar-13.3"
+      - "/usr/lib/wsl/lib/gcc-ar-13.3"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/system32/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/System32/Wbem/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/gcc-ar-13.3"
+      - "/mnt/c/Program Files/dotnet/gcc-ar-13.3"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/gcc-ar-13.3"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/gcc-ar-13.3"
+      - "/mnt/c/Program Files/Git/cmd/gcc-ar-13.3"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/gcc-ar-13.3"
+      - "/mnt/c/Program Files/Calibre2/gcc-ar-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/gcc-ar-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/gcc-ar-13.3"
+      - "/mnt/c/Users/danni/.dotnet/tools/gcc-ar-13.3"
+      - "/snap/bin/gcc-ar-13.3"
+      - "/home/magister/modeltech/bin/gcc-ar-13.3"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/gcc-ar-13.3"
+      - "/home/magister/harm/build/gcc-ar-13.3"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/gcc-ar-13.3"
+    found: "/usr/bin/gcc-ar-13"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcc-ranlib-13.3"
+      - "gcc-ranlib-13"
+      - "gcc-ranlib13"
+      - "gcc-ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+    searched_directories:
+      - "/usr/bin/gcc-ranlib-13.3"
+      - "/home/magister/.local/bin/gcc-ranlib-13.3"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/gcc-ranlib-13.3"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/gcc-ranlib-13.3"
+      - "/home/magister/.cargo/bin/gcc-ranlib-13.3"
+      - "/usr/local/sbin/gcc-ranlib-13.3"
+      - "/usr/local/bin/gcc-ranlib-13.3"
+      - "/usr/sbin/gcc-ranlib-13.3"
+      - "/sbin/gcc-ranlib-13.3"
+      - "/bin/gcc-ranlib-13.3"
+      - "/usr/games/gcc-ranlib-13.3"
+      - "/usr/local/games/gcc-ranlib-13.3"
+      - "/usr/lib/wsl/lib/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/system32/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/System32/Wbem/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/dotnet/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/Git/cmd/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/Calibre2/gcc-ranlib-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/gcc-ranlib-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/gcc-ranlib-13.3"
+      - "/mnt/c/Users/danni/.dotnet/tools/gcc-ranlib-13.3"
+      - "/snap/bin/gcc-ranlib-13.3"
+      - "/home/magister/modeltech/bin/gcc-ranlib-13.3"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/gcc-ranlib-13.3"
+      - "/home/magister/harm/build/gcc-ranlib-13.3"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/gcc-ranlib-13.3"
+    found: "/usr/bin/gcc-ranlib-13"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV"
+      binary: "/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV'
+        
+        Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_a3398/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_a3398.dir/build.make CMakeFiles/cmTC_a3398.dir/build
+        gmake[1]: Entering directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV'
+        Building CXX object CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -v -o CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -c /usr/local/share/cmake-4.3/Modules/CMakeCXXCompilerABI.cpp
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/c++
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a3398.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/local/share/cmake-4.3/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_a3398.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccNgi9n3.s
+        GNU C++17 (Ubuntu 13.3.0-6ubuntu2~24.04.1) version 13.3.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 13.3.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/13"
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/include/c++/13
+         /usr/include/x86_64-linux-gnu/c++/13
+         /usr/include/c++/13/backward
+         /usr/lib/gcc/x86_64-linux-gnu/13/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 7896445e4990772fdae9dc0659a99266
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a3398.dir/'
+         as -v --64 -o CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccNgi9n3.s
+        GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX executable cmTC_a3398
+        /usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a3398.dir/link.txt --verbose=1
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/c++
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_a3398' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_a3398.'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccwK5YtT.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_a3398 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        collect2 version 13.3.0
+        /usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccwK5YtT.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_a3398 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        GNU ld (GNU Binutils for Ubuntu) 2.42
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_a3398' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_a3398.'
+        /usr/bin/c++  -v -Wl,-v CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_a3398
+        gmake[1]: Leaving directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/include/c++/13]
+          add: [/usr/include/x86_64-linux-gnu/c++/13]
+          add: [/usr/include/c++/13/backward]
+          add: [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/include/c++/13] ==> [/usr/include/c++/13]
+        collapse include dir [/usr/include/x86_64-linux-gnu/c++/13] ==> [/usr/include/x86_64-linux-gnu/c++/13]
+        collapse include dir [/usr/include/c++/13/backward] ==> [/usr/include/c++/13/backward]
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/13/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/include/c++/13;/usr/include/x86_64-linux-gnu/c++/13;/usr/include/c++/13/backward;/usr/lib/gcc/x86_64-linux-gnu/13/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_a3398/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_a3398.dir/build.make CMakeFiles/cmTC_a3398.dir/build]
+        ignore line: [gmake[1]: Entering directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-lYRZSV']
+        ignore line: [Building CXX object CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -c /usr/local/share/cmake-4.3/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/c++]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a3398.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/local/share/cmake-4.3/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_a3398.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccNgi9n3.s]
+        ignore line: [GNU C++17 (Ubuntu 13.3.0-6ubuntu2~24.04.1) version 13.3.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 13.3.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/13"]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/include/c++/13]
+        ignore line: [ /usr/include/x86_64-linux-gnu/c++/13]
+        ignore line: [ /usr/include/c++/13/backward]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/13/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 7896445e4990772fdae9dc0659a99266]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a3398.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccNgi9n3.s]
+        ignore line: [GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX executable cmTC_a3398]
+        ignore line: [/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a3398.dir/link.txt --verbose=1]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/c++]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_a3398' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_a3398.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccwK5YtT.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_a3398 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccwK5YtT.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_a3398] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [-lstdc++] ==> lib [stdc++]
+          arg [-lm] ==> lib [m]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [-lc] ==> lib [c]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        ignore line: [collect2 version 13.3.0]
+        ignore line: [/usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccwK5YtT.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_a3398 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_a3398.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        linker tool for 'CXX': /usr/bin/ld
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13] ==> [/usr/lib/gcc/x86_64-linux-gnu/13]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> [/usr/lib]
+        implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/13;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the CXX compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld (GNU Binutils for Ubuntu) 2.42
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:74 (find_program)"
+    mode: "program"
+    variable: "CLANG_FORMAT"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-format"
+    candidate_directories:
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+    searched_directories:
+      - "/home/magister/.local/bin/clang-format"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/clang-format"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/clang-format"
+      - "/home/magister/.cargo/bin/clang-format"
+      - "/usr/local/sbin/clang-format"
+      - "/usr/local/bin/clang-format"
+      - "/usr/sbin/clang-format"
+      - "/usr/bin/clang-format"
+      - "/sbin/clang-format"
+      - "/bin/clang-format"
+      - "/usr/games/clang-format"
+      - "/usr/local/games/clang-format"
+      - "/usr/lib/wsl/lib/clang-format"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/clang-format"
+      - "/mnt/c/WINDOWS/system32/clang-format"
+      - "/mnt/c/WINDOWS/clang-format"
+      - "/mnt/c/WINDOWS/System32/Wbem/clang-format"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/clang-format"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/clang-format"
+      - "/mnt/c/Program Files/dotnet/clang-format"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/clang-format"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/clang-format"
+      - "/mnt/c/Program Files/Git/cmd/clang-format"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/clang-format"
+      - "/mnt/c/Program Files/Calibre2/clang-format"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/clang-format"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/clang-format"
+      - "/mnt/c/Users/danni/.dotnet/tools/clang-format"
+      - "/snap/bin/clang-format"
+      - "/home/magister/modeltech/bin/clang-format"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/clang-format"
+      - "/home/magister/harm/build/clang-format"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/clang-format"
+      - "/usr/local/bin/clang-format"
+      - "/usr/local/sbin/clang-format"
+      - "/usr/local/clang-format"
+      - "/usr/bin/clang-format"
+      - "/usr/sbin/clang-format"
+      - "/usr/clang-format"
+      - "/bin/clang-format"
+      - "/sbin/clang-format"
+      - "/usr/X11R6/bin/clang-format"
+      - "/usr/X11R6/sbin/clang-format"
+      - "/usr/X11R6/clang-format"
+      - "/usr/pkg/bin/clang-format"
+      - "/usr/pkg/sbin/clang-format"
+      - "/usr/pkg/clang-format"
+      - "/opt/bin/clang-format"
+      - "/opt/sbin/clang-format"
+      - "/opt/clang-format"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompiler.cmake:54 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCCompiler.cmake:64 (_cmake_find_compiler)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER"
+    description: "C compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "cc"
+      - "gcc"
+      - "cl"
+      - "bcc"
+      - "xlc"
+      - "icx"
+      - "clang"
+    candidate_directories:
+      - "/usr/bin/"
+    found: "/usr/bin/cc"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:468 (find_file)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:506 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/local/share/cmake-4.3/Modules/"
+      - "/home/magister/tabex/slam/cmake/"
+    found: "/usr/local/share/cmake-4.3/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/cc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /home/magister/tabex/slam/build/CMakeFiles/4.3.2/CompilerIdC/a.out
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcc-ar-13.3"
+      - "gcc-ar-13"
+      - "gcc-ar13"
+      - "gcc-ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+    searched_directories:
+      - "/usr/bin/gcc-ar-13.3"
+      - "/home/magister/.local/bin/gcc-ar-13.3"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/gcc-ar-13.3"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/gcc-ar-13.3"
+      - "/home/magister/.cargo/bin/gcc-ar-13.3"
+      - "/usr/local/sbin/gcc-ar-13.3"
+      - "/usr/local/bin/gcc-ar-13.3"
+      - "/usr/sbin/gcc-ar-13.3"
+      - "/sbin/gcc-ar-13.3"
+      - "/bin/gcc-ar-13.3"
+      - "/usr/games/gcc-ar-13.3"
+      - "/usr/local/games/gcc-ar-13.3"
+      - "/usr/lib/wsl/lib/gcc-ar-13.3"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/system32/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/System32/Wbem/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/gcc-ar-13.3"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/gcc-ar-13.3"
+      - "/mnt/c/Program Files/dotnet/gcc-ar-13.3"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/gcc-ar-13.3"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/gcc-ar-13.3"
+      - "/mnt/c/Program Files/Git/cmd/gcc-ar-13.3"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/gcc-ar-13.3"
+      - "/mnt/c/Program Files/Calibre2/gcc-ar-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/gcc-ar-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/gcc-ar-13.3"
+      - "/mnt/c/Users/danni/.dotnet/tools/gcc-ar-13.3"
+      - "/snap/bin/gcc-ar-13.3"
+      - "/home/magister/modeltech/bin/gcc-ar-13.3"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/gcc-ar-13.3"
+      - "/home/magister/harm/build/gcc-ar-13.3"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/gcc-ar-13.3"
+      - "/usr/local/bin/gcc-ar-13.3"
+      - "/usr/local/sbin/gcc-ar-13.3"
+      - "/usr/local/gcc-ar-13.3"
+      - "/usr/bin/gcc-ar-13.3"
+      - "/usr/sbin/gcc-ar-13.3"
+      - "/usr/gcc-ar-13.3"
+      - "/bin/gcc-ar-13.3"
+      - "/sbin/gcc-ar-13.3"
+      - "/usr/X11R6/bin/gcc-ar-13.3"
+      - "/usr/X11R6/sbin/gcc-ar-13.3"
+      - "/usr/X11R6/gcc-ar-13.3"
+      - "/usr/pkg/bin/gcc-ar-13.3"
+      - "/usr/pkg/sbin/gcc-ar-13.3"
+      - "/usr/pkg/gcc-ar-13.3"
+      - "/opt/bin/gcc-ar-13.3"
+      - "/opt/sbin/gcc-ar-13.3"
+      - "/opt/gcc-ar-13.3"
+    found: "/usr/bin/gcc-ar-13"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gcc-ranlib-13.3"
+      - "gcc-ranlib-13"
+      - "gcc-ranlib13"
+      - "gcc-ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+    searched_directories:
+      - "/usr/bin/gcc-ranlib-13.3"
+      - "/home/magister/.local/bin/gcc-ranlib-13.3"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/gcc-ranlib-13.3"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/gcc-ranlib-13.3"
+      - "/home/magister/.cargo/bin/gcc-ranlib-13.3"
+      - "/usr/local/sbin/gcc-ranlib-13.3"
+      - "/usr/local/bin/gcc-ranlib-13.3"
+      - "/usr/sbin/gcc-ranlib-13.3"
+      - "/sbin/gcc-ranlib-13.3"
+      - "/bin/gcc-ranlib-13.3"
+      - "/usr/games/gcc-ranlib-13.3"
+      - "/usr/local/games/gcc-ranlib-13.3"
+      - "/usr/lib/wsl/lib/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/system32/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/System32/Wbem/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/gcc-ranlib-13.3"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/dotnet/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/Git/cmd/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/gcc-ranlib-13.3"
+      - "/mnt/c/Program Files/Calibre2/gcc-ranlib-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/gcc-ranlib-13.3"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/gcc-ranlib-13.3"
+      - "/mnt/c/Users/danni/.dotnet/tools/gcc-ranlib-13.3"
+      - "/snap/bin/gcc-ranlib-13.3"
+      - "/home/magister/modeltech/bin/gcc-ranlib-13.3"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/gcc-ranlib-13.3"
+      - "/home/magister/harm/build/gcc-ranlib-13.3"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/gcc-ranlib-13.3"
+      - "/usr/local/bin/gcc-ranlib-13.3"
+      - "/usr/local/sbin/gcc-ranlib-13.3"
+      - "/usr/local/gcc-ranlib-13.3"
+      - "/usr/bin/gcc-ranlib-13.3"
+      - "/usr/sbin/gcc-ranlib-13.3"
+      - "/usr/gcc-ranlib-13.3"
+      - "/bin/gcc-ranlib-13.3"
+      - "/sbin/gcc-ranlib-13.3"
+      - "/usr/X11R6/bin/gcc-ranlib-13.3"
+      - "/usr/X11R6/sbin/gcc-ranlib-13.3"
+      - "/usr/X11R6/gcc-ranlib-13.3"
+      - "/usr/pkg/bin/gcc-ranlib-13.3"
+      - "/usr/pkg/sbin/gcc-ranlib-13.3"
+      - "/usr/pkg/gcc-ranlib-13.3"
+      - "/opt/bin/gcc-ranlib-13.3"
+      - "/opt/sbin/gcc-ranlib-13.3"
+      - "/opt/gcc-ranlib-13.3"
+    found: "/usr/bin/gcc-ranlib-13"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ"
+      binary: "/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ"
+    cmakeVariables:
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/magister/tabex/slam/cmake"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ'
+        
+        Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bdb14/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_bdb14.dir/build.make CMakeFiles/cmTC_bdb14.dir/build
+        gmake[1]: Entering directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ'
+        Building C object CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -v -o CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -c /usr/local/share/cmake-4.3/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_bdb14.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/local/share/cmake-4.3/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_bdb14.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccEhMWEq.s
+        GNU C17 (Ubuntu 13.3.0-6ubuntu2~24.04.1) version 13.3.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 13.3.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.26-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/lib/gcc/x86_64-linux-gnu/13/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: b220a7f1a1f69970d969d254ad9ec166
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_bdb14.dir/'
+         as -v --64 -o CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o /tmp/ccEhMWEq.s
+        GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_bdb14
+        /usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bdb14.dir/link.txt --verbose=1
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_bdb14' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_bdb14.'
+         /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cc4EjvsN.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_bdb14 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        collect2 version 13.3.0
+        /usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cc4EjvsN.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_bdb14 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o
+        GNU ld (GNU Binutils for Ubuntu) 2.42
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_bdb14' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_bdb14.'
+        /usr/bin/cc  -v -Wl,-v CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -o cmTC_bdb14
+        gmake[1]: Leaving directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/13/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/13/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/lib/gcc/x86_64-linux-gnu/13/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bdb14/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_bdb14.dir/build.make CMakeFiles/cmTC_bdb14.dir/build]
+        ignore line: [gmake[1]: Entering directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-G81IOJ']
+        ignore line: [Building C object CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -c /usr/local/share/cmake-4.3/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_bdb14.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/local/share/cmake-4.3/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_bdb14.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccEhMWEq.s]
+        ignore line: [GNU C17 (Ubuntu 13.3.0-6ubuntu2~24.04.1) version 13.3.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 13.3.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.26-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/13/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/13/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: b220a7f1a1f69970d969d254ad9ec166]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_bdb14.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o /tmp/ccEhMWEq.s]
+        ignore line: [GNU assembler version 2.42 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.42]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_bdb14]
+        ignore line: [/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bdb14.dir/link.txt --verbose=1]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 13.3.0-6ubuntu2~24.04.1' --with-bugurl=file:///usr/share/doc/gcc-13/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-13 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-13-EldibY/gcc-13-13.3.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 13.3.0 (Ubuntu 13.3.0-6ubuntu2~24.04.1) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/13/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/13/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/13/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_bdb14' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_bdb14.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cc4EjvsN.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_bdb14 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/cc4EjvsN.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_bdb14] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        ignore line: [collect2 version 13.3.0]
+        ignore line: [/usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cc4EjvsN.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_bdb14 /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/13 -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/13/../../.. -v CMakeFiles/cmTC_bdb14.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o]
+        linker tool for 'C': /usr/bin/ld
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13] ==> [/usr/lib/gcc/x86_64-linux-gnu/13]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/13/../../..] ==> [/usr/lib]
+        implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/13/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/13;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/local/share/cmake-4.3/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "src/globals/CMakeLists.txt:2 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld (GNU Binutils for Ubuntu) 2.42
+  -
+    kind: "find-v1"
+    backtrace:
+      - "cmake/FindANTLR4.cmake:17 (find_library)"
+      - "CMakeLists.txt:135 (find_package)"
+    mode: "library"
+    variable: "ANTLR4_RUNTIME"
+    description: "Path to a library."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "libantlr4-runtime.so"
+    candidate_directories:
+      - "/usr/local/lib/antlr4/"
+      - "/usr/lib/antlr4/"
+      - "/usr/local/lib/"
+      - "/usr/lib/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/usr/local/lib/x86_64-linux-gnu/"
+      - "/usr/local/lib/"
+      - "/usr/local/"
+      - "/usr/lib/x86_64-linux-gnu/"
+      - "/usr/lib/"
+      - "/usr/"
+      - "/lib/x86_64-linux-gnu/"
+      - "/lib/"
+      - "/usr/X11R6/lib/x86_64-linux-gnu/"
+      - "/usr/X11R6/lib/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/lib/x86_64-linux-gnu/"
+      - "/usr/pkg/lib/"
+      - "/usr/pkg/"
+      - "/opt/lib/x86_64-linux-gnu/"
+      - "/opt/lib/"
+      - "/opt/"
+      - "/usr/lib/X11/"
+      - "/home/magister/tabex/slam/third_party/antlr4/lib/"
+    searched_directories:
+      - "/usr/local/lib/antlr4/"
+      - "/usr/local/lib/antlr4/"
+      - "/usr/lib/antlr4/"
+      - "/usr/lib/antlr4/"
+      - "/usr/local/lib/"
+      - "/usr/local/lib/"
+      - "/usr/lib/"
+      - "/usr/lib/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/usr/local/lib/x86_64-linux-gnu/"
+      - "/usr/local/lib/x86_64-linux-gnu/"
+      - "/usr/local/lib/"
+      - "/usr/local/lib/"
+      - "/usr/local/"
+      - "/usr/local/"
+      - "/usr/lib/x86_64-linux-gnu/"
+      - "/usr/lib/x86_64-linux-gnu/"
+      - "/usr/lib/"
+      - "/usr/lib/"
+      - "/usr/"
+      - "/usr/"
+      - "/lib/x86_64-linux-gnu/"
+      - "/lib/x86_64-linux-gnu/"
+      - "/lib/"
+      - "/lib/"
+      - "/usr/X11R6/lib/x86_64-linux-gnu/"
+      - "/usr/X11R6/lib/x86_64-linux-gnu/"
+      - "/usr/X11R6/lib/"
+      - "/usr/X11R6/lib/"
+      - "/usr/X11R6/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/lib/x86_64-linux-gnu/"
+      - "/usr/pkg/lib/x86_64-linux-gnu/"
+      - "/usr/pkg/lib/"
+      - "/usr/pkg/lib/"
+      - "/usr/pkg/"
+      - "/usr/pkg/"
+      - "/opt/lib/x86_64-linux-gnu/"
+      - "/opt/lib/x86_64-linux-gnu/"
+      - "/opt/lib/"
+      - "/opt/lib/"
+      - "/opt/"
+      - "/opt/"
+      - "/usr/lib/X11/"
+      - "/usr/lib/X11/"
+    found: "/home/magister/tabex/slam/third_party/antlr4/lib/libantlr4-runtime.so"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_LIBRARY_PATH:
+        - "/usr/lib/X11"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "cmake/FindANTLR4.cmake:21 (find_path)"
+      - "CMakeLists.txt:135 (find_package)"
+    mode: "path"
+    variable: "ANTLR4CPP_INCLUDE_DIRS"
+    description: "ANTLR4 C++ headers"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "antlr4-runtime.h"
+    candidate_directories:
+      - "/usr/local/include/antlr4-runtime/"
+      - "/usr/include/antlr4-runtime/"
+      - "/usr/local/include/"
+      - "/usr/include/"
+      - "/home/magister/.local/bin/"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/"
+      - "/home/magister/.cargo/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/usr/lib/wsl/lib/"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/"
+      - "/mnt/c/WINDOWS/system32/"
+      - "/mnt/c/WINDOWS/"
+      - "/mnt/c/WINDOWS/System32/Wbem/"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/"
+      - "/mnt/c/Program Files/dotnet/"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/"
+      - "/mnt/c/Program Files/Git/cmd/"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/"
+      - "/mnt/c/Program Files/Calibre2/"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/"
+      - "/mnt/c/Users/danni/.dotnet/tools/"
+      - "/snap/bin/"
+      - "/home/magister/modeltech/bin/"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/"
+      - "/home/magister/harm/build/"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/"
+      - "/usr/local/include/x86_64-linux-gnu/"
+      - "/usr/local/include/"
+      - "/usr/local/"
+      - "/usr/include/x86_64-linux-gnu/"
+      - "/usr/include/"
+      - "/usr/"
+      - "/include/x86_64-linux-gnu/"
+      - "/include/"
+      - "/usr/X11R6/include/x86_64-linux-gnu/"
+      - "/usr/X11R6/include/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/include/x86_64-linux-gnu/"
+      - "/usr/pkg/include/"
+      - "/usr/pkg/"
+      - "/opt/include/x86_64-linux-gnu/"
+      - "/opt/include/"
+      - "/opt/"
+      - "/usr/include/X11/"
+      - "/home/magister/tabex/slam/third_party/antlr4/include/antlr4-runtime/"
+    searched_directories:
+      - "/usr/local/include/antlr4-runtime/antlr4-runtime.h"
+      - "/usr/include/antlr4-runtime/antlr4-runtime.h"
+      - "/usr/local/include/antlr4-runtime.h"
+      - "/usr/include/antlr4-runtime.h"
+      - "/home/magister/.local/bin/antlr4-runtime.h"
+      - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli/antlr4-runtime.h"
+      - "/home/magister/.nvm/versions/node/v26.8.2/bin/antlr4-runtime.h"
+      - "/home/magister/.cargo/bin/antlr4-runtime.h"
+      - "/usr/local/sbin/antlr4-runtime.h"
+      - "/usr/local/bin/antlr4-runtime.h"
+      - "/usr/sbin/antlr4-runtime.h"
+      - "/usr/bin/antlr4-runtime.h"
+      - "/sbin/antlr4-runtime.h"
+      - "/bin/antlr4-runtime.h"
+      - "/usr/games/antlr4-runtime.h"
+      - "/usr/local/games/antlr4-runtime.h"
+      - "/usr/lib/wsl/lib/antlr4-runtime.h"
+      - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe/antlr4-runtime.h"
+      - "/mnt/c/WINDOWS/system32/antlr4-runtime.h"
+      - "/mnt/c/WINDOWS/antlr4-runtime.h"
+      - "/mnt/c/WINDOWS/System32/Wbem/antlr4-runtime.h"
+      - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/antlr4-runtime.h"
+      - "/mnt/c/WINDOWS/System32/OpenSSH/antlr4-runtime.h"
+      - "/mnt/c/Program Files/dotnet/antlr4-runtime.h"
+      - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR/antlr4-runtime.h"
+      - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common/antlr4-runtime.h"
+      - "/mnt/c/Program Files/Git/cmd/antlr4-runtime.h"
+      - "/mnt/c/Program Files/Docker/Docker/resources/bin/antlr4-runtime.h"
+      - "/mnt/c/Program Files/Calibre2/antlr4-runtime.h"
+      - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps/antlr4-runtime.h"
+      - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin/antlr4-runtime.h"
+      - "/mnt/c/Users/danni/.dotnet/tools/antlr4-runtime.h"
+      - "/snap/bin/antlr4-runtime.h"
+      - "/home/magister/modeltech/bin/antlr4-runtime.h"
+      - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin/antlr4-runtime.h"
+      - "/home/magister/harm/build/antlr4-runtime.h"
+      - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin/antlr4-runtime.h"
+      - "/usr/local/include/x86_64-linux-gnu/antlr4-runtime.h"
+      - "/usr/local/include/antlr4-runtime.h"
+      - "/usr/local/antlr4-runtime.h"
+      - "/usr/include/x86_64-linux-gnu/antlr4-runtime.h"
+      - "/usr/include/antlr4-runtime.h"
+      - "/usr/antlr4-runtime.h"
+      - "/include/x86_64-linux-gnu/antlr4-runtime.h"
+      - "/include/antlr4-runtime.h"
+      - "/usr/X11R6/include/x86_64-linux-gnu/antlr4-runtime.h"
+      - "/usr/X11R6/include/antlr4-runtime.h"
+      - "/usr/X11R6/antlr4-runtime.h"
+      - "/usr/pkg/include/x86_64-linux-gnu/antlr4-runtime.h"
+      - "/usr/pkg/include/antlr4-runtime.h"
+      - "/usr/pkg/antlr4-runtime.h"
+      - "/opt/include/x86_64-linux-gnu/antlr4-runtime.h"
+      - "/opt/include/antlr4-runtime.h"
+      - "/opt/antlr4-runtime.h"
+      - "/usr/include/X11/antlr4-runtime.h"
+    found: "/home/magister/tabex/slam/third_party/antlr4/include/antlr4-runtime/"
+    search_context:
+      ENV{PATH}:
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.vscode-server/bin/2a59476c9bfcb90b3ddc372c36762471b7dfad1c/bin/remote-cli"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.nvm/versions/node/v26.8.2/bin"
+        - "/home/magister/.local/bin"
+        - "/home/magister/.cargo/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/usr/lib/wsl/lib"
+        - "/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.5.9.0_x64__8wekyb3d8bbwe"
+        - "/mnt/c/WINDOWS/system32"
+        - "/mnt/c/WINDOWS"
+        - "/mnt/c/WINDOWS/System32/Wbem"
+        - "/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/"
+        - "/mnt/c/WINDOWS/System32/OpenSSH/"
+        - "/mnt/c/Program Files/dotnet/"
+        - "/mnt/c/Program Files/NVIDIA Corporation/NVIDIA app/NvDLISR"
+        - "/mnt/c/Program Files (x86)/NVIDIA Corporation/PhysX/Common"
+        - "/mnt/c/Program Files/Git/cmd"
+        - "/mnt/c/Program Files/Docker/Docker/resources/bin"
+        - "/mnt/c/Program Files/Calibre2/"
+        - "/mnt/c/Users/danni/AppData/Local/Microsoft/WindowsApps"
+        - "/mnt/c/Users/danni/AppData/Local/Programs/Microsoft VS Code/bin"
+        - "/mnt/c/Users/danni/.dotnet/tools"
+        - "/snap/bin"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/modeltech/bin/"
+        - "/home/magister/lowrisc-toolchain-gcc-rv32imcb-x86-64-20250710-1/bin"
+        - "/home/magister/harm/build"
+        - "/home/magister/.claude/plugins/cache/caveman/caveman/0d95a81d35a9/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr/local"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/local/share/cmake-4.3/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/usr/local/share/cmake-4.3/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "/usr/local/share/cmake-4.3/Modules/FindThreads.cmake:160 (check_c_source_compiles)"
+      - "/usr/local/share/cmake-4.3/Modules/FindThreads.cmake:226 (_threads_check_libc)"
+      - "src/csv-parser/CMakeLists.txt:20 (find_package)"
+    directories:
+      source: "/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-RomJ6k"
+      binary: "/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-RomJ6k"
+    cmakeVariables:
+      CMAKE_CXX_STDLIB_MODULES_JSON: ""
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/home/magister/tabex/slam/cmake"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-RomJ6k'
+        
+        Run Build Command(s): /usr/local/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ca9c6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ca9c6.dir/build.make CMakeFiles/cmTC_ca9c6.dir/build
+        gmake[1]: Entering directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-RomJ6k'
+        Building C object CMakeFiles/cmTC_ca9c6.dir/src.c.o
+        /usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_ca9c6.dir/src.c.o -c /home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-RomJ6k/src.c
+        Linking C executable cmTC_ca9c6
+        /usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ca9c6.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_ca9c6.dir/src.c.o -o cmTC_ca9c6
+        gmake[1]: Leaving directory '/home/magister/tabex/slam/build/CMakeFiles/CMakeScratch/TryCompile-RomJ6k'
+        
+      exitCode: 0
+...

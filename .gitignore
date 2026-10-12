@@ -10,3 +10,7 @@ __pycache__
 tests/**/__pycache__/
 .pytest_cache/
 .vscode/
+!experiments/rq5_pilot/prompt.txt
+!experiments/rq5_pilot/samples/*.json
+!experiments/results/d_sensitivity.txt
+m_stlsat/

@@ -1,0 +1,10 @@
+case,context,candidates,kept
+WaterTanks,TankEmptying_OpenValve,46,43
+Heater,threshold_heater_off,7,3
+Heater,threshold_heateron,5,3
+Gearbox,theta_increasing,83,81
+Gearbox,threshold_gear4,83,80
+ControlledPU,Transmission gear 4,165,156
+ControlledPU,speed increasing,185,185
+EngineTiming,EngineSpeed,6,6
+FuelControl,EngineSpeed,371,363
