@@ -3,7 +3,8 @@
     python experiments/paper_figures.py [OUT_DIR]
 
 Reads experiments/results/{timing,d_sensitivity}.csv; writes timing.pdf and
-d_sensitivity.pdf to OUT_DIR (default experiments/results/paper).
+d_sensitivity.pdf to OUT_DIR (default experiments/results/paper), and the
+largest-horizon table and quoted times of RQ1 to experiments/results/timing.md.
 The full-size working plots stay with each experiment script.
 """
 import csv
@@ -106,8 +107,35 @@ def d_sensitivity(out):
     fig.savefig(out / "d_sensitivity.pdf")
 
 
+def timing_table():
+    """Table 4 (largest T completed) and the times quoted in Section 6.2, from timing.csv."""
+    rows = list(csv.DictReader(open(RES / "timing.csv")))
+    ok = {}
+    for r in rows:
+        if r["status"] == "ok":
+            ok[(r["family"], r["method"], int(r["n_vars"]), int(r["T"]))] = float(r["seconds"])
+    methods = [("reference", "definitional pipeline"), ("fast_similarity", "fast_similarity"), ("PH", "PH")]
+    fams = [("G", "G[0,T] θ"), ("F", "F[0,T] θ"), ("GF", "G[0,T-2] F[0,2] θ"), ("U", "θ U[0,T] θ'")]
+    lines = ["# RQ1 timing summary (from timing.csv)", "",
+             "Largest horizon T ≤ 40 completed within the limits, for |V| = 1/2/3/4/5 (–: none).", "",
+             "| family | " + " | ".join(label for _, label in methods) + " |",
+             "|---|" + "---|" * len(methods)]
+    for fam, label in fams:
+        cells = ["/".join(str(max((T for (f, m, n, T) in ok if f == fam and m == meth and n == nv), default="–"))
+                          for nv in range(1, 6)) for meth, _ in methods]
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
+    lines += ["", "Times quoted in the text (|V| = 1):", "",
+              f"- F[0,4]θ: definitional pipeline {ok[('F', 'reference', 1, 4)]:.1f} s, "
+              f"fast_similarity {ok[('F', 'fast_similarity', 1, 4)]:.3f} s",
+              f"- θ U[0,20] θ': fast_similarity {ok[('U', 'fast_similarity', 1, 20)]:.2f} s, "
+              f"PH {ok[('U', 'PH', 1, 20)]:.1f} s"]
+    (RES / "timing.md").write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+
+
 if __name__ == "__main__":
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else RES / "paper"
     out.mkdir(parents=True, exist_ok=True)
     timing(out)
     d_sensitivity(out)
+    timing_table()

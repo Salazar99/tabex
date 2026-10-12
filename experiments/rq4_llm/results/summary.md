@@ -32,9 +32,4 @@ Spearman ρ between each distance and the disagreement rate, over the 168 non-eq
 - PH/2D: ρ = 0.334 (n = 117); scored as identical although not equivalent: 25
 - SD: ρ = 0.066 (n = 117); scored as identical although not equivalent: 74
 
-## Drift among the samples of one model
-
-- gemini-3.8-flash: 345 sample pairs, mean pairwise G 0.9962, 337 equivalent; requirements with some disagreement: 5
-- qwen2.5:7b-instruct: 138 sample pairs, mean pairwise G 0.7426, 55 equivalent; requirements with some disagreement: 44
-
 Distinct (scored) answer strings over all requirements: 352; at most 285 semantic classes (all answers equivalent to the reference are one class; wrong answers counted as distinct strings).

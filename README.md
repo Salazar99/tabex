@@ -53,15 +53,15 @@ writes its results next to it (`experiments/results/`, `experiments/rq3_mining/r
 | Paper | Command | Time | Output |
 |---|---|---|---|
 | RQ1, Table 1 (generated suites) | `python experiments/random_suite.py` | 20 min | `experiments/results/random_suite.md` |
-| RQ1, Table 1 (hand-picked equivalent pairs), conceptual differences | `python -m madsen.compare` | 1 min | table on stdout |
-| RQ1, Table 2 and Fig. 2 (execution time) | `python experiments/timing.py` | 1 h | `experiments/results/timing.{csv,png}` |
+| RQ1, Table 1 (hand-picked equivalent pairs), App. C.2 | `python -m madsen.compare -o madsen/results.md` | 1 min | `madsen/results.md` |
+| RQ1, Fig. 2 and Table 4 (execution time, App. C.3) | `python experiments/timing.py` | 1 h | `experiments/results/timing.{csv,png}` |
 | RQ1, boxes versus volume | `python experiments/volume_ablation.py` | 1 min | `experiments/results/volume_ablation.{csv,png}`, `volume_suite.csv` |
-| RQ1, realistic requirements (ARCH-COMP) | `python experiments/archcomp.py` | 15 min | `experiments/results/archcomp.{csv,md}` |
-| RQ2, Fig. 3 (domain D) | `python experiments/d_sensitivity.py` | 1 min | `experiments/results/d_sensitivity.{csv,png}` |
-| Figs. 2 and 3 as PDF | `python experiments/paper_figures.py` | seconds | `experiments/results/paper/*.pdf` |
-| RQ3, Table 3 | see [RQ3](#rq3-redundancy-pruning-in-specification-mining) | 30 min (+ optional baseline) | `experiments/rq3_mining/results/` |
-| RQ4, Table 4 (left), oracle check, correlations | `python experiments/rq4_llm/analyze.py` | 15 min | `experiments/rq4_llm/results/summary.md` |
-| RQ4, Table 4 (right) and Table 5 (drift) | `python experiments/rq4_llm/drift.py` | 2 min | `experiments/rq4_llm/results/drift.md`, `drift_pairs.csv` |
+| RQ1, ARCH-COMP requirements (App. C.4) | `python experiments/archcomp.py` | 15 min | `experiments/results/archcomp.{csv,md}` |
+| RQ2, Fig. 3 and App. D (domain D) | `python experiments/d_sensitivity.py` | 1 min | `experiments/results/d_sensitivity.{csv,png}` |
+| Figs. 2 and 3 as PDF; Table 4 and the times quoted in Section 6.2 | `python experiments/paper_figures.py` | seconds | `experiments/results/paper/*.pdf`, `experiments/results/timing.md` |
+| RQ3, Table 2 and App. E | see [RQ3](#rq3-redundancy-pruning-in-specification-mining) | 30 min (+ optional baseline) | `experiments/rq3_mining/results/` |
+| RQ4, Table 5, App. F.5 and F.6 (oracle check, correlations) | `python experiments/rq4_llm/analyze.py` | 15 min | `experiments/rq4_llm/results/summary.md` |
+| RQ4, Table 3, Table 6 and App. F.3 (drift) | `python experiments/rq4_llm/drift.py` | 2 min | `experiments/rq4_llm/results/drift.md`, `drift_pairs.csv` |
 
 `paper_figures.py` reads the CSVs of `timing.py` and `d_sensitivity.py`, so run it
 after them. `drift.py` reads the scores of `analyze.py`, so run it after it.
@@ -104,11 +104,11 @@ python experiments/rq3_mining/similarity_matrix.py            # pairwise OWSim a
 python experiments/rq3_mining/sd_matrix.py                    # SD baseline, sd_pairs.csv.gz (--workers 16)
 python experiments/rq3_mining/stlsat_baseline.py              # optional: Slam's implication pruning via stlsat (~54 CPU-h)
 python experiments/rq3_mining/prune.py                        # leader clustering, reduction: summary.md, reduction.csv
-python experiments/rq3_mining/quality.py                      # trace coverage and fidelity: quality.md (Table 3)
+python experiments/rq3_mining/quality.py                      # trace coverage and fidelity: quality.md (Table 2)
 ```
 
 `stlsat_baseline.py` expects the `stlsat` binary on the PATH (or `--stlsat PATH`)
-and gives each check 60 s (`--timeout`). It only adds the STLSat row of Table 3;
+and gives each check 60 s (`--timeout`). It only adds the STLSat row of Table 2;
 `prune.py` and `quality.py` run without it.
 
 ### RQ4: semantic drift in LLM formalisations
@@ -119,7 +119,12 @@ and gives each check 60 s (`--timeout`). It only adds the STLSat row of Table 3;
 `analyze.py` parses the answers, scores each against its reference with G, VolJ, PH
 and SD, and checks every verdict with an independent sampling oracle. `drift.py`
 scores the samples of each model against one another. Every score has a 120 s
-budget, so a few counts can differ between runs depending on the load of the machine.
+budget, so a few counts can differ between runs depending on the speed and load of the
+machine. This matters most for `drift.py`: a pair that exceeds the budget drops its whole
+group from Table 3, so on a slower machine some groups disappear and the counts shift by a
+few, while the pattern (no drift in all-correct groups, drift in every mixed group and in
+most all-wrong ones) stays the same. The committed `drift.md` and `drift_pairs.csv` are
+the outputs behind the paper, obtained on the machine of Section 6.1.
 
 To regenerate the inputs (not needed to reproduce the paper):
 

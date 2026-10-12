@@ -26,8 +26,8 @@ G < 1 pair may differ on too thin a set to be hit), and among non-equivalent
 answers the rank correlation of each measure's distance with `disagree` says
 which measure grades an error the way the signals do.
 
-Also per requirement: pairwise G among the samples of one model (drift), and
-distinct strings vs G = 1 classes.
+Also: distinct strings vs G = 1 classes. Drift among the samples of one model is
+scored by drift.py.
 
 Output: results/scores.csv, results/summary.md, results/rq4.png.
 """
@@ -190,18 +190,9 @@ def main():
         D[rid] = max((abs(c) for f in fs for c in constants(parse(f))), default=Fraction(0)) + 1
     jobs = [(s["id"], s["model"], s["sample"], f, reqs[s["id"]]["reference"], D[s["id"]], n)
             for n, (s, f) in enumerate(parsed)]
-    pjobs = []
-    for rid, lst in by_req.items():
-        per_model = defaultdict(list)
-        for s, f in lst:
-            per_model[s["model"]].append((s["sample"], f))
-        for m, xs in per_model.items():
-            pjobs += [(rid, m, a, b, fa, fb, D[rid]) for i, (a, fa) in enumerate(xs)
-                      for b, fb in xs[i + 1:]]
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(24) as pool:     # each job forks its own killable child
         scores = list(pool.map(score, jobs))
-        pairs = list(pool.map(pair_G, pjobs))
 
     fields = ["id", "model", "sample", "formula", "G", "ow_ans_ref", "ow_ref_ans", "VolJ",
               "PH", "SD", "disagree", "over_budget"]
@@ -211,7 +202,6 @@ def main():
         w.writerows(scores)
     over = [s for s in scores if s.get("over_budget")]
     scores = [s for s in scores if not s.get("over_budget")]
-    pairs = [p for p in pairs if p[4] is not None]
 
     from scipy.stats import spearmanr
     lines = ["# RQ4 on DeepSTL — LLM formalisations vs reference", "",
@@ -260,15 +250,6 @@ def main():
         lines.append(f"- {name}: ρ = {rho:.3f} (n = {len(pts)}); scored as identical although "
                      f"not equivalent: {blind}")
 
-    lines += ["", "## Drift among the samples of one model", ""]
-    drift = defaultdict(list)
-    for rid, m, a, b, g in pairs:
-        drift[m].append(g)
-    for m in models:
-        gs = drift[m]
-        lines.append(f"- {m}: {len(gs)} sample pairs, mean pairwise G {np.mean(gs):.4f}, "
-                     f"{sum(g >= 1 - TOL for g in gs)} equivalent; requirements with some "
-                     f"disagreement: {len({r for r, mm, a, b, g in pairs if mm == m and g < 1 - TOL})}")
     gmap = {(x["id"], x["model"], x["sample"]): x["G"] for x in scores}
     strings = classes = 0
     for rid, lst in by_req.items():
