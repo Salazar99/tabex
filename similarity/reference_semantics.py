@@ -311,7 +311,10 @@ class _Parser:
     def until(self):
         node = self.unary()
         while self.peek() is not None and self.peek().startswith("U"):
-            _, lower, upper = _WINDOW.match(self.take()).groups()
+            token = self.take()
+            if not _WINDOW.match(token):
+                raise UnsupportedFormula(f"until without a window: {token!r}")
+            _, lower, upper = _WINDOW.match(token).groups()
             node = Until(int(lower), int(upper), node, self.unary())
         return node
 

@@ -107,9 +107,10 @@ python experiments/rq3_mining/prune.py                        # leader clusterin
 python experiments/rq3_mining/quality.py                      # trace coverage and fidelity: quality.md (Table 2)
 ```
 
-`stlsat_baseline.py` expects the `stlsat` binary on the PATH (or `--stlsat PATH`)
-and gives each check 60 s (`--timeout`). It only adds the STLSat row of Table 2;
-`prune.py` and `quality.py` run without it.
+`stlsat_baseline.py` expects the `stlsat` binary on the PATH (or `--stlsat PATH`),
+built from https://github.com/ZamponiMarco/stlsat at commit 16e5ea6 (Rust and z3;
+see the comment in the script), and gives each check 60 s (`--timeout`). It only
+adds the STLSat row of Table 2; `prune.py` and `quality.py` run without it.
 
 ### RQ4: semantic drift in LLM formalisations
 

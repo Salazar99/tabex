@@ -171,6 +171,9 @@ def test_unknown_operator_raises():
         Atom("x", "=", 5)
     with pytest.raises(UnsupportedFormula):
         atom_intervals("=", 5)
+    # Unbounded until is outside the fragment, like unbounded F and G.
+    with pytest.raises(UnsupportedFormula):
+        parse("x>0 U y>0")
 
 
 def test_parse_round_trips_through_str():

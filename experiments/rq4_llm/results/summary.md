@@ -7,7 +7,7 @@
 | model | answers | parsed | failures by reason |
 |---|---|---|---|
 | gemini-3.8-flash | 425 | 415 | {'UnsupportedFormula': 10} |
-| qwen2.5:7b-instruct | 540 | 227 | {'UnsupportedFormula': 309, 'AttributeError': 4} |
+| qwen2.5:7b-instruct | 540 | 227 | {'UnsupportedFormula': 313} |
 
 Not scored within 120 s per answer (long nested windows, cf. RQ1 timing): 28 — gemini-3.8-flash 18, qwen2.5:7b-instruct 10
 
