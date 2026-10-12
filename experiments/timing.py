@@ -1,4 +1,4 @@
-"""RQ2: execution time vs formula complexity (horizon T, number of variables |V|).
+"""RQ1: execution time vs formula complexity (horizon T, number of variables |V|).
 
     python experiments/timing.py [--workers 8] [--timeout 60] [--mem-gb 3]
     python experiments/timing.py --plot-only
@@ -6,8 +6,8 @@
 Each pair is one formula family instantiated twice, with the two predicates of
 Madsen et al.'s Example 1 (theta1 = [0.2, 0.4], theta2 = [0.2, 0.44]) on every
 variable -- a partially overlapping pair, so no method can shortcut on
-identity. Four families: G-box, F-box, G o F, until. Four methods: TABEX's
-reference pipeline, tabex_fast, Madsen's PH (both directed MILPs) and SD.
+identity. Four families: G-box, F-box, G o F, until. Four methods: the
+reference pipeline, fast_similarity, Madsen's PH (both directed MILPs) and SD.
 
 Every (family, |V|, method) series runs in its own worker process, sweeping T
 upwards; a run that exceeds the timeout or the memory cap ends its series
@@ -35,7 +35,7 @@ OUT = ROOT / "experiments" / "results"
 VARS = ["x", "y", "z", "w", "v"]
 HORIZONS = [2, 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40]
 N_VARS = [1, 2, 3, 4, 5]
-METHODS = ["reference", "tabex_fast", "PH", "SD"]
+METHODS = ["reference", "fast_similarity", "PH", "SD"]
 
 
 def box(variables, upper):
@@ -65,8 +65,8 @@ def pair(family, n_vars, T):
 
 
 def score(method, f1, f2):
-    if method == "tabex_fast":
-        from tabex_fast.engine import similarity
+    if method == "fast_similarity":
+        from fast_similarity.engine import similarity
         return similarity(f1, f2)
     if method == "reference":
         from similarity.stl_similarity import calc_similarity_from_formulas
@@ -153,8 +153,8 @@ def run(workers, timeout, mem_gb):
 
 
 # Reference categorical palette (dataviz skill), fixed slot order per method.
-COLORS = {"reference": "#2a78d6", "tabex_fast": "#eb6834", "PH": "#1baf7a", "SD": "#eda100"}
-MARKERS = {"reference": "o", "tabex_fast": "s", "PH": "^", "SD": "D"}
+COLORS = {"reference": "#2a78d6", "fast_similarity": "#eb6834", "PH": "#1baf7a", "SD": "#eda100"}
+MARKERS = {"reference": "o", "fast_similarity": "s", "PH": "^", "SD": "D"}
 TITLES = {"G": "G[0,T] θ", "F": "F[0,T] θ", "GF": "G[0,T-2] F[0,2] θ", "U": "θ_lo U[0,T] θ_hi"}
 
 

@@ -5,7 +5,7 @@ import pytest
 
 from conftest import REPO_ROOT  # noqa: F401  (adds repo root to sys.path)
 from similarity.stl_similarity import calc_similarity_from_formulas
-from tabex_fast.engine import similarity
+from fast_similarity.engine import similarity
 
 
 def test_compare_equivalent_block_scores_one():
@@ -32,16 +32,16 @@ def test_d_sensitivity_closed_form():
 
 
 def test_slam_assertion_translation():
-    from experiments.rq4.mine import to_tabex
+    from experiments.rq3_mining.mine import to_fragment
     from similarity.intervals import UnsupportedFormula
-    body = to_tabex("G(F[0,0]((a <= 0.000000)) -> F[0,18]((@(d,1) > 0.000000)))")
+    body = to_fragment("G(F[0,0]((a <= 0.000000)) -> F[0,18]((@(d,1) > 0.000000)))")
     assert body == "F[0,0]((a <= 0.000000)) -> F[0,18]((d_d1 > 0.000000))"
     with pytest.raises(UnsupportedFormula):
-        to_tabex("F[0,2](x > 0)")
+        to_fragment("F[0,2](x > 0)")
 
 
 def test_slam_same_props():
-    from experiments.rq4.stlsat_baseline import props
+    from experiments.rq3_mining.stlsat_baseline import props
     a = "G(F[0,0]((x >= 1.0) && (x <= 2.0)) && F[0,3]((@(z,1) > 0.0)) -> F[0,4]((y == 1.0)))"
     b = "G(F[0,0]((x >= 1.0) && (x <= 2.0)) && F[2,5]((@(z,1) > 0.0)) -> F[1,9]((y == 1.0)))"
     c = "G(F[0,0]((x >= 1.0) && (x <= 2.5)) && F[2,5]((@(z,1) > 0.0)) -> F[1,9]((y == 1.0)))"
@@ -50,7 +50,7 @@ def test_slam_same_props():
 
 
 def test_leader_clustering_keeps_best_ranked():
-    from experiments.rq4.prune import leader
+    from experiments.rq3_mining.prune import leader
     G = {}
     for (i, j), g in {(1, 2): 0.95, (1, 3): 0.5, (2, 3): 0.97}.items():
         G[("k", i, j)] = G[("k", j, i)] = g
@@ -61,7 +61,7 @@ def test_leader_clustering_keeps_best_ranked():
 
 def test_volume_jaccard_closed_forms_and_identity():
     from madsen.compare import EQUIVALENT
-    from tabex_fast.volume import volume_jaccard
+    from fast_similarity.volume import volume_jaccard
     theta1, theta2 = "(x>=0.2 && x<=0.4)", "(x>=0.2 && x<=0.44)"
     assert volume_jaccard(f"G[0,20]{theta1}", f"G[0,20]{theta2}") == \
         pytest.approx((0.2 / 0.24) ** 21, rel=1e-4)
@@ -77,7 +77,7 @@ def test_trace_monitor_agrees_with_the_signal_space():
     import random as rnd
 
     import numpy as np
-    from experiments.rq4.quality import evaluate
+    from experiments.rq3_mining.quality import evaluate
     from similarity.reference_semantics import parse, signal_space
     from verification.verify_equivalence import random_proposition
     rng = rnd.Random(5)
@@ -105,7 +105,7 @@ def test_trace_monitor_agrees_with_the_signal_space():
 
 def test_slam_derivative_matches_slam():
     import numpy as np
-    from experiments.rq4.quality import column
+    from experiments.rq3_mining.quality import column
     trace = {"z": np.array([1.0, 3.0, 2.0, 5.0])}
     # Slam's Derivative::evaluate: z(t+1) - z(t), and z(t) where t+1 runs off the end
     assert column(trace, "z_d1").tolist() == [2.0, -1.0, 3.0, 5.0]
@@ -113,7 +113,7 @@ def test_slam_derivative_matches_slam():
 
 def test_deepstl_conversion_and_filter():
     import sys
-    sys.path.insert(0, str(REPO_ROOT / "experiments" / "rq5_deepstl"))
+    sys.path.insert(0, str(REPO_ROOT / "experiments" / "rq4_llm"))
     from deepstl import classify, convert
     assert convert("always ( a > 1 -> eventually [0:3] (b == 2) )") == " a > 1 -> F[0,3] (b == 2) "
     assert classify("always [0:4] (H >= 24)")[0] == "G[0,4] (H >= 24)"

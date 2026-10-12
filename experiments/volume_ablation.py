@@ -3,7 +3,7 @@
     python experiments/volume_ablation.py
 
 The decision diagram makes the obvious alternative to G cheap: the exact
-(eps-)volume Jaccard of the two signal spaces on [-D, D]^A (tabex_fast/volume.py).
+(eps-)volume Jaccard of the two signal spaces on [-D, D]^A (fast_similarity/volume.py).
 Both are 1 exactly on equivalent formulas; they differ in how they aggregate.
 This script shows where that matters:
 
@@ -11,7 +11,7 @@ This script shows where that matters:
    F[0,T] on |V| = 1..3 variables. A per-instant discrepancy is multiplied
    once per axis by volume, so VolJ decays geometrically in (T+1)|V|; G
    averages per axis and does not.
-2. the RQ2 suite (madsen/compare.py's 45 pairs): G, VolJ, PH/2D, SD side by
+2. the RQ1 suite (madsen/compare.py's 45 pairs): G, VolJ, PH/2D, SD side by
    side, and rank correlations of the distances.
 
 Output: experiments/results/volume_ablation.{csv,png}, volume_suite.csv.
@@ -25,11 +25,11 @@ ROOT = FilePath(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from experiments.timing import pair  # noqa: E402
-from tabex_fast.engine import similarity  # noqa: E402
-from tabex_fast.volume import volume_jaccard  # noqa: E402
+from fast_similarity.engine import similarity  # noqa: E402
+from fast_similarity.volume import volume_jaccard  # noqa: E402
 
 OUT = ROOT / "experiments" / "results"
-# Largest T per (family, |V|) that tabex_fast scores in a few seconds (RQ2 timing).
+# Largest T per (family, |V|) that fast_similarity scores in a few seconds (RQ1 timing).
 T_MAX = {("G", 1): 40, ("G", 2): 40, ("G", 3): 40, ("F", 1): 40, ("F", 2): 12, ("F", 3): 8}
 TS = [0, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 36, 40]
 
@@ -128,6 +128,7 @@ def plot(rows):
 
 
 if __name__ == "__main__":
+    OUT.mkdir(parents=True, exist_ok=True)
     rows = collapse()
     plot(rows)
     suite()

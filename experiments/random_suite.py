@@ -1,4 +1,4 @@
-"""RQ2 at scale: generated (not hand-picked) pairs for G, VolJ, PH and SD.
+"""RQ1 at scale: generated (not hand-picked) pairs for G, VolJ, PH and SD.
 
     python experiments/random_suite.py [--equiv 1000] [--bases 300] [--workers 24]
 
@@ -54,8 +54,8 @@ def distances(f1, f2, D_=None):
     from madsen.metrics import d_ph, d_sd
     from similarity.reference_semantics import parse
     from similarity.stl_similarity import resolve_D
-    from tabex_fast.engine import similarity
-    from tabex_fast.volume import volume_jaccard
+    from fast_similarity.engine import similarity
+    from fast_similarity.volume import volume_jaccard
 
     Dv = Fraction(D_) if D_ is not None else resolve_D(None, parse(f1), parse(f2))
     Df = float(Dv)

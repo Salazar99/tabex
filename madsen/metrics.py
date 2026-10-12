@@ -1,6 +1,6 @@
 """Madsen et al., "Metrics for Signal Temporal Logic Formulae", CDC 2018.
 
-A baseline to compare TABEX against. Two distances between formulas:
+A baseline to compare G against. Two distances between formulas:
 
 * `d_ph` -- Pompeiu-Hausdorff distance between the bounded-time languages,
   computed per Theorem 2 as a MILP (scipy's HiGHS instead of Gurobi).

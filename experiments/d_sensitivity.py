@@ -1,4 +1,4 @@
-"""RQ3: sensitivity of the metric to the domain parameter D.
+"""RQ2: sensitivity of the metric to the domain parameter D.
 
     python experiments/d_sensitivity.py
 
@@ -10,7 +10,7 @@ Pairs, each scored over D log-spaced from just above Definition 2's bound
 * an endpoint-only pair (`x>=2` vs `x>2`, Delta = 0: only the eps term differs);
 * controls: bounded vs bounded (D-independent once D exceeds both) and bounded
   vs unbounded (the unbounded side's mass grows with D, so the score falls);
-* temporal versions, scored by the full G (tabex_fast): G, F and U over [0,2].
+* temporal versions, scored by the full G (fast_similarity): G, F and U over [0,2].
 
 For the offset family Point_sim_D has a closed form -- with c1 < c2 and both
 strict, meet = (c2, D], union = (c1, D] which contains the endpoint c2:
@@ -34,7 +34,7 @@ sys.path.insert(0, str(ROOT))
 from similarity.intervals import Interval  # noqa: E402
 from similarity.reference_semantics import atom_intervals, parse  # noqa: E402
 from similarity.stl_similarity import EPS, point_sim_d, resolve_D  # noqa: E402
-from tabex_fast.engine import similarity  # noqa: E402
+from fast_similarity.engine import similarity  # noqa: E402
 
 OUT = ROOT / "experiments" / "results"
 INF = float("inf")
@@ -181,7 +181,7 @@ def plot(rows):
     ax.set_xscale("log")
     ax.set_xlabel("D")
     ax.set_ylabel("G")
-    ax.set_title("controls and temporal pairs (full G, tabex_fast)", fontsize=9)
+    ax.set_title("controls and temporal pairs (full G, fast_similarity)", fontsize=9)
     ax.legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1))
     style(ax)
 

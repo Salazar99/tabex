@@ -1,0 +1,7 @@
+# Tested versions. Python >= 3.10.
+numpy==1.26.4
+scipy==1.11.4
+matplotlib==3.6.3
+pytest==7.4.4
+# Only to re-query Gemini (experiments/rq4_llm/generate.py gemini):
+# google-genai

@@ -1,4 +1,4 @@
-| # | block | phi | theta | D | TABEX sim | PH | PH/2D | SD |
+| # | block | phi | theta | D | G sim | PH | PH/2D | SD |
 |---|---|---|---|---|---|---|---|---|
 | 1 | benchmark | `F[0,2](x>0)` | `G[0,2](x>0)` | 1 | 0.7857 | 1.0000 | 0.5000 | 0.2500 |
 | 2 | benchmark | `F[0,2](x>0)` | `F[3,4](x>0)` | 1 | 0.0000 | 1.0000 | 0.5000 | 0.2500 |
@@ -46,5 +46,5 @@
 | 44 | equivalent | `G[0,2]((x>0 && x<2 && y>0 && y<1) || (x>0 && x<1 && y>0 && y<2))` | `G[0,2]((x>0 && x<1 && y>0 && y<2) || (x>=1 && x<2 && y>0 && y<1))` | 3 | 1.0000 | 0.0000 | 0.0000 | 0.0000 |
 | 45 | equivalent | `G[0,3](x>0) || F[0,3](x>0 && x<1)` | `G[0,3](x>0) || F[0,3](x>0 && x<1) || G[0,3](x>2)` | 3 | 1.0000 | 0.0000 | 0.0000 | 0.0000 |
 
-Spearman rank correlation of TABEX distance (1 - sim), over all 31 pairs: vs PH = -0.035, vs SD = 0.638
-Equivalent block (14 pairs), pairs NOT scored as identical: TABEX 0, PH 0, SD 5
+Spearman rank correlation of G distance (1 - sim), over all 31 pairs: vs PH = -0.035, vs SD = 0.638
+Equivalent block (14 pairs), pairs NOT scored as identical: G 0, PH 0, SD 5

@@ -4,19 +4,19 @@
 
 The requirements of the ARCH-COMP FALS category (AT, AFC, NN, CC, F16, SC), as
 stated in the competition reports (e.g. Ernst et al., ARCH-COMP 2021/2022
-Category Report: Falsification), written in TABEX's syntax with continuous
+Category Report: Falsification), written in the fragment's syntax with continuous
 time bounds. Each row records:
 
 * in fragment as stated -- rectangular atoms only (`|mu| < c` is the box
   -c < mu < c, so it is in; `y5 - y4 <= 40` and `|Pos - Ref| > ...` are not);
 * in fragment with derived signals -- after introducing d_ij = y_i - y_j as a
-  signal of its own (as RQ4 does for Slam's derivative); NN still relates two
+  signal of its own (as RQ3 does for Slam's derivative); NN still relates two
   signals nonlinearly and stays out;
 * the discretised formula at step `--dt` (bounds rounded OUTWARD: lower down,
   upper up, so a sub-step window such as F[0,0.05] becomes F[0,1]);
-* its horizon T and number of signals, and whether tabex_fast scores it
+* its horizon T and number of signals, and whether fast_similarity scores it
   against itself and against a perturbed copy (every constant * 1.05, 0 -> 0.5) within
-  the timeout / 3 GB (the RQ2 timing harness).
+  the timeout / 3 GB (the RQ1 timing harness).
 
 Output: experiments/results/archcomp.{csv,md}.
 """
@@ -110,7 +110,7 @@ def main():
             tree = parse(f)
             row.update(discretised=f, T=tree.horizon(), n_vars=len(variables(tree)))
             for label, other in (("self", f), ("perturbed", perturb(f))):
-                status, secs, value = timed("tabex_fast", f, other, args.timeout, 3 * 2**30)
+                status, secs, value = timed("fast_similarity", f, other, args.timeout, 3 * 2**30)
                 row[f"{label}_status"] = status
                 row[f"{label}_seconds"] = "" if secs is None else f"{secs:.3f}"
                 row[f"{label}_G"] = "" if value is None else f"{value:.4f}"

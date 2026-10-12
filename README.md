@@ -1,416 +1,170 @@
-# Tabex: STL Similarity Metric Calculator
+# Semantic similarity of STL formulae via canonical signal spaces: artifact
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+This repository contains the implementation and the experiments of the paper
+*Semantic similarity of STL formulae via canonical signal spaces*. It computes
+the similarity G of two Signal Temporal Logic formulae: each formula's set of
+satisfying signals is built as a union of boxes, reduced to a canonical form, and
+the two canonical forms are compared box by box. G = 1 exactly when the two
+formulae are equivalent.
 
-**Tabex** is the official repository for the Signal Temporal Logic (STL)
-similarity metric calculator. It computes each formula's **signal space** — the
-set of signals satisfying it, as a union of boxes — reduces both to a canonical
-form, and scores their overlap.
+- `similarity/` is the definitional pipeline of the paper (evaluate, canonicalise,
+  trim, score), kept as the specification of G.
+- `fast_similarity/` computes the same score on decision diagrams. Every score reported
+  in the paper comes from it.
+- `madsen/` reimplements the Pompeiu-Hausdorff (PH) and symmetric-difference (SD)
+  distances of Madsen et al. (CDC 2018), the baselines of RQ1.
+- `experiments/` holds one script per experiment of the paper.
 
-The method, and the proofs that it is correct, are in the paper *Semantic
-similarity of STL formulae via canonical signal spaces* (Appendix A: the signal
-space is the semantics, Theorem 1; canonicalisation depends only on the region,
-Theorem 2). References to "Theorem 1", "Definition 6", "(P1)" and so on in the
-code and tests are to that paper.
+## Requirements
 
----
-
-## ⚡ Quick Start
+- Linux. The timing harness limits each run's memory with the `resource` module.
+- Python 3.10 or later (tested with 3.10.12 and 3.12.3).
+- The Python packages in `requirements.txt`:
 
 ```bash
-git clone https://github.com/Salazar99/tabex.git
-cd tabex
-pip install pytest matplotlib pydot
-
-python run_similarity.py "F[0,2] x>0" "G[0,2] x>0"   # run the tool
-pytest -q                                             # run the test suite
+pip install -r requirements.txt
 ```
 
-Pure Python: no solver, no environment variable.
+RQ1, RQ2 and RQ4 need nothing else. RQ3 runs the Slam specification miner cited
+in the paper, bundled in `slam/`. Building it needs a C++17 compiler (gcc 8 or
+later), CMake 3.14 or later, git, `uuid-dev`, `pkg-config` and network access to
+fetch the antlr4 runtime. Its baseline optionally needs the `stlsat`
+satisfiability checker (see [RQ3](#rq3-redundancy-pruning-in-specification-mining)).
+The LLM answers used in RQ4 are included, so no API key or language model is needed.
 
-The pipeline, run on each formula over the common grid of the two
-(Definition 1: joint variables, joint horizon):
+## Quick check (about 1 minute)
 
+```bash
+pytest -q                                                    # 225 tests
+python -m fast_similarity.engine "F[0,2](x>0)" "G[0,2](x>0)"      # G with the fast engine
+python similarity/stl_similarity.py "x>2" "x>5" --D 100      # same metric, definitional pipeline: 0.9694
 ```
-evaluate E (similarity/reference_semantics.py) -> canonicalize (similarity/canon.py) -> trim -> G (similarity/stl_similarity.py)
-```
 
----
+Both command-line tools take two formulae and optionally the domain `--D` (default:
+largest absolute constant + 1) and the endpoint precision `--eps` (default 10⁻⁶).
 
-## 📖 Worked example
+## Reproducing the paper
 
-[EXAMPLE.md](./EXAMPLE.md) runs three pairs through **every** stage — string →
-AST → boxes → signal space → breakpoints → fine arrangement → canonical cells →
-`Point_sim_D` → `Path_sim` → `G` — with a figure per stage and every
-intermediate value printed.
+All commands run from the repository root. Times are approximate, measured on a
+32-core Ubuntu machine; scripts that run in parallel accept `--workers`. Each script
+writes its results next to it (`experiments/results/`, `experiments/rq3_mining/results/`,
+`experiments/rq4_llm/results/`) and states its inputs and outputs in its header.
 
-| | pair | what it shows | score |
+| Paper | Command | Time | Output |
 |---|---|---|---|
-| 1 | `G[0,1](x>0) && F[0,1](y<3)` vs `(x>0) U[0,1] (y<3)` | two variables, `G` and `U`; φ strictly inside θ, so the two directions disagree (1.0 and 0.9) | 0.95 |
-| 2 | `F[0,1]((x>0 && x<2) \|\| (x>4 && x<6))` vs `F[0,1](x>1 && x<5)` | a variable bounded on both sides, a disjunction becoming four paths, and the Jaccard branch of `Point_sim_D` firing | 0.4159 |
-| 3 | the L-shape, cut two ways | two *different* decompositions of one region canonicalising to the *same* cells: 0.75 before, 1.0 after | 1.0 |
+| RQ1, Table 1 (generated suites) | `python experiments/random_suite.py` | 20 min | `experiments/results/random_suite.md` |
+| RQ1, Table 1 (hand-picked equivalent pairs), conceptual differences | `python -m madsen.compare` | 1 min | table on stdout |
+| RQ1, Table 2 and Fig. 2 (execution time) | `python experiments/timing.py` | 1 h | `experiments/results/timing.{csv,png}` |
+| RQ1, boxes versus volume | `python experiments/volume_ablation.py` | 1 min | `experiments/results/volume_ablation.{csv,png}`, `volume_suite.csv` |
+| RQ1, realistic requirements (ARCH-COMP) | `python experiments/archcomp.py` | 15 min | `experiments/results/archcomp.{csv,md}` |
+| RQ2, Fig. 3 (domain D) | `python experiments/d_sensitivity.py` | 1 min | `experiments/results/d_sensitivity.{csv,png}` |
+| Figs. 2 and 3 as PDF | `python experiments/paper_figures.py` | seconds | `experiments/results/paper/*.pdf` |
+| RQ3, Table 3 | see [RQ3](#rq3-redundancy-pruning-in-specification-mining) | 30 min (+ optional baseline) | `experiments/rq3_mining/results/` |
+| RQ4, Table 4 (left), oracle check, correlations | `python experiments/rq4_llm/analyze.py` | 15 min | `experiments/rq4_llm/results/summary.md` |
+| RQ4, Table 4 (right) and Table 5 (drift) | `python experiments/rq4_llm/drift.py` | 2 min | `experiments/rq4_llm/results/drift.md`, `drift_pairs.csv` |
 
-Regenerate any part's figures and its numeric trace with `plotting/plot_pipeline.py`:
+`paper_figures.py` reads the CSVs of `timing.py` and `d_sensitivity.py`, so run it
+after them. `drift.py` reads the scores of `analyze.py`, so run it after it.
 
-```bash
-python3 plotting/plot_pipeline.py 'G[0,1](x>0) && F[0,1](y<3)' '(x>0) U[0,1] (y<3)' \
-        -o figures/example
-```
+### RQ1: comparison with PH and SD, and computational performance
 
-It works on any pair, and asserts its own arithmetic against the metric before
-writing. `plot_signal_space.py` draws just the signal space (`--canonical` for
-the cells the metric actually compares), and `plot_signal_space_3d.py` draws a
-region over three axes.
+- `random_suite.py` generates 1000 equivalent pairs (a random formula and a
+  meaning-preserving rewrite of it) and 300 base formulae with 11 graded mutants
+  each, and scores them with 1 − G, 1 − VolJ, PH/2D and SD. Defaults:
+  `--equiv 1000 --bases 300 --workers 24 --seed 11`.
+- `timing.py` sweeps four formula families over the horizon T ≤ 40 and 1–5
+  signals, with a 60 s / 3 GB limit per run (`--timeout`, `--mem-gb`,
+  `--workers 8`). Absolute times depend on the machine. Its CSV also contains the
+  scores of the definitional pipeline and of `fast_similarity`, which agree up to
+  1.1·10⁻¹⁵ wherever both finish. `--plot-only` redraws the figure from the CSV.
+- `archcomp.py` encodes the ARCH-COMP falsification requirements, checks which
+  lie in the fragment, and scores each against a perturbed copy (`--timeout 60`).
 
----
+### RQ2: sensitivity to the domain parameter D
 
-## 📂 Source Code Structure
+`d_sensitivity.py` sweeps D for pairs of one-sided constraints, their temporal
+versions and bounded controls, and checks every value against the closed form
+of the paper.
 
-```bash
-tabex_home/
-├── benchmarks/
-│   └── Manual/                # Manually defined test cases
-│       ├── benchmark_gen.sh   # Runs all ten pairs
-│       └── results.txt        # Generated by the script
-├── figures/                   # Figures for EXAMPLE.md (generated, committed)
-├── similarity/                # The pipeline
-│   ├── reference_semantics.py # THE DEFINITION of the signal space: the recursion E
-│   ├── intervals.py           # Interval / box algebra shared by every stage
-│   ├── canon.py               # Canonical box decomposition of a signal space (unary)
-│   └── stl_similarity.py      # The similarity metric itself
-├── plotting/
-│   ├── plot_pipeline.py       # Renders every pipeline stage + the numeric trace
-│   ├── plot_signal_space.py   # Renders a signal space, raw or canonical
-│   └── plot_signal_space_3d.py  # Renders a region over three axes
-├── verification/
-│   ├── verify_equivalence.py  # Randomised: equivalent formulas score G = 1
-│   └── verify_canon.py        # Randomised: canon.py is lossless and canonical
-├── tabex_fast/
-│   ├── engine.py              # Same score, computed on decision diagrams (scales to long horizons)
-│   └── volume.py              # Ablation baseline: exact volume Jaccard of the two regions
-├── madsen/
-│   ├── metrics.py             # Baseline: Madsen et al. (CDC 2018) PH and SD distances
-│   ├── compare.py             # TABEX vs Madsen on shared pairs
-│   └── results.md             # Output of compare.py
-├── experiments/               # The paper's RQ2–RQ5 (see EXPERIMENTS.md)
-│   ├── timing.py              # RQ2: time vs horizon and #variables
-│   ├── random_suite.py        # RQ2: generated equivalent pairs + graded mutations
-│   ├── volume_ablation.py     # G vs volume Jaccard
-│   ├── archcomp.py            # ARCH-COMP FALS requirements: fragment and scoreability
-│   ├── d_sensitivity.py       # RQ3: score vs the domain D
-│   ├── rq4/                   # RQ4: pruning Slam-mined candidates (vs STLSat)
-│   └── rq5_deepstl/           # RQ5: LLM formalisations of DeepSTL requirements (rq5_pilot/: first pilot)
-├── tests/                     # Pytest suite
-├── run_similarity.py          # Runs the whole pipeline (CLI args)
-├── similarity_check.py        # Interactive interface (prompts for formulas)
-├── EXAMPLE.md                 # Three pairs through every stage, with figures
-├── EXPERIMENTS.md             # Status of the paper's experiments (RQ2–RQ5)
-├── RESULTS.md                 # Full results, setup of each experiment, discussion
-├── pytest.ini
-├── LICENSE
-└── README.md
-```
+### RQ3: redundancy pruning in specification mining
 
------
-
-## 🚀 Installation
-
-### Requirements
-
-  * **OS**: Tested on Ubuntu 22.04.5 LTS.
-  * **Python**: Tested with Python \> 3.10.
-
-### Setup
+`slam/` holds Slam, the miner cited in the paper, trimmed to its source and the
+six case studies RQ3 uses (`slam/tests/`). Build it once:
 
 ```bash
-git clone https://github.com/Salazar99/tabex.git
-cd tabex
-pip install pytest matplotlib pydot
+(cd slam/third_party && bash install_antlr.sh)               # antlr4 C++ runtime 4.13.2, a few minutes
+cmake -S slam -B slam/build -DCMAKE_BUILD_TYPE=Release && cmake --build slam/build -j
 ```
 
-  * **pytest**: only needed to run the test suite.
-  * **matplotlib**, **pydot**: only needed to regenerate the worked example's
-    figures (`plotting/plot_pipeline.py` draws the ASTs with pydot). The metric itself
-    imports neither.
-  * **scipy**, **numpy**: only for `madsen/` (the baseline's MILP) and
-    `plotting/plot_signal_space_3d.py`.
-
------
-
-## 🛠 Usage
-
-### 1\. One-Command Execution
+Then:
 
 ```bash
-python run_similarity.py "First_formula" "Second_formula" \
-    [--D VALUE] [--eps VALUE] [--save-volumes]
+python experiments/rq3_mining/mine.py                         # candidates.csv (window length capped at --maxd 10)
+python experiments/rq3_mining/similarity_matrix.py            # pairwise OWSim and G, pairs.csv.gz (~20 min, --workers 30)
+python experiments/rq3_mining/sd_matrix.py                    # SD baseline, sd_pairs.csv.gz (--workers 16)
+python experiments/rq3_mining/stlsat_baseline.py              # optional: Slam's implication pruning via stlsat (~54 CPU-h)
+python experiments/rq3_mining/prune.py                        # leader clustering, reduction: summary.md, reduction.csv
+python experiments/rq3_mining/quality.py                      # trace coverage and fidelity: quality.md (Table 3)
 ```
 
-  * **--D**: (Optional) The **domain**: the largest magnitude any monitored
-    variable is assumed to take, which the metric truncates every constraint
-    to before comparing them. See [Choosing D](#choosing-d).
-  * **--eps**: (Optional) The precision ε of the endpoint-aware measure
-    (Definition 3). Default `1/10^6`; any ε > 0 is correct.
-  * **--save-volumes**: (Optional) Saves each formula's signal space to a
-    `.json` file.
+`stlsat_baseline.py` expects the `stlsat` binary on the PATH (or `--stlsat PATH`)
+and gives each check 60 s (`--timeout`). It only adds the STLSat row of Table 3;
+`prune.py` and `quality.py` run without it.
 
-#### Choosing D
+### RQ4: semantic drift in LLM formalisations
 
-`D` is a user parameter, and it has a hard requirement: it must **exceed every
-constant occurring in either formula**.
+`experiments/rq4_llm/results/` contains the 180 sampled DeepSTL requirements
+(`requirements.csv`) and the 965 answers of Gemini 3.8 Flash and Qwen2.5-7B-Instruct
+(`samples.jsonl`), which are the only results not regenerated by the scripts.
+`analyze.py` parses the answers, scores each against its reference with G, VolJ, PH
+and SD, and checks every verdict with an independent sampling oracle. `drift.py`
+scores the samples of each model against one another. Every score has a 120 s
+budget, so a few counts can differ between runs depending on the load of the machine.
+
+To regenerate the inputs (not needed to reproduce the paper):
 
 ```bash
-python run_similarity.py "x>2" "x>5"            # D derived as 5 + 1 = 6  -> 0.25
-python run_similarity.py "x>2" "x>5" --D 100    # 95/98 ~ 0.9694
-python run_similarity.py "x>2" "x>5" --D 21/2   # exact rationals accepted
-python run_similarity.py "x>2" "x>5" --D 3      # refused: needs D > 5
+export DEEPSTL_DIR=~/DeepSTL                                  # a clone of the DeepSTL repository
+python experiments/rq4_llm/generate.py select                 # requirements.csv
+GOOGLE_API_KEY=... python experiments/rq4_llm/generate.py gemini --budget-usd 3.5   # needs google-genai
+python experiments/rq4_llm/generate.py ollama --url http://127.0.0.1:11434          # qwen2.5:7b-instruct via ollama
 ```
 
-Omit it and it is derived as `max|constant| + 1`. Pass one at or below that
-bound and the run fails, naming the minimum — it is **not** silently raised to
-a working value, because too small a `D` truncates two genuinely overlapping
-unbounded constraints into disjoint ones and changes the score without saying
-so. A score is only meaningful for a `D` that was actually well formed.
+New answers are appended to `samples.jsonl`; delete it first to start from scratch.
 
-Above the bound, `D` is a sensitivity knob. Two constraints sharing an
-unbounded tail, like `x>2` and `x>5`, differ only by a finite offset: the
-larger the `D`, the more the shared tail dominates and the closer the score
-gets to 1 (`0.25` at `D=6`, `0.9694` at `D=100`). Smaller `D` makes that offset
-matter more. Values are read exactly — `10`, `10.5` and `21/2` all work, and no
-binary64 rounding enters the metric.
+## Repository layout
 
-Prefer typing formulas interactively instead of shell-quoting them? Run:
-
-```bash
-python similarity_check.py
+```
+similarity/            definitional pipeline: semantics, canonical form, metric (+ CLI)
+fast_similarity/            decision-diagram engine (+ CLI); volume.py: VolJ ablation measure
+madsen/                PH and SD baselines; compare.py: hand-picked suite
+verification/          randomised checks: equivalent formulae score 1, canonical form is lossless
+experiments/           RQ1 and RQ2 scripts, paper_figures.py
+experiments/rq3_mining/  RQ3: Slam mining, similarity matrix, pruning, baselines
+experiments/rq4_llm/     RQ4: DeepSTL requirements, LLM answers, scoring, drift
+slam/                  Slam specification miner (C++), source and the six RQ3 case studies
+tests/                 pytest suite
 ```
 
-It prompts for a first formula, a second formula and a `D` (blank for the
-derived one), prints the similarity score, and loops so you can run more
-comparisons without restarting. A refused `D` is reported without ending the
-session. Type `quit` (or `exit`) at any prompt to leave.
+`python verification/verify_equivalence.py` and `python verification/verify_canon.py`
+sample many more random cases than the test suite.
 
-### 2\. Metric Only
-
-`similarity/stl_similarity.py` has its own CLI, taking formula strings
-directly:
-
-```bash
-python similarity/stl_similarity.py "First_formula" "Second_formula" [--D VALUE] [--eps VALUE]
-```
-
-### 3\. Signal Space Generation
-
-```python
-from reference_semantics import parse, signal_space, variables
-
-tree = parse("G[0,2] x > 0")
-paths = signal_space(tree, sorted(variables(tree)), horizon=tree.horizon())
-```
-
-`evaluate(tree, 0)` is the recursion E of the paper, one case per connective;
-`signal_space` pads its boxes to the full grid as `Path`s.
-
-### 4\. Canonicalization (`similarity/canon.py`)
-
-Two equivalent formulas can decompose the same region into differently-shaped
-boxes, which understates their similarity if the boxes are compared directly.
-`canonicalize()` is **unary** — it depends only on the region a formula's own
-paths cover, never on the comparison partner — and reduces that region to a
-canonical cell list (Definitions 4–6):
-
-1. **Breakpoints.** Pool the finite endpoints the formula's own boxes use, per
-   axis (`_breakpoints`).
-2. **The fine arrangement.** Cut at those breakpoints, emitting the degenerate
-   point slab `[b,b]` alongside the open spans, so the atoms
-   `(-∞,b₁), [b₁,b₁], (b₁,b₂), …` genuinely **partition** rather than merely
-   cover. Without the point slabs, `x>=1 && y>-1` and `x>1 && y>=-1` produce
-   cells that overlap on their interiors while each owns a different boundary
-   sliver (`_cut_piece`).
-3. **The coarse product grid.** Per axis, and once, take the maximal runs of
-   adjacent atoms carrying the same cross-section; the canonical cells are the
-   images of the fine cells in the product of those runs (`_slab_of`).
-
-Step 3 is a **product grid, not a greedy merge**, and that is the whole point:
-coalescing cells pairwise is not confluent — on an L-shaped region, merging `x`
-first and `y` first give two different, both minimal, answers, so a "canonical"
-form built that way would depend on axis order. Per-axis runs depend on no
-traversal order, so their product is well defined. Holes need no special case:
-`(x<1)||(x>1)` simply has no `[1,1]` atom, and two atoms open at `1` do not
-touch.
-
-Because the runs are determined by the region alone, two decompositions of one
-region canonicalize to the identical cell list (Theorem 2), so equivalent
-formulas score `1.0`.
-
-`canonicalize()` computes the runs directly from the boxes, never building the
-fine arrangement (which is exponential in the number of axes even when the
-answer is one cell). `_canonicalize_reference()` is Definition 6 taken
-literally, kept as the specification: `tests/test_canon.py` checks the two
-return the same cells in the same order.
-
-`build_aligned_volumes()` in `similarity/stl_similarity.py` wires this in before
-comparison, so `run_similarity.py`, `similarity_check.py` and the metric's own
-CLI all canonicalize automatically. `compute_similarity()` stays pure math over
-whatever two path lists it is given, so calling it directly on volumes from
-`build_volume_from_paths()` is possible but skips the guarantee.
-
-### 5\. Long horizons (`tabex_fast/`)
-
-The score averages over every canonical cell, and for `F`-heavy formulas that
-count is exponential in the horizon: `F[0,20](0.2<=x<=0.4)` has ~10¹⁰ cells.
-`tabex_fast` computes the **same number** without listing them — each
-canonical form is a hash-consed decision diagram over the axes, and the score
-is a dynamic program over time.
-
-```bash
-python -m tabex_fast.engine "F[0,20](x>=0.2 && x<=0.4)" "G[0,16] F[0,4](x>=0.2 && x<=0.4)"
-```
-
-`tests/test_tabex_fast.py` checks it against the pipeline above (cell counts
-and scores, fixed and random pairs).
-
-### 6\. Baseline (`madsen/`)
-
-Madsen et al., *Metrics for Signal Temporal Logic Formulae* (CDC 2018): the
-Pompeiu-Hausdorff distance (their Theorem 2, as a MILP on scipy's HiGHS) and the
-symmetric-difference distance (their Algorithm 1). `tests/test_madsen.py`
-reproduces their Table I.
-
-```bash
-python -m madsen.compare -o madsen/results.md
-```
-
------
-
-## 🧩 Supported fragment
-
-### Why there is a fragment at all
-
-A signal space is a **union of boxes**: per instant, per variable, a union of
-intervals. That representation is what makes a canonical form possible — a
-canonical decomposition needs axis-aligned cells — and it is also exactly what
-decides the fragment. A constraint is representable iff it cuts each variable's
-axis *independently*.
-
-`x > 5` is an interval. `x > y` is a half-plane, and no union of boxes equals
-it. So the boundary below is not an implementation shortcut you could paper
-over; it is where the geometry stops working.
-
-### Supported
+## Supported fragment
 
 ```
 formula  ::= atom | true | false
-           | !formula | formula && formula | formula || formula
-           | formula -> formula
+           | !formula | formula && formula | formula || formula | formula -> formula
            | F[a,b] formula | G[a,b] formula | formula U[a,b] formula
 atom     ::= variable op constant        op ∈ { <  <=  >  >=  ==  != }
 constant ::= integer | decimal | rational          e.g. 5, -2, 1.5, 3/2
 ```
 
-`!` and `->` are rewritten away before evaluation: the fragment proper is in
-negation normal form, and negation is an operation on formulas rather than a
-connective.
+Time is discrete, and `a ≤ b` are integers. Nested windows are relative to the
+operator above them. `φ U[a,b] ψ` requires φ up to and including the instant where ψ
+holds. Relations between signals (`x > y`), arithmetic terms, unbounded operators
+and edge operators are outside the fragment and raise `UnsupportedFormula`; they
+are never silently approximated.
 
-Constants may be **any rational** — `1/3`, `0.1` and integers past `2**53`
-included. Interval endpoints are exact `Fraction`s, never binary64, because
-rounding a constant would make the region denote a different set of reals than
-the formula does, and could collapse two distinct endpoints onto one — which is
-what the canonical form's proof forbids (Lemma 5). Arithmetic on endpoints
-happens only in the final Jaccard measure, computed exactly and cast to `float`
-once, at the end.
+## License
 
-Temporal operators nest freely. Two rules are surprising enough to state, and
-both are pinned by tests:
-
-- **`U` includes its witness — a deliberate definition, not textbook STL.** The
-  invariant is required up to *and including* the witness instant, not on the
-  half-open `[t, witness)`, so `x>0 U[0,0] y>3` is `x>0 ∧ y>3` and not `y>3`.
-  Equivalently `φ U ψ` here is `φ U_textbook (φ ∧ ψ)`. It is the paper's
-  convention (Remark 1); pinned by
-  `tests/test_reference_semantics.py::test_until_includes_its_witness` and
-  `tests/test_stl_similarity.py::test_until_semantics`.
-- **A nested window is relative.** The outermost interval is absolute and
-  anything below it is relative to the operator above, so `G[1,1] G[1,2] P`
-  requires `P` on `[2,3]` and asserts nothing at `t=1`.
-
-### Not supported
-
-| shape | example | why |
-|---|---|---|
-| relation between variables | `x > y` | a half-plane, not a box |
-| arithmetic terms | `x + y > 0`, `x - 1 > 0` | not a box |
-| absolute value | `\|x\| > 1` | not a box |
-| bare boolean atom | `p` | not a real-valued signal |
-| chained comparison | `0<x<2` | an atom carries exactly one operator — write the conjunction, `x>0 && x<2` |
-| release | `formula R[a,b] formula` | no `Release` node in the fragment |
-
-Each raises `UnsupportedFormula`. **It does not return an empty or
-unconstrained region** — silently widening a formula it cannot represent is
-what would produce a confident, wrong score.
-
-Supporting these needs a representation richer than per-variable interval
-unions — a design change rather than a parsing fix.
-
------
-
-## 📊 Benchmarks
-
-### Manual Benchmarks
-
-Ten pairs chosen to show specific cases of interest.
-
-```bash
-bash benchmarks/Manual/benchmark_gen.sh
-```
-
-The script locates itself, so it runs from any directory. It writes
-`benchmarks/Manual/results.txt` with the score for each pair, in a few seconds.
-
------
-
-## 🧪 Testing
-
-```bash
-pytest -q
-```
-
-`tests/test_reference_semantics.py` checks the recursion E clause by clause and
-Theorem 1 itself, by sampling: membership in E's boxes against an independent
-evaluator of the satisfaction relation. `tests/test_canon.py` covers
-canonicalisation; `tests/test_stl_similarity.py` the metric and end-to-end
-equivalences; `tests/test_tabex_fast.py` and `tests/test_madsen.py` the fast
-engine and the baseline.
-
-### Randomised verification
-
-Two scripts sample far more cases than the fixed suite can:
-
-```bash
-python verification/verify_equivalence.py   # equivalent formulas score G = 1
-python verification/verify_canon.py         # canon.py is lossless and canonical
-```
-
-`verify_equivalence.py` generates pairs that are equivalent *by construction* —
-a random formula and a meaning-preserving rewrite of it — so it never has to ask
-anything whether two formulas are equivalent.
-
------
-
-## 🤝 Developers & Credits
-
-**Developers**
-
-  * **Daniele Nicoletti**: daniele.nicoletti@univr.it | mr.nicoletti99@gmail.com
-
-**Credits**
-
-  * Earlier versions extracted the signal space from the tableau of `stlsat`,
-    by **@ZamponiMarco**.
-
------
-
-## 📄 License
-
-This software is licensed under the **MIT License**.
+MIT, see [LICENSE](LICENSE).
