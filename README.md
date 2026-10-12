@@ -141,7 +141,7 @@ New answers are appended to `samples.jsonl`; delete it first to start from scrat
 
 ```
 similarity/            definitional pipeline: semantics, canonical form, metric (+ CLI)
-fast_similarity/            decision-diagram engine (+ CLI); volume.py: VolJ ablation measure
+fast_similarity/       decision-diagram engine (+ CLI); volume.py: VolJ ablation measure
 madsen/                PH and SD baselines; compare.py: hand-picked suite
 verification/          randomised checks: equivalent formulae score 1, canonical form is lossless
 experiments/           RQ1 and RQ2 scripts, paper_figures.py

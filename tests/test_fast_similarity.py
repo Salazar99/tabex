@@ -21,13 +21,13 @@ CELL_FORMULAS = [
 ]
 
 PAIRS = [
-    # benchmarks/Manual
+    # hand-picked pairs
     ("F[0,2](x>0)", "G[0,2](x>0)"), ("F[0,2](x>0)", "F[3,4](x>0)"),
     ("F[0,2](z>0)", "F[0,2](x>0)"), ("G[0,2](x>0)", "G[0,2](x>0 || y>0)"),
     ("G[0,2](x>0)", "G[0,2](x>0 && y>0)"), ("F[0,2](x>0)", "F[0,2](x>0 || y>0 || z>0 || w>0)"),
     ("F[0,2](x>0)", "F[0,2](x>0 && y>0 && z>0 && w>0)"), ("F[0,2](x>0 && y>0)", "F[0,2](x>0 || y>0)"),
     ("F[0,2](x<5)", "F[0,2](x>0)"), ("F[0,4](x>0)", "F[0,2](x>0)"),
-    # EXAMPLE.md
+    # worked examples (tests/test_stl_similarity.py)
     ("G[0,1](x>0) && F[0,1](y<3)", "(x>0) U[0,1] (y<3)"),
     ("F[0,1]((x>0 && x<2) || (x>4 && x<6))", "F[0,1](x>1 && x<5)"),
     # Madsen et al.'s Example 1, shortened so the reference pipeline finishes

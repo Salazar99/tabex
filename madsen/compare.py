@@ -58,7 +58,7 @@ EQUIVALENT = [
 ]
 
 BENCHMARK = [
-    # benchmarks/Manual/benchmark_gen.sh
+    # hand-picked pairs
     ("F[0,2](x>0)", "G[0,2](x>0)"),
     ("F[0,2](x>0)", "F[3,4](x>0)"),
     ("F[0,2](z>0)", "F[0,2](x>0)"),
