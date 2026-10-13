@@ -1,0 +1,6 @@
+# Python >= 3.10. The metric itself (similarity/, tabex_fast/) needs only the standard library.
+numpy>=1.24        # madsen/ and plotting/plot_signal_space_3d.py
+scipy>=1.11        # madsen/: the PH distance as a MILP on HiGHS
+matplotlib>=3.6    # plotting/: the figures of EXAMPLE.md
+pydot>=1.4         # plotting/plot_pipeline.py: the AST drawings
+pytest>=7.4        # the test suite

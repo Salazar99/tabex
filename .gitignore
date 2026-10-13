@@ -6,3 +6,8 @@ __pycache__
 *.stl
 *.dot
 *.pdf
+!tests/**
+tests/**/__pycache__/
+.pytest_cache/
+.vscode/
+!requirements.txt

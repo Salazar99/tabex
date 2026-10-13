@@ -1,8 +1,0 @@
-joblib
-tabulate
-pandas
-plotly
-kaleido
-z3-solver==4.15.*
-networkx
-pydot
