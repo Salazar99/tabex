@@ -101,9 +101,11 @@ def timing_report():
             for T in HORIZONS:
                 f1, f2 = pair(fam, nv, T)
                 D = float(resolve_D(None, parse(f1), parse(f2)))
-                start = time.perf_counter()
-                inter, union = mc_counts(f1, f2, D)
-                seconds = time.perf_counter() - start
+                seconds = float("inf")
+                for _ in range(3):   # minimum of 3 runs, as in experiments/timing.py
+                    start = time.perf_counter()
+                    inter, union = mc_counts(f1, f2, D)
+                    seconds = min(seconds, time.perf_counter() - start)
                 rows.append((fam, nv, T, f"{seconds:.6f}", inter / union if union else "", union, f1, f2))
     with open(OUT / "mc_jaccard_timing.csv", "w", newline="") as fh:
         w = csv.writer(fh)
