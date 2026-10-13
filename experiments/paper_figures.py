@@ -2,7 +2,7 @@
 
     python experiments/paper_figures.py [OUT_DIR]
 
-Reads experiments/results/{timing,d_sensitivity}.csv; writes timing.pdf and
+Reads experiments/results/{timing,mc_jaccard_timing,d_sensitivity}.csv; writes timing.pdf and
 d_sensitivity.pdf to OUT_DIR (default experiments/results/paper), and the
 largest-horizon table and quoted times of RQ1 to experiments/results/timing.md.
 The full-size working plots stay with each experiment script.
@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 RES = Path(__file__).resolve().parent / "results"
 WIDTH = 4.8                       # in, LNCS \textwidth = 12.2 cm
-# categorical slots 1-4 of the validated default palette; markers carry identity in grayscale
-C = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
+# categorical slots 1-5 of the validated default palette; markers carry identity in grayscale
+C = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"]
 INK, MUTED, GRID = "#1a1a19", "#6b6a66", "#e6e5e1"
 BOX = {"frameon": True, "framealpha": 1, "facecolor": "white", "edgecolor": "none"}  # legend hides lines behind it
 plt.rcParams.update({"font.size": 7, "axes.titlesize": 7, "axes.labelsize": 7, "legend.fontsize": 6.5,
@@ -37,6 +37,7 @@ def style(ax):
 
 def timing(out, timeout=60.0):
     rows = list(csv.DictReader(open(RES / "timing.csv")))
+    mc = list(csv.DictReader(open(RES / "mc_jaccard_timing.csv")))
     methods = [("fast_similarity", "fast_similarity", "s"),
                ("reference", "definitional pipeline", "o"), ("PH", "PH (MILP)", "^"), ("SD", "SD (AoS)", "D")]
     fams = [("G", r"$\mathsf{G}_{[0,T]}\theta$"), ("F", r"$\mathsf{F}_{[0,T]}\theta$"),
@@ -54,6 +55,15 @@ def timing(out, timeout=60.0):
                 fail = [int(r["T"]) for r in sel if r["status"] in ("timeout", "memout")]
                 if fail:           # a failure ends the series: mark the first one on the limit line
                     ax.plot([min(fail)], [timeout], color=C[k], marker="x", markersize=5, linestyle="none")
+            # MCJ never hits a limit; a hollow marker is a horizon where no sample satisfies either formula
+            pts = sorted((int(r["T"]), float(r["seconds"]), r["MCJ"] != "") for r in mc
+                         if r["family"] == fam and int(r["n_vars"]) == n)
+            ax.plot([p[0] for p in pts], [p[1] for p in pts], color=C[4], label="MCJ")
+            for defined in (True, False):
+                sel = [p for p in pts if p[2] == defined]
+                if sel:
+                    ax.plot([p[0] for p in sel], [p[1] for p in sel], color=C[4], marker="v",
+                            markerfacecolor=C[4] if defined else "white", linestyle="none")
             ax.axhline(timeout, color=MUTED, linewidth=0.6, linestyle=":")
             ax.set_yscale("log")
             ax.set_ylim(1e-4, 2e2)
@@ -66,11 +76,14 @@ def timing(out, timeout=60.0):
             if i == len(nvs) - 1:
                 ax.set_xlabel("horizon $T$")
     handles, labels = axes[0][0].get_legend_handles_labels()
+    handles[-1] = plt.Line2D([], [], color=C[4], marker="v")
+    handles.append(plt.Line2D([], [], color=C[4], marker="v", markerfacecolor="white", linestyle="none"))
+    labels.append("MCJ undefined")
     handles.append(plt.Line2D([], [], color=MUTED, marker="x", linestyle="none"))
     labels.append(f"limit hit ({timeout:g} s / 3 GB)")
-    fig.legend(handles, labels, loc="upper center", ncol=5, frameon=False, handletextpad=0.3,
+    fig.legend(handles, labels, loc="upper center", ncol=4, frameon=False, handletextpad=0.3,
                columnspacing=0.9)
-    fig.tight_layout(rect=(0, 0, 1, 0.92), pad=0.3, w_pad=0.4, h_pad=0.4)
+    fig.tight_layout(rect=(0, 0, 1, 0.87), pad=0.3, w_pad=0.4, h_pad=0.4)
     fig.savefig(out / "timing.pdf")
 
 

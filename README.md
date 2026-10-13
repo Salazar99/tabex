@@ -55,6 +55,7 @@ writes its results next to it (`experiments/results/`, `experiments/rq3_mining/r
 | RQ1, Table 1 (generated suites) | `python experiments/random_suite.py` | 20 min | `experiments/results/random_suite.md` |
 | RQ1, Table 1 (hand-picked equivalent pairs), App. C.2 | `python -m madsen.compare -o madsen/results.md` | 1 min | `madsen/results.md` |
 | RQ1, Fig. 2 and Table 4 (execution time, App. C.3) | `python experiments/timing.py` | 1 h | `experiments/results/timing.{csv,png}` |
+| RQ1, MCJ in Table 1, Fig. 2, Table 4 and App. C.1–C.3 | `python experiments/mc_jaccard.py` | seconds | `experiments/results/mc_jaccard.md`, `mc_jaccard_timing.csv` |
 | RQ1, boxes versus volume | `python experiments/volume_ablation.py` | 1 min | `experiments/results/volume_ablation.{csv,png}`, `volume_suite.csv` |
 | RQ1, ARCH-COMP requirements (App. C.4) | `python experiments/archcomp.py` | 15 min | `experiments/results/archcomp.{csv,md}` |
 | RQ2, Fig. 3 and App. D (domain D) | `python experiments/d_sensitivity.py` | 1 min | `experiments/results/d_sensitivity.{csv,png}` |
@@ -63,15 +64,19 @@ writes its results next to it (`experiments/results/`, `experiments/rq3_mining/r
 | RQ4, Table 5, App. F.5 and F.6 (oracle check, correlations) | `python experiments/rq4_llm/analyze.py` | 15 min | `experiments/rq4_llm/results/summary.md` |
 | RQ4, Table 3, Table 6 and App. F.3 (drift) | `python experiments/rq4_llm/drift.py` | 2 min | `experiments/rq4_llm/results/drift.md`, `drift_pairs.csv` |
 
-`paper_figures.py` reads the CSVs of `timing.py` and `d_sensitivity.py`, so run it
-after them. `drift.py` reads the scores of `analyze.py`, so run it after it.
+`paper_figures.py` reads the CSVs of `timing.py`, `mc_jaccard.py` and `d_sensitivity.py`,
+so run it after them. `drift.py` reads the scores of `analyze.py`, so run it after it.
 
-### RQ1: comparison with PH and SD, and computational performance
+### RQ1: comparison with PH, SD and MCJ, and computational performance
 
 - `random_suite.py` generates 1000 equivalent pairs (a random formula and a
   meaning-preserving rewrite of it) and 300 base formulae with 11 graded mutants
-  each, and scores them with 1 − G, 1 − VolJ, PH/2D and SD. Defaults:
+  each, and scores them with 1 − G, 1 − VolJ, 1 − MCJ, PH/2D and SD. Defaults:
   `--equiv 1000 --bases 300 --workers 24 --seed 11`.
+- `mc_jaccard.py` defines MCJ, the Monte-Carlo estimate of VolJ (ε = 0): of 10⁴
+  signals drawn uniformly from [−D, D] (seed 0), the fraction satisfying at least one
+  formula that satisfies both; it is undefined when none satisfies either. It scores
+  the hand-picked pairs and the timing families of `timing.py`.
 - `timing.py` sweeps four formula families over the horizon T ≤ 40 and 1–5
   signals, with a 60 s / 3 GB limit per run (`--timeout`, `--mem-gb`,
   `--workers 8`). Absolute times depend on the machine. Its CSV also contains the
