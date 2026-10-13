@@ -1,8 +1,8 @@
-# Monte-Carlo Jaccard (MC-J): N = 10000 uniform signals on [-D, D], seed 0
+# Monte-Carlo Jaccard (MCJ): N = 10000 uniform signals on [-D, D], seed 0
 
 ## RQ1 hand-picked pairs (madsen/compare.py)
 
-| # | block | phi | theta | D | G | VolJ (eps=0) | MC-J | \|A∪B\| | within 3 SE |
+| # | block | phi | theta | D | G | VolJ (eps=0) | MCJ | \|A∪B\| | within 3 SE |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | benchmark | `F[0,2](x>0)` | `G[0,2](x>0)` | 1 | 0.7857 | 0.1429 | 0.1403 | 8770 | True |
 | 2 | benchmark | `F[0,2](x>0)` | `F[3,4](x>0)` | 1 | 0.0000 | 0.6774 | 0.6804 | 9685 | True |
@@ -51,32 +51,16 @@
 | 45 | equivalent | `G[0,3](x>0) || F[0,3](x>0 && x<1)` | `G[0,3](x>0) || F[0,3](x>0 && x<1) || G[0,3](x>2)` | 3 | 1.0000 | 1.0000 | 1.0000 | 5273 | True |
 
 - Equivalent block (14 pairs): missed 0, undefined 0.
-- Spearman of 1 - G vs 1 - MC-J over the 25 defined non-equivalent pairs: -0.156 (undefined: 6).
-- MC-J within 3 SE of VolJ (eps = 0): 39/39.
+- Spearman of 1 - G vs 1 - MCJ over the 25 defined non-equivalent pairs: -0.156 (undefined: 6).
+- MCJ within 3 SE of VolJ (eps = 0): 39/39.
 
 ## Timing families (experiments/timing.py), same pairs and D
 
-MC-J undefined (no sample satisfies either formula) on 146/260 pairs.
+MCJ undefined (no sample satisfies either formula) on 146/260 pairs.
 
-| family | \|V\| | first T with MC-J undefined | max time (s) |
-|---|---|---|---|
-| G | 1 | 4 | 0.004 |
-| G | 2 | 2 | 0.007 |
-| G | 3 | 2 | 0.009 |
-| G | 4 | 2 | 0.012 |
-| G | 5 | 2 | 0.015 |
-| F | 1 | — | 0.003 |
-| F | 2 | — | 0.006 |
-| F | 3 | — | 0.008 |
-| F | 4 | 2 | 0.011 |
-| F | 5 | 2 | 0.014 |
-| GF | 1 | 16 | 0.003 |
-| GF | 2 | 8 | 0.006 |
-| GF | 3 | 6 | 0.009 |
-| GF | 4 | 2 | 0.011 |
-| GF | 5 | 2 | 0.014 |
-| U | 1 | — | 0.006 |
-| U | 2 | — | 0.009 |
-| U | 3 | — | 0.012 |
-| U | 4 | 2 | 0.014 |
-| U | 5 | 2 | 0.016 |
+| family | horizons with MCJ undefined, of 13, for \|V\| = 1/2/3/4/5 | max time (s) |
+|---|---|---|
+| G | 12/13/13/13/13 | 0.013 |
+| F | 0/0/0/1/4 | 0.014 |
+| GF | 7/10/11/13/13 | 0.014 |
+| U | 0/0/0/10/13 | 0.016 |
