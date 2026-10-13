@@ -5,7 +5,9 @@
 Part 1 -- equivalence detection. Random formula + a meaning-preserving rewrite
 of it (the generator and the 28 rewrite rules of verification/verify_equivalence.py),
 so every pair is equivalent BY CONSTRUCTION. A measure detects the pair iff it
-reports identity (G = 1, VolJ = 1, PH = 0, SD = 0; tolerance 1e-9, PH 1e-6).
+reports identity (G = 1, VolJ = 1, MC-J = 1, PH = 0, SD = 0; tolerance 1e-9, PH 1e-6).
+MC-J (experiments/mc_jaccard.py) is left out wherever no sampled signal
+satisfies either formula (undefined); the report counts those pairs.
 
 Part 2 -- controlled perturbations. A random base formula (a Boolean
 combination of atoms under one or two bounded temporal operators) is mutated
@@ -16,7 +18,7 @@ with a known, graded severity:
     widen    the outer window [a,b] widened to [a, b+k],     k = 1, 2, 3
     strict   one atom's strictness flipped (> <-> >=, < <-> <=)
 
-and each measure's distance to the base (1 - G, 1 - VolJ, PH/2D, SD) is
+and each measure's distance to the base (1 - G, 1 - VolJ, 1 - MC-J, PH/2D, SD) is
 recorded. One D for everything (D = 8 > every constant that can occur), so a
 severity sequence is scored on one scale. A mutant with G = 1 is equivalent to
 its base (Section 6) and is dropped. Reported per measure and family:
@@ -47,7 +49,7 @@ sys.path.insert(0, str(ROOT))
 
 OUT = ROOT / "experiments" / "results"
 D = 8
-MEASURES = ["1-G", "1-VolJ", "PH/2D", "SD"]
+MEASURES = ["1-G", "1-VolJ", "1-MCJ", "PH/2D", "SD"]
 
 
 def distances(f1, f2, D_=None):
@@ -66,6 +68,9 @@ def distances(f1, f2, D_=None):
     except Exception as exc:  # noqa: BLE001  -- recorded, e.g. an unsupported predicate
         out["PH/2D"] = out["SD"] = None
         out["error"] = f"{type(exc).__name__}: {exc}"[:100]
+    from experiments.mc_jaccard import mc_jaccard
+    j = mc_jaccard(f1, f2, Df)
+    out["1-MCJ"] = None if j is None else 1 - j
     return out
 
 
@@ -179,7 +184,7 @@ def main():
             w.writerow([bid, base, fam, sev, m] + [d.get(k) for k in MEASURES] + [d.get("error", "")])
 
     # ---- report
-    tol = {"1-G": 1e-9, "1-VolJ": 1e-9, "PH/2D": 1e-6, "SD": 1e-9}
+    tol = {"1-G": 1e-9, "1-VolJ": 1e-9, "1-MCJ": 1e-9, "PH/2D": 1e-6, "SD": 1e-9}
     lines = ["# Generated suite: equivalence detection and controlled perturbations", "",
              f"## Part 1 — {len(eq)} random equivalent pairs (28 rewrite rules)", "",
              "| measure | scored identical | missed | missed pairs by rewrite (top 5) |",
@@ -227,11 +232,14 @@ def main():
             by_base[bid][fam] = d
     for k in MEASURES:
         pairs = [(v["strict"][k], v["const"][k]) for v in by_base.values()
-                 if "strict" in v and "const" in v and v["strict"].get(k) is not None]
+                 if "strict" in v and "const" in v and v["strict"].get(k) is not None
+                 and v["const"].get(k) is not None]
         smaller = sum(s < c for s, c in pairs)
         lines.append(f"- {k}: {smaller}/{len(pairs)}")
     errors = [r for r in mu if r[5].get("error")] + [r for r in eq if r[3].get("error")]
-    lines += ["", f"PH/SD errors (excluded): {len(errors)}"]
+    lines += ["", f"PH/SD errors (excluded): {len(errors)}",
+              f"MC-J undefined (excluded): {sum(d.get('1-MCJ') is None for *_, d in eq)} in part 1, "
+              f"{sum(r[5].get('1-MCJ') is None for r in kept)} in part 2"]
     (OUT / "random_suite.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
 
