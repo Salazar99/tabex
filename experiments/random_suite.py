@@ -5,8 +5,8 @@
 Part 1 -- equivalence detection. Random formula + a meaning-preserving rewrite
 of it (the generator and the 28 rewrite rules of verification/verify_equivalence.py),
 so every pair is equivalent BY CONSTRUCTION. A measure detects the pair iff it
-reports identity (G = 1, VolJ = 1, MC-J = 1, PH = 0, SD = 0; tolerance 1e-9, PH 1e-6).
-MC-J (experiments/mc_jaccard.py) is left out wherever no sampled signal
+reports identity (G = 1, VolJ = 1, MCJ = 1, PH = 0, SD = 0; tolerance 1e-9, PH 1e-6).
+MCJ (experiments/mc_jaccard.py) is left out wherever no sampled signal
 satisfies either formula (undefined); the report counts those pairs.
 
 Part 2 -- controlled perturbations. A random base formula (a Boolean
@@ -18,7 +18,7 @@ with a known, graded severity:
     widen    the outer window [a,b] widened to [a, b+k],     k = 1, 2, 3
     strict   one atom's strictness flipped (> <-> >=, < <-> <=)
 
-and each measure's distance to the base (1 - G, 1 - VolJ, 1 - MC-J, PH/2D, SD) is
+and each measure's distance to the base (1 - G, 1 - VolJ, 1 - MCJ, PH/2D, SD) is
 recorded. One D for everything (D = 8 > every constant that can occur), so a
 severity sequence is scored on one scale. A mutant with G = 1 is equivalent to
 its base (Section 6) and is dropped. Reported per measure and family:
@@ -238,7 +238,7 @@ def main():
         lines.append(f"- {k}: {smaller}/{len(pairs)}")
     errors = [r for r in mu if r[5].get("error")] + [r for r in eq if r[3].get("error")]
     lines += ["", f"PH/SD errors (excluded): {len(errors)}",
-              f"MC-J undefined (excluded): {sum(d.get('1-MCJ') is None for *_, d in eq)} in part 1, "
+              f"MCJ undefined (excluded): {sum(d.get('1-MCJ') is None for *_, d in eq)} in part 1, "
               f"{sum(r[5].get('1-MCJ') is None for r in kept)} in part 2"]
     (OUT / "random_suite.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))

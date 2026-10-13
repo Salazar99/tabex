@@ -1,20 +1,20 @@
-"""Monte-Carlo Jaccard (MC-J): the sampling estimate of the VolJ ablation.
+"""Monte-Carlo Jaccard (MCJ): the sampling estimate of the VolJ ablation.
 
     python experiments/mc_jaccard.py
 
-MC-J(phi, theta) = |A ∩ B| / |A ∪ B| over N signals drawn uniformly on [-D, D]
+MCJ(phi, theta) = |A ∩ B| / |A ∪ B| over N signals drawn uniformly on [-D, D]
 per (variable, instant), A and B being the samples that satisfy each formula.
 Given |A ∪ B| = m > 0, each of those m samples lies in A ∩ B independently with
-probability VolJ (eps = 0), so MC-J is an unbiased estimate of VolJ. It is
+probability VolJ (eps = 0), so MCJ is an unbiased estimate of VolJ. It is
 undefined (None) when no sample satisfies either formula: on G[0,T] of a box,
 whose probability decays as p^((T+1)|V|), that happens already at small T,
 where G and VolJ remain exact. Both formulas are read on the SAME samples, so
-an equivalent pair scores exactly 1 whenever MC-J is defined.
+an equivalent pair scores exactly 1 whenever MCJ is defined.
 
 Reports (1) the hand-picked RQ1 pairs of madsen/compare.py: G, VolJ (eps = 0),
-MC-J, equivalences missed, rank correlation with G, and agreement with VolJ
+MCJ, equivalences missed, rank correlation with G, and agreement with VolJ
 within 3 standard errors; (2) the timing families of experiments/timing.py:
-time per call and where MC-J is undefined.
+time per call and where MCJ is undefined.
 
 Output: experiments/results/mc_jaccard.md, mc_jaccard_timing.csv.
 """
@@ -51,7 +51,7 @@ def mc_counts(f1, f2, D, n=N_SIGNALS, seed=0):
 
 
 def mc_jaccard(f1, f2, D, n=N_SIGNALS, seed=0):
-    """MC-J in [0, 1], or None when no sampled signal satisfies either formula."""
+    """MCJ in [0, 1], or None when no sampled signal satisfies either formula."""
     inter, union = mc_counts(f1, f2, float(D), n, seed)
     return inter / union if union else None
 
@@ -63,7 +63,7 @@ def pairs_report():
     from tabex_fast.volume import volume_jaccard
 
     lines = ["## RQ1 hand-picked pairs (madsen/compare.py)", "",
-             "| # | block | phi | theta | D | G | VolJ (eps=0) | MC-J | \\|A∪B\\| | within 3 SE |",
+             "| # | block | phi | theta | D | G | VolJ (eps=0) | MCJ | \\|A∪B\\| | within 3 SE |",
              "|---|---|---|---|---|---|---|---|---|---|"]
     rows = []
     for i, (block, (f1, f2)) in enumerate(PAIRS, 1):
@@ -71,7 +71,7 @@ def pairs_report():
         inter, union = mc_counts(f1, f2, float(D))
         j = inter / union if union else None
         g, v = similarity(f1, f2), volume_jaccard(f1, f2, eps=0)
-        # SE under the null "MC-J estimates VolJ": binomial on the m samples in A ∪ B
+        # SE under the null "MCJ estimates VolJ": binomial on the m samples in A ∪ B
         ok = None if j is None else abs(j - v) <= 3 * (v * (1 - v) / union) ** 0.5 + 1e-12
         rows.append((block, g, v, j, ok))
         lines.append(f"| {i} | {block} | `{f1}` | `{f2}` | {float(D):g} | {g:.4f} | {v:.4f} | "
@@ -86,9 +86,9 @@ def pairs_report():
     lines += ["",
               f"- Equivalent block ({len(eq)} pairs): missed 0, "
               f"undefined {sum(r[3] is None for r in eq)}.",
-              f"- Spearman of 1 - G vs 1 - MC-J over the {len(neq)} defined non-equivalent pairs: "
+              f"- Spearman of 1 - G vs 1 - MCJ over the {len(neq)} defined non-equivalent pairs: "
               f"{rho:.3f} (undefined: {sum(r[0] != 'equivalent' and r[3] is None for r in rows)}).",
-              f"- MC-J within 3 SE of VolJ (eps = 0): {sum(checked)}/{len(checked)}."]
+              f"- MCJ within 3 SE of VolJ (eps = 0): {sum(checked)}/{len(checked)}."]
     return lines
 
 
@@ -114,19 +114,19 @@ def timing_report():
 
     undef = [r for r in rows if r[4] == ""]
     lines = ["## Timing families (experiments/timing.py), same pairs and D", "",
-             f"MC-J undefined (no sample satisfies either formula) on {len(undef)}/{len(rows)} pairs.", "",
-             "| family | \\|V\\| | first T with MC-J undefined | max time (s) |", "|---|---|---|---|"]
+             f"MCJ undefined (no sample satisfies either formula) on {len(undef)}/{len(rows)} pairs.", "",
+             f"| family | horizons with MCJ undefined, of {len(HORIZONS)}, for \\|V\\| = 1/2/3/4/5 "
+             "| max time (s) |", "|---|---|---|"]
     for fam in FAMILIES:
-        for nv in N_VARS:
-            sel = [r for r in rows if r[0] == fam and r[1] == nv]
-            first = min((r[2] for r in sel if r[4] == ""), default="—")
-            lines.append(f"| {fam} | {nv} | {first} | {max(float(r[3]) for r in sel):.3f} |")
+        sel = [r for r in rows if r[0] == fam]
+        counts = "/".join(str(sum(r[4] == "" for r in sel if r[1] == nv)) for nv in N_VARS)
+        lines.append(f"| {fam} | {counts} | {max(float(r[3]) for r in sel):.3f} |")
     return lines
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    lines = [f"# Monte-Carlo Jaccard (MC-J): N = {N_SIGNALS} uniform signals on [-D, D], seed 0", ""]
+    lines = [f"# Monte-Carlo Jaccard (MCJ): N = {N_SIGNALS} uniform signals on [-D, D], seed 0", ""]
     lines += pairs_report() + [""] + timing_report()
     (OUT / "mc_jaccard.md").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
